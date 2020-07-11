@@ -2,6 +2,7 @@
 @import '~@angular/material/theming';
 @import "~@angular/cdk/overlay-prebuilt.css";
 @import './app/theme';
+@import './style-ol.scss';
 @include mat-core();
 
 html, body { height: 100%;overflow: hidden; }

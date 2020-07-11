@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import {
+  Map, Zoom,
+  }from '../../ol-module';
+import { MatSidenavContainer } from '@angular/material/sidenav';
 
 /**
  * vertical toolbar that contains naviguation button
@@ -12,11 +16,58 @@ import { environment } from 'src/environments/environment';
 export class VerticalToolbarComponent implements OnInit {
 
   environment
+
+  map:Map
+
+  /**
+   * Sidenav container of the map component
+   */
+  sidenavContainer:MatSidenavContainer
+
   constructor() {
     this.environment = environment
   }
 
+  /**
+   * Initialise vertical toolbar comp
+   * @param map Map
+   * @param sidenavContainer MatSidenavContainer
+   */
+  init(map:Map,sidenavContainer:MatSidenavContainer){
+    this.map = map
+    this.sidenavContainer=sidenavContainer
+
+    this.initialiseMatTools()
+  }
+
+  /**
+   * Initialise map tools, zooms
+   */
+  initialiseMatTools(){
+    var zooms = new Zoom({
+      'target': 'zooms',
+      'zoomInLabel': document.getElementById('zoom-plus'),
+      'zoomOutLabel': document.getElementById('zoom-minus'),
+      'zoomInTipLabel': '',
+      'zoomOutTipLabel': ''
+    })
+
+    zooms.setMap(this.map)
+
+  }
+
   ngOnInit(): void {
+  }
+
+  /**
+   * Close/open left sidenav
+   */
+  toogleLeftSidenav(){
+    if (this.sidenavContainer.start.opened) {
+      this.sidenavContainer.start.close()
+    } else {
+      this.sidenavContainer.start.open()
+    }
   }
 
   /**
