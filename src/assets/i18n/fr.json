@@ -1,0 +1,217 @@
+{
+  "add_commentaire": {
+    "cancel": "ANNULER",
+    "save": "ENREGISTRER",
+    "title": "Ajouter un commentaire",
+    "title_commentaire": " Votre Commentaire :"
+  },
+  "ajout_signet": {
+    "cancel": "ANNULER",
+    "placeholder": "Nommer votre géo-signet",
+    "save": "ENREGISTRER",
+    "title": "Ajouter un géo-signet"
+  },
+  "caracteristiques_lieu": {
+    "altitude": "Altitude",
+    "fermer": "Fermer",
+    "partager": "Partager ce lieu",
+    "titre": "Caractéristique du lieu",
+    "titre_coord": "Coordonnées (WGS84)",
+    "zoomer": "Zoomer dessus"
+  },
+  "choose_signet": {
+    "no_signet": "Vous n'avez aucun géo-signet",
+    "title": "Cliquer sur un signet pour zoomer dessus :"
+  },
+  "compare_maps": {
+    "compare": "Comparer",
+    "title": "Choisissez deux cartes : "
+  },
+  "couche_en_cours": {
+    "information_couche": "Métadonnée",
+    "partager_couche": "Partager cette couche",
+    "supprimer_couche": "Enlever la couche",
+    "tout_partager": "Partager",
+    "tout_partager_toolpit": "Partager ce catalogue",
+    "tout_supprimer": "Tout supprimer"
+  },
+  "dowload_data": {
+    "all": "tout",
+    "by": "Par",
+    "calculate": "Calculer",
+    "description": "Extraire des données spécifiques selon une emprise",
+    "draw": "Dessiner une emprise",
+    "loading": "Chargement des ",
+    "title_choose_emprise": "Choisir une emprise",
+    "title_choose_layer": "Choisir une couche",
+    "title_choose_one_emprise": "Rechercher une limite",
+    "title_choose_thematique": "Choisir une thématique",
+    "title_choose_type_emprise": "Votre emprise spatiale",
+    "title_data_in": "Données d'entrées"
+  },
+  "draw_in_map": {
+    "apply_draw": "APPLIQUER",
+    "save": "SAUVEGARDER"
+  },
+  "header": {
+    "toolpit_info": "GeOSM ?"
+  },
+  "infos_plateform": {
+    "title": "GeoCameroun"
+  },
+  "layer_properties": {
+    "click_url_text": "Cliquer ici",
+    "download_gpkg": "Télechargez le GEOPACKAGE ici",
+    "download_problem": " Un problème est survenu sur cette couche",
+    "title": "Fiche descriptive",
+    "title_download": "Téléchargement des fichiers",
+    "toolpit_share": "Partager ce lieu",
+    "adresse": "Adresse"
+  },
+  "left_menu": {
+    "fonds_de_carte": "Tous les fonds de cartes",
+    "geobibliotheque": "Bibliothèque",
+    "geothematiques": "Thématiques",
+    "fonds": "Fonds",
+    "themes": "Thèmes",
+    "ressources": "Ressources"
+  },
+  "loading": {
+    "loading": "Chargement...",
+    "loading_catalog": "Téléchargement des catalogues de données...",
+    "loading_dowloads_data": " Calcul en cours...",
+    "loading_pdf_print": "Création de la carte..."
+  },
+  "menu_contextuel": {
+    "ajouter_geosignet": "Ajouter un géosignet sur ce lieu",
+    "caracteristique": "Caractéristique du lieu",
+    "commenter": "Commenter ce lieu",
+    "partager": "Partager ce lieu",
+    "voir_geosignet": "Vos géosignets"
+  },
+  "metadata": {
+    "area": "m² de surface totale",
+    "conditions_of_use": "Condition d'utilisation :",
+    "coordinates_system": "Système de coordonnées : ",
+    "coucverture": "Couverture : ",
+    "creation_date": "Date de créaton : ",
+    "description": "Description",
+    "description_couche": "Description :",
+    "key_osm": "Eléments cartographiques OSM :",
+    "key_words": "Mots-clés : ",
+    "language": "Langue : ",
+    "lenght": "m de longueur totale",
+    "number_entite": " entité(s)",
+    "properties": "Propriétes",
+    "ressources": "Ressources",
+    "resume": "Résumé :",
+    "scale": "Echelle : ",
+    "shareholders": "Partenaires / producteurs : ",
+    "text_no_metadata": "Le résumé de cette donnée n'est pas encore disponible",
+    "title": "Fiche descriptive :",
+    "update_date": "Mise à jour: "
+  },
+  "naviguation_tools": {
+    "compare_maps": "Comparer des cartes",
+    "general_vieuw": "Vue générale",
+    "mappilary": "Activer Mappilary",
+    "next_view": "Vue suivante",
+    "past_view": "Vue passée",
+    "toogle_left_menu": "Ouvrir / Fermer le menu de gauche",
+    "zoom_minus": "Zoomer en arrière",
+    "zoom_plus": "Zoomer en avant",
+    "zoom_to_coordinates": "Zoomer sur une coordonnée"
+  },
+  "notifications": {
+    "click_on_map_itineraire": "Cliquer sur la carte pour placer votre point",
+    "comment_added": " Votre commentaire a bien été ajouté",
+    "signet_added_1": "Le signet ",
+    "signet_added_2": " a bien été ajouté"
+  },
+  "right_menu": {
+    "button": {
+      "toolpit_download_data": "Téléchargement de données",
+      "toolpit_legend": "Légende",
+      "toolpit_map_routing": "Calcul d'itinéraire",
+      "toolpit_toc": "Couche en cours",
+      "toolpit_tools": "Outils d'édition"
+    },
+    "download_data": {
+      "title": "Téléchargement de données"
+    },
+    "legend": {
+      "title": "Légende"
+    },
+    "map_routing": {
+      "clear": "Effacer",
+      "destination": "Destination",
+      "infos_1": "Cliquer sur l'icone ",
+      "infos_2": " pour positioner sur la carte",
+      "start": "Départ",
+      "title": "Calcul d'itinéraire"
+    },
+    "table_of_contents": {
+      "title": "Couches en cours"
+    },
+    "tools": {
+      "title": "Outils",
+      "altimetry": {
+        "not_disponible": "Pas encore disponible",
+        "title": "Altimétrie"
+      },
+      "comment": {
+        "display_comments": " Afficher les commentaire",
+        "title": "Commentaire"
+      },
+      "draw": {
+        "title": "Dessin",
+        "toolpit_delete": "Supprimer le dessin",
+        "toolpit_edit": "Editer le dessin",
+        "toolpit_edit_color": "Modifier la couleur",
+        "toolpit_edit_delete": "Supprimer une entité",
+        "toolpit_edit_geometry": "Modifier la géométrie",
+        "toolpit_edit_text": "Modifier la description",
+        "toolpit_ligne": "Dessiner une ligne",
+        "toolpit_point": "Dessiner un point",
+        "toolpit_polygone": "Dessiner un polygone",
+        "toolpit_share": "Partager le dessin",
+        "toolpit_text": "Dessiner un texte"
+      },
+      "mesure": {
+        "title": "Mesure",
+        "toolpit_mesure_ligne": "Mesurer une distance",
+        "toolpit_mesure_polygon": "Mesurer une surface"
+      },
+      "print": {
+        "description_pdf": "Description",
+        "title": "Impression",
+        "title_pdf": "Titre",
+        "toolpit_print": "Imprimer"
+      }
+    }
+  },
+  "search": {
+    "adresse": "Adresse :",
+    "boundery": "Limites administratives :",
+    "data": "Données : ",
+    "map": "Cartes :",
+    "no_data_found": "Aucune donnée trouvée",
+    "no_map_found": "Aucune carte trouvée",
+    "no_place_found": "Aucun lieu trouvé",
+    "place": "Lieux :",
+    "placeholder": "Rechercher un lieu, une adresse ou une donnée",
+    "position": "Position : "
+  },
+  "zoom_to_coordinates": {
+    "cancel": "Annuler",
+    "choose_projection": "Choisissez une projection",
+    "latitude": "latitude",
+    "longitude": "longitude",
+    "save": "Valider",
+    "title": "RECHERCHE PAR COORDONNEES"
+  },
+  "ressourses": {
+    "no_ressourses": "Aucune ressouces disponibles",
+    "download": "Telecharger"
+  }
+}

@@ -1,0 +1,30 @@
+$height:calc(100% - 60px);
+.sidenav-container{
+    width: 100%;
+    height:$height;
+}
+
+.sidenav-left{
+    width: 230px;
+}
+
+.sidenav-right{
+  width: 219px;
+}
+
+.sidenav-content{
+    .sidenav-content-toolbar{
+        position: absolute;
+        bottom: 0px;
+        top: 0px;
+        width: 60px;
+        left: 0px;
+        overflow: hidden;
+    }
+    .toogle-sidenav-right{
+      position: absolute;
+      right: 0px;
+      top: 100px;
+      width: 65px;
+    }
+}

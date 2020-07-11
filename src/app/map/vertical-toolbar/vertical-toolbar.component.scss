@@ -1,0 +1,37 @@
+.vertical-toolbar-close-sidenav-left {
+    height: 55px;
+
+    .fa-angle-double-left {
+      font-size: 23px;
+      transform: rotate(0deg);
+      transition: 0.5s;
+      font-weight: 900;
+      margin-left: 20px;
+      margin-top: 19px;
+    }
+}
+.vertical-toolbar-groupe-btn-1{
+
+  button{
+    margin-top: 10px;
+
+  }
+  button:hover{
+    -webkit-filter: drop-shadow(0 0 0.91rem #fff);
+    filter: drop-shadow(0 0 0.91rem #fff);
+  }
+}
+
+.vertical-toolbar-groupe-btn-2{
+  position: absolute;
+  bottom: 30px;
+  button{
+    margin-top: 10px;
+  }
+  button:hover{
+    -webkit-filter: drop-shadow(0 0 0.91rem #000);
+    filter: drop-shadow(0 0 0.91rem #000);
+  }
+}
+
+

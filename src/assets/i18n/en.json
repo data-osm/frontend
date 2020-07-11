@@ -1,0 +1,209 @@
+{
+  "add_commentaire": {
+      "cancel": "CANCEL",
+      "save": "SAVE",
+      "title": "Add a comment",
+      "title_commentaire": "Your comment :"
+  },
+  "ajout_signet": {
+      "cancel": "CANCEL",
+      "placeholder": "Name your geo-bookmark",
+      "save": "SAVE",
+      "title": "Add a geo-bookmark"
+  },
+  "caracteristiques_lieu": {
+      "altitude": "Altitude",
+      "fermer": "Close",
+      "partager": "Share this place",
+      "titre": "Characteristic of the place",
+      "titre_coord": "Coordinates (WGS84)",
+      "zoomer": "Zoom in"
+  },
+  "choose_signet": {
+      "no_signet": "You don't have any geo-bookmarks",
+      "title": "Click on a bookmark to zoom in on it : "
+  },
+  "compare_maps": {
+      "compare": "Compare",
+      "title": "Choose two maps :"
+  },
+  "couche_en_cours": {
+      "information_couche": "Metadata",
+      "partager_couche": "Share this layer",
+      "supprimer_couche": "Remove this layer",
+      "tout_partager": "Share",
+      "tout_partager_toolpit": "Share this catalog",
+      "tout_supprimer": "Remove all"
+  },
+  "dowload_data": {
+      "all": "all",
+      "by": "By",
+      "calculate": "Calculate",
+      "description": "Extract specific data according to an extent",
+      "draw": "Draw an extent",
+      "loading": "Loading of",
+      "title_choose_emprise": "Choose an extent",
+      "title_choose_layer": "Choose a layer",
+      "title_choose_one_emprise": "Select a limit",
+      "title_choose_thematique": "Choose a theme",
+      "title_choose_type_emprise": "Your spatial extent",
+      "title_data_in": "Input data"
+  },
+  "draw_in_map": {
+      "apply_draw": "APPLY",
+      "save": ""
+  },
+  "header": {
+      "toolpit_info": "GeOsm ?"
+  },
+  "infos_plateform": {
+      "title": "GeoUganda"
+  },
+  "layer_properties": {
+      "click_url_text": "Click here",
+      "download_gpkg": "Download the GEOPACKAGE here",
+      "download_problem": "a problem occurred on this layer",
+      "title": "Descriptive sheet",
+      "title_download": "Downloading files",
+      "toolpit_share": "Share this place"
+  },
+  "left_menu": {
+      "fonds_de_carte": "All the basemaps",
+      "geobibliotheque": "Library",
+      "geothematiques": "Themes"
+  },
+  "loading": {
+      "loading": "Loading...",
+      "loading_catalog": "Download of data catalogues...",
+      "loading_dowloads_data": "Calculation in progress...",
+      "loading_pdf_print": "Creation of the map..."
+  },
+  "menu_contextuel": {
+      "ajouter_geosignet": "Add a geo-bookmark on this place",
+      "caracteristique": "Characteristic of the place",
+      "commenter": "Comment this place",
+      "partager": "Share this place",
+      "voir_geosignet": "Your geo-bookmarks"
+  },
+  "metadata": {
+      "area": "m² of total surface area",
+      "conditions_of_use": "Terms and conditions of use : ",
+      "coordinates_system": "Coordinate system : ",
+      "coucverture": "Coverage : ",
+      "creation_date": "Creation date : ",
+      "description": "Description",
+      "description_couche": "Description : ",
+      "key_osm": "OSM Map features : ",
+      "key_words": "Keywords : ",
+      "language": "Language : ",
+      "lenght": "m of total lenght",
+      "number_entite": "entity(ies)",
+      "properties": "Properties",
+      "ressources": "Ressources",
+      "resume": "Summary : ",
+      "scale": "Scale : ",
+      "shareholders": "Partners / providers : ",
+      "text_no_metadata": "The summary of this data is not yet available",
+      "title": "Descriptive sheet : ",
+      "update_date": "Date of update : "
+  },
+  "naviguation_tools": {
+      "compare_maps": "Compare maps",
+      "general_vieuw": "General view",
+      "mappilary": "Activate Mappilary",
+      "next_view": "Next view",
+      "past_view": "Past view",
+      "toogle_left_menu": "Open / Close the left menu",
+      "zoom_minus": "Zoom in",
+      "zoom_plus": "Zoom out",
+      "zoom_to_coordinates": "Zoom on a coordinate"
+  },
+  "notifications": {
+      "click_on_map_itineraire": "Click on the map to place your point",
+      "comment_added": "Your comment has been added",
+      "signet_added_1": "The geo-bookmark",
+      "signet_added_2": "has been added"
+  },
+  "right_menu": {
+      "button": {
+          "toolpit_download_data": "Downloading data",
+          "toolpit_legend": "Legend",
+          "toolpit_map_routing": "Map routing",
+          "toolpit_toc": "Current Layer",
+          "toolpit_tools": "Editing tools"
+      },
+      "download_data": {
+          "title": "Downloading data"
+      },
+      "legend": {
+          "title": "Legend"
+      },
+      "map_routing": {
+          "clear": "Clear",
+          "destination": "Destination",
+          "infos_1": "Click on the icon ",
+          "infos_2": "to position on the map",
+          "start": "Start",
+          "title": "Map routing"
+      },
+      "table_of_contents": {
+          "title": "Current layers"
+      },
+      "tools": {
+          "title": "Tools",
+          "altimetry": {
+              "not_disponible": "Not yet available",
+              "title": "altimetry"
+          },
+          "comment": {
+              "display_comments": "Display comments",
+              "title": "Comment"
+          },
+          "draw": {
+              "title": "Drawing",
+              "toolpit_delete": "Delete the drawing",
+              "toolpit_edit": "Edit the drawing",
+              "toolpit_edit_color": "Change the color",
+              "toolpit_edit_delete": "Delete an entity",
+              "toolpit_edit_geometry": "Edit the geometry",
+              "toolpit_edit_text": "Edit the description",
+              "toolpit_ligne": "Draw a line",
+              "toolpit_point": "Draw a point",
+              "toolpit_polygone": "Draw a polygon",
+              "toolpit_share": "Share the drawing",
+              "toolpit_text": "Write a text"
+          },
+          "mesure": {
+              "title": "Measuring",
+              "toolpit_mesure_ligne": "Measure a distance",
+              "toolpit_mesure_polygon": "Measure an area"
+          },
+          "print": {
+              "description_pdf": "Description",
+              "title": "Printing",
+              "title_pdf": "Title",
+              "toolpit_print": "Print"
+          }
+      }
+  },
+  "search": {
+      "adresse": "Address : ",
+      "boundery": "Administrative boundaries : ",
+      "data": "Data : ",
+      "map": "Maps : ",
+      "no_data_found": "No data found",
+      "no_map_found": "No map found",
+      "no_place_found": "No place found",
+      "place": "Places : ",
+      "placeholder": "Search for a place, an address or a data",
+      "position": "Position : "
+  },
+  "zoom_to_coordinates": {
+      "cancel": "Cancel",
+      "choose_projection": "Choose a projection",
+      "latitude": "latitude",
+      "longitude": "longitude",
+      "save": "Save",
+      "title": "SEARCH BY COORDINATES"
+  }
+}
