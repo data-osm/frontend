@@ -20,6 +20,8 @@ import { MapToolsComponent } from './map/sidenav-right/map-tools/map-tools.compo
 import { RoutingComponent } from './map/sidenav-right/routing/routing.component';
 import { LegendComponent } from './map/sidenav-right/legend/legend.component';
 import { DownloadComponent } from './map/sidenav-right/download/download.component'
+import { StorageServiceService } from './services/storage-service/storage-service.service';
+import { BackendApiService } from './services/backend-api/backend-api.service';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,7 @@ import { DownloadComponent } from './map/sidenav-right/download/download.compone
       }
     })
   ],
-  providers: [],
+  providers: [StorageServiceService,BackendApiService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -388,7 +388,7 @@ export interface limitesAdminstratives {
 /**
  * Interface for the configuration of the project
  */
-export interface configProjet {
+export interface configProjetInterface {
   /**
    * Extent of the project
    * Array of 4 length
@@ -396,16 +396,24 @@ export interface configProjet {
    */
   bbox: Array<Number>
   /**
+   * Geojson of the region of interest
+   */
+  roiGeojson:any
+  /**
    * Geographic limit of the project
    */
   limites: Array<limitesAdminstratives>
+  /**
+   * Geosignets of the projects
+   */
+  geosignetsProject:geosignetsProjectInterface
 
 }
 
 /**
  * Interface for the pre configure geosignets of the projects
  */
-export interface geosignetsProject {
+export interface geosignetsProjectInterface {
   /**
    * Is the geosignet active ?
    */
