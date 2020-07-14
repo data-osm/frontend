@@ -9,6 +9,8 @@ XYZ,
 defaultControls,
 Attribution
 }from '../ol-module';
+import {StorageServiceService} from '../services/storage-service/storage-service.service'
+import {cartoHelper} from '../../helper/carto.helper'
 
 import {VerticalToolbarComponent} from './vertical-toolbar/vertical-toolbar.component';
 
@@ -61,7 +63,9 @@ export class MapComponent implements OnInit {
     {name:'download',active:false,enable:true,tooltip:'toolpit_download_data'}
   ]
 
-  constructor() {
+  constructor(
+    public StorageServiceService:StorageServiceService,
+  ) {
 
   }
 
@@ -70,6 +74,13 @@ export class MapComponent implements OnInit {
     map.setTarget('map')
 
     this.VerticalToolbarComp.init(map,this.sidenavContainer)
+
+    this.StorageServiceService.states.subscribe((value)=>{
+      if (value.loadProjectData) {
+        this.addLayerShadow()
+        map.getView().fit(this.StorageServiceService.getConfigProjet().bbox, { 'size': map.getSize(), 'duration': 1000 });
+      }
+    })
   }
 
   /**
@@ -112,6 +123,16 @@ export class MapComponent implements OnInit {
       menu.active=true
     }
 
+  }
+
+  /**
+   * Add layer shadow in the map
+   */
+  addLayerShadow(){
+    var cartoHelperClass = new cartoHelper(map)
+    var layer  = cartoHelperClass.constructShadowLayer(this.StorageServiceService.getConfigProjet().roiGeojson)
+    layer.setZIndex(1000)
+    map.addLayer(layer)
   }
 
 

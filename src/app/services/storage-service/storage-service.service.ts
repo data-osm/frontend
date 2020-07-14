@@ -19,6 +19,10 @@ export class StorageServiceService {
   ) { }
 
   /**
+   * BehaviorSubject of Differents states of the application
+   */
+  states:BehaviorSubject<{loadProjectData:boolean}> = new BehaviorSubject<{loadProjectData:boolean}>({loadProjectData:false} )
+  /**
   * BehaviorSubject of List of all thematiques
   */
   private groupThematiques: BehaviorSubject<Array<groupThematiqueInterface>> = new BehaviorSubject(Array<groupThematiqueInterface>());
@@ -61,7 +65,6 @@ export class StorageServiceService {
         })
       )
       .subscribe(results => {
-        console.log(results)
         this.groupThematiques.next(results[0])
         this.groupCartes.next(results[1])
         this.configProject.next({
@@ -70,11 +73,23 @@ export class StorageServiceService {
           geosignetsProject:results[3],
           roiGeojson:JSON.parse(results[2]['data']['geometry'])
         })
+
+        this.states.getValue().loadProjectData = true
+        this.states.next(this.states.getValue())
+
         resolve({
           error:false
         })
       })
     })
+  }
+
+  /**
+   * Get the configuration of the project
+   * @returns configProjetInterface
+   */
+  getConfigProjet():configProjetInterface{
+    return this.configProject.getValue()
   }
 
 }

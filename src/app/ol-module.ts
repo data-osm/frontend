@@ -7,6 +7,8 @@ import WMTS from 'ol/source/WMTS.js';
 import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
 import ImageLayer from 'ol/layer/Image.js';
 import ImageWMS from 'ol/source/ImageWMS.js';
+import VectorImageLayer from 'ol/layer/VectorImage';
+import RasterSource from 'ol/source/Raster';
 import TileImage from 'ol/source/TileImage'
 import GeoJSON from 'ol/format/GeoJSON.js';
 import { bbox as bboxStrategy } from 'ol/loadingstrategy.js';
@@ -36,11 +38,6 @@ import { defaults as defaultInteractions, Modify, Select, Snap,Draw } from 'ol/i
 import { unByKey } from 'ol/Observable';
 import Collection from 'ol/Collection';
 import { singleClick, click } from 'ol/events/condition'
-// @NgModule({
-//   exports: [
-//     fromLonLat
-//   ]
-// })
 import XYZ from 'ol/source/XYZ';
 
 // var jsts = require('jsts')
@@ -96,6 +93,7 @@ export {
   MultiLineString,
   XYZ,
   Geometry,
-  Draw
+  Draw,
+  VectorImageLayer,
+  RasterSource
 };
-
