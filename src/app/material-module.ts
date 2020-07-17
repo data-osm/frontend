@@ -13,7 +13,7 @@ import { MatMenuModule } from '@angular/material/menu';
 //   MatBottomSheetModule,
 //   MatButtonModule,
 //   MatButtonToggleModule,
-//   MatCardModule,
+//   ,
 //   MatCheckboxModule,
 //   MatChipsModule,
 //   MatDatepickerModule,
@@ -48,6 +48,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav'
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { MatButtonModule } from '@angular/material/button'
+import { MatCardModule } from '@angular/material/card'
+import {MatCheckboxModule} from '@angular/material/checkbox'
 
 @NgModule({
   exports: [
@@ -58,8 +60,9 @@ import { MatButtonModule } from '@angular/material/button'
     DragDropModule,
 
     MatMenuModule,
-
+    MatCardModule,
     MatSidenavModule,
+    MatCheckboxModule,
     MatButtonModule,
     MatTooltipModule,
     PortalModule,

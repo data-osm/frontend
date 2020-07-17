@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import {
   Map, Zoom,
@@ -17,27 +17,18 @@ export class VerticalToolbarComponent implements OnInit {
 
   environment
 
-  map:Map
+  /**
+   * Map of the app
+   */
+  @Input()map:Map
 
   /**
    * Sidenav container of the map component
    */
-  sidenavContainer:MatSidenavContainer
+  @Input()sidenavContainer:MatSidenavContainer
 
   constructor() {
     this.environment = environment
-  }
-
-  /**
-   * Initialise vertical toolbar comp
-   * @param map Map
-   * @param sidenavContainer MatSidenavContainer
-   */
-  init(map:Map,sidenavContainer:MatSidenavContainer){
-    this.map = map
-    this.sidenavContainer=sidenavContainer
-
-    this.initialiseMatTools()
   }
 
   /**
@@ -57,6 +48,7 @@ export class VerticalToolbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.initialiseMatTools()
   }
 
   /**

@@ -12,7 +12,6 @@ Attribution
 import {StorageServiceService} from '../services/storage-service/storage-service.service'
 import {cartoHelper} from '../../helper/carto.helper'
 
-import {VerticalToolbarComponent} from './vertical-toolbar/vertical-toolbar.component';
 
 var attribution = new Attribution({
   collapsible: false
@@ -46,12 +45,6 @@ export class MapComponent implements OnInit {
   @ViewChild(MatSidenavContainer, { static: true}) sidenavContainer: MatSidenavContainer;
 
 
-  @ViewChild(VerticalToolbarComponent, { static: true})
-  /**
-   * Child component app-vertical-toolbar
-   */
-  VerticalToolbarComp: VerticalToolbarComponent;
-
   /**
    * All menu of the rith sidenav
    */
@@ -72,8 +65,6 @@ export class MapComponent implements OnInit {
   ngOnInit(): void {
     map.setTarget('map1')
     map.setTarget('map')
-
-    this.VerticalToolbarComp.init(map,this.sidenavContainer)
 
     this.StorageServiceService.states.subscribe((value)=>{
       if (value.loadProjectData) {
@@ -134,6 +125,15 @@ export class MapComponent implements OnInit {
     layer.setZIndex(1000)
     map.addLayer(layer)
   }
+
+  /**
+   * get the constant map
+   * @return Map
+   */
+  getMap():Map{
+    return map
+  }
+
 
 
 }

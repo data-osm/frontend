@@ -1,3 +1,4 @@
+import {StorageServiceService} from '../services/storage-service/storage-service.service'
 /**
  * Properties of a right menu
  */
@@ -244,7 +245,7 @@ export interface groupThematiqueInterface {
  * Interface for a carte
  * @interface carteInterface
  */
-export interface carteInterface {
+export interface carteInterface  {
   /**
   * Extend of the layer if exists
   * @example "40.91789245605469,29.5161103,40.91789245605469,29.5161103"
@@ -307,6 +308,9 @@ export interface carteInterface {
   zmin: string
 }
 
+// carteInterface.prototype['vv']=function () {
+//   console.log('hh')
+// }
 /**
  * Interface for a sous carte
  * @interface sousCarteIntgerface
@@ -348,9 +352,13 @@ export interface groupCarteInterface {
    */
   nom: string
   /**
+   * Is this group the principal group of cartes
+   */
+  principal:boolean
+  /**
    * Sous thematiques
    */
-  sous_cartes: false | Array<sousThematiqueInterface>
+  sous_cartes: false | Array<sousCarteIntgerface>
   /**
    * If sous_cartes is false
    * Couches

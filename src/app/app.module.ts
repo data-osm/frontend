@@ -22,6 +22,7 @@ import { LegendComponent } from './map/sidenav-right/legend/legend.component';
 import { DownloadComponent } from './map/sidenav-right/download/download.component'
 import { StorageServiceService } from './services/storage-service/storage-service.service';
 import { BackendApiService } from './services/backend-api/backend-api.service';
+import { SidenaveLeftPrincipalComponent } from './map/sidenav-left/sidenave-left-principal/sidenave-left-principal.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { BackendApiService } from './services/backend-api/backend-api.service';
     MapToolsComponent,
     RoutingComponent,
     LegendComponent,
-    DownloadComponent
+    DownloadComponent,
+    SidenaveLeftPrincipalComponent
   ],
   imports: [
     BrowserModule,

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, forkJoin, from, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { BackendApiService } from '../backend-api/backend-api.service'
-import { groupThematiqueInterface, groupCarteInterface, configProjetInterface } from '../../type/type'
+import { groupThematiqueInterface, groupCarteInterface, configProjetInterface, carteInterface } from '../../type/type'
 import { catchError } from 'rxjs/operators';
 import { analyzeAndValidateNgModules } from '@angular/compiler';
 
@@ -18,6 +18,7 @@ export class StorageServiceService {
     public BackendApiService: BackendApiService
   ) { }
 
+
   /**
    * BehaviorSubject of Differents states of the application
    */
@@ -25,17 +26,17 @@ export class StorageServiceService {
   /**
   * BehaviorSubject of List of all thematiques
   */
-  private groupThematiques: BehaviorSubject<Array<groupThematiqueInterface>> = new BehaviorSubject(Array<groupThematiqueInterface>());
+  public groupThematiques: BehaviorSubject<Array<groupThematiqueInterface>> = new BehaviorSubject(Array<groupThematiqueInterface>());
 
   /**
  * BehaviorSubject of List of all Cartes
  */
-  private groupCartes: BehaviorSubject<Array<groupCarteInterface>> = new BehaviorSubject(Array<groupCarteInterface>());
+  public groupCartes: BehaviorSubject<Array<groupCarteInterface>> = new BehaviorSubject(Array<groupCarteInterface>());
 
   /**
    * BehaviorSubject of Configuration of the project
    */
-  private configProject: BehaviorSubject<configProjetInterface> = new BehaviorSubject<configProjetInterface>({} as configProjetInterface)
+  public configProject: BehaviorSubject<configProjetInterface> = new BehaviorSubject<configProjetInterface>({} as configProjetInterface)
 
   /**
    * Load data of the project
@@ -76,7 +77,6 @@ export class StorageServiceService {
 
         this.states.getValue().loadProjectData = true
         this.states.next(this.states.getValue())
-
         resolve({
           error:false
         })
@@ -91,5 +91,46 @@ export class StorageServiceService {
   getConfigProjet():configProjetInterface{
     return this.configProject.getValue()
   }
+
+  /**
+   * Get the principal group carte and the carte. eg:the group contaignin the main map of the apps
+   * @returns {groupCarte:groupCarteInterface,carte:carteInterface}}| null
+   */
+
+   getPrincipalCarte():{groupCarte:groupCarteInterface,carte:carteInterface}|null
+   {
+      for (let index = 0; index < this.groupCartes.getValue().length; index++) {
+        const group = this.groupCartes.getValue()[index];
+        if (group.principal) {
+          // groupCarte = group
+          if (group.sous_cartes) {
+            for (let sIndex = 0; sIndex < group.sous_cartes.length; sIndex++) {
+              const sous_groupe = group.sous_cartes[sIndex];
+              for (let cIndex = 0; cIndex < sous_groupe.couches.length; cIndex++) {
+                const carte = sous_groupe.couches[cIndex];
+                if (carte.principal) {
+                  return {
+                    groupCarte:group,
+                    carte:carte
+                  }
+                }
+              }
+            }
+          }else{
+            for (let cIndex = 0; cIndex < group.couches.length; cIndex++) {
+              const carte = group.couches[cIndex];
+              if (carte.principal) {
+                return {
+                  groupCarte:group,
+                  carte:carte
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return null
+   }
 
 }
