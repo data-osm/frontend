@@ -1,0 +1,77 @@
+.accordion-draw {
+  ::ng-deep {
+    .mat-expansion-panel-body {
+      padding: 7px 0px !important;
+    }
+  }
+}
+.button-draw {
+  text-align: center;
+  margin-top: 15px;
+  button {
+    margin-right: 7px;
+  }
+}
+
+.button-draw-edit {
+  padding-top: 15px;
+
+  padding-left: 15px;
+
+  .button-draw-edit-line {
+    margin-bottom: 15px;
+    margin-top: 5px;
+    width: calc(100% - 15px);
+    border: 1px solid;
+  }
+  button {
+    margin-left: 2.5px;
+    margin-right: 2.5px;
+  }
+}
+
+.button-draw-list {
+  margin-top: 20px;
+  text-align: right;
+  padding-right: 10px;
+}
+
+#overlay-draw-text {
+  padding-top: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  width: 200px;
+  height: 200px;
+  font-size: 12px;
+  font-family: Arial;
+  z-index: 99;
+  border-radius: 10px;
+  display: none;
+  ::ng-deep{
+    .mat-form-field-label-wrapper{
+      font-size: 15px;
+    }
+  }
+  .overlay-draw-text-closebtn {
+    height: 20px;
+    width: 20px;
+    opacity: 1;
+    margin-right: -8px;
+    float: right;
+    i {
+      color: #fff;
+      margin-top: -23px;
+      margin-right: 1px;
+    }
+  }
+  .overlay-draw-text-textarea {
+    resize: none;
+  }
+  .overlay-draw-text-save{
+    width: 100%;
+      margin-bottom: 7px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: bold;
+  }
+}

@@ -79,4 +79,18 @@ export class cartoHelper {
     return rasterLayer
 
   }
+
+  /**
+     * Get all id from a layer source
+     * @param source VectorSource
+     * @return Array<string>
+     */
+    public static listIdFromSource(source:VectorSource):Array<string>{
+      var response = []
+      for (let index = 0; index < source.getFeatures().length; index++) {
+          const feat = source.getFeatures()[index];
+          response.push(feat.getId())
+      }
+      return response
+  }
 }

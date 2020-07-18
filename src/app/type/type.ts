@@ -6,7 +6,8 @@ export interface rightMenuInterface {
   name: string,
   tooltip: string,
   active: boolean,
-  enable: boolean
+  enable: boolean,
+  title:string
 }
 
 /**

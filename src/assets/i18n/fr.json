@@ -50,6 +50,7 @@
     "title_data_in": "Données d'entrées"
   },
   "draw_in_map": {
+    "your_comment_placeholder":"Ajouter un commentaire...",
     "apply_draw": "APPLIQUER",
     "save": "SAUVEGARDER"
   },

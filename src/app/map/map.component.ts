@@ -11,6 +11,7 @@ Attribution
 }from '../ol-module';
 import {StorageServiceService} from '../services/storage-service/storage-service.service'
 import {cartoHelper} from '../../helper/carto.helper'
+import { TranslateService } from '@ngx-translate/core';
 
 
 var attribution = new Attribution({
@@ -49,15 +50,15 @@ export class MapComponent implements OnInit {
    * All menu of the rith sidenav
    */
   ritghtMenus:Array<rightMenuInterface>=[
-    {name:'toc',active:false,enable:true,tooltip:'toolpit_toc'},
-    {name:'edition',active:false,enable:true,tooltip:'toolpit_tools'},
-    {name:'routing',active:false,enable:true,tooltip:'toolpit_map_routing'},
-    {name:'legend',active:false,enable:true,tooltip:'toolpit_legend'},
-    {name:'download',active:false,enable:true,tooltip:'toolpit_download_data'}
+    {name:'toc',active:false,enable:true,tooltip:'toolpit_toc',title:'table_of_contents'},
+    {name:'edition',active:false,enable:true,tooltip:'toolpit_tools',title:'tools'},
+    {name:'routing',active:false,enable:true,tooltip:'toolpit_map_routing',title:'map_routing'},
+    {name:'legend',active:false,enable:true,tooltip:'toolpit_legend',title:'legend'},
+    {name:'download',active:false,enable:true,tooltip:'toolpit_download_data',title:'download_data'}
   ]
-
   constructor(
     public StorageServiceService:StorageServiceService,
+    public translate: TranslateService,
   ) {
 
   }
@@ -114,6 +115,19 @@ export class MapComponent implements OnInit {
       menu.active=true
     }
 
+  }
+
+  /**
+   * Get the active right menu
+   * @return rightMenuInterface
+   */
+  getRightMenuActive():rightMenuInterface{
+    for (let index = 0; index < this.ritghtMenus.length; index++) {
+      if (this.ritghtMenus[index].active) {
+        return this.ritghtMenus[index]
+      }
+    }
+    return null
   }
 
   /**

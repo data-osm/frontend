@@ -22,7 +22,7 @@ import { MatMenuModule } from '@angular/material/menu';
 //   MatExpansionModule,
 //   MatGridListModule,
 //   MatIconModule,
-//   MatInputModule,
+//   ,
 //   MatListModule,
 //   // MatMenuModule,
 //   MatNativeDateModule,
@@ -50,6 +50,9 @@ import { MatTooltipModule } from '@angular/material/tooltip'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import {MatCheckboxModule} from '@angular/material/checkbox'
+import {MatExpansionModule} from '@angular/material/expansion'
+import {MatInputModule} from '@angular/material/input'
+import {MatFormFieldModule} from '@angular/material/form-field';
 
 @NgModule({
   exports: [
@@ -67,6 +70,9 @@ import {MatCheckboxModule} from '@angular/material/checkbox'
     MatTooltipModule,
     PortalModule,
     ScrollingModule,
+    MatExpansionModule,
+    MatInputModule,
+    MatFormFieldModule
   ]
 })
 export class ComponentMaterialModule { }

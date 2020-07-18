@@ -23,6 +23,8 @@ import { DownloadComponent } from './map/sidenav-right/download/download.compone
 import { StorageServiceService } from './services/storage-service/storage-service.service';
 import { BackendApiService } from './services/backend-api/backend-api.service';
 import { SidenaveLeftPrincipalComponent } from './map/sidenav-left/sidenave-left-principal/sidenave-left-principal.component';
+import { DrawComponent } from './map/sidenav-right/map-tools/draw/draw.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -35,7 +37,8 @@ import { SidenaveLeftPrincipalComponent } from './map/sidenav-left/sidenave-left
     RoutingComponent,
     LegendComponent,
     DownloadComponent,
-    SidenaveLeftPrincipalComponent
+    SidenaveLeftPrincipalComponent,
+    DrawComponent
   ],
   imports: [
     BrowserModule,
@@ -43,6 +46,8 @@ import { SidenaveLeftPrincipalComponent } from './map/sidenav-left/sidenave-left
     ComponentMaterialModule,
     BrowserAnimationsModule,
     HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

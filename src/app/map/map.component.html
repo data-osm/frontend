@@ -102,10 +102,14 @@ c1.3-0.1,2.3-1.2,2.5-2.5l0-6.8L20.6,11.5z"
   </mat-sidenav-content>
 
   <mat-sidenav class="sidenav-right" closed mode="side" position="end">
-    <app-table-of-contents [hidden]="!getRightMenu('toc').active"></app-table-of-contents>
-    <app-map-tools [hidden]="!getRightMenu('edition').active"></app-map-tools>
-    <app-routing [hidden]="!getRightMenu('routing').active"></app-routing>
-    <app-legend [hidden]="!getRightMenu('legend').active"></app-legend>
-    <app-download [hidden]="!getRightMenu('download').active"></app-download>
+    <div class="sidenav-right-title" *ngIf="getRightMenuActive()" >  {{ 'right_menu.'+getRightMenuActive().title+'.title' | translate }} </div>
+    <div class="sidenav-right-content" >
+      <app-table-of-contents [hidden]="!getRightMenu('toc').active"></app-table-of-contents>
+      <app-map-tools [map]="getMap()"  [hidden]="!getRightMenu('edition').active"></app-map-tools>
+      <app-routing [hidden]="!getRightMenu('routing').active"></app-routing>
+      <app-legend [hidden]="!getRightMenu('legend').active"></app-legend>
+      <app-download [hidden]="!getRightMenu('download').active"></app-download>
+    </div>
+
   </mat-sidenav>
 </mat-sidenav-container>
