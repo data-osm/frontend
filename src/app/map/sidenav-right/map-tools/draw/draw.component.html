@@ -21,7 +21,7 @@ M10.2,9v2.4h2.4l7-7L17.1,2L10.2,9z" />
       <button matTooltip="{{ 'right_menu.tools.draw.toolpit_polygone' | translate }}" mat-mini-fab
         (click)="toogleAddDraw('Polygon')" [ngClass]="{
           blackBG: getDrawTool('Polygon').active,
-          whiteBG: !getDrawTool('Polygon').active
+          primary_transparent_bg: !getDrawTool('Polygon').active
         }">
         <svg style="margin-bottom: 2px; height: 20px;" x="0px" y="0px" viewBox="0 0 21.8 24.4">
           <g>
@@ -49,7 +49,7 @@ M10.2,9v2.4h2.4l7-7L17.1,2L10.2,9z" />
       <button matTooltip="{{ 'right_menu.tools.draw.toolpit_ligne' | translate }}" mat-mini-fab
         (click)="toogleAddDraw('LineString')" [ngClass]="{
           blackBG: getDrawTool('LineString').active,
-          whiteBG: !getDrawTool('LineString').active
+          primary_transparent_bg: !getDrawTool('LineString').active
         }">
         <svg style="margin-bottom: 2px; height: 20px;" x="0px" y="0px" viewBox="0 0 24.2 24.9">
           <path [ngClass]="{
@@ -64,7 +64,7 @@ c0.6,0,1.2-0.5,1.2-1.2V1.2C24.2,0.5,23.6,0,23,0L23,0z M3.3,23.7H1.2v-2.2h2.2V23.
       <button matTooltip="{{ 'right_menu.tools.draw.toolpit_text' | translate }}" mat-mini-fab color="primary"
         (click)="toogleAddDraw('Point')" [ngClass]="{
           blackBG: getDrawTool('Point').active,
-          whiteBG: !getDrawTool('Point').active
+          primary_transparent_bg: !getDrawTool('Point').active
         }">
         <svg style="margin-bottom: 2px; height: 17px;" x="0px" y="0px" viewBox="0 0 23 18.1">
           <path [ngClass]="{
@@ -81,26 +81,26 @@ c0.6,0,1.2-0.5,1.2-1.2V1.2C24.2,0.5,23.6,0,23,0L23,0z M3.3,23.7H1.2v-2.2h2.2V23.
       <button matTooltip="{{
           'right_menu.tools.draw.toolpit_edit_geometry' | translate
         }}" mat-mini-fab color="accent" (click)="modifyDraw('geometry')"
-        [ngClass]="{ back_black: getModifyTool('geometry').active }">
+        [ngClass]="{ blackBG: getModifyTool('geometry').active }">
         <img src="assets/icones/edite.svg" style="margin-bottom: 2px; height: 17px;" />
       </button>
 
       <button matTooltip="{{ 'right_menu.tools.draw.toolpit_edit_text' | translate }}" mat-mini-fab color="accent"
-        (click)="modifyDraw('comment')" [ngClass]="{ back_black: getModifyTool('comment').active }">
+        (click)="modifyDraw('comment')" [ngClass]="{ blackBG: getModifyTool('comment').active }">
         <img src="assets/icones/text-edit-cursor.svg" style="margin-bottom: 2px; height: 17px;" />
       </button>
 
       <button matTooltip="{{
           'right_menu.tools.draw.toolpit_edit_color' | translate
         }}" mat-mini-fab color="accent" (click)="modifyDraw('color')"
-        [ngClass]="{ back_black: getModifyTool('color').active }">
+        [ngClass]="{ blackBG: getModifyTool('color').active }">
         <img src="assets/icones/paint.svg" style="margin-bottom: 2px; height: 17px;" />
       </button>
 
       <button matTooltip="{{
           'right_menu.tools.draw.toolpit_edit_delete' | translate
         }}" mat-mini-fab color="accent" (click)="modifyDraw('delete')"
-        [ngClass]="{ back_black: getModifyTool('delete').active }">
+        [ngClass]="{ blackBG: getModifyTool('delete').active }">
         <img src="assets/icones/delete.svg" style="margin-bottom: 2px; height: 17px;" />
       </button>
     </div>
@@ -159,15 +159,33 @@ h5.7L12,1.1h4V3.3L16,3.3z" />
       <mat-label>
         {{ "draw_in_map.your_comment_placeholder" | translate }}
       </mat-label>
-      <textarea formControlName="comment" name="comment" class="primaryColorBorder overlay-draw-text-textarea" rows="6" matInput>
+      <textarea formControlName="comment" name="comment" class="primaryColorBorder overlay-draw-text-textarea" rows="6"
+        matInput>
     </textarea>
     </mat-form-field>
   </form>
 
-
-
   <button mat-raised-button color="primary" class="overlay-draw-text-save" (click)="saveFormToFeaturePte()">
     {{ "draw_in_map.save" | translate }}
+  </button>
+
+</div>
+
+<div id="overlay-draw-color" class="whiteBG">
+  <button mat-mini-fab color="primary" class="overlay-draw-color-closebtn" (click)="hideOverlayColor()">
+    <i class="fa fa-times"></i>
+  </button>
+
+  <div *ngIf="formulaireText" style="text-align: center;margin-top: 20px;margin-bottom: 10px;" >
+    <div class="overlay-draw-color-picker"
+      [style.backgroundColor]="formulaireText.controls['color'].value" [cpPosition]="'bottom'"
+      [cpPositionOffset]="'10%'" [cpPositionRelativeToArrow]="true" [cpOKButton]="true"
+      [colorPicker]="formulaireText.controls['color'].value" (colorPickerChange)="colorChanged($event)">
+    </div>
+    <span>  {{formulaireText.controls['color'].value}} </span>
+  </div>
+  <button mat-raised-button color="primary" class="overlay-draw-color-save" (click)="saveFormToFeaturePte()">
+    {{ "draw_in_map.apply_draw" | translate }}
   </button>
 
 </div>

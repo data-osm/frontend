@@ -1,19 +1,21 @@
 import { Component, OnInit, Input, NgZone } from '@angular/core';
 import {
-  Map, Draw, VectorSource, VectorLayer, Style, Fill, Stroke, CircleStyle, Modify, Feature, unByKey, Overlay,
+  Map, Draw, VectorSource, VectorLayer, Style, Fill, Stroke, CircleStyle, Modify, Feature, unByKey, Overlay, Select,Text
 } from '../../../../ol-module';
 import { environment } from 'src/environments/environment';
 import * as $ from 'jquery'
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
-import {manageDataHelper} from '../../../../../helper/manageData'
-import {cartoHelper} from '../../../../../helper/carto.helper'
+import { manageDataHelper } from '../../../../../helper/manageData'
+import { cartoHelper } from '../../../../../helper/carto.helper'
+import { NotifierService } from "angular-notifier";
+import { TranslateService } from '@ngx-translate/core';
 
 export interface drawToolInterace {
   active: boolean,
   features: Array<Feature>
 }
 
-export interface modifyToolTypeInterface{
+export interface modifyToolTypeInterface {
   active: boolean
 }
 export interface modifyToolInterface {
@@ -22,15 +24,17 @@ export interface modifyToolInterface {
   comment: modifyToolTypeInterface
   color: modifyToolTypeInterface
   delete: modifyToolTypeInterface
+  interactions: Array<any>
+  key: Array<any>
 }
 
-export interface propertiesFeatureInterface{
-  comment:string,
-  color:string
+export interface propertiesFeatureInterface {
+  comment: string,
+  color: string
   /**
    * id of feature
    */
-  featureId:string
+  featureId: string
 }
 
 /**
@@ -63,21 +67,39 @@ export class DrawComponent implements OnInit {
    */
   vector: VectorLayer = new VectorLayer({
     source: this.source,
-    style: new Style({
-      fill: new Fill({
-        color: [this.hexToRgb(this.primaryColor).r, this.hexToRgb(this.primaryColor).g, this.hexToRgb(this.primaryColor).b, 0.7]
-      }),
-      stroke: new Stroke({
-        color: this.primaryColor,
-        width: 2
-      }),
-      image: new CircleStyle({
-        radius: 7,
+    style: (feature)=>{
+      var color = this.primaryColor
+      if (feature.get('color')) {
+        color = feature.get('color')
+      }
+      return new Style({
         fill: new Fill({
-          color: this.primaryColor
+          color: [this.hexToRgb(color).r, this.hexToRgb(color).g, this.hexToRgb(color).b, 0.7]
+        }),
+        stroke: new Stroke({
+          color: color,
+          width: 2
+        }),
+        image: new CircleStyle({
+          radius: 7,
+          stroke: new Stroke({
+            color: color,
+            width: 2
+          }),
+          fill: new Fill({
+            color: [this.hexToRgb(color).r, this.hexToRgb(color).g, this.hexToRgb(color).b, 0.7]
+          })
+        }),
+        text: new Text({
+          font: 'bold 18px Calibri,sans-serif',
+          fill: new Fill({
+            color: color
+          }),
+          text: feature.get('comment'),
+          stroke: new Stroke({ color: '#fff', width: 2 }),
         })
       })
-    }),
+    },
     type: 'draw',
     name: 'draw'
   });
@@ -90,20 +112,78 @@ export class DrawComponent implements OnInit {
   /**
    * Modify interaction
    */
-  modify: Modify = new Modify({ source: this.source });
+  modify: Modify = new Modify({
+    source: this.source ,
+    style: new Style({
+      fill: new Fill({
+        color: [255, 0, 255, 0.7]
+      }),
+      stroke: new Stroke({
+        color: [255, 0, 255, 1],
+        width: 2
+      }),
+      image: new CircleStyle({
+        radius: 7,
+        fill: new Fill({
+          color: [255, 0, 255, 0.7]
+        }),
+        stroke: new Stroke({
+          color: [255, 0, 255, 1],
+          width: 2
+        }),
+      })
+    }),
+  });
 
   /**
+   * Select interaction
+   */
+  select: Select = new Select({
+    layers: [this.vector],
+    style: new Style({
+      fill: new Fill({
+        color: [255, 255, 0, 0.7]
+      }),
+      stroke: new Stroke({
+        color: '#ffff00',
+        width: 2
+      }),
+      image: new CircleStyle({
+        radius: 7,
+        fill: new Fill({
+          color: [255, 255, 0, 0.7]
+        }),
+        stroke: new Stroke({
+          color: '#ffff00',
+          width: 2
+        }),
+      })
+    }),
+  })
+
+
+   /**
+   * Overlay for edit color of feature
+   */
+
+  overlayColor: Overlay = new Overlay({
+    position: undefined,
+    positioning: 'top-left',
+    element: document.getElementById('overlay-draw-color'),
+    stopEvent: true
+  });
+
+   /**
    * Overlay for edit properties of feature
    * like a text, comment, etc...
    */
 
-  overlay:Overlay = new Overlay({
+  overlay: Overlay = new Overlay({
     position: undefined,
     positioning: 'top-left',
     element: document.getElementById('overlay-draw-text'),
     stopEvent: true
   });
-
   /**
    * Formgroup for edit properties of feature
    */
@@ -124,22 +204,27 @@ export class DrawComponent implements OnInit {
     active: false, geometry: { active: false },
     comment: { active: false },
     color: { active: false },
-    delete: { active: false }
+    delete: { active: false },
+    interactions: [],
+    key: []
   }
 
+  private readonly notifier: NotifierService;
 
   constructor(
     public _ngZone: NgZone,
     public fb: FormBuilder,
+    notifierService: NotifierService,
+    public translate: TranslateService,
   ) {
     this.environment = environment
-
+    this.notifier = notifierService;
   }
 
   ngOnInit(): void {
     this.map.addOverlay(this.overlay);
+    this.map.addOverlay(this.overlayColor);
     this.map.addLayer(this.vector)
-    // this.map.addInteraction(this.modify)
   }
 
   /**
@@ -155,6 +240,13 @@ export class DrawComponent implements OnInit {
       b: parseInt(result[3], 16)
     } : null;
   }
+  /**
+   * VALUE OF THE COLOR PICKER CHANGED
+   * @param new_color {value:string}
+   */
+  colorChanged(new_color:string){
+    this.formulaireText.controls['color'].setValue(new_color)
+  }
 
   /**
    * Get a draw tool
@@ -168,7 +260,7 @@ export class DrawComponent implements OnInit {
    * Get modification tool
    * @param type 'geometry'|'comment'|'color'|'delete'
    */
-  getModifyTool(type:'geometry'|'comment'|'color'|'delete'):modifyToolTypeInterface{
+  getModifyTool(type: 'geometry' | 'comment' | 'color' | 'delete'): modifyToolTypeInterface {
     return this.modifyTool[type]
   }
 
@@ -176,9 +268,9 @@ export class DrawComponent implements OnInit {
    * construct a new FormGroup for the properties of a feature :
    * @param properties propertiesFeatureInterface
    */
-  constructFormText(properties:propertiesFeatureInterface){
+  constructFormText(properties: propertiesFeatureInterface) {
     if (!this.formulaireText) {
-      this.formulaireText =this.fb.group({})
+      this.formulaireText = this.fb.group({})
     }
 
     for (const key in properties) {
@@ -186,8 +278,8 @@ export class DrawComponent implements OnInit {
         const element = properties[key];
         if (this.formulaireText.controls[key]) {
           this.formulaireText.controls[key].setValue(element)
-        }else{
-          this.formulaireText.addControl(key,new FormControl(element))
+        } else {
+          this.formulaireText.addControl(key, new FormControl(element))
         }
       }
     }
@@ -198,7 +290,7 @@ export class DrawComponent implements OnInit {
    * Show overlay for add or edit properties of a feature
    * @param coordinates Array<number> positionn of the overlay
    */
-  showOverlay(coordinates:Array<number>){
+  showOverlay(coordinates: Array<number>) {
     if (!this.overlay.getElement()) {
       this.overlay.setElement(document.getElementById('overlay-draw-text'))
     }
@@ -209,25 +301,33 @@ export class DrawComponent implements OnInit {
   /**
    * Hide overlay that it is use to  add or edit properties of a feature
    */
-  hideOverlay(){
+  hideOverlay() {
     $('#overlay-draw-text').hide()
+  }
+
+  /**
+   * Hide overlay of color
+   */
+  hideOverlayColor(){
+    $('#overlay-draw-color').hide()
   }
 
   /**
    * Save properties of formbuilder in feature properties and close overlay
    */
-  saveFormToFeaturePte(){
+  saveFormToFeaturePte() {
     if (this.formulaireText.controls['featureId']) {
       console.log(this.formulaireText.getRawValue())
       var feature = this.source.getFeatureById(this.formulaireText.controls['featureId'].value)
       for (const key in this.formulaireText.getRawValue()) {
         if (this.formulaireText.getRawValue().hasOwnProperty(key)) {
           const element = this.formulaireText.getRawValue()[key];
-          feature.set(key,element)
+          feature.set(key, element)
         }
       }
     }
     this.hideOverlay()
+    this.hideOverlayColor()
   }
 
   /**
@@ -241,7 +341,7 @@ export class DrawComponent implements OnInit {
     });
     this.map.addInteraction(this.draw);
 
-    var keyEventStart = this.draw.on('drawstart', (DrawEvent: any) =>{
+    var keyEventStart = this.draw.on('drawstart', (DrawEvent: any) => {
       this._ngZone.run(() => {
         this.hideOverlay()
       })
@@ -254,7 +354,7 @@ export class DrawComponent implements OnInit {
         let featureId = manageDataHelper.makeid()
         let allFeatureIds = cartoHelper.listIdFromSource(this.source)
 
-        while (allFeatureIds.indexOf(featureId) != -1 ) {
+        while (allFeatureIds.indexOf(featureId) != -1) {
           featureId = manageDataHelper.makeid()
         }
 
@@ -262,9 +362,9 @@ export class DrawComponent implements OnInit {
         let positionOfOverlay = drawFeature.getGeometry().getLastCoordinate()
 
         this.constructFormText({
-          comment:'',
-          color:'',
-          featureId:featureId
+          comment: '',
+          color: this.primaryColor,
+          featureId: featureId
         })
 
         this.showOverlay(positionOfOverlay)
@@ -279,13 +379,14 @@ export class DrawComponent implements OnInit {
   /**
    * set active to false to all tool of draw geometry
    */
-  desactivateAllAddTool(){
+  desactivateAllAddTool() {
     for (const key in this.drawTools) {
       if (this.drawTools.hasOwnProperty(key) && key != 'key') {
         const element = this.drawTools[key];
         element.active = false
       }
     }
+    this.removeAddInteraction()
   }
 
   /**
@@ -298,7 +399,6 @@ export class DrawComponent implements OnInit {
       unByKey(element)
 
     }
-    this.desactivateAllAddTool()
     this.draw = undefined
   }
 
@@ -308,12 +408,13 @@ export class DrawComponent implements OnInit {
    * @param type 'Point'|'LineString'|'Polygon'
    */
   toogleAddDraw(type: 'Point' | 'LineString' | 'Polygon') {
+    this.desactivateAllModificationTool()
     if (this.drawTools[type].active) {
-      this.removeAddInteraction()
+      this.desactivateAllAddTool()
       this.drawTools[type].active = false
     } else {
       if (this.draw) {
-        this.removeAddInteraction()
+        this.desactivateAllAddTool()
       }
       this.addInteractions(type)
       this.drawTools[type].active = true
@@ -323,37 +424,216 @@ export class DrawComponent implements OnInit {
 
   /**
    * Activate modification of draw
-   * Will fire on only if there is alreqdy features that have been draw
-   * will remove all interaction of the draw one if exists
+   * Will fire on only if there is already features that have been draw
+   * will remove interaction of the draw one if exists
    */
-  toogleModifyDraw(){
+  toogleModifyDraw() {
     if (this.source.getFeatures().length > 0) {
-      this.removeAddInteraction()
-      // this.desactivateAllAddTool()
+
+      if (this.modifyTool.active) {
+        this.modifyTool.active = false
+
+        this.desactivateAllModificationTool()
+      } else {
+        this.desactivateAllAddTool()
+        this.modifyTool.active = true
+      }
+
+    }else{
+      this.translate.get('draw_in_map', { value: 'caracteristique' }).subscribe((res: any) => {
+        this.notifier.notify("default", res.no_draw_features);
+      });
     }
 
+  }
+
+  /**
+   * Remove all modification interaction and key event:
+   * clear all from from this.modifyTool.interactions and this.modifyTool.key
+   */
+  removeAllModifiactionInteraction(){
+    for (let index = 0; index < this.modifyTool.interactions.length; index++) {
+      this.map.removeInteraction(this.modifyTool.interactions[index])
+    }
+
+    for (let index = 0; index < this.modifyTool.key.length; index++) {
+      unByKey(this.modifyTool.key[index])
+    }
+
+    this.modifyTool.interactions = []
+    this.modifyTool.key = []
+  }
+
+  /**
+   * Desactivate all mode of the modification mode
+   */
+  desactivateAllModificationTool(){
+    this.modifyTool.geometry.active = false
+    this.modifyTool.comment.active = false
+    this.modifyTool.color.active = false
+    this.modifyTool.delete.active = false
+    $('#overlay-draw-color').hide()
+    this.removeAllModifiactionInteraction()
   }
 
   /**
    * Modify draw features
    * @param type 'geometry'|'comment'|'color'|'delete'
    */
-  modifyDraw(type:'geometry'|'comment'|'color'|'delete'){
+  modifyDraw(type: 'geometry' | 'comment' | 'color' | 'delete') {
 
+    if (type=='comment') {
+      this.toogleModifyDrawComment()
+    }else if (type=='geometry') {
+      this.toogleModifyDrawGeometry()
+    }else if (type=='delete') {
+      this.toogleModifyDeleteFeature()
+    }else if (type == 'color'){
+      this.toogleModifyDrawColor()
+    }
   }
 
+  /**
+   * Active/desactivate edition that permit modification of comment of features
+   */
+  toogleModifyDrawComment() {
+
+    if (this.modifyTool.comment.active) {
+      this.desactivateAllModificationTool()
+
+    } else {
+      this.desactivateAllModificationTool()
+
+      this.modifyTool.comment.active = true
+
+      this.map.addInteraction(this.select)
+
+      var keyEventSelect = this.select.on('select', (SelectEvent: any) => {
+        let selectFeatures: Array<Feature> = SelectEvent.selected
+
+        if (selectFeatures.length > 0) {
+          var feature = selectFeatures[0]
+
+          let positionOfOverlay = feature.getGeometry().getLastCoordinate()
+
+          this.constructFormText({
+            comment: feature.get('comment') ? feature.get('comment') : '',
+            color: feature.get('color') ? feature.get('color') : undefined,
+            featureId: feature.getId()
+          })
+
+          this.showOverlay(positionOfOverlay)
+
+        }
+
+        var features = this.select.getFeatures();
+        features.clear();
+      })
+
+      this.modifyTool.interactions.push(this.select)
+      this.modifyTool.key.push(keyEventSelect)
+    }
+  }
+
+  /**
+   * Activate/desactivate geometric edition of features that have been draw
+   */
+
+   toogleModifyDrawGeometry(){
+    if (this.modifyTool.geometry.active) {
+      this.desactivateAllModificationTool()
+    } else {
+      this.desactivateAllModificationTool()
+
+      this.modifyTool.geometry.active = true
+
+      this.map.addInteraction(this.modify)
+      this.modifyTool.interactions.push(this.modify)
+    }
+   }
+
+   /**
+   * Activate/desactivate delete feature from freatures that have been draw
+   */
+  toogleModifyDeleteFeature(){
+    if (this.modifyTool.geometry.active) {
+      this.desactivateAllModificationTool()
+    } else {
+      this.desactivateAllModificationTool()
+
+      this.modifyTool.delete.active = true
+
+      this.map.addInteraction(this.select)
+
+      var keyEventSelect = this.select.on('select', (SelectEvent: any) => {
+        let selectFeatures: Array<Feature> = SelectEvent.selected
+        if (selectFeatures.length > 0) {
+          var feature = selectFeatures[0]
+          this.source.removeFeature(feature)
+        }
+      })
+
+      this.modifyTool.interactions.push(this.select)
+      this.modifyTool.key.push(keyEventSelect)
+    }
+  }
+
+    /**
+   * Activate/desactivate color edition of features that have been draw
+   */
+
+  toogleModifyDrawColor(){
+    if (this.modifyTool.geometry.active) {
+      this.desactivateAllModificationTool()
+    } else {
+      this.desactivateAllModificationTool()
+
+      this.modifyTool.color.active = true
+
+
+      this.map.addInteraction(this.select)
+
+      var keyEventSelect = this.select.on('select', (SelectEvent: any) => {
+        let selectFeatures: Array<Feature> = SelectEvent.selected
+        if (selectFeatures.length > 0) {
+          var feature = selectFeatures[0]
+          let positionOfOverlay = feature.getGeometry().getLastCoordinate()
+          if (!this.overlayColor.getElement()) {
+            this.overlayColor.setElement(document.getElementById('overlay-draw-color'))
+          }
+
+          this.constructFormText({
+            comment: feature.get('comment') ? feature.get('comment') : '',
+            color: feature.get('color') ? feature.get('color') : undefined,
+            featureId: feature.getId()
+          })
+
+          this.overlayColor.setPosition(positionOfOverlay)
+          $('#overlay-draw-color').show()
+
+          var features = this.select.getFeatures();
+          features.clear();
+
+        }
+      })
+
+      this.modifyTool.interactions.push(this.select)
+      this.modifyTool.key.push(keyEventSelect)
+
+    }
+   }
   /**
    * Share all draw :
    * Will save all draw id DB, return the unique ID of the draw
    */
-  shareAllDraw(){
+  shareAllDraw() {
 
   }
 
   /**
    * Clear all draw
    */
-  deleteleAllDraw(){
+  deleteleAllDraw() {
     this.source.clear()
   }
 }

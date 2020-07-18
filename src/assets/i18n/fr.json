@@ -51,6 +51,7 @@
   },
   "draw_in_map": {
     "your_comment_placeholder":"Ajouter un commentaire...",
+    "no_draw_features":"Vous n'avez aucun dessin",
     "apply_draw": "APPLIQUER",
     "save": "SAUVEGARDER"
   },

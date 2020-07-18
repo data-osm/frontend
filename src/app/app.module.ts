@@ -25,6 +25,9 @@ import { BackendApiService } from './services/backend-api/backend-api.service';
 import { SidenaveLeftPrincipalComponent } from './map/sidenav-left/sidenave-left-principal/sidenave-left-principal.component';
 import { DrawComponent } from './map/sidenav-right/map-tools/draw/draw.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ColorPickerModule } from 'ngx-color-picker';
+import { NotifierModule } from "angular-notifier";
+
 
 @NgModule({
   declarations: [
@@ -48,6 +51,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
+    ColorPickerModule,
+    NotifierModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
