@@ -27,7 +27,10 @@ import { DrawComponent } from './map/sidenav-right/map-tools/draw/draw.component
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { NotifierModule } from "angular-notifier";
-
+import { SocialShareComponent } from './social-share/social-share.component';
+import { ShareButtonsModule } from 'ngx-sharebuttons/buttons';
+import { ShareIconsModule } from 'ngx-sharebuttons/icons';
+import {manageCompHelper} from '../helper/manage-comp.helper'
 
 @NgModule({
   declarations: [
@@ -41,9 +44,14 @@ import { NotifierModule } from "angular-notifier";
     LegendComponent,
     DownloadComponent,
     SidenaveLeftPrincipalComponent,
-    DrawComponent
+    DrawComponent,
+    SocialShareComponent
   ],
   imports: [
+    ShareButtonsModule.withConfig({
+      debug: false
+    }),
+    ShareIconsModule,
     BrowserModule,
     AppRoutingModule,
     ComponentMaterialModule,
@@ -61,7 +69,7 @@ import { NotifierModule } from "angular-notifier";
       }
     })
   ],
-  providers: [StorageServiceService,BackendApiService],
+  providers: [StorageServiceService,BackendApiService,manageCompHelper],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

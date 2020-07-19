@@ -1,14 +1,16 @@
 import { Component, OnInit, Input, NgZone } from '@angular/core';
 import {
-  Map, Draw, VectorSource, VectorLayer, Style, Fill, Stroke, CircleStyle, Modify, Feature, unByKey, Overlay, Select,Text
+  Map, Draw, VectorSource, VectorLayer, Style, Fill, Stroke, CircleStyle, Modify, Feature, unByKey, Overlay, Select,Text, GeoJSON
 } from '../../../../ol-module';
 import { environment } from 'src/environments/environment';
 import * as $ from 'jquery'
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
-import { manageDataHelper } from '../../../../../helper/manageData'
+import { manageDataHelper } from '../../../../../helper/manage-data.helper'
 import { cartoHelper } from '../../../../../helper/carto.helper'
 import { NotifierService } from "angular-notifier";
 import { TranslateService } from '@ngx-translate/core';
+import {BackendApiService} from 'src/app/services/backend-api/backend-api.service'
+import {manageCompHelper} from 'src/helper/manage-comp.helper'
 
 export interface drawToolInterace {
   active: boolean,
@@ -35,6 +37,14 @@ export interface propertiesFeatureInterface {
    * id of feature
    */
   featureId: string
+}
+
+export interface modelOfDrawDataInDBInterface{
+  comment:string,
+  geom:Object,
+  geometry:Array<any>,
+  hexa_code:string,
+  type:'Point' | 'LineString' | 'Polygon'
 }
 
 /**
@@ -216,6 +226,8 @@ export class DrawComponent implements OnInit {
     public fb: FormBuilder,
     notifierService: NotifierService,
     public translate: TranslateService,
+    public BackendApiService:BackendApiService,
+    public manageCompHelper:manageCompHelper
   ) {
     this.environment = environment
     this.notifier = notifierService;
@@ -351,6 +363,7 @@ export class DrawComponent implements OnInit {
     var keyEventEnd = this.draw.on('drawend', (DrawEvent: any) => {
       this._ngZone.run(() => {
         var drawFeature: Feature = DrawEvent.feature
+        drawFeature.set('type',type)
         let featureId = manageDataHelper.makeid()
         let allFeatureIds = cartoHelper.listIdFromSource(this.source)
 
@@ -432,7 +445,6 @@ export class DrawComponent implements OnInit {
 
       if (this.modifyTool.active) {
         this.modifyTool.active = false
-
         this.desactivateAllModificationTool()
       } else {
         this.desactivateAllAddTool()
@@ -440,6 +452,9 @@ export class DrawComponent implements OnInit {
       }
 
     }else{
+      this.modifyTool.active = false
+      this.desactivateAllModificationTool()
+
       this.translate.get('draw_in_map', { value: 'caracteristique' }).subscribe((res: any) => {
         this.notifier.notify("default", res.no_draw_features);
       });
@@ -556,7 +571,7 @@ export class DrawComponent implements OnInit {
    * Activate/desactivate delete feature from freatures that have been draw
    */
   toogleModifyDeleteFeature(){
-    if (this.modifyTool.geometry.active) {
+    if (this.modifyTool.delete.active) {
       this.desactivateAllModificationTool()
     } else {
       this.desactivateAllModificationTool()
@@ -583,7 +598,7 @@ export class DrawComponent implements OnInit {
    */
 
   toogleModifyDrawColor(){
-    if (this.modifyTool.geometry.active) {
+    if (this.modifyTool.color.active) {
       this.desactivateAllModificationTool()
     } else {
       this.desactivateAllModificationTool()
@@ -627,7 +642,49 @@ export class DrawComponent implements OnInit {
    * Will save all draw id DB, return the unique ID of the draw
    */
   shareAllDraw() {
+    if (this.source.getFeatures().length > 0) {
+      let dataToSendInDB:Array<modelOfDrawDataInDBInterface> = []
 
+      for (let index = 0; index < this.source.getFeatures().length; index++) {
+        const feature = this.source.getFeatures()[index];
+        dataToSendInDB.push({
+          type:feature.get('type'),
+          comment:feature.get('comment'),
+          hexa_code:feature.get('color'),
+          geom:new GeoJSON().writeGeometryObject(feature.getGeometry()),
+          geometry:feature.getGeometry().getCoordinates()
+        })
+      }
+
+      $('.accordion-draw-loading').show()
+      this.BackendApiService.post_requete('/geoportail/saveDraw/',{'donnes':dataToSendInDB}).then(
+        (response)=>{
+          $('.accordion-draw-loading').hide()
+          if (response['status'] == 'ok') {
+            var url_share = environment.url_frontend + '/map?share=draw&id=' + response['code_dessin']
+            this.manageCompHelper.openSocialShare(url_share,7)
+
+          }else{
+            this.translate.get('backend_error').subscribe((res: any) => {
+              this.notifier.notify("error", res);
+            });
+          }
+
+        },
+        (error)=>{
+          $('.accordion-draw-loading').hide()
+          this.translate.get('backend_error').subscribe((res: any) => {
+            this.notifier.notify("error", res);
+          });
+        }
+      )
+
+    }else{
+
+      this.translate.get('draw_in_map').subscribe((res: any) => {
+        this.notifier.notify("default", res.no_draw_features);
+      });
+    }
   }
 
   /**

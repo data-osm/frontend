@@ -52,6 +52,7 @@ import { MatCardModule } from '@angular/material/card'
 import {MatCheckboxModule} from '@angular/material/checkbox'
 import {MatExpansionModule} from '@angular/material/expansion'
 import {MatInputModule} from '@angular/material/input'
+import {MatSnackBarModule} from '@angular/material/snack-bar'
 import {MatFormFieldModule} from '@angular/material/form-field';
 
 @NgModule({
@@ -61,7 +62,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
     CdkTableModule,
     CdkTreeModule,
     DragDropModule,
-
+    MatSnackBarModule,
     MatMenuModule,
     MatCardModule,
     MatSidenavModule,

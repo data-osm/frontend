@@ -1,5 +1,16 @@
 <mat-accordion class="accordion-draw">
-  <mat-expansion-panel class="no_shadow" [expanded]="true" style="margin-bottom: 15px; border-radius: 4px;">
+  <mat-expansion-panel class="no_shadow" [expanded]="true"
+    style="margin-bottom: 15px; border-radius: 4px;position: relative;">
+    <div class="accordion-draw-loading">
+      <div style="position:absolute;top:calc(50% - 30px);left:30%">
+        <div class="lds-ripple" style="width: 100px;
+			height: 100px;">
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+
     <mat-expansion-panel-header expandedHeight="40px" collapsedHeight="40px" style="padding-left: 15px;"
       class="primary_transparent_bg">
       <mat-panel-title>
@@ -147,7 +158,9 @@ h5.7L12,1.1h4V3.3L16,3.3z" />
     </div>
   </mat-expansion-panel>
 </mat-accordion>
-
+<!------------------------
+  Overlay to edit/add comment in features
+ ----------------------->
 <div id="overlay-draw-text" class="whiteBG">
 
   <button mat-mini-fab color="primary" class="overlay-draw-text-closebtn" (click)="hideOverlay()">
@@ -170,19 +183,20 @@ h5.7L12,1.1h4V3.3L16,3.3z" />
   </button>
 
 </div>
-
+<!------------------------
+  Overlay to edit color of features
+ ----------------------->
 <div id="overlay-draw-color" class="whiteBG">
   <button mat-mini-fab color="primary" class="overlay-draw-color-closebtn" (click)="hideOverlayColor()">
     <i class="fa fa-times"></i>
   </button>
 
-  <div *ngIf="formulaireText" style="text-align: center;margin-top: 20px;margin-bottom: 10px;" >
-    <div class="overlay-draw-color-picker"
-      [style.backgroundColor]="formulaireText.controls['color'].value" [cpPosition]="'bottom'"
-      [cpPositionOffset]="'10%'" [cpPositionRelativeToArrow]="true" [cpOKButton]="true"
+  <div *ngIf="formulaireText" style="text-align: center;margin-top: 20px;margin-bottom: 10px;">
+    <div class="overlay-draw-color-picker" [style.backgroundColor]="formulaireText.controls['color'].value"
+      [cpPosition]="'bottom'" [cpPositionOffset]="'10%'" [cpPositionRelativeToArrow]="true" [cpOKButton]="true"
       [colorPicker]="formulaireText.controls['color'].value" (colorPickerChange)="colorChanged($event)">
     </div>
-    <span>  {{formulaireText.controls['color'].value}} </span>
+    <span> {{formulaireText.controls['color'].value}} </span>
   </div>
   <button mat-raised-button color="primary" class="overlay-draw-color-save" (click)="saveFormToFeaturePte()">
     {{ "draw_in_map.apply_draw" | translate }}
