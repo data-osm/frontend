@@ -30,7 +30,8 @@ import { NotifierModule } from "angular-notifier";
 import { SocialShareComponent } from './social-share/social-share.component';
 import { ShareButtonsModule } from 'ngx-sharebuttons/buttons';
 import { ShareIconsModule } from 'ngx-sharebuttons/icons';
-import {manageCompHelper} from '../helper/manage-comp.helper'
+import {manageCompHelper} from '../helper/manage-comp.helper';
+import { MeasureComponent } from './map/sidenav-right/map-tools/measure/measure.component'
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import {manageCompHelper} from '../helper/manage-comp.helper'
     DownloadComponent,
     SidenaveLeftPrincipalComponent,
     DrawComponent,
-    SocialShareComponent
+    SocialShareComponent,
+    MeasureComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({

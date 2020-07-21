@@ -183,7 +183,10 @@
       "mesure": {
         "title": "Mesure",
         "toolpit_mesure_ligne": "Mesurer une distance",
-        "toolpit_mesure_polygon": "Mesurer une surface"
+        "toolpit_mesure_polygon": "Mesurer une surface",
+        "continuePolygonMsg":"Click to continue drawing the polygon",
+        "continueLineMsg":"Click to continue drawing the line",
+        "helpSrartMeasure":"Click to start drawing"
       },
       "print": {
         "description_pdf": "Description",

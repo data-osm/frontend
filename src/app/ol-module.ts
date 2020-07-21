@@ -27,6 +27,7 @@ import Rotate from 'ol/control/Rotate';
 import { defaults as defaultControls, Attribution } from 'ol/control.js';
 import LinearRing from 'ol/geom/LinearRing';
 import Point from 'ol/geom/Point';
+import Circle from 'ol/geom/Circle';
 import MultiPoint from 'ol/geom/MultiPoint';
 import Polygon from 'ol/geom/Polygon';
 import MultiPolygon from 'ol/geom/MultiPolygon';
@@ -39,7 +40,7 @@ import { unByKey } from 'ol/Observable';
 import Collection from 'ol/Collection';
 import { singleClick, click } from 'ol/events/condition'
 import XYZ from 'ol/source/XYZ';
-
+import {getArea, getLength} from 'ol/sphere';
 // var jsts = require('jsts')
 // var ol3Parser = new jsts.io.OL3Parser();
 // ol3Parser.inject(Point, LineString,LinearRing,Polygon,MultiPoint, MultiLineString, MultiPolygon, GeometryCollection);
@@ -95,5 +96,8 @@ export {
   Geometry,
   Draw,
   VectorImageLayer,
-  RasterSource
+  RasterSource,
+  getArea,
+  getLength,
+  Circle
 };
