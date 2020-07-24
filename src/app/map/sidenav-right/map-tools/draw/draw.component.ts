@@ -649,13 +649,12 @@ export class DrawComponent implements OnInit {
         const feature = this.source.getFeatures()[index];
         dataToSendInDB.push({
           type:feature.get('type'),
-          comment:feature.get('comment'),
-          hexa_code:feature.get('color'),
+          comment:feature.get('comment')?feature.get('comment'):'',
+          hexa_code:feature.get('color')?feature.get('color'):this.primaryColor,
           geom:new GeoJSON().writeGeometryObject(feature.getGeometry()),
           geometry:feature.getGeometry().getCoordinates()
         })
       }
-
       $('.accordion-draw-loading').show()
       this.BackendApiService.post_requete('/geoportail/saveDraw/',{'donnes':dataToSendInDB}).then(
         (response)=>{

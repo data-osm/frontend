@@ -238,7 +238,7 @@ export class MeasureComponent implements OnInit {
     return output;
   };
 
-  measureModel:{
+  public measureModel:{
     Polygon:{active:boolean}
     LineString:{active:boolean}
     Circle:{active:boolean}
@@ -253,15 +253,31 @@ export class MeasureComponent implements OnInit {
    * NB this function does not cleqnd features and toolpit, use clearDraw for that purpose
    */
   removeMeasureToApps(){
-    this.map.removeInteraction(this.draw);
+    if (this.draw) {
+      this.map.removeInteraction(this.draw);
+    }
+
     this.sketch = null;
         // unset tooltip so that a new one can be created
         this.helpTooltipElement = null;
         this.measureTooltipElement = null;
     unByKey(this.listener);
     unByKey(this.event_measure);
-    this.map.removeOverlay(this.measureTooltip);
-    this.map.removeOverlay(this.helpTooltip);
+
+    if (this.measureTooltip) {
+      this.map.removeOverlay(this.measureTooltip);
+    }
+
+    if (this.helpTooltip) {
+      this.map.removeOverlay(this.helpTooltip);
+    }
+
+    for (const key in this.measureModel) {
+      if (this.measureModel.hasOwnProperty(key)) {
+        const element = this.measureModel[key];
+        element.active = false
+      }
+    }
 
   }
 
@@ -283,18 +299,17 @@ export class MeasureComponent implements OnInit {
   toogleMeasureInteraction(type: 'Polygon' | 'LineString'| 'Circle'){
 
     if(this.measureModel[type].active){
+      this.measureModel[type].active = false
       this.clearDraw()
     }else{
-      console.log(type)
-      this.addInteraction(type)
-    }
-    this.measureModel[type].active = !this.measureModel[type].active
-
-    for (const key in this.measureModel) {
-      if (this.measureModel.hasOwnProperty(key) && key != type) {
-        const element = this.measureModel[key];
-        element.active = false
+      for (const key in this.measureModel) {
+        if (this.measureModel.hasOwnProperty(key) && key != type) {
+          const element = this.measureModel[key];
+          element.active = false
+        }
       }
+      this.measureModel[type].active = true
+      this.addInteraction(type)
     }
   }
 
@@ -304,6 +319,7 @@ export class MeasureComponent implements OnInit {
    */
   addInteraction(type: 'Polygon' | 'LineString'| 'Circle') {
     this.removeMeasureToApps();
+    this.measureModel[type].active = true
     this.event_measure  = this.map.on('pointermove', (evt) => {
       this._ngZone.run(() => {
         this.pointerMoveHandler(evt)

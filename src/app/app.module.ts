@@ -31,7 +31,10 @@ import { SocialShareComponent } from './social-share/social-share.component';
 import { ShareButtonsModule } from 'ngx-sharebuttons/buttons';
 import { ShareIconsModule } from 'ngx-sharebuttons/icons';
 import {manageCompHelper} from '../helper/manage-comp.helper';
-import { MeasureComponent } from './map/sidenav-right/map-tools/measure/measure.component'
+import { MeasureComponent } from './map/sidenav-right/map-tools/measure/measure.component';
+import { AltimetryComponent } from './map/sidenav-right/map-tools/altimetry/altimetry.component';
+import { CommentComponent } from './map/sidenav-right/map-tools/comment/comment.component';
+import { PrintComponent } from './map/sidenav-right/map-tools/print/print.component'
 
 @NgModule({
   declarations: [
@@ -47,7 +50,10 @@ import { MeasureComponent } from './map/sidenav-right/map-tools/measure/measure.
     SidenaveLeftPrincipalComponent,
     DrawComponent,
     SocialShareComponent,
-    MeasureComponent
+    MeasureComponent,
+    AltimetryComponent,
+    CommentComponent,
+    PrintComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({
