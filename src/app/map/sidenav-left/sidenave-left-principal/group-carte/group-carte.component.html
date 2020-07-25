@@ -1,0 +1,7 @@
+<div class="pointer" style="width: 100%;border-radius: 6px;height: 62.8px;text-align: center;opacity: 0.8;padding-top: 12px;"
+  [ngStyle]="{'background': 'linear-gradient('+groupeCarte.color+' 100%, '+groupeCarte.color+'100%), url('+url_prefix+groupeCarte.img+')','text-transform': 'initial'}"
+  *ngIf="groupeCarte.id_cartes != 1">
+  <span class="white" style="font-size: 16px;font-weight: 600;word-spacing: 9999999px;">
+    {{groupeCarte.nom}}
+  </span>
+</div>

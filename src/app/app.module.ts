@@ -34,7 +34,9 @@ import {manageCompHelper} from '../helper/manage-comp.helper';
 import { MeasureComponent } from './map/sidenav-right/map-tools/measure/measure.component';
 import { AltimetryComponent } from './map/sidenav-right/map-tools/altimetry/altimetry.component';
 import { CommentComponent } from './map/sidenav-right/map-tools/comment/comment.component';
-import { PrintComponent } from './map/sidenav-right/map-tools/print/print.component'
+import { PrintComponent } from './map/sidenav-right/map-tools/print/print.component';
+import { GroupCarteComponent } from './map/sidenav-left/sidenave-left-principal/group-carte/group-carte.component';
+import { GroupThematiqueComponent } from './map/sidenav-left/sidenave-left-principal/group-thematique/group-thematique.component'
 
 @NgModule({
   declarations: [
@@ -53,7 +55,9 @@ import { PrintComponent } from './map/sidenav-right/map-tools/print/print.compon
     MeasureComponent,
     AltimetryComponent,
     CommentComponent,
-    PrintComponent
+    PrintComponent,
+    GroupCarteComponent,
+    GroupThematiqueComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({

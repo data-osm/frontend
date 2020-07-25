@@ -4,6 +4,7 @@ import { StorageServiceService } from '../../../services/storage-service/storage
 import {
   Map, Zoom, TileLayer, XYZ, View, defaultControls,
 } from '../../../ol-module';
+import { groupCarteInterface, carteInterface } from 'src/app/type/type';
 /**
  * first composant of the left sidenav
  */
@@ -21,8 +22,16 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
    */
   @Input() map: Map
 
+  /**
+   * Data of the main map to display in the app
+   */
+  donnePrincipalMap: {
+    groupCarte: groupCarteInterface;
+    carte: carteInterface;
+  } | null
+
   constructor(
-    protected StorageServiceService: StorageServiceService
+    public StorageServiceService: StorageServiceService
   ) {
     this.environment = environment
   }
@@ -36,7 +45,7 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
    */
   loadPrincipalMapLayer() {
     var ghostMap = new Map({
-      target:"ghostMap",
+      target: "ghostMap",
       layers: [
 
       ],
@@ -51,14 +60,14 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
     this.StorageServiceService.states.subscribe((value) => {
       if (value.loadProjectData) {
 
-        let donnePrinciaplMap= this.StorageServiceService.getPrincipalCarte()
+        this.donnePrincipalMap = this.StorageServiceService.getPrincipalCarte()
 
-        if (donnePrinciaplMap) {
-          let groupCarte = donnePrinciaplMap.groupCarte
-          let carte = donnePrinciaplMap.carte
+        if (this.donnePrincipalMap) {
+          let groupCarte = this.donnePrincipalMap.groupCarte
+          let carte = this.donnePrincipalMap.carte
           ghostMap.addLayer(osmLayer)
-          console.log(groupCarte,carte)
-        }else{
+          console.log(groupCarte, carte)
+        } else {
           ghostMap.addLayer(osmLayer)
         }
       }
