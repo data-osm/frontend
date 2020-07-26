@@ -1,11 +1,12 @@
 <mat-sidenav-container class="sidenav-container" #sidenavContainer>
   <mat-sidenav class="sidenav-left" opened mode="side" position="start">
-    <app-sidenave-left-principal [map]="getMap()" ></app-sidenave-left-principal>
+    <app-sidenave-left-secondaire></app-sidenave-left-secondaire>
+    <app-sidenave-left-principal [map]="getMap()" [SidenaveLeftSecondaireComp]="SidenaveLeftSecondaireComp"  ></app-sidenave-left-principal>
   </mat-sidenav>
 
   <mat-sidenav-content class="sidenav-content">
     <div id="map" ></div>
-    <app-vertical-toolbar [map]="getMap()" [sidenavContainer]="sidenavContainer"  class="sidenav-content-toolbar whiteBG"> </app-vertical-toolbar>
+    <app-vertical-toolbar [map]="getMap()" [SidenaveLeftSecondaireComp]="SidenaveLeftSecondaireComp"  [sidenavContainer]="sidenavContainer"  class="sidenav-content-toolbar whiteBG"> </app-vertical-toolbar>
 
     <div class="toogle-sidenav-right" *ngIf="sidenavContainer?.end">
       <ng-container *ngFor="let ritghtMenu_i of ritghtMenus">

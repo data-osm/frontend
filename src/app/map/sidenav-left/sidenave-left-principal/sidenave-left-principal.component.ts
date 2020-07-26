@@ -4,7 +4,9 @@ import { StorageServiceService } from '../../../services/storage-service/storage
 import {
   Map, Zoom, TileLayer, XYZ, View, defaultControls,
 } from '../../../ol-module';
-import { groupCarteInterface, carteInterface } from 'src/app/type/type';
+import { groupCarteInterface, carteInterface, groupThematiqueInterface, groupInterface } from 'src/app/type/type';
+import {SidenaveLeftSecondaireComponent} from '../sidenave-left-secondaire/sidenave-left-secondaire.component'
+import * as $ from 'jquery'
 /**
  * first composant of the left sidenav
  */
@@ -21,6 +23,12 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
    * Map of the app
    */
   @Input() map: Map
+
+  /**
+   * Secondary component of the left sidenav. On top of the first one:
+   * It is use to show details of a group thematique or a group carte
+   */
+  @Input() SidenaveLeftSecondaireComp: SidenaveLeftSecondaireComponent
 
   /**
    * Data of the main map to display in the app
@@ -74,5 +82,22 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
     })
   }
 
+  /**
+   * Open group thematique slide
+   * @param groupThematique groupThematiqueInterface
+   */
+  openGroupThematiqueSlide(groupThematique:groupThematiqueInterface){
+    this.SidenaveLeftSecondaireComp.setGroupThematique(groupThematique)
+    this.SidenaveLeftSecondaireComp.open()
+  }
+
+  /**
+   * Open group carte slide
+   * @param groupCarte groupCarteInterface
+   */
+  openGroupCarteSlide(groupCarte:groupCarteInterface){
+    this.SidenaveLeftSecondaireComp.setGroupCarte(groupCarte)
+    this.SidenaveLeftSecondaireComp.open()
+  }
 
 }

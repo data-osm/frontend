@@ -36,7 +36,10 @@ import { AltimetryComponent } from './map/sidenav-right/map-tools/altimetry/alti
 import { CommentComponent } from './map/sidenav-right/map-tools/comment/comment.component';
 import { PrintComponent } from './map/sidenav-right/map-tools/print/print.component';
 import { GroupCarteComponent } from './map/sidenav-left/sidenave-left-principal/group-carte/group-carte.component';
-import { GroupThematiqueComponent } from './map/sidenav-left/sidenave-left-principal/group-thematique/group-thematique.component'
+import { GroupThematiqueComponent } from './map/sidenav-left/sidenave-left-principal/group-thematique/group-thematique.component';
+import { SidenaveLeftSecondaireComponent } from './map/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component'
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { NgpSortModule } from "ngp-sort-pipe";
 
 @NgModule({
   declarations: [
@@ -57,12 +60,14 @@ import { GroupThematiqueComponent } from './map/sidenav-left/sidenave-left-princ
     CommentComponent,
     PrintComponent,
     GroupCarteComponent,
-    GroupThematiqueComponent
+    GroupThematiqueComponent,
+    SidenaveLeftSecondaireComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({
       debug: false
     }),
+    NgpSortModule,
     ShareIconsModule,
     BrowserModule,
     AppRoutingModule,
@@ -73,6 +78,7 @@ import { GroupThematiqueComponent } from './map/sidenav-left/sidenave-left-princ
     ReactiveFormsModule,
     ColorPickerModule,
     NotifierModule,
+    FlexLayoutModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

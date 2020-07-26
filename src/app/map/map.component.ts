@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, ViewChildren } from '@angular/core';
 import {MatSidenavContainer } from '@angular/material/sidenav';
 import {rightMenuInterface} from '../type/type'
 import {
@@ -12,7 +12,8 @@ Attribution
 import {StorageServiceService} from '../services/storage-service/storage-service.service'
 import {cartoHelper} from '../../helper/carto.helper'
 import { TranslateService } from '@ngx-translate/core';
-
+import { SidenaveLeftSecondaireComponent } from './sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component';
+import * as $ from 'jquery'
 
 var attribution = new Attribution({
   collapsible: false
@@ -45,6 +46,11 @@ export class MapComponent implements OnInit {
    */
   @ViewChild(MatSidenavContainer, { static: true}) sidenavContainer: MatSidenavContainer;
 
+  /**
+   * Second component of the left sidenav On top of the first one:
+   * It is use to show details of a group thematique or a group carte
+   */
+  @ViewChild(SidenaveLeftSecondaireComponent, { static: true}) SidenaveLeftSecondaireComp:SidenaveLeftSecondaireComponent
 
   /**
    * All menu of the rith sidenav

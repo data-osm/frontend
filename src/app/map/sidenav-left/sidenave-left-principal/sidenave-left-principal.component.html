@@ -12,7 +12,7 @@
   </mat-card-actions>
 </mat-card>
 
-<button *ngIf="donnePrincipalMap" mat-raised-button class="white base-group-carte-btn" color="primary">
+<button *ngIf="donnePrincipalMap" mat-raised-button (click)="openGroupCarteSlide(donnePrincipalMap.groupCarte)" class="white base-group-carte-btn" color="primary">
   {{donnePrincipalMap.groupCarte.nom}} </button>
 
 <h5 class="bold primaryColor primary_transparent_bg arborescence-group ">
@@ -40,7 +40,7 @@ l1-9C3047.3-512.3,3044.6-511.8,3042.1-510.8z" />
 
 </h5>
 <!-- (click)="slideTo('menuCarte',groupeCarte,'geobibliotheque')" -->
-<app-group-carte *ngFor="let groupeCarte of StorageServiceService.getAllGroupCarte()" [groupeCarte]="groupeCarte">
+<app-group-carte (click)="openGroupCarteSlide(groupeCarte)" *ngFor="let groupeCarte of StorageServiceService.getAllGroupCarte()" [groupeCarte]="groupeCarte">
 </app-group-carte>
 
 <h5 class="bold primaryColor primary_transparent_bg arborescence-group" >
@@ -65,7 +65,6 @@ l1-9C3047.3-512.3,3044.6-511.8,3042.1-510.8z" />
   {{ 'left_menu.geothematiques' | translate }}
 </h5>
 
-<!-- (click)="slideTo('menuThematique',thematique)"  -->
-<div class="arborescence-group-thematique" *ngFor="let groupThematique of StorageServiceService.getAllGroupThematiques()" >
-  <app-group-thematique class="pointer" [groupThematique]="groupThematique"></app-group-thematique>
+<div class="arborescence-group-thematique" *ngFor="let groupThematique of StorageServiceService.getAllGroupThematiques() | sortBy: 'asc':'ordre'" >
+  <app-group-thematique (click)="openGroupThematiqueSlide(groupThematique)" class="pointer" [groupThematique]="groupThematique"></app-group-thematique>
 </div>

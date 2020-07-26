@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   global_logo:undefined,
-  primaryColor:'#1F8FEA',
+  primaryColor:'#023f5f',
   url_prefix:"http://adminmali.geosm.org/",
   url_frontend:"http://localhost:4200/"
 

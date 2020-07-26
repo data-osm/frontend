@@ -201,28 +201,33 @@ export interface sousThematiqueInterface {
   nom: string
 }
 
-/**
- * interface for classes that represent a thematique
- * @interface groupThematiqueInterface
- */
-export interface groupThematiqueInterface {
+export interface  groupInterface{
   /**
    *  background color
    */
   color: string | null
+  /**
+   * Name
+   */
+  nom: string
+  /**
+   * Path to the icon
+   */
+  img: string
+}
+/**
+ * interface for classes that represent a thematique
+ * @interface groupThematiqueInterface
+ */
+export interface groupThematiqueInterface extends groupInterface {
+
   id: number
   /**
    * Identifiant in database
    */
   id_thematique: number
-  /**
-   * Path to the icon
-   */
-  img: string
-  /**
-   * Name
-   */
-  nom: string
+
+
   /**
    * Order to show
    */
@@ -334,24 +339,13 @@ export interface sousCarteIntgerface {
  * interface for classes that represent a group of carte
  * @interface groupCarteInterface
  */
-export interface groupCarteInterface {
-  /**
-   *  background color
-   */
-  color: string | null
+export interface groupCarteInterface extends groupInterface  {
+
   id: number
   /**
    * Identifiant in database
    */
   id_cartes: number
-  /**
-   * Path to the icon
-   */
-  img: string
-  /**
-   * Name
-   */
-  nom: string
   /**
    * Is this group the principal group of cartes
    */
