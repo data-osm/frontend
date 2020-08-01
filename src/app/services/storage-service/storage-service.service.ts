@@ -133,4 +133,19 @@ export class StorageServiceService {
       return null
    }
 
+   /**
+    * Get all groups cartes of project
+    * @return Array<groupCarteInterface>
+    */
+   getAllGroupCarte():Array<groupCarteInterface>{
+     return this.groupCartes.getValue()
+   }
+
+   /**
+    * Get all groups of thematiques of the project
+    */
+   getAllGroupThematiques():Array<groupThematiqueInterface>{
+     return this.groupThematiques.getValue()
+   }
+
 }

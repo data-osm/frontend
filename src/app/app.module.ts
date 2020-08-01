@@ -34,7 +34,16 @@ import {manageCompHelper} from '../helper/manage-comp.helper';
 import { MeasureComponent } from './map/sidenav-right/map-tools/measure/measure.component';
 import { AltimetryComponent } from './map/sidenav-right/map-tools/altimetry/altimetry.component';
 import { CommentComponent } from './map/sidenav-right/map-tools/comment/comment.component';
-import { PrintComponent } from './map/sidenav-right/map-tools/print/print.component'
+import { PrintComponent } from './map/sidenav-right/map-tools/print/print.component';
+import { GroupCarteComponent } from './map/sidenav-left/sidenave-left-principal/group-carte/group-carte.component';
+import { GroupThematiqueComponent } from './map/sidenav-left/sidenave-left-principal/group-thematique/group-thematique.component';
+import { SidenaveLeftSecondaireComponent } from './map/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component'
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { NgpSortModule } from "ngp-sort-pipe";
+import { ListGroupThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-thematique/list-group-thematique.component';
+import { ListGroupCarteComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-carte/list-group-carte.component';
+import { CoucheThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-thematique/couche-thematique/couche-thematique.component';
+import { CarteThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-carte/carte-thematique/carte-thematique.component';
 
 @NgModule({
   declarations: [
@@ -53,12 +62,20 @@ import { PrintComponent } from './map/sidenav-right/map-tools/print/print.compon
     MeasureComponent,
     AltimetryComponent,
     CommentComponent,
-    PrintComponent
+    PrintComponent,
+    GroupCarteComponent,
+    GroupThematiqueComponent,
+    SidenaveLeftSecondaireComponent,
+    ListGroupThematiqueComponent,
+    ListGroupCarteComponent,
+    CoucheThematiqueComponent,
+    CarteThematiqueComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({
       debug: false
     }),
+    NgpSortModule,
     ShareIconsModule,
     BrowserModule,
     AppRoutingModule,
@@ -69,6 +86,7 @@ import { PrintComponent } from './map/sidenav-right/map-tools/print/print.compon
     ReactiveFormsModule,
     ColorPickerModule,
     NotifierModule,
+    FlexLayoutModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
