@@ -43,6 +43,7 @@ import { NgpSortModule } from "ngp-sort-pipe";
 import { ListGroupThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-thematique/list-group-thematique.component';
 import { ListGroupCarteComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-carte/list-group-carte.component';
 import { CoucheThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-thematique/couche-thematique/couche-thematique.component';
+import { CarteThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-carte/carte-thematique/carte-thematique.component';
 
 @NgModule({
   declarations: [
@@ -67,7 +68,8 @@ import { CoucheThematiqueComponent } from './map/sidenav-left/sidenave-left-seco
     SidenaveLeftSecondaireComponent,
     ListGroupThematiqueComponent,
     ListGroupCarteComponent,
-    CoucheThematiqueComponent
+    CoucheThematiqueComponent,
+    CarteThematiqueComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({
