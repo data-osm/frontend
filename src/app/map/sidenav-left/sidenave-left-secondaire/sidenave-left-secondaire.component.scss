@@ -1,6 +1,14 @@
+.sidenav-left-second-header-ghost{
+  height: 55px;
+}
 .sidenav-left-second-header{
     height: 55px;
     padding-top: 15px;
+    position: fixed;
+    top: 60px;
+    left: 0px;
+    z-index: 1;
+    width: 230px;
     .fa-angle-left{
       margin-top: -10px;
       font-size: 25px;
@@ -24,5 +32,9 @@
     }
 }
 
-
+app-list-group-thematique{
+  padding: 5px;
+  padding-top: 20px;
+  display: block;
+}
 

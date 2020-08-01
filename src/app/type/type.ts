@@ -178,6 +178,10 @@ export interface coucheInterface {
    * Zoom min
    */
   zmin: number
+  /**
+   * Is the layer in map ?
+   */
+  checked:boolean
 }
 
 /**

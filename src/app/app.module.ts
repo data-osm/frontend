@@ -40,6 +40,9 @@ import { GroupThematiqueComponent } from './map/sidenav-left/sidenave-left-princ
 import { SidenaveLeftSecondaireComponent } from './map/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component'
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { NgpSortModule } from "ngp-sort-pipe";
+import { ListGroupThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-thematique/list-group-thematique.component';
+import { ListGroupCarteComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-carte/list-group-carte.component';
+import { CoucheThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-thematique/couche-thematique/couche-thematique.component';
 
 @NgModule({
   declarations: [
@@ -61,7 +64,10 @@ import { NgpSortModule } from "ngp-sort-pipe";
     PrintComponent,
     GroupCarteComponent,
     GroupThematiqueComponent,
-    SidenaveLeftSecondaireComponent
+    SidenaveLeftSecondaireComponent,
+    ListGroupThematiqueComponent,
+    ListGroupCarteComponent,
+    CoucheThematiqueComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({
