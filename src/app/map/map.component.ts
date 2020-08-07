@@ -7,7 +7,8 @@ View,
 TileLayer,
 XYZ,
 defaultControls,
-Attribution
+Attribution,
+LayerGroup
 }from '../ol-module';
 import {StorageServiceService} from '../services/storage-service/storage-service.service'
 import {cartoHelper} from '../../helper/carto.helper'
@@ -21,10 +22,8 @@ var attribution = new Attribution({
 
 const map = new Map({
   layers: [
-    new TileLayer({
-      source: new XYZ({
-        url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-      })
+    new LayerGroup({
+      nom:'group-layer-shadow',
     })
   ],
   view: new View({
@@ -143,7 +142,11 @@ export class MapComponent implements OnInit {
     var cartoHelperClass = new cartoHelper(map)
     var layer  = cartoHelperClass.constructShadowLayer(this.StorageServiceService.getConfigProjet().roiGeojson)
     layer.setZIndex(1000)
-    map.addLayer(layer)
+
+    var groupLayerShadow = cartoHelperClass.getLayerGroupByNom('group-layer-shadow')
+    groupLayerShadow.setZIndex(1000)
+    groupLayerShadow.getLayers().getArray().unshift(layer)
+
   }
 
   /**

@@ -4,10 +4,10 @@
 
   </div>
 
-  <mat-card-actions>
-    <mat-checkbox labelPosition="before" color="primary" checked="true" >
-      <span *ngIf="donnePrincipalMap" > {{donnePrincipalMap.carte.nom}} </span>
-      <span *ngIf="!donnePrincipalMap"> OSM Mapnik </span>
+  <mat-card-actions *ngIf="donnePrincipalMap" >
+    <mat-checkbox labelPosition="before" color="primary" [checked]="donnePrincipalMap.carte.check" (change)="tooglePrincipalMapLayer()" >
+      <span  > {{donnePrincipalMap.carte.nom}} </span>
+      <!-- <span *ngIf="!donnePrincipalMap"> OSM Mapnik </span> -->
     </mat-checkbox>
   </mat-card-actions>
 </mat-card>
