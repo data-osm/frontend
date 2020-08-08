@@ -11,7 +11,6 @@ Attribution,
 LayerGroup
 }from '../ol-module';
 import {StorageServiceService} from '../services/storage-service/storage-service.service'
-import {cartoHelper} from '../../helper/carto.helper'
 import { TranslateService } from '@ngx-translate/core';
 import { SidenaveLeftSecondaireComponent } from './sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component';
 import * as $ from 'jquery'
@@ -20,7 +19,7 @@ var attribution = new Attribution({
   collapsible: false
 });
 
-const map = new Map({
+export const map = new Map({
   layers: [
     new LayerGroup({
       nom:'group-layer-shadow',
@@ -74,7 +73,6 @@ export class MapComponent implements OnInit {
 
     this.StorageServiceService.states.subscribe((value)=>{
       if (value.loadProjectData) {
-        this.addLayerShadow()
         map.getView().fit(this.StorageServiceService.getConfigProjet().bbox, { 'size': map.getSize(), 'duration': 1000 });
       }
     })
@@ -133,20 +131,6 @@ export class MapComponent implements OnInit {
       }
     }
     return null
-  }
-
-  /**
-   * Add layer shadow in the map
-   */
-  addLayerShadow(){
-    var cartoHelperClass = new cartoHelper(map)
-    var layer  = cartoHelperClass.constructShadowLayer(this.StorageServiceService.getConfigProjet().roiGeojson)
-    layer.setZIndex(1000)
-
-    var groupLayerShadow = cartoHelperClass.getLayerGroupByNom('group-layer-shadow')
-    groupLayerShadow.setZIndex(1000)
-    groupLayerShadow.getLayers().getArray().unshift(layer)
-
   }
 
   /**

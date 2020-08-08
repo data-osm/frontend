@@ -1,6 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { carteInterface } from 'src/app/type/type';
+import { StorageServiceService } from 'src/app/services/storage-service/storage-service.service'
+import { cartoHelper } from 'src/helper/carto.helper';
 
 @Component({
   selector: 'app-carte-thematique',
@@ -12,10 +14,10 @@ import { carteInterface } from 'src/app/type/type';
  */
 export class CarteThematiqueComponent implements OnInit {
 
-   /**
-   * Carte to displqy
-   */
-  @Input() carte:carteInterface;
+  /**
+  * Carte to displqy
+  */
+  @Input() carte: carteInterface;
 
   /**
    * Activat/desactivate carte
@@ -24,9 +26,82 @@ export class CarteThematiqueComponent implements OnInit {
 
   url_prefix = environment.url_prefix
 
-  constructor() { }
+  constructor(
+    public StorageServiceService:StorageServiceService
+  ) { }
 
   ngOnInit(): void {
+  }
+
+  /**
+  * Toogle layer
+  * @param couche carteInterface
+  */
+  toogleLayer(couche: carteInterface) {
+    if (couche.check) {
+      this.addLayer(couche)
+    } else {
+      this.removeLayer(couche)
+    }
+  }
+
+
+  /**
+   * Remove layer in map
+   * @param carte coucheInterface
+   */
+  removeLayer(carte:carteInterface){
+    var groupCarte = this.StorageServiceService.getGroupCarteFromIdCarte(carte.id)
+
+    let cartoHelperClass = new cartoHelper()
+
+    var layer = cartoHelperClass.getLayerByPropertiesCatalogueGeosm({
+      group_id:groupCarte.id_cartes,
+      couche_id:carte.id,
+      type:'carte'
+    })
+
+    for (let index = 0; index < layer.length; index++) {
+      cartoHelperClass.removeLayerToMap(layer[index])
+      carte.check = false
+    }
+
+  }
+
+  /**
+   * Add layer to map
+   * @param carte carteInterface
+   */
+  addLayer(carte:carteInterface){
+    var groupCarte = this.StorageServiceService.getGroupCarteFromIdCarte(carte.id)
+
+    let cartoHelperClass = new cartoHelper()
+    var type;
+    if (carte.type == 'WMS') {
+      type = 'wms'
+    } else if (carte.type == 'xyz') {
+      type = 'xyz'
+    }
+
+    var layer = cartoHelperClass.constructLayer(
+      {
+        nom: carte.nom,
+        type: type,
+        type_layer: 'geosmCatalogue',
+        url: carte.url,
+        visible: true,
+        properties: {
+          group_id: groupCarte.id_cartes,
+          couche_id: carte.id,
+          type: 'carte'
+        },
+        iconImagette: environment.url_prefix + '/' + carte.image_src
+      }
+    )
+
+    cartoHelperClass.addLayerToMap(layer)
+    carte.check = true
+
   }
 
 }

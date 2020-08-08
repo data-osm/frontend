@@ -32,6 +32,28 @@ export class BackendApiService {
     return this.headers
   }
 
+    /**
+ * Make a get request to other host. Here you must specified all the path of your request
+ * @param string path url
+ */
+getRequestFromOtherHost(path:string):Promise<any> {
+
+  let promise = new Promise((resolve, reject) => {
+    this.http.get(path,{headers:this.headers})
+      .toPromise()
+      .then(
+        res => {
+          resolve(res);
+        },
+        msg => { // Error
+          reject(msg);
+        }
+      );
+  });
+
+  return promise;
+}
+
   /**
  * Make a get request to Backend
  * @param string path url

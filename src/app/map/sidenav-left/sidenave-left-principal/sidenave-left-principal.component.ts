@@ -5,9 +5,9 @@ import {
   Map, Zoom, TileLayer, XYZ, View, defaultControls,
 } from '../../../ol-module';
 import { groupCarteInterface, carteInterface, groupThematiqueInterface, groupInterface } from 'src/app/type/type';
-import {SidenaveLeftSecondaireComponent} from '../sidenave-left-secondaire/sidenave-left-secondaire.component'
+import { SidenaveLeftSecondaireComponent } from '../sidenave-left-secondaire/sidenave-left-secondaire.component'
 import * as $ from 'jquery'
-import {cartoHelper} from 'src/helper/carto.helper'
+import { cartoHelper } from 'src/helper/carto.helper'
 
 /**
  * first composant of the left sidenav
@@ -53,6 +53,20 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
   }
 
   /**
+  * Add layer shadow in the map
+  */
+  addLayerShadow() {
+    var cartoHelperClass = new cartoHelper()
+    var layer = cartoHelperClass.constructShadowLayer(this.StorageServiceService.getConfigProjet().roiGeojson)
+    layer.setZIndex(1000)
+
+    var groupLayerShadow = cartoHelperClass.getLayerGroupByNom('group-layer-shadow')
+    groupLayerShadow.setZIndex(1000)
+    groupLayerShadow.getLayers().getArray().unshift(layer)
+
+  }
+
+  /**
    * Load principal map: the base map of the project
    */
   loadPrincipalMapLayer() {
@@ -64,11 +78,9 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
       view: this.map.getView()
     });
 
-
-
     this.StorageServiceService.states.subscribe((value) => {
       if (value.loadProjectData) {
-
+        this.addLayerShadow()
         this.tooglePrincipalMapLayer()
       }
     })
@@ -77,59 +89,59 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
   /**
    * Add or remove principal map to layer
    */
-  tooglePrincipalMapLayer(){
+  tooglePrincipalMapLayer() {
 
     this.donnePrincipalMap = this.StorageServiceService.getPrincipalCarte()
     if (this.donnePrincipalMap) {
       if (this.donnePrincipalMap.carte.check) {
         this.removePrincipalMapLayer()
-      }else{
+      } else {
         this.addPrincipalMapLayer()
       }
     }
   }
 
-  addPrincipalMapLayer(){
-    var cartoHelperClassMap = new cartoHelper(this.map)
+  addPrincipalMapLayer() {
+    var cartoHelperClassMap = new cartoHelper()
     this.donnePrincipalMap = this.StorageServiceService.getPrincipalCarte()
 
     if (this.donnePrincipalMap) {
       let groupCarte = this.donnePrincipalMap.groupCarte
       let carte = this.donnePrincipalMap.carte
-      this.donnePrincipalMap.carte.check =true
+      this.donnePrincipalMap.carte.check = true
       var type;
       if (carte.type == 'WMS') {
         type = 'wms'
-      }else if (carte.type == 'xyz') {
+      } else if (carte.type == 'xyz') {
         type = 'xyz'
       }
-      var layer =  cartoHelperClassMap.constructLayer(
+      var layer = cartoHelperClassMap.constructLayer(
         {
-          nom:carte.nom,
-          type:type,
-          type_layer:'geosmCatalogue',
-          url:carte.url,
-          visible:true,
-          properties:{
-            group_id:groupCarte.id_cartes,
-            couche_id:carte.id,
-            type:'carte'
+          nom: carte.nom,
+          type: type,
+          type_layer: 'geosmCatalogue',
+          url: carte.url,
+          visible: true,
+          properties: {
+            group_id: groupCarte.id_cartes,
+            couche_id: carte.id,
+            type: 'carte'
           },
-          iconImagette:environment.url_prefix+'/'+carte.image_src
+          iconImagette: environment.url_prefix + '/' + carte.image_src
         }
       )
 
-      var layerGhost =  new cartoHelper(this.ghostMap).constructLayer(
+      var layerGhost = new cartoHelper(this.ghostMap).constructLayer(
         {
-          nom:carte.nom,
-          type:type,
-          type_layer:'geosmCatalogue',
-          url:carte.url,
-          visible:true,
-          properties:{
-            group_id:groupCarte.id_cartes,
-            couche_id:carte.id,
-            type:'carte'
+          nom: carte.nom,
+          type: type,
+          type_layer: 'geosmCatalogue',
+          url: carte.url,
+          visible: true,
+          properties: {
+            group_id: groupCarte.id_cartes,
+            couche_id: carte.id,
+            type: 'carte'
           }
         }
       )
@@ -165,14 +177,14 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
     }
   }
 
-  removePrincipalMapLayer(){
+  removePrincipalMapLayer() {
     this.donnePrincipalMap = this.StorageServiceService.getPrincipalCarte()
     var cartoHelperClassMap = new cartoHelper(this.map)
-    this.donnePrincipalMap.carte.check =false
+    this.donnePrincipalMap.carte.check = false
     var layer = cartoHelperClassMap.getLayerByPropertiesCatalogueGeosm({
-      group_id:this.donnePrincipalMap.groupCarte.id_cartes,
-      couche_id:this.donnePrincipalMap.carte.id,
-      type:'carte'
+      group_id: this.donnePrincipalMap.groupCarte.id_cartes,
+      couche_id: this.donnePrincipalMap.carte.id,
+      type: 'carte'
     })
     for (let index = 0; index < layer.length; index++) {
       cartoHelperClassMap.removeLayerToMap(layer[index])
@@ -183,7 +195,7 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
    * Open group thematique slide
    * @param groupThematique groupThematiqueInterface
    */
-  openGroupThematiqueSlide(groupThematique:groupThematiqueInterface){
+  openGroupThematiqueSlide(groupThematique: groupThematiqueInterface) {
     this.SidenaveLeftSecondaireComp.setGroupThematique(groupThematique)
     this.SidenaveLeftSecondaireComp.open()
   }
@@ -192,7 +204,7 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
    * Open group carte slide
    * @param groupCarte groupCarteInterface
    */
-  openGroupCarteSlide(groupCarte:groupCarteInterface){
+  openGroupCarteSlide(groupCarte: groupCarteInterface) {
     this.SidenaveLeftSecondaireComp.setGroupCarte(groupCarte)
     this.SidenaveLeftSecondaireComp.open()
   }

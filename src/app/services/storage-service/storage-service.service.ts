@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, forkJoin, from, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { BackendApiService } from '../backend-api/backend-api.service'
-import { groupThematiqueInterface, groupCarteInterface, configProjetInterface, carteInterface, coucheInterface } from '../../type/type'
+import { groupThematiqueInterface, groupCarteInterface, configProjetInterface, carteInterface, coucheInterface, groupInterface } from '../../type/type'
 import { catchError } from 'rxjs/operators';
 import { analyzeAndValidateNgModules } from '@angular/compiler';
 
@@ -239,5 +239,66 @@ export class StorageServiceService {
       }
     }
   }
+
+  /**
+   * Get group thematique from id_couche
+   * @param id_couche number id couche of the couche
+   * @return groupThematiqueInterface
+   */
+  getGroupThematiqueFromIdCouche(id_couche: number): groupThematiqueInterface {
+    for (let index = 0; index < this.groupThematiques.getValue().length; index++) {
+      const groupThematique = this.groupThematiques.getValue()[index];
+      if (groupThematique.sous_thematiques) {
+        for (let index = 0; index < groupThematique.sous_thematiques.length; index++) {
+          const sous_thematique = groupThematique.sous_thematiques[index];
+          for (let jndex = 0; jndex < sous_thematique.couches.length; jndex++) {
+            const couche = sous_thematique.couches[jndex];
+            if (couche.id == id_couche) {
+              return groupThematique
+            }
+          }
+        }
+      }else{
+        for (let jndex = 0; jndex < groupThematique.couches.length; jndex++) {
+          const couche = groupThematique.couches[jndex];
+          if (couche.id == id_couche) {
+            return groupThematique
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Get group carte from id_carte
+   * @param id_carte number id carte of the carte
+   * @return groupCarteInterface
+   */
+  getGroupCarteFromIdCarte(id_carte:number):groupCarteInterface{
+    for (let index = 0; index < this.groupCartes.getValue().length; index++) {
+      const groupCarte = this.groupCartes.getValue()[index];
+      if (groupCarte.sous_cartes) {
+        for (let sIndex = 0; sIndex < groupCarte.sous_cartes.length; sIndex++) {
+          const sous_groupe = groupCarte.sous_cartes[sIndex];
+          for (let cIndex = 0; cIndex < sous_groupe.couches.length; cIndex++) {
+            const carte = sous_groupe.couches[cIndex];
+            if (carte.id == id_carte) {
+              return groupCarte
+            }
+          }
+        }
+      } else {
+        for (let cIndex = 0; cIndex < groupCarte.couches.length; cIndex++) {
+          const carte = groupCarte.couches[cIndex];
+          if (carte.id == id_carte) {
+            return groupCarte
+          }
+        }
+      }
+
+    }
+  }
+
+
 
 }

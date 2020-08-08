@@ -5,8 +5,8 @@
       <img src="{{url_prefix+couche.logo_src}}" *ngIf="couche.logo_src != null" />
     </div>
     <div fxFlex="50px" style="position: relative;padding-top: 13px;">
-      <mat-checkbox class="primaryColor center_checkbox" color="primary" [(ngModel)]="couche.checked"
-        [disabled]="disabled_couche(couche)">
+      <mat-checkbox class="primaryColor center_checkbox" color="primary" [(ngModel)]="couche.check"
+        [disabled]="disabled_couche(couche)" (change)="toogleLayer(couche)" >
       </mat-checkbox>
     </div>
   </div>

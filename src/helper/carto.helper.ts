@@ -1,11 +1,13 @@
 import {
-  Map, GeoJSON, Style, Fill, VectorLayer, VectorImageLayer, VectorSource, RasterSource, ImageLayer, ImageWMS, boundingExtent, Extent, transformExtent, Cluster, CircleStyle, Stroke, Text, Icon, TileLayer, XYZ, LayerGroup
+  Map, GeoJSON, Style, Fill, VectorLayer, VectorImageLayer, VectorSource, RasterSource, ImageLayer, ImageWMS, boundingExtent, Extent, transformExtent, Cluster, CircleStyle, Stroke, Text, Icon, TileLayer, XYZ, LayerGroup, TileWMS
 } from '../app/ol-module'
 import * as $ from 'jquery'
 import { BackendApiService } from 'src/app/services/backend-api/backend-api.service'
 import { StorageServiceService } from 'src/app/services/storage-service/storage-service.service'
 import { environment } from 'src/environments/environment'
-import { max } from 'rxjs/operators'
+import {map as portailMap} from 'src/app/map/map.component'
+import { Injectable, Injector } from '@angular/core'
+import {AppInjector} from 'src/helper/app-injector.helper'
 
 /**
  * Interface of all layers in the map
@@ -48,24 +50,31 @@ export interface geosmLayer {
   } | null | Object
 }
 
+
 /**
  * Handle diverse operation in link with the map
  */
-
+@Injectable()
 export class cartoHelper {
+
 
   map: Map
   environment = environment
+  BackendApiService:BackendApiService = AppInjector.get(BackendApiService);
 
   constructor(
-    map: Map,
-    public BackendApiService?: BackendApiService ,
-    public StorageServiceService?:StorageServiceService
+    map?: Map,
+    public StorageServiceService?:StorageServiceService,
   ) {
-    this.map = map
-    this.StorageServiceService = StorageServiceService
-    this.BackendApiService = BackendApiService
+
+    if (map) {
+      this.map = map
+    }else{
+      this.map = portailMap
+    }
+
   }
+
 
   /**
    * Construct a shadow layer
@@ -163,6 +172,8 @@ export class cartoHelper {
     }
   }
 
+
+
   /**
    * Construct a layer with openlayers
    * @param couche geosmLayer the layer to construct
@@ -177,18 +188,16 @@ export class cartoHelper {
       })
     }else if (couche.type == "wms") {
 
-      var wmsSource = new ImageWMS({
+      var wmsSource = new TileWMS({
         url: couche.url,
-        params: { 'LAYERS': couche.identifiant },
+        params: { 'LAYERS': couche.identifiant , 'TILED': true },
         serverType: 'qgis',
         crossOrigin: 'anonymous',
-        transition: 0
       });
 
-      var layer = new ImageLayer({
+      var layer = new TileLayer({
         source: wmsSource,
       });
-
     } else if (couche.type == "geojson") {
       var vectorSource = new VectorSource({
         format: new GeoJSON(),
@@ -272,10 +281,11 @@ export class cartoHelper {
           var extent_vieuw = this.getCurrentMapExtent()
           var url = couche.url +
             '?bbox=' + transformExtent(extent_vieuw, 'EPSG:3857', 'EPSG:4326').join(',') +
-            '&layers=' + couche.identifiant;
-          this.BackendApiService.getRequest(url).then(
+            '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GETFEATURE&outputFormat=GeoJSON&typeName=' + couche.identifiant;
+            // console.log(this.BackendApiService)
+          this.BackendApiService.getRequestFromOtherHost(url).then(
             (data) => {
-              source.addFeatures(source.getFormat().readFeatures(data['data']));
+              source.addFeatures(source.getFormat().readFeatures(data));
             },
             (err) => {
               source.removeLoadedExtent(extent_vieuw);
@@ -286,12 +296,18 @@ export class cartoHelper {
 
       var layer = new VectorLayer({
         source: source,
+        style:new Style({
+          image: new Icon({
+            scale: couche.size,
+            src: couche.icon
+          })
+        })
       });
 
       if (couche.cluster) {
         var clusterSource = new Cluster({
           distance: 80,
-          source: vectorSource
+          source: source
         });
         var styleCache = {};
         var styleCacheCopy = {}
@@ -334,7 +350,12 @@ export class cartoHelper {
                 styleCache[size] = styleDefault;
               }
 
-              return [couche.style, styleDefault];
+              return [new Style({
+                image: new Icon({
+                  scale: couche.size,
+                  src: couche.icon
+                })
+              }), styleDefault];
 
             } else if (size == 1) {
               return new Style({
@@ -544,7 +565,6 @@ export class cartoHelper {
   getLayerByPropertiesCatalogueGeosm(properties:{group_id: number,couche_id: number,type:'couche'|'carte'}): Array<any> {
     var layer_to_remove = []
     var all_layers = this.getAllLAyerInMap()
-    console.log(all_layers)
     for (let index = 0; index < all_layers.length; index++) {
       var layer = all_layers[index]
       if (layer.get('properties')) {
