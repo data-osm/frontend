@@ -23,7 +23,7 @@ $height: calc(100% - 60px);
   }
 }
 
-.sidenav-right {
+ .sidenav-right {
   width: 219px;
   .sidenav-right-content{
     padding: 5px;
@@ -37,7 +37,18 @@ $height: calc(100% - 60px);
     text-align: center;
     padding: 5px 0px;
     font-weight: bold;
+    position: fixed;
+    width: 218px;
+    z-index: 2;
+    top: 60px;
+    right: 0px;
+    height: 20px;
   }
+  .sidenav-right-title-fake{
+    height: 20px;
+  }
+
+
 }
 
 .sidenav-content {
@@ -63,5 +74,9 @@ $height: calc(100% - 60px);
     right: 0px;
     top: 40px;
     width: 65px;
+    ::ng-deep .mat-badge-content {
+      left: 39px !important;
+      top: -6px !important;
+    }
   }
 }

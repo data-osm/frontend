@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { StorageServiceService } from '../../../services/storage-service/storage-service.service'
 import {
-  Map, Zoom, TileLayer, XYZ, View, defaultControls,
+  Map
 } from '../../../ol-module';
 import { groupCarteInterface, carteInterface, groupThematiqueInterface, groupInterface } from 'src/app/type/type';
 import { SidenaveLeftSecondaireComponent } from '../sidenave-left-secondaire/sidenave-left-secondaire.component'
@@ -122,9 +122,10 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
           type_layer: 'geosmCatalogue',
           url: carte.url,
           visible: true,
+          inToc:true,
           properties: {
             group_id: groupCarte.id_cartes,
-            couche_id: carte.id,
+            couche_id: carte.key_couche,
             type: 'carte'
           },
           iconImagette: environment.url_prefix + '/' + carte.image_src
@@ -138,9 +139,10 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
           type_layer: 'geosmCatalogue',
           url: carte.url,
           visible: true,
+          inToc:true,
           properties: {
             group_id: groupCarte.id_cartes,
-            couche_id: carte.id,
+            couche_id: carte.key_couche,
             type: 'carte'
           }
         }
@@ -183,7 +185,7 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
     this.donnePrincipalMap.carte.check = false
     var layer = cartoHelperClassMap.getLayerByPropertiesCatalogueGeosm({
       group_id: this.donnePrincipalMap.groupCarte.id_cartes,
-      couche_id: this.donnePrincipalMap.carte.id,
+      couche_id: this.donnePrincipalMap.carte.key_couche,
       type: 'carte'
     })
     for (let index = 0; index < layer.length; index++) {

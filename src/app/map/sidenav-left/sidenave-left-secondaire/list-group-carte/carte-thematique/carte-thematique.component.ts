@@ -51,13 +51,13 @@ export class CarteThematiqueComponent implements OnInit {
    * @param carte coucheInterface
    */
   removeLayer(carte:carteInterface){
-    var groupCarte = this.StorageServiceService.getGroupCarteFromIdCarte(carte.id)
+    var groupCarte = this.StorageServiceService.getGroupCarteFromIdCarte(carte.key_couche)
 
     let cartoHelperClass = new cartoHelper()
 
     var layer = cartoHelperClass.getLayerByPropertiesCatalogueGeosm({
       group_id:groupCarte.id_cartes,
-      couche_id:carte.id,
+      couche_id:carte.key_couche,
       type:'carte'
     })
 
@@ -73,7 +73,7 @@ export class CarteThematiqueComponent implements OnInit {
    * @param carte carteInterface
    */
   addLayer(carte:carteInterface){
-    var groupCarte = this.StorageServiceService.getGroupCarteFromIdCarte(carte.id)
+    var groupCarte = this.StorageServiceService.getGroupCarteFromIdCarte(carte.key_couche)
 
     let cartoHelperClass = new cartoHelper()
     var type;
@@ -90,9 +90,10 @@ export class CarteThematiqueComponent implements OnInit {
         type_layer: 'geosmCatalogue',
         url: carte.url,
         visible: true,
+        inToc:true,
         properties: {
           group_id: groupCarte.id_cartes,
-          couche_id: carte.id,
+          couche_id: carte.key_couche,
           type: 'carte'
         },
         iconImagette: environment.url_prefix + '/' + carte.image_src

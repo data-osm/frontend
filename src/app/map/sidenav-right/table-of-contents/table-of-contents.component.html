@@ -1,1 +1,44 @@
-<p>table-of-contents works!</p>
+<div cdkDropList (cdkDropListDropped)="drop($event)">
+  <!-- | sortBy: 'desc':'zIndex' -->
+  <div *ngFor="let layer of layersInToc "  cdkDrag cdkDragLockAxis="y" >
+    <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+    <mat-card class="table-of-contents-card">
+
+      <mat-chip-list style="position: absolute;top: -10px;left: 5px;" *ngIf="layer.badge">
+        <mat-chip style="padding: 5px 5px;min-height: 20px;font-size: 11px;" class="white"
+          [ngStyle]="{'background': layer.badge.bgColor}">
+          {{layer.badge.text}}
+        </mat-chip>
+      </mat-chip-list>
+
+      <div mat-card-image class="table-of-contents-card-img">
+        <img [src]="layer.image" [alt]="layer.nom">
+
+      </div>
+
+      <mat-card-content>
+
+        <p>
+          <i class="fa fa-info-circle pointer primaryColor" *ngIf="layer.tocCapabilities.metadata"
+            matTooltip="{{ 'couche_en_cours.information_couche' | translate }}"
+            style="margin-right: 10px;font-size: 17px;"></i>
+          <i class="fa fa-share-alt pointer primaryColor" *ngIf="layer.tocCapabilities.share"
+            matTooltip="{{ 'couche_en_cours.partager_couche' | translate }}"
+            style="margin-right: 10px;font-size: 15px;"></i>
+          <i class="fa fa-trash pointer " matTooltip="{{ 'couche_en_cours.supprimer_couche' | translate }}"
+            style="font-size: 15px;color: rgb(242, 79, 79);"></i>
+        </p>
+
+        <mat-slider *ngIf="layer.tocCapabilities.opacity" style="width: 100%;" [max]="100" [min]="0" color="primary"
+          [thumbLabel]="true" [value]="layer.layer.getOpacity()*100"></mat-slider>
+
+      </mat-card-content>
+      <mat-card-actions>
+        <mat-checkbox labelPosition="after" color="primary" [(ngModel)]="layer.visible">
+          {{layer.nom}}
+        </mat-checkbox>
+      </mat-card-actions>
+
+    </mat-card>
+  </div>
+</div>

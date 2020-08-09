@@ -3,31 +3,62 @@ import {
 } from '../app/ol-module'
 import * as $ from 'jquery'
 import { BackendApiService } from 'src/app/services/backend-api/backend-api.service'
-import { StorageServiceService } from 'src/app/services/storage-service/storage-service.service'
 import { environment } from 'src/environments/environment'
-import {map as portailMap} from 'src/app/map/map.component'
+import { map as portailMap } from 'src/app/map/map.component'
 import { Injectable, Injector } from '@angular/core'
-import {AppInjector} from 'src/helper/app-injector.helper'
+import { AppInjector } from 'src/helper/app-injector.helper'
 
+/**
+ * Interface of the table of contents capabilities
+ */
+export interface tocCapabilities{
+/**
+     * change opactity
+     */
+    opacity:boolean,
+    metadata:boolean,
+    share:boolean
+}
 /**
  * Interface of all layers in the map
  */
-export interface layersInMap{
-  nom:string
-  type_layer:'geosmCatalogue'|'draw'|'mesure'|'mappilary'|'download'|'other',
-  image:string
-  properties:Object|null
-  zIndex:number
-  visible:boolean
-  data:any
+export interface layersInMap {
+  nom: string
+  type_layer: 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'download' | 'other',
+  image: string
+  properties: Object | null
+  zIndex: number
+  visible: boolean
+  data: any,
+  /**
+   * text and background color of the badje in the table of contents
+   */
+  badge?:{
+    text:string,
+    bgColor:string
+  }
+  /**
+   * The layer type OL/layer in the map
+   */
+  layer:any
+    /**
+   * capabilities of the layer in toc. They user can set opactiy ? read metadata ?...
+   * By default, all is set to true
+   */
+  tocCapabilities:tocCapabilities
 }
-const typeLayer = ['geosmCatalogue','draw','mesure','mappilary','download','other']
+
+const typeLayer = ['geosmCatalogue', 'draw', 'mesure', 'mappilary', 'download', 'other']
 /**
  * interface to construct  a layer
  */
 export interface geosmLayer {
   'nom': string,
-  'type_layer': 'geosmCatalogue'|'draw'|'mesure'|'mappilary'|'download'|'other',
+  /**
+   * is the layer should appear in the toc ?
+   */
+  'inToc':boolean
+  'type_layer': 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'download' | 'other',
   'type': 'geojson' | 'wfs' | 'wms' | 'xyz',
   'crs'?: string,
   'visible': boolean,
@@ -43,10 +74,15 @@ export interface geosmLayer {
   "iconImagette"?: string,
   "url"?: string,
   "identifiant"?: string,
+  /**
+   * capabilities of the layer in toc. They user can set opactiy ? read metadata ?...
+   * By default, all is set to true
+   */
+  tocCapabilities?:tocCapabilities
   'properties': {
     group_id: number,
     couche_id: number,
-    type:'couche'|'carte'
+    type: 'couche' | 'carte'
   } | null | Object
 }
 
@@ -60,16 +96,15 @@ export class cartoHelper {
 
   map: Map
   environment = environment
-  BackendApiService:BackendApiService = AppInjector.get(BackendApiService);
+  BackendApiService: BackendApiService = AppInjector.get(BackendApiService);
 
   constructor(
     map?: Map,
-    public StorageServiceService?:StorageServiceService,
   ) {
 
     if (map) {
       this.map = map
-    }else{
+    } else {
       this.map = portailMap
     }
 
@@ -136,7 +171,7 @@ export class cartoHelper {
 
     var rasterLayer = new ImageLayer({
       source: raster,
-      nom:'map-shadow'
+      nom: 'map-shadow'
     });
 
     return rasterLayer
@@ -186,11 +221,11 @@ export class cartoHelper {
           url: couche.url
         })
       })
-    }else if (couche.type == "wms") {
+    } else if (couche.type == "wms") {
 
       var wmsSource = new TileWMS({
         url: couche.url,
-        params: { 'LAYERS': couche.identifiant , 'TILED': true },
+        params: { 'LAYERS': couche.identifiant, 'TILED': true },
         serverType: 'qgis',
         crossOrigin: 'anonymous',
       });
@@ -282,7 +317,7 @@ export class cartoHelper {
           var url = couche.url +
             '?bbox=' + transformExtent(extent_vieuw, 'EPSG:3857', 'EPSG:4326').join(',') +
             '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GETFEATURE&outputFormat=GeoJSON&typeName=' + couche.identifiant;
-            // console.log(this.BackendApiService)
+          // console.log(this.BackendApiService)
           this.BackendApiService.getRequestFromOtherHost(url).then(
             (data) => {
               source.addFeatures(source.getFormat().readFeatures(data));
@@ -296,7 +331,7 @@ export class cartoHelper {
 
       var layer = new VectorLayer({
         source: source,
-        style:new Style({
+        style: new Style({
           image: new Icon({
             scale: couche.size,
             src: couche.icon
@@ -382,6 +417,8 @@ export class cartoHelper {
     layer.set('type_layer', couche.type_layer)
     layer.set('iconImagette', couche.iconImagette)
     layer.set('identifiant', couche.identifiant)
+    layer.set('inToc', couche.inToc)
+    layer.set('tocCapabilities', couche.tocCapabilities)
 
     if (couche.zindex) {
       layer.setZIndex(couche.zindex)
@@ -406,7 +443,7 @@ export class cartoHelper {
    * @param layer layer to add
    * @param group string name of layerGroup where we want to add the layer.
    */
-  addLayerToMap(layer: VectorLayer | ImageLayer,group:string = 'principal') {
+  addLayerToMap(layer: VectorLayer | ImageLayer, group: string = 'principal') {
     if (!layer.get('nom')) {
       throw new Error("Layer must have a 'nom' properties");
     }
@@ -415,8 +452,8 @@ export class cartoHelper {
       throw new Error("Layer must have a 'type_layer' properties");
     }
 
-    if (typeLayer.indexOf(layer.get('type_layer')) == -1 ) {
-      throw new Error("Layer must have a 'type_layer' properties among "+typeLayer.join(','));
+    if (typeLayer.indexOf(layer.get('type_layer')) == -1) {
+      throw new Error("Layer must have a 'type_layer' properties among " + typeLayer.join(','));
     }
 
     var zIndex = this.getMaxZindexInMap() + 1
@@ -442,13 +479,13 @@ export class cartoHelper {
    *Get group layer by nom
    * @param groupName
    */
-  getLayerGroupByNom(groupName:string):LayerGroup{
+  getLayerGroupByNom(groupName: string): LayerGroup {
     var groupLayer = undefined
-    this.map.getLayers().forEach( (group)=> {
+    this.map.getLayers().forEach((group) => {
       if (group instanceof LayerGroup) {
 
-        if (group.get('nom')  == groupName )  {
-          groupLayer =  group
+        if (group.get('nom') == groupName) {
+          groupLayer = group
         }
       }
     });
@@ -458,12 +495,12 @@ export class cartoHelper {
   /**
    * Get all layer in map
    */
-  getAllLAyerInMap():Array<any>{
+  getAllLAyerInMap(): Array<any> {
     var responseLayers = []
-    this.map.getLayers().forEach( (group)=> {
+    this.map.getLayers().forEach((group) => {
       if (group instanceof LayerGroup) {
         responseLayers = responseLayers.concat(group.getLayers().getArray())
-      }else{
+      } else {
         responseLayers.push(group)
       }
     });
@@ -538,7 +575,7 @@ export class cartoHelper {
       var correspondanceLenght = 0
 
       for (const key in properties) {
-        if (properties.hasOwnProperty(key) && layer.get('properties') &&  layer.get('properties')[key] != undefined ) {
+        if (properties.hasOwnProperty(key) && layer.get('properties') && layer.get('properties')[key] != undefined) {
           const element = properties[key];
           if (properties[key] == layer.get('properties')[key]) {
             correspondanceLenght = correspondanceLenght + 1
@@ -562,7 +599,7 @@ export class cartoHelper {
    * @param isLayerGroup boolean is the layeys we want are in a layergroup ?
    * @return Array<any>
    */
-  getLayerByPropertiesCatalogueGeosm(properties:{group_id: number,couche_id: number,type:'couche'|'carte'}): Array<any> {
+  getLayerByPropertiesCatalogueGeosm(properties: { group_id: number, couche_id: number, type: 'couche' | 'carte' }): Array<any> {
     var layer_to_remove = []
     var all_layers = this.getAllLAyerInMap()
     for (let index = 0; index < all_layers.length; index++) {
@@ -578,51 +615,93 @@ export class cartoHelper {
   }
 
   /**
-   * Get all layers in the TOC. eg all layer in the group layer with propertiees 'nom' equal to 'principal'
+   * Get all layers in the TOC.
+   * Remark : all layer not in group group-layer-shadow
    * @return Array<layersInMap>
    */
-  getAllLayersInToc():Array<layersInMap>{
-    var reponseLayers:Array<layersInMap> = []
-    var allLayers = this.getLayerGroupByNom('principal').getLayers().getArray()
+  getAllLayersInToc(): Array<layersInMap> {
+    var reponseLayers: Array<layersInMap> = []
+    var allLayers = this.map.getLayers().getArray()
 
     for (let index = 0; index < allLayers.length; index++) {
       const layer = allLayers[index];
       var data = null
 
-      if (layer.get('type_layer') == 'geosmCatalogue') {
-        if (layer.get('properties')['type']=='couche') {
-          data = this.StorageServiceService.getCouche(layer.get('properties')['group_id'],layer.get('properties')['couche_id'])
-        }else if (layer.get('properties')['type']=='carte'){
-          data = this.StorageServiceService.getCarte(layer.get('properties')['group_id'],layer.get('properties')['couche_id'])
-        }
+      var tocCapabilities:tocCapabilities = {} as tocCapabilities
+      if (layer.get('tocCapabilities')) {
+        tocCapabilities.opacity = layer.get('tocCapabilities')['opacity']?layer.get('tocCapabilities')['opacity']:true
+        tocCapabilities.share = layer.get('tocCapabilities')['share']?layer.get('tocCapabilities')['share']:true
+        tocCapabilities.metadata = layer.get('tocCapabilities')['metadata']?layer.get('tocCapabilities')['metadata']:true
+      }else{
+        tocCapabilities.opacity = true
+        tocCapabilities.share = true
+        tocCapabilities.metadata = true
       }
 
-      reponseLayers.push({
-        nom:layer.get('nom'),
-        type_layer:layer.get('type_layer'),
-        properties:layer.get('properties'),
-        image:layer.get('iconImagette'),
-        data:data,
-        zIndex:layer.getZIndex(),
-        visible:layer.getVisible(),
-      })
+      if (layer.get('inToc')) {
+        reponseLayers.push({
+          tocCapabilities:tocCapabilities,
+          nom: layer.get('nom'),
+          type_layer: layer.get('type_layer'),
+          properties: layer.get('properties'),
+          image: layer.get('iconImagette'),
+          data: data,
+          zIndex: layer.getZIndex(),
+          visible: layer.getVisible(),
+          layer:layer
+        })
+      }
+
     }
 
     return reponseLayers
   }
 
   /**
+   * Edit the zIndex of a layer:
+   * Will set the Zindex of the layer and
+   * - reduce by one all layer that Zindex are < this layer
+   * - increase by one all layer that zIndex are > this layer
+   * @param layer any layer to edit zindex
+   * @param zIndex number
+   */
+  editZindexOfLayer(layer:any,zIndex:number){
+    for (let index = 0; index < this.getAllLayersInToc().length; index++) {
+      const layerInmap = this.getAllLayersInToc()[index].layer;
+
+      console.log(layer.getZIndex() , zIndex)
+      if (layer.getZIndex() < zIndex ) {
+        // if the layer is going up
+        if (layerInmap.getZIndex() <= zIndex ) {
+          layerInmap.setZIndex(layerInmap.getZIndex() - 1)
+        }else if (layerInmap.getZIndex() > zIndex ){
+          layerInmap.setZIndex(layerInmap.getZIndex() + 1)
+        }
+      }else if (layer.getZIndex() > zIndex ) {
+        // if the layer is going down
+        if (layerInmap.getZIndex() >= zIndex ) {
+          layerInmap.setZIndex(layerInmap.getZIndex() + 1)
+        }else if (layerInmap.getZIndex() < zIndex ){
+          layerInmap.setZIndex(layerInmap.getZIndex() - 1)
+        }
+      }
+    }
+
+    layer.setZIndex(zIndex)
+  }
+
+  /**
    * Get max z index of map layers
    * @return number
    */
-  getMaxZindexInMap():number{
+  getMaxZindexInMap(): number {
     var allLayers = this.map.getLayers().getArray()
 
     var allZindex = [0]
     for (let index = 0; index < allLayers.length; index++) {
       var layer = allLayers[index]
       if (layer instanceof LayerGroup) {
-      }else {
+      } else {
         try {
           allZindex.push(layer.getZIndex())
           // console.log(layer.get('nom'),layer.getZIndex())

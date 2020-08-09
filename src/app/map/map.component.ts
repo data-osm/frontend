@@ -14,6 +14,7 @@ import {StorageServiceService} from '../services/storage-service/storage-service
 import { TranslateService } from '@ngx-translate/core';
 import { SidenaveLeftSecondaireComponent } from './sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component';
 import * as $ from 'jquery'
+import { layersInMap, cartoHelper } from 'src/helper/carto.helper';
 
 var attribution = new Attribution({
   collapsible: false
@@ -60,6 +61,12 @@ export class MapComponent implements OnInit {
     {name:'legend',active:false,enable:true,tooltip:'toolpit_legend',title:'legend'},
     {name:'download',active:false,enable:true,tooltip:'toolpit_download_data',title:'download_data'}
   ]
+
+  /**
+   * all the layer in the toc
+   */
+  layersInToc:Array<layersInMap> = []
+
   constructor(
     public StorageServiceService:StorageServiceService,
     public translate: TranslateService,
@@ -76,6 +83,13 @@ export class MapComponent implements OnInit {
         map.getView().fit(this.StorageServiceService.getConfigProjet().bbox, { 'size': map.getSize(), 'duration': 1000 });
       }
     })
+
+    map.getLayers().on('propertychange',(ObjectEvent)=>{
+    let cartoHelperClass =  new cartoHelper()
+
+      this.layersInToc =cartoHelperClass.getAllLayersInToc()
+    })
+
   }
 
   /**

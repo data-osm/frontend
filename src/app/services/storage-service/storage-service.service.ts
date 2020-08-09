@@ -153,9 +153,10 @@ export class StorageServiceService {
    */
   getGroupThematiqueById(id_thematique: number): groupThematiqueInterface {
 
-    for (let index = 0; index < this.getAllGroupThematiques.length; index++) {
-      const thematique = this.getAllGroupThematiques[index];
-      if (thematique.id_thematique == id_thematique) {
+
+    for (let index = 0; index < this.groupThematiques.getValue().length; index++) {
+      const thematique = this.groupThematiques.getValue()[index];
+      if (thematique.id_thematique === id_thematique) {
         return thematique
       }
     }
@@ -167,8 +168,8 @@ export class StorageServiceService {
    */
   getGroupcarteById(id_carte: number): groupCarteInterface {
 
-    for (let index = 0; index < this.getAllGroupCarte.length; index++) {
-      const carte = this.getAllGroupCarte[index];
+    for (let index = 0; index < this.groupCartes.getValue().length; index++) {
+      const carte = this.groupCartes.getValue()[index];
       if (carte.id_cartes == id_carte) {
         return carte
       }
@@ -192,7 +193,7 @@ export class StorageServiceService {
         const sous_thematique = groupThematique.sous_thematiques[index];
         for (let jndex = 0; jndex < sous_thematique.couches.length; jndex++) {
           const couche = sous_thematique.couches[jndex];
-          if (couche.id == id_couche) {
+          if (couche.key_couche == id_couche) {
             return couche
           }
         }
@@ -200,7 +201,7 @@ export class StorageServiceService {
     } else {
       for (let jndex = 0; jndex < groupThematique.couches.length; jndex++) {
         const couche = groupThematique.couches[jndex];
-        if (couche.id == id_couche) {
+        if (couche.key_couche == id_couche) {
           return couche
         }
       }
@@ -225,7 +226,7 @@ export class StorageServiceService {
         const sous_groupe = groupCarte.sous_cartes[sIndex];
         for (let cIndex = 0; cIndex < sous_groupe.couches.length; cIndex++) {
           const carte = sous_groupe.couches[cIndex];
-          if (carte.id == id_carte) {
+          if (carte.key_couche == id_carte) {
             return carte
           }
         }
@@ -233,7 +234,7 @@ export class StorageServiceService {
     } else {
       for (let cIndex = 0; cIndex < groupCarte.couches.length; cIndex++) {
         const carte = groupCarte.couches[cIndex];
-        if (carte.id == id_carte) {
+        if (carte.key_couche == id_carte) {
           return carte
         }
       }
@@ -246,27 +247,29 @@ export class StorageServiceService {
    * @return groupThematiqueInterface
    */
   getGroupThematiqueFromIdCouche(id_couche: number): groupThematiqueInterface {
+    var groupThematiqueResponse:groupThematiqueInterface;
     for (let index = 0; index < this.groupThematiques.getValue().length; index++) {
       const groupThematique = this.groupThematiques.getValue()[index];
       if (groupThematique.sous_thematiques) {
-        for (let index = 0; index < groupThematique.sous_thematiques.length; index++) {
-          const sous_thematique = groupThematique.sous_thematiques[index];
+        for (let sindex = 0; sindex < groupThematique.sous_thematiques.length; sindex++) {
+          const sous_thematique = groupThematique.sous_thematiques[sindex];
           for (let jndex = 0; jndex < sous_thematique.couches.length; jndex++) {
             const couche = sous_thematique.couches[jndex];
-            if (couche.id == id_couche) {
-              return groupThematique
+            if (couche.key_couche == id_couche) {
+              groupThematiqueResponse =  groupThematique
             }
           }
         }
       }else{
         for (let jndex = 0; jndex < groupThematique.couches.length; jndex++) {
           const couche = groupThematique.couches[jndex];
-          if (couche.id == id_couche) {
-            return groupThematique
+          if (couche.key_couche == id_couche) {
+            groupThematiqueResponse =  groupThematique
           }
         }
       }
     }
+    return  groupThematiqueResponse
   }
 
   /**
@@ -282,7 +285,7 @@ export class StorageServiceService {
           const sous_groupe = groupCarte.sous_cartes[sIndex];
           for (let cIndex = 0; cIndex < sous_groupe.couches.length; cIndex++) {
             const carte = sous_groupe.couches[cIndex];
-            if (carte.id == id_carte) {
+            if (carte.key_couche == id_carte) {
               return groupCarte
             }
           }
@@ -290,7 +293,7 @@ export class StorageServiceService {
       } else {
         for (let cIndex = 0; cIndex < groupCarte.couches.length; cIndex++) {
           const carte = groupCarte.couches[cIndex];
-          if (carte.id == id_carte) {
+          if (carte.key_couche == id_carte) {
             return groupCarte
           }
         }

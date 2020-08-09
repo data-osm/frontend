@@ -94,7 +94,6 @@ export interface coucheInterface {
    * Geometry type
    */
   geom: "point" | "Polygon" | "LineString"
-  id: number
   /**
    * Categorie ID in DB
    */
@@ -269,10 +268,6 @@ export interface carteInterface  {
   check: boolean
   commentaire: string
   geom: null
-  /**
-   * don't serve
-   */
-  id: number
   /**
    * Identifiant for WMS/WMTS
    */

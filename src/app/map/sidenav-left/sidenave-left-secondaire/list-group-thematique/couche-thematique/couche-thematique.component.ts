@@ -63,13 +63,13 @@ export class CoucheThematiqueComponent implements OnInit {
    * @param couche coucheInterface
    */
   removeLayer(couche:coucheInterface){
-    var groupThematique = this.StorageServiceService.getGroupThematiqueFromIdCouche(couche.id)
+    var groupThematique = this.StorageServiceService.getGroupThematiqueFromIdCouche(couche.key_couche)
 
     let cartoHelperClass = new cartoHelper()
 
     var layer = cartoHelperClass.getLayerByPropertiesCatalogueGeosm({
       group_id:groupThematique.id_thematique,
-      couche_id:couche.id,
+      couche_id:couche.key_couche,
       type:'couche'
     })
 
@@ -105,8 +105,7 @@ export class CoucheThematiqueComponent implements OnInit {
 
   addLayer(couche:coucheInterface){
     let cartoHelperClass = new cartoHelper()
-    var groupThematique = this.StorageServiceService.getGroupThematiqueFromIdCouche(couche.id)
-
+    var groupThematique = this.StorageServiceService.getGroupThematiqueFromIdCouche(couche.key_couche)
     this.geDimensionsOfImage(environment.url_prefix+'/'+couche.img,(dimension:{width:number,height:number})=>{
 
       let size = 0.4
@@ -122,9 +121,10 @@ export class CoucheThematiqueComponent implements OnInit {
         type_layer:'geosmCatalogue',
         url:couche.url,
         visible:true,
+        inToc:true,
         properties:{
           group_id:groupThematique.id_thematique,
-          couche_id:couche.id,
+          couche_id:couche.key_couche,
           type:'couche'
         },
         iconImagette:environment.url_prefix+'/'+couche.logo_src,

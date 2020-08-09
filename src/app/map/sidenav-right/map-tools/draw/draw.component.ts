@@ -238,6 +238,7 @@ export class DrawComponent implements OnInit {
     this.map.addOverlay(this.overlayColor);
     var cartoHelperClassMap = new cartoHelper(this.map)
     this.vector.set('iconImagette',environment.url_frontend+'/assets/icones/draw.svg')
+    this.vector.set('inToc',false)
 
     cartoHelperClassMap.addLayerToMap(this.vector)
   }
