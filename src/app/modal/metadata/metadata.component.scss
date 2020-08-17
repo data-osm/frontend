@@ -1,0 +1,50 @@
+.close{
+  font-size: 18px !important;
+  margin-right: 10px !important;
+  margin-top: 6px !important;
+  margin-left: 5px !important;
+  float: right !important;
+  cursor: pointer !important;
+}
+.icon_header{
+  float: left !important;
+  margin-left: 10px !important;
+  margin-top: 8px !important;
+  font-size: 20px !important;
+  margin-right: 5px !important;
+}
+  ::ng-deep .mat-dialog-content{
+      overflow: auto  !important;
+      max-height: calc(100% - 112px) !important;
+      height: calc(100% - 112px) !important;
+      padding: 24px !important;
+  }
+
+  ::ng-deep .mat-dialog-title{
+      text-align: center !important;margin-left: -24px !important;
+      margin-right: -24px !important;
+      margin-top: -24px !important;
+      margin-bottom: 0px !important;
+      padding: 6px 0px !important;
+  }
+
+  ::ng-deep .mat-dialog-actions{
+      margin: 0px -24px -24px !important;
+      background:rgba(255, 255, 255, 0.8) !important;
+      padding-left: 10px !important;
+  }
+
+p,span,div{
+  font-family: Roboto, "Helvetica Neue", sans-serif !important;
+}
+.example-container {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.example-container > * {
+  width: 100% !important;
+}
+.example-container span > * {
+  width: 100% !important;
+}

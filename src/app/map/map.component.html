@@ -8,7 +8,7 @@
     <div id="map" ></div>
     <app-vertical-toolbar [map]="getMap()" [SidenaveLeftSecondaireComp]="SidenaveLeftSecondaireComp"  [sidenavContainer]="sidenavContainer"  class="sidenav-content-toolbar whiteBG"> </app-vertical-toolbar>
 
-    <div class="toogle-sidenav-right" *ngIf="sidenavContainer?.end">
+    <div class="toogle-sidenav-right" *ngIf="sidenavContainer.end">
       <ng-container *ngFor="let ritghtMenu_i of ritghtMenus">
         <button
         class="toogle-sidenav-right-button"

@@ -48,6 +48,7 @@ import { ListGroupThematiqueComponent } from './map/sidenav-left/sidenave-left-s
 import { ListGroupCarteComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-carte/list-group-carte.component';
 import { CoucheThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-thematique/couche-thematique/couche-thematique.component';
 import { CarteThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-carte/carte-thematique/carte-thematique.component';
+import { MetadataComponent } from './modal/metadata/metadata.component';
 
 @NgModule({
   declarations: [
@@ -73,7 +74,8 @@ import { CarteThematiqueComponent } from './map/sidenav-left/sidenave-left-secon
     ListGroupThematiqueComponent,
     ListGroupCarteComponent,
     CoucheThematiqueComponent,
-    CarteThematiqueComponent
+    CarteThematiqueComponent,
+    MetadataComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({
@@ -100,7 +102,8 @@ import { CarteThematiqueComponent } from './map/sidenav-left/sidenave-left-secon
     })
   ],
   providers: [StorageServiceService,BackendApiService,manageCompHelper],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents:[MetadataComponent]
 })
 export class AppModule {
   constructor(injector: Injector) {

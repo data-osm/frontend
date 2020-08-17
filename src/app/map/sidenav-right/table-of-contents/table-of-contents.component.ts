@@ -1,11 +1,19 @@
 import { Component, OnInit, Input } from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import { BehaviorSubject, Observable, from, fromEvent,merge as observerMerge,fromEventPattern, forkJoin } from 'rxjs';
 
 import {cartoHelper, layersInMap} from 'src/helper/carto.helper'
 import {
   Map
 } from '../../../ol-module';
 import {StorageServiceService} from 'src/app/services/storage-service/storage-service.service'
+import { MatSliderChange } from '@angular/material/slider';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { map, catchError, debounceTime } from 'rxjs/operators';
+import { coucheInterface, carteInterface } from 'src/app/type/type';
+import { environment } from 'src/environments/environment';
+import { MatDialog } from '@angular/material/dialog';
+import { MetadataComponent } from 'src/app/modal/metadata/metadata.component';
 
 @Component({
   selector: 'app-table-of-contents',
@@ -20,12 +28,15 @@ export class TableOfContentsComponent implements OnInit {
   @Input() map:Map
 
   layersInToc:Array<layersInMap> = []
+  layerChange:Observable<any> = new Observable()
 
   constructor(
-    public StorageServiceService:StorageServiceService
+    public StorageServiceService:StorageServiceService,
+    public dialog: MatDialog,
   ) { }
 
   ngOnInit(): void {
+
     this.map.getLayers().on('propertychange',(ObjectEvent)=>{
 
       this.getAllLayersForTOC()
@@ -39,7 +50,7 @@ export class TableOfContentsComponent implements OnInit {
     let cartoHelperClass =  new cartoHelper()
 
     let reponseLayers:Array<layersInMap> = cartoHelperClass.getAllLayersInToc()
-
+    let allObservableOFLayers:Array<Observable<any>> = []
     for (let index = 0; index < reponseLayers.length; index++) {
       const layerProp = reponseLayers[index];
       if (layerProp['type_layer'] == 'geosmCatalogue') {
@@ -64,6 +75,9 @@ export class TableOfContentsComponent implements OnInit {
 
         }
       }
+      allObservableOFLayers.push(fromEvent( layerProp.layer,'change:visible').pipe(map((value) => value)) )
+      allObservableOFLayers.push(fromEvent(layerProp.layer,'change:zIndex') .pipe(map((value) => value)))
+      allObservableOFLayers.push(fromEvent(layerProp.layer,'change:opacity') .pipe(map((value) => value)))
     }
 
     function compare( a, b ) {
@@ -76,12 +90,29 @@ export class TableOfContentsComponent implements OnInit {
       return 0;
     }
     this.layersInToc = reponseLayers
+    if (allObservableOFLayers.length > 0) {
+      this.layerChange = undefined
+      this.layerChange = observerMerge(
+        ...allObservableOFLayers
+      )
+      this.layerChange.
+      pipe(
+        debounceTime(1000)
+      )
+      .subscribe((response)=>{
+        this.layersInToc.sort( compare );
+      })
+    }
     this.layersInToc.sort( compare );
-    console.log(this.layersInToc)
+
+
+
+    // console.log(this.layersInToc)
   }
 
   /**
-   *
+   *drag and drop of layer finish
+   @param event CdkDragDrop<string[]>
    */
   drop(event: CdkDragDrop<string[]>) {
     // console.log(event.previousIndex, event.currentIndex)
@@ -92,6 +123,120 @@ export class TableOfContentsComponent implements OnInit {
     moveItemInArray(this.layersInToc, event.previousIndex, event.currentIndex);
 
     this.getAllLayersForTOC()
+  }
+
+  /**
+   * Set opacity of a layer
+   * @param event MatSliderChange
+   * @param layer layersInMap
+   */
+  setOpactiyOfLayer(event:MatSliderChange,layer:layersInMap){
+    layer.layer.setOpacity(event.value/100)
+  }
+
+  /**
+   * Toogle visible of a layer
+   * @param event MatCheckboxChange
+   * @param layer layersInMap
+   */
+  setVisibleOfLayer(event:MatCheckboxChange,layer:layersInMap){
+    layer.layer.setVisible(event.checked)
+  }
+
+  /**
+   * Remove layer from map
+   * @param layer layersInMap
+   */
+  removeLayer(layer:layersInMap){
+    if (layer.type_layer == 'geosmCatalogue') {
+      this.removeLayerCatalogue(layer)
+    }else{
+      let cartoHelperClass =  new cartoHelper()
+      cartoHelperClass.removeLayerToMap(layer.layer)
+    }
+  }
+
+  /**
+   * Remove layer of type cataogue from map
+   * @param layer layersInMap
+   */
+  removeLayerCatalogue(layer:layersInMap){
+    let cartoHelperClass =  new cartoHelper()
+    if (layer['properties']['type']=='carte') {
+      var carte:carteInterface = this.StorageServiceService.getCarte(layer.properties['group_id'],layer.properties['couche_id'])
+      if (carte) {
+        carte.check = false
+      }
+
+    }else if (layer['properties']['type']=='couche'){
+      var couche:coucheInterface = this.StorageServiceService.getCouche(layer.properties['group_id'],layer.properties['couche_id'])
+      if (couche) {
+        couche.check = false
+      }
+    }
+
+    cartoHelperClass.removeLayerToMap(layer.layer)
+
+  }
+
+  /**
+   * remove all layer of type layersInMap in map
+   */
+  clearMap(){
+    let cartoHelperClass =  new cartoHelper()
+
+    let reponseLayers:Array<layersInMap> = cartoHelperClass.getAllLayersInToc()
+    for (let index = 0; index < reponseLayers.length; index++) {
+      const layer = reponseLayers[index];
+      this.removeLayer(layer)
+    }
+
+  }
+
+
+  displayMetadataLink(metadata) {
+
+    if (Array.isArray(metadata)) {
+      return false
+    } else {
+      return true
+    }
+  }
+
+  /**
+   * open metadata
+   * @param layer layersInMap
+   */
+  openMetadata(layer:layersInMap){
+    var metadata
+    var wms_type
+    if (layer['properties']['type']=='carte') {
+      var carte = this.StorageServiceService.getCarte(layer.properties['group_id'],layer.properties['couche_id'])
+      metadata = carte.metadata
+    }else if (layer['properties']['type']=='couche'){
+      var couche = this.StorageServiceService.getCouche(layer.properties['group_id'],layer.properties['couche_id'])
+      metadata = couche.metadata
+      wms_type = couche.wms_type
+    }
+
+    if (this.displayMetadataLink(metadata) || wms_type=="osm" ) {
+
+      const MetaData = this.dialog.open(MetadataComponent, {
+        minWidth: "350px",
+        // height: '80%',
+        data: { exist:true,metadata: metadata, nom: carte?carte.nom:couche.nom, url_prefix: environment.url_prefix,data:carte?carte:couche}
+      });
+
+      MetaData.afterClosed().subscribe(result => {
+        console.log('The dialog was closed :', result);
+      });
+    }else{
+      const MetaData = this.dialog.open(MetadataComponent, {
+        minWidth: "350px",
+        data: { exist:false,metadata: metadata, nom: carte?carte.nom:couche.nom, url_prefix: environment.url_prefix,data:carte?carte:couche}
+      });
+    }
+
   }
 
 }
