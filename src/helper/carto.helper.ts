@@ -629,9 +629,9 @@ export class cartoHelper {
 
       var tocCapabilities:tocCapabilities = {} as tocCapabilities
       if (layer.get('tocCapabilities')) {
-        tocCapabilities.opacity = layer.get('tocCapabilities')['opacity']?layer.get('tocCapabilities')['opacity']:true
-        tocCapabilities.share = layer.get('tocCapabilities')['share']?layer.get('tocCapabilities')['share']:true
-        tocCapabilities.metadata = layer.get('tocCapabilities')['metadata']?layer.get('tocCapabilities')['metadata']:true
+        tocCapabilities.opacity = layer.get('tocCapabilities')['opacity'] != undefined ?layer.get('tocCapabilities')['opacity']:true
+        tocCapabilities.share = layer.get('tocCapabilities')['share'] != undefined ?layer.get('tocCapabilities')['share']:true
+        tocCapabilities.metadata = layer.get('tocCapabilities')['metadata'] != undefined ?layer.get('tocCapabilities')['metadata']:true
       }else{
         tocCapabilities.opacity = true
         tocCapabilities.share = true

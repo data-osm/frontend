@@ -1,12 +1,14 @@
 import { Component, OnInit, Input } from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
-import { BehaviorSubject, Observable, from, fromEvent,merge as observerMerge,fromEventPattern, forkJoin } from 'rxjs';
+import { Observable, fromEvent,merge as observerMerge } from 'rxjs';
 
 import {cartoHelper, layersInMap} from 'src/helper/carto.helper'
+import {manageCompHelper} from 'src/helper/manage-comp.helper'
 import {
   Map
 } from '../../../ol-module';
 import {StorageServiceService} from 'src/app/services/storage-service/storage-service.service'
+import {ShareServiceService} from 'src/app/services/share-service/share-service.service'
 import { MatSliderChange } from '@angular/material/slider';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { map, catchError, debounceTime } from 'rxjs/operators';
@@ -33,6 +35,8 @@ export class TableOfContentsComponent implements OnInit {
   constructor(
     public StorageServiceService:StorageServiceService,
     public dialog: MatDialog,
+    public ShareServiceService:ShareServiceService,
+    public manageCompHelper:manageCompHelper
   ) { }
 
   ngOnInit(): void {
@@ -44,7 +48,7 @@ export class TableOfContentsComponent implements OnInit {
   }
 
   /**
-   * get all layers that have to go in toc
+   * Construct the array this.layersInToc array.
    */
   getAllLayersForTOC(){
     let cartoHelperClass =  new cartoHelper()
@@ -105,9 +109,6 @@ export class TableOfContentsComponent implements OnInit {
     }
     this.layersInToc.sort( compare );
 
-
-
-    // console.log(this.layersInToc)
   }
 
   /**
@@ -193,7 +194,43 @@ export class TableOfContentsComponent implements OnInit {
 
   }
 
+/**
+ * Share a layer
+ * @param layer
+ */
+  shareLayer(layer:layersInMap){
+    var params =this.ShareServiceService.shareLayer(layer.properties['type'],layer.properties['couche_id'],layer.properties['group_id'])
+    console.log(params)
+    var url_share = environment.url_frontend + '/map?'+ params
+    this.manageCompHelper.openSocialShare(url_share,7)
 
+  }
+
+  /**
+   * Share all layers in the toc
+   */
+  shareAllLayersInToc(){
+    var pteToGetParams = []
+    for (let index = 0; index < this.layersInToc.length; index++) {
+      const layer = this.layersInToc[index];
+      if (layer.tocCapabilities.share) {
+        pteToGetParams.push({
+          typeLayer:layer.properties['type'],
+          id_layer:layer.properties['couche_id'],
+          group_id:layer.properties['group_id']
+        })
+      }
+
+    }
+    var params = this.ShareServiceService.shareLayers(pteToGetParams)
+    var url_share = environment.url_frontend + '/map?'+ params
+    this.manageCompHelper.openSocialShare(url_share,7)
+  }
+
+  /**
+   * Should we display the button tht open metadata modal ?
+   * @param metadata Object
+   */
   displayMetadataLink(metadata) {
 
     if (Array.isArray(metadata)) {

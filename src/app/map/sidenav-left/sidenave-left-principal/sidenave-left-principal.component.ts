@@ -126,7 +126,12 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
           properties: {
             group_id: groupCarte.id_cartes,
             couche_id: carte.key_couche,
-            type: 'carte'
+            type: 'carte',
+          },
+          tocCapabilities:{
+            share:false,
+            metadata:true,
+            opacity:true
           },
           iconImagette: environment.url_prefix + '/' + carte.image_src
         }
@@ -144,7 +149,12 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
             group_id: groupCarte.id_cartes,
             couche_id: carte.key_couche,
             type: 'carte'
-          }
+          },
+          tocCapabilities:{
+            share:false,
+            metadata:true,
+            opacity:true
+          },
         }
       )
 
