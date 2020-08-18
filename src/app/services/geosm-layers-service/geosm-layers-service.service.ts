@@ -85,7 +85,10 @@ export class GeosmLayersServiceService {
         iconImagette:environment.url_prefix+'/'+couche.logo_src,
         icon:environment.url_prefix+'/'+couche.img,
         cluster:true,
-        size:size
+        size:size,
+        legendCapabilities:{
+          useCartoServer:true
+        }
       })
       cartoHelperClass.addLayerToMap(layer)
       couche.check = true

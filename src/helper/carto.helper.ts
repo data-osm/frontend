@@ -11,7 +11,7 @@ import { AppInjector } from 'src/helper/app-injector.helper'
 /**
  * Interface of the table of contents capabilities
  */
-export interface tocCapabilities{
+export interface tocCapabilitiesInterface{
 /**
      * change opactity
      */
@@ -19,6 +19,20 @@ export interface tocCapabilities{
     metadata:boolean,
     share:boolean
 }
+/**
+ * Interface of the legend capabilities
+ */
+export interface legendCapabilitiesInterface{
+  /**
+   * url of the img icon
+   */
+  urlImg?:string
+  /**
+   * use legend from the carto server
+   */
+  useCartoServer?:boolean
+}
+
 /**
  * Interface of all layers in the map
  */
@@ -45,7 +59,12 @@ export interface layersInMap {
    * capabilities of the layer in toc. They user can set opactiy ? read metadata ?...
    * By default, all is set to true
    */
-  tocCapabilities:tocCapabilities
+  tocCapabilities:tocCapabilitiesInterface
+  /**
+   * capabilities of the layer legend. how to display legend of the layer ? with the url of a image ? with the legend of the carto server ?
+   * by default this is none => no legend to display
+   */
+  legendCapabilities?:legendCapabilitiesInterface
 }
 
 const typeLayer = ['geosmCatalogue', 'draw', 'mesure', 'mappilary', 'download', 'other']
@@ -78,7 +97,12 @@ export interface geosmLayer {
    * capabilities of the layer in toc. They user can set opactiy ? read metadata ?...
    * By default, all is set to true
    */
-  tocCapabilities?:tocCapabilities
+  tocCapabilities?:tocCapabilitiesInterface
+  /**
+   * capabilities of the layer legend. how to display legend of the layer ? with the url of a image ? with the legend of the carto server ?
+   * by default this is none => no legend to display
+   */
+  legendCapabilities?:legendCapabilitiesInterface
   'properties': {
     group_id: number,
     couche_id: number,
@@ -419,6 +443,7 @@ export class cartoHelper {
     layer.set('identifiant', couche.identifiant)
     layer.set('inToc', couche.inToc)
     layer.set('tocCapabilities', couche.tocCapabilities)
+    layer.set('legendCapabilities',couche.legendCapabilities)
 
     if (couche.zindex) {
       layer.setZIndex(couche.zindex)
@@ -627,7 +652,7 @@ export class cartoHelper {
       const layer = allLayers[index];
       var data = null
 
-      var tocCapabilities:tocCapabilities = {} as tocCapabilities
+      var tocCapabilities:tocCapabilitiesInterface = {} as tocCapabilitiesInterface
       if (layer.get('tocCapabilities')) {
         tocCapabilities.opacity = layer.get('tocCapabilities')['opacity'] != undefined ?layer.get('tocCapabilities')['opacity']:true
         tocCapabilities.share = layer.get('tocCapabilities')['share'] != undefined ?layer.get('tocCapabilities')['share']:true
@@ -641,6 +666,7 @@ export class cartoHelper {
       if (layer.get('inToc')) {
         reponseLayers.push({
           tocCapabilities:tocCapabilities,
+          legendCapabilities:layer.get('legendCapabilities'),
           nom: layer.get('nom'),
           type_layer: layer.get('type_layer'),
           properties: layer.get('properties'),
