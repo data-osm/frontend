@@ -1,30 +1,31 @@
 import { Component, OnInit, ViewChild, AfterViewInit, ViewChildren } from '@angular/core';
 import {MatSidenavContainer } from '@angular/material/sidenav';
 import {rightMenuInterface} from '../type/type'
+import { Router, ActivatedRoute, Params } from '@angular/router';
 import {
 Map,
 View,
 TileLayer,
 XYZ,
 defaultControls,
-Attribution
+Attribution,
+LayerGroup
 }from '../ol-module';
 import {StorageServiceService} from '../services/storage-service/storage-service.service'
-import {cartoHelper} from '../../helper/carto.helper'
+import {ShareServiceService} from 'src/app/services/share-service/share-service.service'
 import { TranslateService } from '@ngx-translate/core';
 import { SidenaveLeftSecondaireComponent } from './sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component';
 import * as $ from 'jquery'
+import { layersInMap, cartoHelper } from 'src/helper/carto.helper';
 
 var attribution = new Attribution({
   collapsible: false
 });
 
-const map = new Map({
+export const map = new Map({
   layers: [
-    new TileLayer({
-      source: new XYZ({
-        url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-      })
+    new LayerGroup({
+      nom:'group-layer-shadow',
     })
   ],
   view: new View({
@@ -62,9 +63,17 @@ export class MapComponent implements OnInit {
     {name:'legend',active:false,enable:true,tooltip:'toolpit_legend',title:'legend'},
     {name:'download',active:false,enable:true,tooltip:'toolpit_download_data',title:'download_data'}
   ]
+
+  /**
+   * all the layer in the toc
+   */
+  layersInToc:Array<layersInMap> = []
+
   constructor(
     public StorageServiceService:StorageServiceService,
     public translate: TranslateService,
+    private activatedRoute: ActivatedRoute,
+    public ShareServiceService:ShareServiceService
   ) {
 
   }
@@ -75,10 +84,21 @@ export class MapComponent implements OnInit {
 
     this.StorageServiceService.states.subscribe((value)=>{
       if (value.loadProjectData) {
-        this.addLayerShadow()
         map.getView().fit(this.StorageServiceService.getConfigProjet().bbox, { 'size': map.getSize(), 'duration': 1000 });
+        this.handleMapParamsUrl()
       }
     })
+
+    /**
+     * use for the count of layers in the TOC
+     * the red badge on te button toogle the TOC
+     */
+    map.getLayers().on('propertychange',(ObjectEvent)=>{
+    let cartoHelperClass =  new cartoHelper()
+
+      this.layersInToc =cartoHelperClass.getAllLayersInToc()
+    })
+
   }
 
   /**
@@ -137,21 +157,24 @@ export class MapComponent implements OnInit {
   }
 
   /**
-   * Add layer shadow in the map
-   */
-  addLayerShadow(){
-    var cartoHelperClass = new cartoHelper(map)
-    var layer  = cartoHelperClass.constructShadowLayer(this.StorageServiceService.getConfigProjet().roiGeojson)
-    layer.setZIndex(1000)
-    map.addLayer(layer)
-  }
-
-  /**
    * get the constant map
    * @return Map
    */
   getMap():Map{
     return map
+  }
+
+  /**
+   * Handle parameters of the app when opening with route /map
+   */
+  handleMapParamsUrl(){
+    this.activatedRoute.queryParams.subscribe(params => {
+      console.log(params)
+      if (params['layers']) {
+        var layers = params['layers'].split(';')
+        this.ShareServiceService.addLayersFromUrl(layers)
+      }
+    })
   }
 
 

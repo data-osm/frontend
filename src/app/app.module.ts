@@ -1,18 +1,22 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, Injector } from '@angular/core';
 
-import {TranslateModule,TranslateLoader} from '@ngx-translate/core';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http);
 }
+
+import {setAppInjector} from 'src/helper/app-injector.helper'
+
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MapComponent } from './map/map.component';
-import {ComponentMaterialModule} from './material-module';
+import { ComponentMaterialModule } from './material-module';
 import { HeaderComponent } from './header/header.component';
 import { VerticalToolbarComponent } from './map/vertical-toolbar/vertical-toolbar.component';
 import { TableOfContentsComponent } from './map/sidenav-right/table-of-contents/table-of-contents.component';
@@ -30,7 +34,7 @@ import { NotifierModule } from "angular-notifier";
 import { SocialShareComponent } from './social-share/social-share.component';
 import { ShareButtonsModule } from 'ngx-sharebuttons/buttons';
 import { ShareIconsModule } from 'ngx-sharebuttons/icons';
-import {manageCompHelper} from '../helper/manage-comp.helper';
+import { manageCompHelper } from '../helper/manage-comp.helper';
 import { MeasureComponent } from './map/sidenav-right/map-tools/measure/measure.component';
 import { AltimetryComponent } from './map/sidenav-right/map-tools/altimetry/altimetry.component';
 import { CommentComponent } from './map/sidenav-right/map-tools/comment/comment.component';
@@ -44,6 +48,7 @@ import { ListGroupThematiqueComponent } from './map/sidenav-left/sidenave-left-s
 import { ListGroupCarteComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-carte/list-group-carte.component';
 import { CoucheThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-thematique/couche-thematique/couche-thematique.component';
 import { CarteThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-carte/carte-thematique/carte-thematique.component';
+import { MetadataComponent } from './modal/metadata/metadata.component';
 
 @NgModule({
   declarations: [
@@ -69,7 +74,8 @@ import { CarteThematiqueComponent } from './map/sidenav-left/sidenave-left-secon
     ListGroupThematiqueComponent,
     ListGroupCarteComponent,
     CoucheThematiqueComponent,
-    CarteThematiqueComponent
+    CarteThematiqueComponent,
+    MetadataComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({
@@ -96,6 +102,11 @@ import { CarteThematiqueComponent } from './map/sidenav-left/sidenave-left-secon
     })
   ],
   providers: [StorageServiceService,BackendApiService,manageCompHelper],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents:[MetadataComponent]
 })
-export class AppModule { }
+export class AppModule {
+  constructor(injector: Injector) {
+    setAppInjector(injector);
+  }
+}

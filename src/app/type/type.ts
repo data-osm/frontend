@@ -74,6 +74,9 @@ export interface coucheInterface {
    * categorie of the layer
    */
   categorie: categorieInterface
+ /**
+   * Is the layer in map ?
+   */
   check: boolean
   /**
    * Only if wms_type is OSM and categorie.mode_sql is false
@@ -91,7 +94,6 @@ export interface coucheInterface {
    * Geometry type
    */
   geom: "point" | "Polygon" | "LineString"
-  id: number
   /**
    * Categorie ID in DB
    */
@@ -152,7 +154,6 @@ export interface coucheInterface {
    */
   projection: null
   remplir_couleur: null
-  service_wms: null
   status: false
   /**
    * total area of the data. If geom is  Polygon
@@ -162,6 +163,10 @@ export interface coucheInterface {
    * Method to render layer
    */
   type_couche: "wms" | "wfs"
+  /**
+   * render layer in wms ?, if false, render layer in wfs
+   */
+  service_wms:boolean
   /**
    * Url of QGIS SERVER
    */
@@ -178,10 +183,6 @@ export interface coucheInterface {
    * Zoom min
    */
   zmin: number
-  /**
-   * Is the layer in map ?
-   */
-  checked:boolean
 }
 
 /**
@@ -261,13 +262,12 @@ export interface carteInterface  {
   * @example "40.91789245605469,29.5161103,40.91789245605469,29.5161103"
   */
   bbox: string | null
+  /**
+   * Is layer in map ?
+   */
   check: boolean
   commentaire: string
   geom: null
-  /**
-   * don't serve
-   */
-  id: number
   /**
    * Identifiant for WMS/WMTS
    */
@@ -316,6 +316,7 @@ export interface carteInterface  {
    * Zoom min
    */
   zmin: string
+
 }
 
 // carteInterface.prototype['vv']=function () {

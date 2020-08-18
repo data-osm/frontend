@@ -8,11 +8,17 @@
     <div id="map" ></div>
     <app-vertical-toolbar [map]="getMap()" [SidenaveLeftSecondaireComp]="SidenaveLeftSecondaireComp"  [sidenavContainer]="sidenavContainer"  class="sidenav-content-toolbar whiteBG"> </app-vertical-toolbar>
 
-    <div class="toogle-sidenav-right" *ngIf="sidenavContainer?.end">
+    <div class="toogle-sidenav-right" *ngIf="sidenavContainer.end">
       <ng-container *ngFor="let ritghtMenu_i of ritghtMenus">
         <button
+        class="toogle-sidenav-right-button"
           *ngIf="ritghtMenu_i.enable"
           (click)="openRightMenu(ritghtMenu_i.name)"
+          [matBadge]="layersInToc.length"
+          [matBadgeHidden]="ritghtMenu_i.name!='toc'"
+          matBadgeSize="medium"
+          matBadgeColor="warn"
+          matBadgePosition='above before'
           [matTooltip]="
             'right_menu.button.' + [ritghtMenu_i.tooltip] | translate
           "
@@ -103,9 +109,13 @@ c1.3-0.1,2.3-1.2,2.5-2.5l0-6.8L20.6,11.5z"
   </mat-sidenav-content>
 
   <mat-sidenav class="sidenav-right" closed mode="side" position="end">
-    <div class="sidenav-right-title" *ngIf="getRightMenuActive()" >  {{ 'right_menu.'+getRightMenuActive().title+'.title' | translate }} </div>
+    <div class="sidenav-right-title" *ngIf="getRightMenuActive()" >
+       {{ 'right_menu.'+getRightMenuActive().title+'.title' | translate }}
+       <span [hidden]="!getRightMenu('toc').active" > ({{layersInToc.length}}) </span>
+    </div>
+    <div class="sidenav-right-title-fake"></div>
     <div class="sidenav-right-content" >
-      <app-table-of-contents [hidden]="!getRightMenu('toc').active"></app-table-of-contents>
+      <app-table-of-contents [map]="getMap()" [hidden]="!getRightMenu('toc').active"></app-table-of-contents>
       <app-map-tools [map]="getMap()"  [hidden]="!getRightMenu('edition').active"></app-map-tools>
       <app-routing [hidden]="!getRightMenu('routing').active"></app-routing>
       <app-legend [hidden]="!getRightMenu('legend').active"></app-legend>

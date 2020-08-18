@@ -7,6 +7,7 @@ import WMTS from 'ol/source/WMTS.js';
 import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
 import ImageLayer from 'ol/layer/Image.js';
 import ImageWMS from 'ol/source/ImageWMS.js';
+import TileWMS from 'ol/source/TileWMS';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import RasterSource from 'ol/source/Raster';
 import TileImage from 'ol/source/TileImage'
@@ -99,5 +100,6 @@ export {
   RasterSource,
   getArea,
   getLength,
-  Circle
+  Circle,
+  TileWMS
 };

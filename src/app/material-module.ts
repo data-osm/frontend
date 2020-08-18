@@ -54,6 +54,12 @@ import {MatExpansionModule} from '@angular/material/expansion'
 import {MatInputModule} from '@angular/material/input'
 import {MatSnackBarModule} from '@angular/material/snack-bar'
 import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatSliderModule} from '@angular/material/slider';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatBadgeModule} from '@angular/material/badge';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatListModule} from '@angular/material/list';
 
 @NgModule({
   exports: [
@@ -73,7 +79,13 @@ import {MatFormFieldModule} from '@angular/material/form-field';
     ScrollingModule,
     MatExpansionModule,
     MatInputModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatSliderModule,
+    MatChipsModule,
+    MatBadgeModule,
+    MatDialogModule,
+    MatTabsModule,
+    MatListModule
   ]
 })
 export class ComponentMaterialModule { }

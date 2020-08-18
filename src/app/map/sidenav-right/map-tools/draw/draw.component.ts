@@ -110,8 +110,8 @@ export class DrawComponent implements OnInit {
         })
       })
     },
-    type: 'draw',
-    name: 'draw'
+    type_layer: 'draw',
+    nom: 'draw'
   });
 
   /**
@@ -236,7 +236,11 @@ export class DrawComponent implements OnInit {
   ngOnInit(): void {
     this.map.addOverlay(this.overlay);
     this.map.addOverlay(this.overlayColor);
-    this.map.addLayer(this.vector)
+    var cartoHelperClassMap = new cartoHelper(this.map)
+    this.vector.set('iconImagette',environment.url_frontend+'/assets/icones/draw.svg')
+    this.vector.set('inToc',false)
+
+    cartoHelperClassMap.addLayerToMap(this.vector)
   }
 
   /**
@@ -356,6 +360,12 @@ export class DrawComponent implements OnInit {
     var keyEventStart = this.draw.on('drawstart', (DrawEvent: any) => {
       this._ngZone.run(() => {
         this.hideOverlay()
+        var cartoHelperClassMap = new cartoHelper(this.map)
+        var zIndex = cartoHelperClassMap.getMaxZindexInMap()
+        if (this.vector.getZIndex() < zIndex) {
+          this.vector.setZIndex(zIndex+1)
+        }
+
       })
 
     })
