@@ -30,6 +30,7 @@ import LinearRing from 'ol/geom/LinearRing';
 import Point from 'ol/geom/Point';
 import Circle from 'ol/geom/Circle';
 import MultiPoint from 'ol/geom/MultiPoint';
+import Polyline from 'ol/format/Polyline';
 import Polygon from 'ol/geom/Polygon';
 import MultiPolygon from 'ol/geom/MultiPolygon';
 import LineString from 'ol/geom/LineString';
@@ -101,5 +102,6 @@ export {
   getArea,
   getLength,
   Circle,
-  TileWMS
+  TileWMS,
+  Polyline
 };

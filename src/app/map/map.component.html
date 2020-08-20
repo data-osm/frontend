@@ -117,7 +117,7 @@ c1.3-0.1,2.3-1.2,2.5-2.5l0-6.8L20.6,11.5z"
     <div class="sidenav-right-content" >
       <app-table-of-contents [map]="getMap()" [hidden]="!getRightMenu('toc').active"></app-table-of-contents>
       <app-map-tools [map]="getMap()"  [hidden]="!getRightMenu('edition').active"></app-map-tools>
-      <app-routing [hidden]="!getRightMenu('routing').active"></app-routing>
+      <app-routing [map]="getMap()" [hidden]="!getRightMenu('routing').active"></app-routing>
       <app-legend [map]="getMap()" [hidden]="!getRightMenu('legend').active"></app-legend>
       <app-download [hidden]="!getRightMenu('download').active"></app-download>
     </div>

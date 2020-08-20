@@ -59,10 +59,10 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
     var cartoHelperClass = new cartoHelper()
     var layer = cartoHelperClass.constructShadowLayer(this.StorageServiceService.getConfigProjet().roiGeojson)
     layer.setZIndex(1000)
-
-    var groupLayerShadow = cartoHelperClass.getLayerGroupByNom('group-layer-shadow')
-    groupLayerShadow.setZIndex(1000)
-    groupLayerShadow.getLayers().getArray().unshift(layer)
+    this.map.addLayer(layer)
+    // var groupLayerShadow = cartoHelperClass.getLayerGroupByNom('group-layer-shadow')
+    // groupLayerShadow.setZIndex(1000)
+    // groupLayerShadow.getLayers().getArray().unshift(layer)
 
   }
 

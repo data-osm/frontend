@@ -38,7 +38,7 @@ export interface legendCapabilitiesInterface{
  */
 export interface layersInMap {
   nom: string
-  type_layer: 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'download' | 'other',
+  type_layer: 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'download' | 'other'|'routing',
   image: string
   properties: Object | null
   zIndex: number
@@ -67,7 +67,7 @@ export interface layersInMap {
   legendCapabilities?:legendCapabilitiesInterface
 }
 
-const typeLayer = ['geosmCatalogue', 'draw', 'mesure', 'mappilary', 'download', 'other']
+const typeLayer = ['geosmCatalogue', 'draw', 'mesure', 'mappilary', 'download', 'other','routing']
 /**
  * interface to construct  a layer
  */
@@ -77,7 +77,7 @@ export interface geosmLayer {
    * is the layer should appear in the toc ?
    */
   'inToc':boolean
-  'type_layer': 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'download' | 'other',
+  'type_layer': 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'download' | 'other'|'routing',
   'type': 'geojson' | 'wfs' | 'wms' | 'xyz',
   'crs'?: string,
   'visible': boolean,
@@ -717,7 +717,7 @@ export class cartoHelper {
   }
 
   /**
-   * Get max z index of map layers
+   * Get max z index of map layers that are in the TOC
    * @return number
    */
   getMaxZindexInMap(): number {
@@ -726,10 +726,13 @@ export class cartoHelper {
     var allZindex = [0]
     for (let index = 0; index < allLayers.length; index++) {
       var layer = allLayers[index]
-      if (layer instanceof LayerGroup) {
+      if (layer instanceof LayerGroup ) {
       } else {
         try {
-          allZindex.push(layer.getZIndex())
+          if (layer.get('inToc')) {
+            allZindex.push(layer.getZIndex())
+          }
+
           // console.log(layer.get('nom'),layer.getZIndex())
         } catch (error) {
           console.error(error)
@@ -737,7 +740,6 @@ export class cartoHelper {
       }
 
     }
-
     return Math.max(...allZindex)
   }
 
