@@ -13,13 +13,13 @@ export interface downloadModelInterface {
    * Layers choose for download
    */
   layers: Array<coucheInterface>,
-  // /**
-  //  * Type of the region of interest it can be :
-  //  * - 'all' : download all data
-  //  * - 'draw': download data in the polygon draw by the user
-  //  * - name of the table where to find the polygon of the region of interest
-  //  */
-  // // roiType: string,
+  /**
+   * Type of the region of interest it can be :
+   * - 'all' : download all data
+   * - 'draw': download data in the polygon draw by the user
+   * - 'emprise' : from emprise of the configuration project
+   */
+  roiType: 'all'|'draw'|'emprise',
   /**
    * OL geometry of the region of interest
    */
@@ -130,7 +130,7 @@ export class selectLayersForDownload {
    * @param layer searchLayerToDownlodModelInterface
    * @return string
    */
-  displayAutocompletFn(layer: searchLayerToDownlodModelInterface): string {
+  displayAutocompleLayerstFn(layer: searchLayerToDownlodModelInterface): string {
     // return layer?layer.name+'('+layer.description+')':''
     return layer ? layer.name : ''
   }

@@ -1,5 +1,4 @@
 {
-  "backend_error":"Une erreur est survenue",
   "add_commentaire": {
     "cancel": "ANNULER",
     "save": "ENREGISTRER",
@@ -51,8 +50,6 @@
     "title_data_in": "Données d'entrées"
   },
   "draw_in_map": {
-    "your_comment_placeholder":"Ajouter un commentaire...",
-    "no_draw_features":"Vous n'avez aucun dessin",
     "apply_draw": "APPLIQUER",
     "save": "SAUVEGARDER"
   },
@@ -140,7 +137,8 @@
       "toolpit_tools": "Outils d'édition"
     },
     "download_data": {
-      "title": "Téléchargement de données"
+      "title": "Téléchargement de données",
+      "downloadCompleteData":"Télécharger les données completes (sans intersection géographiques)"
     },
     "legend": {
       "title": "Légende"
@@ -163,8 +161,8 @@
         "title": "Altimétrie"
       },
       "comment": {
-        "display_comments": " Afficher les commentaire",
-        "title": "Commentaire"
+        "display_comments": " Afficher les commentaires",
+        "title": "Commentaires"
       },
       "draw": {
         "title": "Dessin",
@@ -183,10 +181,7 @@
       "mesure": {
         "title": "Mesure",
         "toolpit_mesure_ligne": "Mesurer une distance",
-        "toolpit_mesure_polygon": "Mesurer une surface",
-        "continuePolygonMsg":"Click to continue drawing the polygon",
-        "continueLineMsg":"Click to continue drawing the line",
-        "helpSrartMeasure":"Click to start drawing"
+        "toolpit_mesure_polygon": "Mesurer une surface"
       },
       "print": {
         "description_pdf": "Description",
@@ -219,5 +214,10 @@
   "ressourses": {
     "no_ressourses": "Aucune ressouces disponibles",
     "download": "Telecharger"
+  },
+
+  "geosm": {
+    "text": "GeOsm utilise les données",
+    "text1": "d'"
   }
 }
