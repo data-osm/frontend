@@ -1,1 +1,50 @@
-<p>download works!</p>
+<div class="description_download">
+  {{ 'dowload_data.description' | translate }}
+</div>
+
+<h5 class="bold  primary_transparent_bg group-download " >
+  {{ 'dowload_data.title_data_in' | translate }}
+</h5>
+<ng-container *ngIf="formsLayers">
+<form [formGroup]="formsLayers" class="form-download-select-layers">
+  <div formArrayName="layers" *ngFor="let layer of getAllControls(); let i = index">
+    <div [formGroupName]="i" style="margin-bottom: 10px;">
+      <mat-form-field appearance="outline" >
+        <input type="text"  matInput formControlName="layer" [matAutocomplete]="auto" style="text-align: left;" >
+        <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayAutocompletFn" (optionSelected)="layerSelected($event)" >
+          <mat-option *ngFor="let option of filteredLayersOptions[i] | async" [value]="option">
+            {{option.name}}
+            <br>
+            <small> {{option.description}} </small>
+          </mat-option>
+        </mat-autocomplete>
+        <i class="fa fa-trash primaryColor pointer" matSuffix (click)="removeInputInFormsLayer(i)" ></i>
+      </mat-form-field>
+    </div>
+  </div>
+</form>
+
+
+<button mat-raised-button class="primaryColorBG" style="margin-top: 10px;
+margin-bottom: 10px;min-width: 32px;
+width: 32px;
+height: 31px;
+border-radius: 5px;
+padding: 4px;
+font-size: 12px;
+margin-left: calc(50% - 17px);
+" (click)="addInputInFormsLayer()">
+  <i class="fa fa-plus white" style="margin-bottom: 13px;"></i>
+</button>
+
+<h5 class="bold  primary_transparent_bg group-download" >
+  {{ 'dowload_data.title_choose_emprise' | translate }}
+</h5>
+
+</ng-container>
+
+<div style="background-color: white; padding: 10px;position: fixed;bottom: 0px;text-align: center;">
+  <img src="assets/images/osm.svg" width="25px" alt="" srcset="">
+  {{ 'geosm.text' | translate }} <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">
+    {{ 'geosm.text1' | translate }} OpenStreetMap </a>
+</div>
