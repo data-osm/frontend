@@ -19,7 +19,7 @@ export interface downloadModelInterface {
    * - 'draw': download data in the polygon draw by the user
    * - 'emprise' : from emprise of the configuration project
    */
-  roiType: 'all'|'draw'|'emprise',
+  roiType: 'all' | 'draw' | 'emprise',
   /**
    * OL geometry of the region of interest
    */
@@ -40,11 +40,15 @@ export interface searchLayerToDownlodModelInterface {
  * For select layers user want to download
  */
 export class selectLayersForDownload {
-  /**
- * model that manage download features
- */
-  downloadModel: downloadModelInterface = {} as downloadModelInterface
 
+  /**
+* model that manage download features
+*/
+  downloadModel: downloadModelInterface = {
+    layers: [],
+    roiType: undefined,
+    roiGeometry: undefined
+  }
   /**
    * forms use to choose layers in UI
    */
@@ -84,7 +88,8 @@ export class selectLayersForDownload {
   removeInputInFormsLayer(i: number) {
     this.formsLayersArray = this.formsLayers.get('layers') as FormArray;
     this.formsLayersArray.removeAt(i)
-    this.filteredLayersOptions.splice(i,1)
+    this.filteredLayersOptions.splice(i, 1)
+    this.loadAllLayersInModel()
   }
   /**
    * add a input in the ui to choose a new layer
@@ -141,7 +146,13 @@ export class selectLayersForDownload {
    */
   layerSelected(option: MatAutocompleteSelectedEvent) {
     // var layersInForm:searchLayerToDownlodModelInterface = option.option.value
+    this.loadAllLayersInModel()
+  }
 
+  /**
+   * Load all selected layers in the mdodel of the components eg this.downloadModel.layers
+   */
+  loadAllLayersInModel(){
     this.downloadModel.layers = []
     this.formsLayersArray = this.formsLayers.get('layers') as FormArray;
     for (let index = 0; index < this.formsLayersArray.controls.length; index++) {
@@ -157,10 +168,9 @@ export class selectLayersForDownload {
         }
       }
     }
-
   }
 
-  getAllControls():Array<AbstractControl>{
+  getAllControls(): Array<AbstractControl> {
     this.formsLayersArray = this.formsLayers.get('layers') as FormArray;
     return this.formsLayersArray.controls
   }

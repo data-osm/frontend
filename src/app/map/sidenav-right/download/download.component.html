@@ -1,10 +1,10 @@
-<div class="description_download">
+<div class="description_download text-center">
   {{ 'dowload_data.description' | translate }}
 </div>
 
 <ng-container *ngIf="formsLayers">
 
-  <h5 class="bold  primary_transparent_bg group-download ">
+  <h5 class="bold primaryColor primary_transparent_bg group-download ">
     {{ 'dowload_data.title_data_in' | translate }}
   </h5>
 
@@ -13,6 +13,7 @@
     <div formArrayName="layers" *ngFor="let layer of getAllControls(); let i = index">
       <div [formGroupName]="i" style="margin-bottom: 10px;">
         <mat-form-field appearance="outline">
+          <mat-label> {{'dowload_data.title_choose_layer'|translate}} </mat-label>
           <input type="text" matInput formControlName="layer" [matAutocomplete]="auto" style="text-align: left;">
           <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayAutocompleLayerstFn"
             (optionSelected)="layerSelected($event)">
@@ -33,16 +34,16 @@
     <i class="fa fa-plus white" style="margin-bottom: 13px;"></i>
   </button>
 
-  <h5 class="bold  primary_transparent_bg group-download">
+  <h5 class="bold primaryColor primary_transparent_bg group-download">
     {{ 'dowload_data.title_choose_emprise' | translate }}
   </h5>
 
-  <mat-slide-toggle color="primary" *ngIf="configProejct.limites.length > 0"> {{ 'right_menu.download_data.downloadCompleteData' | translate }}</mat-slide-toggle>
+  <mat-slide-toggle style="margin-top: 10px;margin-bottom: 15px;" (change)="toogleRoiType($event)" color="primary" [matTooltip]="'right_menu.download_data.downloadCompleteDataTooltip' | translate "  *ngIf="configProejct.limites.length > 0"> {{ 'right_menu.download_data.downloadCompleteData' | translate }}</mat-slide-toggle>
 
   <form [formGroup]="formsEmprise" *ngIf="configProejct.limites.length > 0 && downloadModel.roiType == 'emprise' " >
     <mat-form-field appearance="outline">
+      <mat-label > {{'dowload_data.title_choose_one_emprise'|translate}} </mat-label>
       <input type="text"
-             placeholder=" {{ 'dowload_data.title_choose_one_emprise' | translate }}"
              matInput
              formControlName="emprise"
              [matAutocomplete]="auto">
@@ -59,11 +60,11 @@
 
 
 
-  <button class="submit-download-data" matTooltip="{{ 'dowload_data.calculate' | translate }}" [disabled]="true" mat-mini-fab >
+  <button class="submit-download-data primaryColorBG" matTooltip="{{ 'dowload_data.calculate' | translate }}" [disabled]="!enableDownloadBtn()" mat-mini-fab >
 
     <svg style="height: 32px;" x="0px" y="0px" viewBox="0 0 22 22.2">
       <g id="Tracé_1915">
-        <path class="primaryColorFill" d="M18.3,22.2l-3.4-3.7c-3.3,1.9-7.3,1.8-10.5-0.3c-2.2-1.5-3.7-3.7-4.2-6.3c-0.5-2.6,0-5.3,1.5-7.5
+        <path class="whiteFill" d="M18.3,22.2l-3.4-3.7c-3.3,1.9-7.3,1.8-10.5-0.3c-2.2-1.5-3.7-3.7-4.2-6.3c-0.5-2.6,0-5.3,1.5-7.5
 c3-4.6,9.2-5.8,13.8-2.8c4.4,2.9,5.7,8.8,3.1,13.3l3.4,3.6L18.3,22.2z M15.2,16.6l3.2,3.5l1.5-1.5l-3.3-3.4l0.3-0.5
 c2.6-3.9,1.5-9.1-2.3-11.7C10.8,0.3,5.5,1.4,2.9,5.3c-1.3,1.9-1.7,4.1-1.3,6.3s1.7,4.1,3.6,5.4c2.9,1.9,6.6,1.9,9.4,0L15.2,16.6z
 M9.9,16.1c-3.4,0-6.2-2.8-6.2-6.2c0-3.4,2.8-6.2,6.2-6.2c3.4,0,6.2,2.8,6.2,6.2C16.1,13.4,13.4,16.1,9.9,16.1L9.9,16.1z M9.9,5.2

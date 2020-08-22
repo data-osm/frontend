@@ -43,8 +43,9 @@
     "draw": "Dessiner une emprise",
     "loading": "Chargement des ",
     "title_choose_emprise": "Choisir une emprise",
-    "title_choose_layer": "Choisir une couche",
-    "title_choose_one_emprise": "Rechercher une limite",
+    "title_choose_layer": "Pharmacie, bars, Cinéma",
+    "lable_choose_one_emprise": "Rechercher une limite",
+    "title_choose_one_emprise": "Nom d'une commune, région, etc...",
     "title_choose_thematique": "Choisir une thématique",
     "title_choose_type_emprise": "Votre emprise spatiale",
     "title_data_in": "Données d'entrées"
@@ -138,7 +139,8 @@
     },
     "download_data": {
       "title": "Téléchargement de données",
-      "downloadCompleteData":"Télécharger les données completes (sans intersection géographiques)"
+      "downloadCompleteDataTooltip":"Télécharger les données completes (sans intersection géographiques)",
+      "downloadCompleteData":"Export total des couches"
     },
     "legend": {
       "title": "Légende"
