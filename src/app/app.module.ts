@@ -49,6 +49,7 @@ import { ListGroupCarteComponent } from './map/sidenav-left/sidenave-left-second
 import { CoucheThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-thematique/couche-thematique/couche-thematique.component';
 import { CarteThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-carte/carte-thematique/carte-thematique.component';
 import { MetadataComponent } from './modal/metadata/metadata.component';
+import { ChartOverlayComponent } from './map/sidenav-right/download/chart-overlay/chart-overlay.component';
 
 @NgModule({
   declarations: [
@@ -75,7 +76,8 @@ import { MetadataComponent } from './modal/metadata/metadata.component';
     ListGroupCarteComponent,
     CoucheThematiqueComponent,
     CarteThematiqueComponent,
-    MetadataComponent
+    MetadataComponent,
+    ChartOverlayComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({

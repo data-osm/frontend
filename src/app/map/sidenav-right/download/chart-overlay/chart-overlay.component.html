@@ -1,0 +1,17 @@
+<div style="background-color: rgba(0, 0, 0, 0.41);" >
+
+  <p class=" white text-center bold  chart-overlay-title" >
+    <!-- {{chartConnfiguration.options.title.text}} -->
+      <i class="fa fa-times-circle white chart-overlay-close pointer" (click)="closeChart()" ></i>
+  </p>
+
+  <canvas id="{{idChart}}" style="width: 400px;" >
+    {{myChart}}
+  </canvas>
+
+  <button mat-raised-button style="width: 80%; margin-top: 15px;margin-left: 10%;margin-bottom: 15px;" color="primary"  >
+    <img src="assets/icones/gpkg.svg" alt="">
+  </button>
+
+</div>
+

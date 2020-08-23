@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Renderer2, EventEmitter } from '@angular/core';
 import { coucheInterface, carteInterface, configProjetInterface } from 'src/app/type/type';
 import { FormGroup, FormArray, FormBuilder, FormControl, AbstractControl, Validators } from '@angular/forms';
 import { StorageServiceService } from 'src/app/services/storage-service/storage-service.service'
@@ -7,8 +7,14 @@ import { startWith, map, filter, debounceTime, tap } from 'rxjs/operators';
 import { from, Observable } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { selectLayersForDownload, downloadModelInterface } from './download-select-layers'
-import { GeoJSON } from 'src/app/ol-module';
+import { GeoJSON, VectorLayer, VectorSource, Style, Stroke, Fill, Feature, Overlay, getCenter } from 'src/app/ol-module';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { environment } from 'src/environments/environment';
+import { cartoHelper } from 'src/helper/carto.helper'
+import { manageDataHelper } from 'src/helper/manage-data.helper'
+import { manageCompHelper } from 'src/helper/manage-comp.helper'
+import { ChartOverlayComponent } from './chart-overlay/chart-overlay.component'
+import * as $ from 'jquery'
 
 /**
  * Interface of the model return when user  search a emprise
@@ -43,10 +49,29 @@ export interface responseOfSerachLimitInterface {
  */
 export class DownloadComponent extends selectLayersForDownload implements OnInit {
 
+  @ViewChild('downlod_list_overlays') downlodListOverlays: ElementRef;
+
+  /**
+   * Event emitter listen when a overlay is closed
+   */
+  userClosedOverlay: EventEmitter<any> = new EventEmitter<any>()
+
   /**
    * Configuration of the project
    */
   configProejct: configProjetInterface
+
+  /**
+   * List of charts in the map
+   */
+  listOfChartsInMap: {
+    [key: string]: {
+      index: number
+      nom: string
+      nom_file: string
+      number: number
+    }[]
+  } = {}
 
   /**
    * forms use to choose emprise to make the download
@@ -56,9 +81,11 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
   filterEmpriseOptions: responseOfSerachLimitInterface[] = []
 
   constructor(
+    private renderer: Renderer2,
     public BackendApiService: BackendApiService,
     public StorageServiceService: StorageServiceService,
-    public fb: FormBuilder
+    public fb: FormBuilder,
+    public manageCompHelper: manageCompHelper
   ) {
     super(StorageServiceService, fb)
   }
@@ -77,10 +104,48 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
           this.setRoiTypeToAll()
         }
 
+        this.userClosedOverlay.subscribe((idOverlay) => {
+          this.closeChart(idOverlay)
+        })
+
       }
     })
   }
 
+  /**
+   * construct layer that will help to display result from export
+   */
+  constructLayerToDisplayResult() {
+    this.removeLayerExportData()
+
+    var layerExport = new VectorLayer({
+      source: new VectorSource(),
+      style: new Style({
+        stroke: new Stroke({
+          color: "#000",
+          width: 2,
+        }),
+        fill: new Fill({
+          color: environment.primaryColor,
+        }),
+      }),
+      updateWhileAnimating: true,
+      tocCapabilities: {
+        opacity: false,
+        metadata: false,
+        share: false
+      },
+      type_layer: 'exportData',
+      nom: 'exportData'
+    })
+
+    layerExport.set('iconImagette', environment.url_frontend + '/assets/icones/draw.svg')
+    layerExport.set('inToc', false)
+    layerExport.setZIndex(1000)
+
+    return layerExport
+
+  }
   /**
    * initialise forms use to select emprise to perform download
    */
@@ -151,7 +216,11 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
   empriseSelected(option: MatAutocompleteSelectedEvent) {
     var empriseInForm: responseOfSerachLimitInterface = option.option.value
     if (empriseInForm.table && empriseInForm.id) {
-
+      this.downloadModel.parametersGeometryDB = {
+        table: empriseInForm.table,
+        id: empriseInForm.id,
+        name: empriseInForm.name
+      }
       this.getGeometryOfEmprise({ table: empriseInForm.table, id: empriseInForm.id })
     }
   }
@@ -188,11 +257,11 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
       this.configProejct.roiGeojson,
       {
         dataProjection: "EPSG:4326",
-        featureProjection: "EPSG:4326",
+        featureProjection: "EPSG:3857",
       }
     );
     this.downloadModel.roiGeometry = feature.getGeometry()
-
+    this.downloadModel.parametersGeometryDB = undefined
   }
 
   toogleRoiType(value: MatSlideToggleChange) {
@@ -230,6 +299,207 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
       }
     }
     return response
+  }
+
+  /**
+   * calculate the export in the DB
+   */
+  calculateExport() {
+    var listLayer = []
+    for (let index = 0; index < this.downloadModel.layers.length; index++) {
+      const layer = this.downloadModel.layers[index];
+      listLayer.push({
+        'url': layer.url,
+        'methode': 'qgis',
+        'index': index,
+        'nom': layer.nom,
+        'id_cat': layer.params_files.id_cat,
+        'type': layer.type_couche,
+        'identifiant': layer.identifiant,
+        'id_them': this.StorageServiceService.getGroupThematiqueFromIdCouche(layer.key_couche).id_thematique,
+        'key_couche': layer.key_couche,
+      })
+    }
+    var parameters = {
+      'querry': listLayer,
+      'lim_adm': this.downloadModel.parametersGeometryDB.table,
+      'id_lim': this.downloadModel.parametersGeometryDB.id,
+    }
+    console.log(parameters)
+    this.BackendApiService.post_requete('/thematique/donwload', parameters).then(
+      (response: Array<{
+        index: number
+        nom: string
+        nom_file: string
+        number: number
+      }>) => {
+        console.log(response)
+
+        this.displayResultExport(response, this.downloadModel.roiGeometry, this.downloadModel.parametersGeometryDB.name)
+      },
+      (error) => {
+
+      }
+    )
+  }
+
+  /**
+   * display result of export data
+   * @param listData Array<>
+   */
+  displayResultExport(listData: Array<
+    {
+      index: number
+      nom: string
+      nom_file: string
+      number: number
+    }>, geometry: any, title: string) {
+
+    this.closeAllChartsInMap()
+
+    var idOverlay = manageDataHelper.makeid()
+
+    /** construct add layer of ROI to the map */
+    var layerExport = this.constructLayerToDisplayResult()
+    layerExport.set('properties', { 'idOverlay': idOverlay })
+    var featureRoi = new Feature()
+    featureRoi.setGeometry(geometry)
+    layerExport.getSource().addFeature(featureRoi)
+
+    var cartoClass = new cartoHelper()
+    cartoClass.addLayerToMap(layerExport)
+
+
+    cartoClass.map.getView().fit(layerExport.getSource().getExtent(), { size: cartoClass.map.getSize(), duration: 1000 })
+
+    /** construct and add overlay with the diagram on the map */
+    var centerOfRoi = getCenter(layerExport.getSource().getExtent());
+
+
+
+    /** Construct the chart configuration */
+    var numbers = [];
+    var labels = [];
+    for (var index = 0; index < listData.length; index++) {
+      numbers.push(listData[index]["number"]);
+      labels.push(listData[index]["nom"] + " (" + listData[index]["number"] + ") ");
+    }
+    var dynamicColors = function () {
+      var r = Math.floor(Math.random() * 255);
+      var g = Math.floor(Math.random() * 255);
+      var b = Math.floor(Math.random() * 255);
+      return "rgb(" + r + "," + g + "," + b + ")";
+    };
+    var coloR = [];
+    for (var i in numbers) {
+      coloR.push(dynamicColors());
+    }
+
+    let chartConfig =
+    {
+      type: "pie",
+      scaleFontColor: "red",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            data: numbers,
+            backgroundColor: coloR,
+            borderColor: "rgba(200, 200, 200, 0.75)",
+            hoverBorderColor: "rgba(200, 200, 200, 1)",
+          },
+        ],
+      },
+      options: {
+        title: {
+          display: true,
+          text: title,
+          fontColor: "#fff",
+          fontSize: 16,
+          position: "top",
+        },
+        legend: {
+          display: true,
+          labels: {
+            fontColor: "#fff",
+            fontSize: 14,
+          },
+        },
+        scales: {
+          xAxes: [
+            {
+              display: false,
+              ticks: {
+                fontColor: "Black",
+              },
+            },
+          ],
+          yAxes: [
+            {
+              display: false,
+            },
+          ],
+        },
+
+        onClick: (event) => {
+          console.log(event);
+          var name_analyse = event.target.id;
+        }
+      }
+
+    }
+
+    var elementChart = this.manageCompHelper.createComponent(ChartOverlayComponent, { 'chartConnfiguration': chartConfig, 'idChart': idOverlay, 'close': this.userClosedOverlay })
+
+    this.manageCompHelper.appendComponent(elementChart, this.downlodListOverlays.nativeElement)
+
+    var overlayExport = new Overlay({
+      position: centerOfRoi,
+      positioning: "center-center",
+      element: elementChart.location.nativeElement,
+      id: idOverlay
+    });
+
+    cartoClass.map.addOverlay(overlayExport);
+
+    this.listOfChartsInMap[idOverlay] = listData
+
+  }
+
+  /**
+   * Close a chart : remove layer and overlay to the map
+   */
+  closeChart(idOverlay:string) {
+    console.log(idOverlay, 'closeChart')
+    var cartoClass = new cartoHelper()
+
+    this.removeLayerExportData()
+
+    var overlay = cartoClass.map.getOverlayById(idOverlay)
+    cartoClass.map.removeOverlay(overlay)
+  }
+
+  /**
+   * Close all charts in the map
+   */
+  closeAllChartsInMap(){
+    for (const key in this.listOfChartsInMap) {
+      if (this.listOfChartsInMap.hasOwnProperty(key)) {
+        this.closeChart(key)
+      }
+    }
+  }
+
+  /**
+   * Remove layer exportData from map if exist
+   */
+  removeLayerExportData() {
+    var cartoClass = new cartoHelper()
+    var layer = cartoClass.getLayerByName('exportData')
+    for (let index = 0; index < layer.length; index++) {
+      const element = layer[index];
+      cartoClass.map.removeLayer(element)
+    }
   }
 
 }

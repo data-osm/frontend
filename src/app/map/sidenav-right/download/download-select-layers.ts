@@ -21,6 +21,14 @@ export interface downloadModelInterface {
    */
   roiType: 'all' | 'draw' | 'emprise',
   /**
+   * Parameters to get geometry in DB
+   */
+  parametersGeometryDB?:{
+    table:string,
+    id:number,
+    name:string
+  }
+  /**
    * OL geometry of the region of interest
    */
   roiGeometry: any
@@ -47,7 +55,8 @@ export class selectLayersForDownload {
   downloadModel: downloadModelInterface = {
     layers: [],
     roiType: undefined,
-    roiGeometry: undefined
+    roiGeometry: undefined,
+    parametersGeometryDB:undefined
   }
   /**
    * forms use to choose layers in UI

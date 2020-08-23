@@ -60,7 +60,7 @@
 
 
 
-  <button class="submit-download-data primaryColorBG" matTooltip="{{ 'dowload_data.calculate' | translate }}" [disabled]="!enableDownloadBtn()" mat-mini-fab >
+  <button class="submit-download-data primaryColorBG" (click)="calculateExport()" matTooltip="{{ 'dowload_data.calculate' | translate }}" [disabled]="!enableDownloadBtn()" mat-mini-fab >
 
     <svg style="height: 32px;" x="0px" y="0px" viewBox="0 0 22 22.2">
       <g id="Tracé_1915">
@@ -80,4 +80,8 @@ c-2.6,0-4.7,2.1-4.7,4.7c0,2.6,2.1,4.7,4.7,4.7c2.6,0,4.7-2.1,4.7-4.7C14.6,7.4,12.
   <img src="assets/images/osm.svg" width="25px" alt="" srcset="">
   {{ 'geosm.text' | translate }} <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">
     {{ 'geosm.text1' | translate }} OpenStreetMap </a>
+</div>
+
+<div id="downlod-list-overlays" #downlod_list_overlays  style="display: flex;" >
+
 </div>

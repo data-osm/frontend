@@ -38,7 +38,7 @@ export interface legendCapabilitiesInterface{
  */
 export interface layersInMap {
   nom: string
-  type_layer: 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'download' | 'other'|'routing',
+  type_layer: 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'exportData' | 'other'|'routing',
   image: string
   properties: Object | null
   zIndex: number
@@ -67,7 +67,7 @@ export interface layersInMap {
   legendCapabilities?:legendCapabilitiesInterface
 }
 
-const typeLayer = ['geosmCatalogue', 'draw', 'mesure', 'mappilary', 'download', 'other','routing']
+const typeLayer = ['geosmCatalogue', 'draw', 'mesure', 'mappilary', 'exportData', 'other','routing']
 /**
  * interface to construct  a layer
  */
@@ -77,7 +77,7 @@ export interface geosmLayer {
    * is the layer should appear in the toc ?
    */
   'inToc':boolean
-  'type_layer': 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'download' | 'other'|'routing',
+  'type_layer': 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'exportData' | 'other'|'routing',
   'type': 'geojson' | 'wfs' | 'wms' | 'xyz',
   'crs'?: string,
   'visible': boolean,
@@ -557,7 +557,7 @@ export class cartoHelper {
 
   /**
    * Get list of layer by thier names
-   * @param name string name of layer to search
+   * @param name string 'nom' of layer to search
    * @param isLayerGroup boolean is the layeys we want are in a layergroup ?
    * @return Array<any>
    */
