@@ -88,7 +88,8 @@ export class GeosmLayersServiceService {
         size:size,
         legendCapabilities:{
           useCartoServer:true
-        }
+        },
+        descriptionSheetCapabilities:couche.wms_type?'osm':undefined
       })
       cartoHelperClass.addLayerToMap(layer)
       couche.check = true
@@ -147,7 +148,8 @@ export class GeosmLayersServiceService {
           couche_id: carte.key_couche,
           type: 'carte'
         },
-        iconImagette: environment.url_prefix + '/' + carte.image_src
+        iconImagette: environment.url_prefix + '/' + carte.image_src,
+        descriptionSheetCapabilities:undefined
       }
     )
 

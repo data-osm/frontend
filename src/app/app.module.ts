@@ -51,6 +51,8 @@ import { CarteThematiqueComponent } from './map/sidenav-left/sidenave-left-secon
 import { MetadataComponent } from './modal/metadata/metadata.component';
 import { ChartOverlayComponent } from './map/sidenav-right/download/chart-overlay/chart-overlay.component';
 import { ListDownloadLayersComponent } from './map/sidenav-right/download/list-download-layers/list-download-layers.component';
+import { DescriptiveSheetComponent } from './map/descriptive-sheet/descriptive-sheet.component';
+import { OsmSheetComponent } from './map/descriptive-sheet/osm-sheet/osm-sheet.component';
 
 @NgModule({
   declarations: [
@@ -79,7 +81,9 @@ import { ListDownloadLayersComponent } from './map/sidenav-right/download/list-d
     CarteThematiqueComponent,
     MetadataComponent,
     ChartOverlayComponent,
-    ListDownloadLayersComponent
+    ListDownloadLayersComponent,
+    DescriptiveSheetComponent,
+    OsmSheetComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({
