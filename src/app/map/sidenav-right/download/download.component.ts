@@ -262,6 +262,10 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
     );
     this.downloadModel.roiGeometry = feature.getGeometry()
     this.downloadModel.parametersGeometryDB = undefined
+    if (this.formsEmprise) {
+      this.formsEmprise.reset('')
+    }
+
   }
 
   toogleRoiType(value: MatSlideToggleChange) {
@@ -302,9 +306,39 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
   }
 
   /**
+   * Generate export : if type of ROI is:
+   * - 'all' , this will call the function displayResultExport()
+   * - 'emprise', this will call the function calculateExportInDB()
+   */
+  generateExport(){
+    if (this.downloadModel.roiType == 'emprise') {
+      this.calculateExportInDB()
+    }else{
+      var layers:Array<{
+        index: number
+        nom: string
+        nom_file: string
+        number: number
+      }>=[]
+
+      for (let index = 0; index < this.downloadModel.layers.length; index++) {
+        const layer = this.downloadModel.layers[index];
+        var nom_shp = environment.url_service + '/' + environment.path_qgis + '/' + environment.pojet_nodejs + '/gpkg/' + layer.params_files.nom_cat.replace(/[^a-zA-Z0-9]/g, '_') + '_' + layer.params_files.sous_thematiques + '_' + layer.params_files.key_couche + '_' + layer.params_files.id_cat + '.gpkg'
+        layers.push({
+          'index': index,
+          'nom': layer.nom,
+          'number': layer.number,
+          'nom_file': nom_shp,
+        })
+      }
+
+      this.displayResultExport(layers,this.downloadModel.roiGeometry,'Export total')
+    }
+  }
+  /**
    * calculate the export in the DB
    */
-  calculateExport() {
+  calculateExportInDB() {
     var listLayer = []
     for (let index = 0; index < this.downloadModel.layers.length; index++) {
       const layer = this.downloadModel.layers[index];
@@ -325,7 +359,7 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
       'lim_adm': this.downloadModel.parametersGeometryDB.table,
       'id_lim': this.downloadModel.parametersGeometryDB.id,
     }
-    console.log(parameters)
+    $('.export-data-loading').show()
     this.BackendApiService.post_requete('/thematique/donwload', parameters).then(
       (response: Array<{
         index: number
@@ -333,12 +367,12 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
         nom_file: string
         number: number
       }>) => {
-        console.log(response)
+        $('.export-data-loading').hide()
 
         this.displayResultExport(response, this.downloadModel.roiGeometry, this.downloadModel.parametersGeometryDB.name)
       },
       (error) => {
-
+        $('.export-data-loading').hide()
       }
     )
   }

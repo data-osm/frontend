@@ -1,3 +1,13 @@
+<div class="export-data-loading">
+  <div style="position:absolute;top:calc(50% - 30px);left:30%">
+    <div class="lds-ripple" style="width: 100px;
+height: 100px;">
+      <div></div>
+      <div></div>
+    </div>
+  </div>
+</div>
+
 <div class="description_download text-center">
   {{ 'dowload_data.description' | translate }}
 </div>
@@ -29,29 +39,37 @@
     </div>
   </form>
 
-
-  <button mat-raised-button class="primaryColorBG addNewInputInSelectLayers" (click)="addInputInFormsLayer()">
-    <i class="fa fa-plus white" style="margin-bottom: 13px;"></i>
-  </button>
+  <div class="download-layers-data-in-btn" >
+    <button mat-raised-button class="primaryColorBG " [matTooltip]="'dowload_data.toolTipAddInput' | translate "  (click)="addInputInFormsLayer()">
+      <i class="fa fa-plus white" style="margin-bottom: 13px;"></i>
+    </button>
+    <button mat-raised-button class="whiteBG primaryColorBorder " [matTooltip]="'dowload_data.toolTipLoadLayersInTOC' | translate " (click)="addAllLayersInTOC()">
+      <svg x="0px" y="0px" viewBox="0 0 23.4 24.8" style="width: 15px;margin-bottom: 16px;">
+        <path class=" primaryColorFill " d="M11.7,0L0,9.1l2.1,1.7l9.6,7.5l9.6-7.5l2.1-1.7L11.7,0z M11.7,21.5l-9.6-7.5L0,15.7l11.7,9.1
+  l11.7-9.1l-2.1-1.7L11.7,21.5z"  />
+      </svg>
+    </button>
+  </div>
 
   <h5 class="bold primaryColor primary_transparent_bg group-download">
     {{ 'dowload_data.title_choose_emprise' | translate }}
   </h5>
 
-  <mat-slide-toggle style="margin-top: 10px;margin-bottom: 15px;" (change)="toogleRoiType($event)" color="primary" [matTooltip]="'right_menu.download_data.downloadCompleteDataTooltip' | translate "  *ngIf="configProejct.limites.length > 0"> {{ 'right_menu.download_data.downloadCompleteData' | translate }}</mat-slide-toggle>
+  <mat-slide-toggle style="margin-top: 10px;margin-bottom: 15px;" (change)="toogleRoiType($event)" color="primary"
+    [matTooltip]="'right_menu.download_data.downloadCompleteDataTooltip' | translate "
+    *ngIf="configProejct.limites.length > 0"> {{ 'right_menu.download_data.downloadCompleteData' | translate }}
+  </mat-slide-toggle>
 
-  <form [formGroup]="formsEmprise" *ngIf="configProejct.limites.length > 0 && downloadModel.roiType == 'emprise' " >
+  <form [formGroup]="formsEmprise" *ngIf="configProejct.limites.length > 0 && downloadModel.roiType == 'emprise' ">
     <mat-form-field appearance="outline">
-      <mat-label > {{'dowload_data.title_choose_one_emprise'|translate}} </mat-label>
-      <input type="text"
-             matInput
-             formControlName="emprise"
-             [matAutocomplete]="auto">
-      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayAutocompleEmpriseFn" (optionSelected)="empriseSelected($event)" >
+      <mat-label> {{'dowload_data.title_choose_one_emprise'|translate}} </mat-label>
+      <input type="text" matInput formControlName="emprise" [matAutocomplete]="auto">
+      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayAutocompleEmpriseFn"
+        (optionSelected)="empriseSelected($event)">
         <mat-option *ngFor="let option of filterEmpriseOptions " [value]="option">
           {{option.name}}
           <br>
-          <small *ngIf="option.ref" > {{option.ref}} - </small>
+          <small *ngIf="option.ref"> {{option.ref}} - </small>
           <small> {{option.limitName}} </small>
         </mat-option>
       </mat-autocomplete>
@@ -60,7 +78,8 @@
 
 
 
-  <button class="submit-download-data primaryColorBG" (click)="calculateExport()" matTooltip="{{ 'dowload_data.calculate' | translate }}" [disabled]="!enableDownloadBtn()" mat-mini-fab >
+  <button class="submit-download-data primaryColorBG" (click)="generateExport()"
+    matTooltip="{{ 'dowload_data.calculate' | translate }}" [disabled]="!enableDownloadBtn()" mat-mini-fab>
 
     <svg style="height: 32px;" x="0px" y="0px" viewBox="0 0 22 22.2">
       <g id="Tracé_1915">
@@ -77,11 +96,11 @@ c-2.6,0-4.7,2.1-4.7,4.7c0,2.6,2.1,4.7,4.7,4.7c2.6,0,4.7-2.1,4.7-4.7C14.6,7.4,12.
 </ng-container>
 
 <div style="background-color: white; padding: 10px;position: fixed;bottom: 0px;text-align: center;">
-  <img src="assets/images/osm.svg" width="25px" alt="" srcset="">
+  <img src="assets/icones/osm.svg" width="25px" alt="" style="    vertical-align: middle;">
   {{ 'geosm.text' | translate }} <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">
     {{ 'geosm.text1' | translate }} OpenStreetMap </a>
 </div>
 
-<div id="downlod-list-overlays" #downlod_list_overlays  style="display: flex;" >
+<div id="downlod-list-overlays" #downlod_list_overlays style="display: flex;">
 
 </div>

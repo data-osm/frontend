@@ -48,7 +48,9 @@
     "title_choose_one_emprise": "Nom d'une commune, région, etc...",
     "title_choose_thematique": "Choisir une thématique",
     "title_choose_type_emprise": "Votre emprise spatiale",
-    "title_data_in": "Données d'entrées"
+    "title_data_in": "Données d'entrées",
+    "toolTipLoadLayersInTOC":"Charger les couches en cours",
+    "toolTipAddInput":"Ajouter une nouvelle couche"
   },
   "draw_in_map": {
     "apply_draw": "APPLIQUER",

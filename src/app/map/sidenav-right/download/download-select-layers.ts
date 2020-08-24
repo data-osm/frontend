@@ -5,6 +5,7 @@ import { StorageServiceService } from '../../../services/storage-service/storage
 import { startWith, map, filter } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { cartoHelper, layersInMap } from 'src/helper/carto.helper';
 /**
  * Interface of the model that manage download features
  */
@@ -23,10 +24,10 @@ export interface downloadModelInterface {
   /**
    * Parameters to get geometry in DB
    */
-  parametersGeometryDB?:{
-    table:string,
-    id:number,
-    name:string
+  parametersGeometryDB?: {
+    table: string,
+    id: number,
+    name: string
   }
   /**
    * OL geometry of the region of interest
@@ -56,7 +57,7 @@ export class selectLayersForDownload {
     layers: [],
     roiType: undefined,
     roiGeometry: undefined,
-    parametersGeometryDB:undefined
+    parametersGeometryDB: undefined
   }
   /**
    * forms use to choose layers in UI
@@ -106,6 +107,29 @@ export class selectLayersForDownload {
   addInputInFormsLayer() {
     this.formsLayersArray = this.formsLayers.get('layers') as FormArray;
     this.formsLayersArray.push(this.createInputFormsLayer());
+  }
+
+  /**
+   * Add all layers in the TOC in layers selected
+   */
+  addAllLayersInTOC() {
+    this.formsLayersArray = this.formsLayers.get('layers') as FormArray;
+    if (this.getAllLayersInTOC().length > 0) {
+
+      while (this.formsLayersArray.length > 0) {
+        this.removeInputInFormsLayer(0)
+      }
+
+    }
+
+    for (let index = 0; index < this.getAllLayersInTOC().length; index++) {
+      const element = this.getAllLayersInTOC()[index];
+      var form = this.createInputFormsLayer()
+      form.get('layer').setValue(element)
+      this.formsLayersArray.push(form);
+    }
+
+    this.loadAllLayersInModel()
   }
 
   /**
@@ -161,7 +185,7 @@ export class selectLayersForDownload {
   /**
    * Load all selected layers in the mdodel of the components eg this.downloadModel.layers
    */
-  loadAllLayersInModel(){
+  loadAllLayersInModel() {
     this.downloadModel.layers = []
     this.formsLayersArray = this.formsLayers.get('layers') as FormArray;
     for (let index = 0; index < this.formsLayersArray.controls.length; index++) {
@@ -228,5 +252,32 @@ export class selectLayersForDownload {
     return response
   }
 
+
+  /**
+   * get Layers in TOC
+   */
+  getAllLayersInTOC(): searchLayerToDownlodModelInterface[] {
+    let cartoHelperClass = new cartoHelper()
+    var response: searchLayerToDownlodModelInterface[] = []
+
+    let reponseLayers: Array<layersInMap> = cartoHelperClass.getAllLayersInToc()
+    for (let index = 0; index < reponseLayers.length; index++) {
+      const layerProp = reponseLayers[index];
+      if (layerProp['type_layer'] == 'geosmCatalogue') {
+        if (layerProp['properties']['type'] == 'couche') {
+          let groupThematique = this.StorageServiceService.getGroupThematiqueById(layerProp['properties']['group_id'])
+          layerProp['data'] = this.StorageServiceService.getCouche(layerProp['properties']['group_id'], layerProp['properties']['couche_id'])
+          response.push({
+            name: layerProp['data'].nom,
+            description: groupThematique.nom,
+            id: layerProp['data'].key_couche,
+            source: 'geosmCatalogue'
+          })
+        }
+      }
+    }
+
+    return response
+  }
 
 }
