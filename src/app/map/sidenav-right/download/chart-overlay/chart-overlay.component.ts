@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Chart } from "chart.js";
+import * as $ from 'jquery'
 
 @Component({
   selector: 'app-chart-overlay',
@@ -41,12 +42,16 @@ export class ChartOverlayComponent implements OnInit {
    * Initialise th chart
    */
   initialiseChart(){
-    new Chart(this.idChart,this.chartConnfiguration)
+    this.myChart = new Chart(this.idChart,this.chartConnfiguration)
+    setTimeout(() => {
+      document.getElementById("chart-export-download-img")['href'] = this.myChart.toBase64Image()
+    }, 1500);
   }
 
   closeChart(){
     console.log(this.close)
     this.close.emit(this.idChart)
   }
+
 
 }

@@ -50,7 +50,9 @@
     "title_choose_type_emprise": "Votre emprise spatiale",
     "title_data_in": "Données d'entrées",
     "toolTipLoadLayersInTOC":"Charger les couches en cours",
-    "toolTipAddInput":"Ajouter une nouvelle couche"
+    "toolTipAddInput":"Ajouter une nouvelle couche",
+    "toolTipDownloadGpkg":"Afficher les GPKG en téléchargements",
+    "toolTipDownloadImage":"Télécharger cette image"
   },
   "draw_in_map": {
     "apply_draw": "APPLIQUER",
