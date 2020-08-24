@@ -60,6 +60,8 @@ import {MatBadgeModule} from '@angular/material/badge';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatListModule} from '@angular/material/list';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 @NgModule({
   exports: [
@@ -85,7 +87,9 @@ import {MatListModule} from '@angular/material/list';
     MatBadgeModule,
     MatDialogModule,
     MatTabsModule,
-    MatListModule
+    MatListModule,
+    MatAutocompleteModule,
+    MatSlideToggleModule
   ]
 })
 export class ComponentMaterialModule { }

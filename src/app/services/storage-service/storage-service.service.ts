@@ -210,6 +210,38 @@ export class StorageServiceService {
   }
 
   /**
+   * Get couche from key_couche
+   * @param id_couche number id couche of the couche
+   * @return groupThematiqueInterface
+   */
+  getCoucheFromKeyCouche(id_couche: number): coucheInterface {
+    var coucheResponnse:coucheInterface;
+    for (let index = 0; index < this.groupThematiques.getValue().length; index++) {
+      const groupThematique = this.groupThematiques.getValue()[index];
+      if (groupThematique.sous_thematiques) {
+        for (let sindex = 0; sindex < groupThematique.sous_thematiques.length; sindex++) {
+          const sous_thematique = groupThematique.sous_thematiques[sindex];
+          for (let jndex = 0; jndex < sous_thematique.couches.length; jndex++) {
+            const couche = sous_thematique.couches[jndex];
+            if (couche.key_couche == id_couche) {
+              coucheResponnse =  couche
+            }
+          }
+        }
+      }else{
+        for (let jndex = 0; jndex < groupThematique.couches.length; jndex++) {
+          const couche = groupThematique.couches[jndex];
+          if (couche.key_couche == id_couche) {
+            coucheResponnse =  couche
+          }
+        }
+      }
+    }
+    return  coucheResponnse
+  }
+
+
+  /**
    * Get carte by id_groupCarte and id_carte
    * @param id_groupCarte number
    * @param id_carte number

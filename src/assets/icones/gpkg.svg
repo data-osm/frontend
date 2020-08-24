@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="8.6000004mm"
+   height="7.75mm"
+   viewBox="0 0 8.6000004 7.75"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="GPKG.svg">
+  <defs
+     id="defs2">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 300.49999 : 1"
+       inkscape:vp_y="0 : 999.99999 : 0"
+       inkscape:vp_z="601.00005 : 300.49999 : 1"
+       inkscape:persp3d-origin="300.50002 : 200.33333 : 1"
+       id="perspective3380" />
+    <inkscape:perspective
+       id="perspective3990"
+       inkscape:persp3d-origin="375.00003 : 250 : 1"
+       inkscape:vp_z="750.00006 : 375 : 1"
+       inkscape:vp_y="0 : 999.99999 : 0"
+       inkscape:vp_x="0 : 375 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="48.630417"
+     inkscape:cx="18.897638"
+     inkscape:cy="18.075107"
+     inkscape:document-units="mm"
+     inkscape:current-layer="g1560"
+     showgrid="false"
+     inkscape:pagecheckerboard="true"
+     inkscape:window-width="3840"
+     inkscape:window-height="2115"
+     inkscape:window-x="-13"
+     inkscape:window-y="-13"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-289.25)">
+    <rect
+       style="fill:#fffff0;fill-opacity:0;fill-rule:evenodd;stroke-width:0.26458332"
+       id="rect1534"
+       width="5.9266667"
+       height="3.0162499"
+       x="2.5670788"
+       y="291.91611"
+       ry="0.13229166" />
+    <g
+       id="g1560">
+      <rect
+         ry="0.13229166"
+         y="289.39056"
+         x="0.15837958"
+         height="7.461"
+         width="5.3181248"
+         id="rect1532"
+         style="fill:#ffffff;fill-opacity:0;fill-rule:evenodd;stroke:#ffffff;stroke-width:0.26458332;stroke-opacity:1" />
+      <rect
+         ry="0.13229166"
+         y="291.58432"
+         x="2.6646588"
+         height="3.0162499"
+         width="5.9266667"
+         id="rect1536"
+         style="fill:#ffffff;fill-opacity:0.94117647;fill-rule:evenodd;stroke-width:0.26458332" />
+    </g>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 5.4751477,290.68628 Z"
+       id="path1540"
+       inkscape:connector-curvature="0" />
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot1546"
+       style="font-style:normal;font-weight:normal;font-size:5.33333349px;line-height:25px;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       transform="scale(0.26458333)"><flowRegion
+         id="flowRegion1548"><rect
+           id="rect1550"
+           width="16.228508"
+           height="7.7823076"
+           x="295.21133"
+           y="542.6087" /></flowRegion><flowPara
+         id="flowPara1552">SHPs        </flowPara></flowRoot>    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.41111112px;line-height:6.61458302px;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#023f5f;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="2.8598416"
+       y="293.74097"
+       id="text1556"><tspan
+         sodipodi:role="line"
+         id="tspan1554"
+         x="2.8598416"
+         y="293.74097"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:1.76388919px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';fill:#023f5f;fill-opacity:1;stroke-width:0.26458332">GPKG</tspan></text>
+  </g>
+</svg>
