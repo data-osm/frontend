@@ -225,5 +225,10 @@
   "geosm": {
     "text": "GeOsm utilise les données",
     "text1": "d'"
+  },
+  "dowloadLayers":{
+    "features":" entité(s)",
+    "download":"Télécharger",
+    "title":"Télécharger vos fichiers"
   }
 }

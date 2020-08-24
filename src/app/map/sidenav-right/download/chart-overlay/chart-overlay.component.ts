@@ -21,6 +21,11 @@ export class ChartOverlayComponent implements OnInit {
    */
   @Output() close = new EventEmitter<any>()
 
+  /**
+   * list all files to download
+   */
+  @Output() listFiles= new EventEmitter<any>()
+
   myChart
 
   constructor() { }
@@ -49,8 +54,11 @@ export class ChartOverlayComponent implements OnInit {
   }
 
   closeChart(){
-    console.log(this.close)
     this.close.emit(this.idChart)
+  }
+
+  listFilesToDownload(){
+    this.listFiles.emit(this.idChart)
   }
 
 

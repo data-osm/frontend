@@ -1,6 +1,8 @@
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {SocialShareComponent} from '../app/social-share/social-share.component'
 import { Injectable, ComponentFactoryResolver, ApplicationRef, Injector, EmbeddedViewRef, ComponentRef } from '@angular/core';
+import {ListDownloadLayersComponent,downloadDataModelInterface} from '../app/map/sidenav-right/download/list-download-layers/list-download-layers.component'
+import { MatDialog } from '@angular/material/dialog';
 /**
  * Open some componenents like social share, loading,modal etc...
  * Dynamically add component in html
@@ -14,7 +16,8 @@ import { Injectable, ComponentFactoryResolver, ApplicationRef, Injector, Embedde
      private _snackBar: MatSnackBar,
      private componentFactoryResolver: ComponentFactoryResolver,
       private appRef: ApplicationRef,
-      private injector: Injector
+      private injector: Injector,
+      public dialog: MatDialog,
      ){
 
    }
@@ -29,6 +32,30 @@ import { Injectable, ComponentFactoryResolver, ApplicationRef, Injector, Embedde
       duration: durationInSeconds * 1000,
       data:{url:url}
     });
+   }
+
+   /**
+    * Open modal used to list and download data
+    * @param data downloadDataModelInterface[]
+    * @param size Array<string>|[]
+    * @param callBack Function
+    */
+   openModalDownloadData(data:downloadDataModelInterface[],size:Array<string>|[],callBack:Function){
+    var proprietes = {
+      disableClose: false,
+      minWidth:400,
+      data:data
+    }
+
+    if (size.length >0) {
+      proprietes['width']=size[0]
+      proprietes['height']=size[1]
+    }
+    const modal = this.dialog.open(ListDownloadLayersComponent, proprietes);
+
+    modal.afterClosed().subscribe(async (result:any) => {
+      callBack(result)
+    })
    }
 
    /**

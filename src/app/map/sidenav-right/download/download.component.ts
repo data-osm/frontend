@@ -15,6 +15,7 @@ import { manageDataHelper } from 'src/helper/manage-data.helper'
 import { manageCompHelper } from 'src/helper/manage-comp.helper'
 import { ChartOverlayComponent } from './chart-overlay/chart-overlay.component'
 import * as $ from 'jquery'
+import {ListDownloadLayersComponent,downloadDataModelInterface} from './list-download-layers/list-download-layers.component'
 
 /**
  * Interface of the model return when user  search a emprise
@@ -57,6 +58,11 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
   userClosedOverlay: EventEmitter<any> = new EventEmitter<any>()
 
   /**
+   * Event emitter listen when a use want to list all files to download them
+   */
+  userListFilesToDownload: EventEmitter<any> = new EventEmitter<any>()
+
+  /**
    * Configuration of the project
    */
   configProejct: configProjetInterface
@@ -69,7 +75,8 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
       index: number
       nom: string
       nom_file: string
-      number: number
+      number: number,
+      id:number
     }[]
   } = {}
 
@@ -108,6 +115,9 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
           this.closeChart(idOverlay)
         })
 
+        this.userListFilesToDownload.subscribe((idOverlay) => {
+          this.openModalListDonwnloadLayers(idOverlay)
+        })
       }
     })
   }
@@ -319,6 +329,7 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
         nom: string
         nom_file: string
         number: number
+        id: number
       }>=[]
 
       for (let index = 0; index < this.downloadModel.layers.length; index++) {
@@ -329,6 +340,7 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
           'nom': layer.nom,
           'number': layer.number,
           'nom_file': nom_shp,
+          'id': layer.key_couche,
         })
       }
 
@@ -365,9 +377,14 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
         index: number
         nom: string
         nom_file: string
-        number: number
+        number: number,
+        id:number
       }>) => {
         $('.export-data-loading').hide()
+        for (let i = 0; i < response.length; i++) {
+          response[i].id = listLayer[response[i].index].key_couche
+          response[i].nom_file = environment.url_prefix+response[i].nom_file
+        }
 
         this.displayResultExport(response, this.downloadModel.roiGeometry, this.downloadModel.parametersGeometryDB.name)
       },
@@ -384,6 +401,7 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
   displayResultExport(listData: Array<
     {
       index: number
+      id: number
       nom: string
       nom_file: string
       number: number
@@ -483,7 +501,7 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
 
     }
 
-    var elementChart = this.manageCompHelper.createComponent(ChartOverlayComponent, { 'chartConnfiguration': chartConfig, 'idChart': idOverlay, 'close': this.userClosedOverlay })
+    var elementChart = this.manageCompHelper.createComponent(ChartOverlayComponent, { 'chartConnfiguration': chartConfig, 'idChart': idOverlay, 'close': this.userClosedOverlay,'listFiles': this.userListFilesToDownload })
 
     this.manageCompHelper.appendComponent(elementChart, this.downlodListOverlays.nativeElement)
 
@@ -502,15 +520,41 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
 
   /**
    * Close a chart : remove layer and overlay to the map
+   * @param idOverlay string
    */
   closeChart(idOverlay:string) {
-    console.log(idOverlay, 'closeChart')
     var cartoClass = new cartoHelper()
 
     this.removeLayerExportData()
 
     var overlay = cartoClass.map.getOverlayById(idOverlay)
     cartoClass.map.removeOverlay(overlay)
+  }
+
+  /**
+   * Open modal to list all files that can be download
+   * @param idOverlay string
+   */
+  openModalListDonwnloadLayers(idOverlay:string){
+    var modelDownload:downloadDataModelInterface[] = []
+    for (let index = 0; index < this.listOfChartsInMap[idOverlay].length; index++) {
+      const element = this.listOfChartsInMap[idOverlay][index];
+      modelDownload.push({
+        layer:undefined,
+        groupThematique:undefined,
+        empriseName:this.downloadModel.parametersGeometryDB?this.downloadModel.parametersGeometryDB.name:'Export total',
+        nom:element.nom,
+        number:element.number,
+        index:element.index,
+        id:element.id,
+        url:element.nom_file
+      })
+    }
+
+    this.manageCompHelper.openModalDownloadData(modelDownload,[],()=>{
+
+    })
+
   }
 
   /**

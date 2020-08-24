@@ -50,6 +50,7 @@ import { CoucheThematiqueComponent } from './map/sidenav-left/sidenave-left-seco
 import { CarteThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-carte/carte-thematique/carte-thematique.component';
 import { MetadataComponent } from './modal/metadata/metadata.component';
 import { ChartOverlayComponent } from './map/sidenav-right/download/chart-overlay/chart-overlay.component';
+import { ListDownloadLayersComponent } from './map/sidenav-right/download/list-download-layers/list-download-layers.component';
 
 @NgModule({
   declarations: [
@@ -77,7 +78,8 @@ import { ChartOverlayComponent } from './map/sidenav-right/download/chart-overla
     CoucheThematiqueComponent,
     CarteThematiqueComponent,
     MetadataComponent,
-    ChartOverlayComponent
+    ChartOverlayComponent,
+    ListDownloadLayersComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({
@@ -105,7 +107,7 @@ import { ChartOverlayComponent } from './map/sidenav-right/download/chart-overla
   ],
   providers: [StorageServiceService,BackendApiService,manageCompHelper],
   bootstrap: [AppComponent],
-  entryComponents:[MetadataComponent]
+  entryComponents:[MetadataComponent,ListDownloadLayersComponent]
 })
 export class AppModule {
   constructor(injector: Injector) {
