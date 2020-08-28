@@ -17,6 +17,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { SidenaveLeftSecondaireComponent } from './sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component';
 import * as $ from 'jquery'
 import { layersInMap, cartoHelper, dataFromClickOnMapInterface } from 'src/helper/carto.helper';
+import {manageCompHelper} from 'src/helper/manage-comp.helper'
 
 var attribution = new Attribution({
   collapsible: false
@@ -74,7 +75,8 @@ export class MapComponent implements OnInit {
     public translate: TranslateService,
     private activatedRoute: ActivatedRoute,
     public ShareServiceService: ShareServiceService,
-    private _ngZone: NgZone
+    private _ngZone: NgZone,
+    public manageCompHelper:manageCompHelper
   ) {
 
   }
@@ -187,22 +189,73 @@ export class MapComponent implements OnInit {
 
   mapClicked() {
     map.on('click', (evt) => {
+
+      function compare( a, b ) {
+        if ( a.getZIndex() < b.getZIndex() ){
+          return 1;
+        }
+        if ( a.getZIndex() > b.getZIndex() ){
+          return -1;
+        }
+        return 0;
+      }
+
       this._ngZone.run(() => {
         let cartoHelperClass = new cartoHelper()
 
         cartoHelperClass.mapHasCliked(evt, (data: dataFromClickOnMapInterface) => {
           console.log(data)
           if (data.type == 'raster') {
-            // this.featureInfoWmsClick(data)
+
+            var layers = data.data.layers.sort( compare );
+            var layerTopZindex = layers.length>0?layers[0]:undefined
+
+            if (layerTopZindex) {
+              var descriptionSheetCapabilities = layerTopZindex.get('descriptionSheetCapabilities')
+              this.openDescriptiveSheet(descriptionSheetCapabilities,cartoHelperClass.constructAlyerInMap(layerTopZindex),data.data.coord)
+              console.log(layerTopZindex,descriptionSheetCapabilities)
+            }
+
+            // this.featureInfoWmsClick(data) descriptionSheetCapabilities
           } else if (data.type == 'clear') {
 
           } else if (data.type == 'vector') {
+            var layers = data.data.layers.sort( compare );
+            var layerTopZindex = layers.length>0?layers[0]:undefined
 
+            if (layerTopZindex) {
+              var descriptionSheetCapabilities = layerTopZindex.get('descriptionSheetCapabilities')
+              console.log(layerTopZindex,descriptionSheetCapabilities)
+              this.openDescriptiveSheet(descriptionSheetCapabilities,cartoHelperClass.constructAlyerInMap(layerTopZindex),data.data.coord,data.data.feature.getGeometry(),data.data.feature.getProperties())
+            }
           }
         })
 
       })
     })
+  }
+
+  /**
+   * Open descriptive sheet
+   * @param type string the type of the descriptiove sheet, descripe in layersInMap interface
+   * @param layer layersInMap
+   * @param geometry Geometry the geometry if exist
+   * @param properties any properties to display if exist
+   */
+  openDescriptiveSheet(type:string,layer:layersInMap,coordinates_3857:[number,number],geometry?:any,properties?:any){
+    if (type) {
+
+      this.manageCompHelper.openDescriptiveSheetModal({
+        type:type,
+        layer:layer,
+        properties:properties,
+        geometry:geometry,
+        coordinates_3857:coordinates_3857
+      },[],()=>{
+
+      })
+
+    }
   }
 
 

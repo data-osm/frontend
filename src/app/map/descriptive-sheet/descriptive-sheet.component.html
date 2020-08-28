@@ -1,1 +1,16 @@
-<p>descriptive-sheet works!</p>
+<h1 mat-dialog-title class="primaryColorBG white">
+  <!-- <i class="fa fa-download white icon_header" aria-hidden="true"></i> -->
+  <i class="fa fa-times-circle close" (click)="closeModal()"></i>
+  {{ descriptiveModel.layer.nom}}
+</h1>
+
+<div mat-dialog-content>
+  <app-osm-sheet *ngIf="descriptiveModel.type == 'osm'" [descriptiveModel]="descriptiveModel" ></app-osm-sheet>
+
+</div>
+
+<div mat-dialog-actions>
+  <img src="assets/icones/osm.svg" width="25px" alt="" style="    vertical-align: middle;">
+  {{ 'geosm.text' | translate }} <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">
+    {{ 'geosm.text1' | translate }} OpenStreetMap </a>
+</div>

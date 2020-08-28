@@ -15,7 +15,7 @@ import { manageDataHelper } from './manage-data.helper'
 export interface dataFromClickOnMapInterface {
   type: 'vector' | 'raster' | 'clear',
   data: {
-    coord: Array<number>,
+    coord: [number,number],
     layers: Array<any>,
     feature?: Feature
     /** additional data */
@@ -707,38 +707,45 @@ export class cartoHelper {
 
     for (let index = 0; index < allLayers.length; index++) {
       const layer = allLayers[index];
-      var data = null
-
-      var tocCapabilities: tocCapabilitiesInterface = {} as tocCapabilitiesInterface
-      if (layer.get('tocCapabilities')) {
-        tocCapabilities.opacity = layer.get('tocCapabilities')['opacity'] != undefined ? layer.get('tocCapabilities')['opacity'] : true
-        tocCapabilities.share = layer.get('tocCapabilities')['share'] != undefined ? layer.get('tocCapabilities')['share'] : true
-        tocCapabilities.metadata = layer.get('tocCapabilities')['metadata'] != undefined ? layer.get('tocCapabilities')['metadata'] : true
-      } else {
-        tocCapabilities.opacity = true
-        tocCapabilities.share = true
-        tocCapabilities.metadata = true
-      }
-
       if (layer.get('inToc')) {
-        reponseLayers.push({
-          tocCapabilities: tocCapabilities,
-          legendCapabilities: layer.get('legendCapabilities'),
-          nom: layer.get('nom'),
-          type_layer: layer.get('type_layer'),
-          properties: layer.get('properties'),
-          image: layer.get('iconImagette'),
-          data: data,
-          zIndex: layer.getZIndex(),
-          visible: layer.getVisible(),
-          layer: layer,
-          descriptionSheetCapabilities: layer.get('descriptionSheetCapabilities')
-        })
+        reponseLayers.push(this.constructAlyerInMap(layer))
       }
-
     }
 
     return reponseLayers
+  }
+
+  /**
+   * construct a layersInMap Object fron a layer in the map
+   * @param layer any
+   * @return layersInMap
+   */
+  constructAlyerInMap(layer: any): layersInMap {
+    var data = null
+    var tocCapabilities: tocCapabilitiesInterface = {} as tocCapabilitiesInterface
+    if (layer.get('tocCapabilities')) {
+      tocCapabilities.opacity = layer.get('tocCapabilities')['opacity'] != undefined ? layer.get('tocCapabilities')['opacity'] : true
+      tocCapabilities.share = layer.get('tocCapabilities')['share'] != undefined ? layer.get('tocCapabilities')['share'] : true
+      tocCapabilities.metadata = layer.get('tocCapabilities')['metadata'] != undefined ? layer.get('tocCapabilities')['metadata'] : true
+    } else {
+      tocCapabilities.opacity = true
+      tocCapabilities.share = true
+      tocCapabilities.metadata = true
+    }
+
+    return {
+      tocCapabilities: tocCapabilities,
+      legendCapabilities: layer.get('legendCapabilities'),
+      nom: layer.get('nom'),
+      type_layer: layer.get('type_layer'),
+      properties: layer.get('properties'),
+      image: layer.get('iconImagette'),
+      data: data,
+      zIndex: layer.getZIndex(),
+      visible: layer.getVisible(),
+      layer: layer,
+      descriptionSheetCapabilities: layer.get('descriptionSheetCapabilities')
+    }
   }
 
   /**
@@ -882,9 +889,9 @@ export class cartoHelper {
        *
       */
 
-      if ( layer.getSource() instanceof Cluster) {
+      if (layer.getSource() instanceof Cluster) {
         var numberOfFeatureInCluster = this.countFeaturesInCluster(feature.get('features'));
-        console.log(layer,feature,numberOfFeatureInCluster)
+        // console.log(layer,feature,numberOfFeatureInCluster)
         if (numberOfFeatureInCluster > 1) {
           if (Object.create(feature.getGeometry()).getType() == 'Point') {
             var coordinate = Object.create(feature.getGeometry()).getCoordinates();
@@ -953,7 +960,7 @@ export class cartoHelper {
     for (let index = 0; index < features.length; index++) {
       const feat = features[index];
       // if (feat.get('display') == true) {
-        size = size + 1
+      size = size + 1
       // }
     }
 
@@ -970,7 +977,7 @@ export class cartoHelper {
     for (let index = 0; index < features.length; index++) {
       const feat = features[index];
       // if (feat.get('display') == true) {
-        feature = feat
+      feature = feat
       // }
     }
     return feature

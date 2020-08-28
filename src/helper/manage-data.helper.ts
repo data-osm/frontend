@@ -50,4 +50,23 @@ export class manageDataHelper {
     }
     return all_pixels
   }
+
+  /**
+   * is attributes in object of an array ?
+   * @param table array
+   * @param attribute string
+   * @param value any
+   * @return number
+   */
+  public static isAttributesInObjectOfAnArray(table:Array<any>,attribute:string,value:any):number{
+    var position:number;
+    for (let index = 0; index < table.length; index++) {
+      const element = table[index];
+      if (element[attribute] == value) {
+        position = index
+      }
+    }
+    return position
+  }
+
 }

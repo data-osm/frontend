@@ -2,16 +2,17 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { coucheInterface, carteInterface } from 'src/app/type/type';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {StorageServiceService} from 'src/app/services/storage-service/storage-service.service'
+import { layersInMap } from 'src/helper/carto.helper';
 
 /**
  * interface of the model to display a sheet properties
  */
 export interface modelDescriptiveSheet{
-  type:'osm',
+  type:string,
   /**
    * layer
    */
-  layer:coucheInterface|carteInterface
+  layer:layersInMap
   /**
    * ol geometry
    */
@@ -19,7 +20,8 @@ export interface modelDescriptiveSheet{
   /**
    * Properties to displqy
    */
-  properties:Object
+  properties:Object,
+  coordinates_3857:[number,number]
 }
 
 @Component({
@@ -34,7 +36,7 @@ export interface modelDescriptiveSheet{
 export class DescriptiveSheetComponent implements OnInit {
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public listLayers: modelDescriptiveSheet[],
+    @Inject(MAT_DIALOG_DATA) public descriptiveModel: modelDescriptiveSheet,
     public dialogRef: MatDialogRef<DescriptiveSheetComponent>,
     public StorageServiceService:StorageServiceService
   ) { }

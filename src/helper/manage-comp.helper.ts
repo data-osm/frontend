@@ -2,7 +2,8 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {SocialShareComponent} from '../app/social-share/social-share.component'
 import { Injectable, ComponentFactoryResolver, ApplicationRef, Injector, EmbeddedViewRef, ComponentRef } from '@angular/core';
 import {ListDownloadLayersComponent,downloadDataModelInterface} from '../app/map/sidenav-right/download/list-download-layers/list-download-layers.component'
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { modelDescriptiveSheet, DescriptiveSheetComponent } from 'src/app/map/descriptive-sheet/descriptive-sheet.component';
 /**
  * Open some componenents like social share, loading,modal etc...
  * Dynamically add component in html
@@ -33,6 +34,46 @@ import { MatDialog } from '@angular/material/dialog';
       data:{url:url}
     });
    }
+
+   /**
+    * Open modal used to display descriptive sheet
+    * @param data modelDescriptiveSheet
+    * @param size Array<string>|[]
+    * @param callBack Function
+    */
+   openDescriptiveSheetModal(data:modelDescriptiveSheet,size:Array<string>|[],callBack:Function){
+     console.log(this.dialog)
+
+    for (let index = 0; index < this.dialog.openDialogs.length; index++) {
+      const elementDialog = this.dialog.openDialogs[index];
+      if (elementDialog.componentInstance instanceof DescriptiveSheetComponent) {
+        elementDialog.close()
+      }
+    }
+
+    var proprietes:MatDialogConfig = {
+      disableClose: false,
+      minWidth:400,
+      width:'400px',
+      data:data,
+      hasBackdrop:false,
+      position:{
+        top:'0px',
+        left:window.innerWidth <500 ?'0px':(window.innerWidth/2 - 400/2)+'px'
+      }
+    }
+
+    if (size.length >0) {
+      // proprietes['width']=size[0]
+      proprietes['height']=size[1]
+    }
+    const modal = this.dialog.open(DescriptiveSheetComponent, proprietes);
+
+    modal.afterClosed().subscribe(async (result:any) => {
+      callBack(result)
+    })
+   }
+
 
    /**
     * Open modal used to list and download data
