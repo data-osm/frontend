@@ -25,7 +25,7 @@
   <ng-container *ngFor="let attribute of listAttributes;let i = index">
 
     <div fxLayout class="descriptive-sheet-body" style="margin-bottom: 5px;" *ngIf="i <= initialNumberOfAttributes">
-      <div fxFlex="35%" class="attribute">
+      <div fxFlex="38%" class="attribute">
         {{ attribute.field| translate }}
         <i class="fa fa-phone" style="font-size: 10px;"
           *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'tel'"></i>
@@ -33,7 +33,7 @@
           *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'url'"></i>
         <i class="fa fa-at" style="font-size: 10px;"
           *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'email'"></i>
-        :
+          <span class="attribute-two-points" > : </span>
       </div>
 
       <div fxFlex class="attribute-value">

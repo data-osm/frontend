@@ -6,6 +6,15 @@
     font-weight: bold;
     text-align: right;
     padding-right: 10px;
+    position: relative;
+    .attribute-two-points{
+      position: absolute;
+      top: calc(50% - 10px);
+      margin-left: 5px;
+    }
+  }
+  .attribute-value{
+    padding-left: 5px;
   }
 }
 .descriptive-sheet-body-url{

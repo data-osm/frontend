@@ -54,7 +54,7 @@ export class DescriptiveSheetComponent implements OnInit,OnChanges {
       var color = '#f44336'
       return new Style({
         fill: new Fill({
-          color: [this.hexToRgb(color).r, this.hexToRgb(color).g, this.hexToRgb(color).b, 0.7]
+          color: [this.hexToRgb(color).r, this.hexToRgb(color).g, this.hexToRgb(color).b, 0.5]
         }),
         stroke: new Stroke({
           color: color,
@@ -67,7 +67,7 @@ export class DescriptiveSheetComponent implements OnInit,OnChanges {
             width: 4
           }),
           fill: new Fill({
-            color: [this.hexToRgb(color).r, this.hexToRgb(color).g, this.hexToRgb(color).b, 0.7]
+            color: [this.hexToRgb(color).r, this.hexToRgb(color).g, this.hexToRgb(color).b, 0.5]
           })
         })
       })
