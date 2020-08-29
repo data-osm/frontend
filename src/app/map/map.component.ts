@@ -174,9 +174,14 @@ export class MapComponent implements OnInit {
   handleMapParamsUrl() {
     this.activatedRoute.queryParams.subscribe(params => {
       console.log(params)
+      /** share of layers */
       if (params['layers']) {
         var layers = params['layers'].split(';')
         this.ShareServiceService.addLayersFromUrl(layers)
+      }
+      if(params['feature']){
+        var parametersShared =  params['feature'].split(';')
+        this.ShareServiceService.displayFeatureShared(parametersShared)
       }
     })
   }
@@ -204,7 +209,6 @@ export class MapComponent implements OnInit {
         let cartoHelperClass = new cartoHelper()
 
         cartoHelperClass.mapHasCliked(evt, (data: dataFromClickOnMapInterface) => {
-          console.log(data)
           if (data.type == 'raster') {
 
             var layers = data.data.layers.sort( compare );
@@ -212,8 +216,7 @@ export class MapComponent implements OnInit {
 
             if (layerTopZindex) {
               var descriptionSheetCapabilities = layerTopZindex.get('descriptionSheetCapabilities')
-              this.openDescriptiveSheet(descriptionSheetCapabilities,cartoHelperClass.constructAlyerInMap(layerTopZindex),data.data.coord)
-              console.log(layerTopZindex,descriptionSheetCapabilities)
+              this.manageCompHelper.openDescriptiveSheet(descriptionSheetCapabilities,cartoHelperClass.constructAlyerInMap(layerTopZindex),data.data.coord)
             }
 
             // this.featureInfoWmsClick(data) descriptionSheetCapabilities
@@ -225,8 +228,7 @@ export class MapComponent implements OnInit {
 
             if (layerTopZindex) {
               var descriptionSheetCapabilities = layerTopZindex.get('descriptionSheetCapabilities')
-              console.log(layerTopZindex,descriptionSheetCapabilities)
-              this.openDescriptiveSheet(descriptionSheetCapabilities,cartoHelperClass.constructAlyerInMap(layerTopZindex),data.data.coord,data.data.feature.getGeometry(),data.data.feature.getProperties())
+              this.manageCompHelper.openDescriptiveSheet(descriptionSheetCapabilities,cartoHelperClass.constructAlyerInMap(layerTopZindex),data.data.coord,data.data.feature.getGeometry(),data.data.feature.getProperties())
             }
           }
         })
@@ -234,29 +236,5 @@ export class MapComponent implements OnInit {
       })
     })
   }
-
-  /**
-   * Open descriptive sheet
-   * @param type string the type of the descriptiove sheet, descripe in layersInMap interface
-   * @param layer layersInMap
-   * @param geometry Geometry the geometry if exist
-   * @param properties any properties to display if exist
-   */
-  openDescriptiveSheet(type:string,layer:layersInMap,coordinates_3857:[number,number],geometry?:any,properties?:any){
-    if (type) {
-
-      this.manageCompHelper.openDescriptiveSheetModal({
-        type:type,
-        layer:layer,
-        properties:properties,
-        geometry:geometry,
-        coordinates_3857:coordinates_3857
-      },[],()=>{
-
-      })
-
-    }
-  }
-
 
 }

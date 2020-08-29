@@ -391,6 +391,10 @@ export class cartoHelper {
           this.BackendApiService.getRequestFromOtherHost(url).then(
             (data) => {
               source.addFeatures(source.getFormat().readFeatures(data));
+              for (let index = 0; index < source.getFeatures().length; index++) {
+                const feature = source.getFeatures()[index];
+                feature.set('featureId',feature.getId())
+              }
             },
             (err) => {
               source.removeLoadedExtent(extent_vieuw);
@@ -825,7 +829,6 @@ export class cartoHelper {
         if (layer) {
 
           if (layer.getSource() instanceof TileWMS && oddLayersValues.indexOf(layer.get(oddLayersAttr)) == -1) {
-            console.log(layer.get('nom'), rgb)
             layers.push(layer)
           }
         }
@@ -999,9 +1002,13 @@ export class cartoHelper {
     // if (padding == undefined) {
     //   padding = this.get_padding_map()
     // }
+    // this.map.getView().animate({zoom: zoom}, {center: geom.getCoordinates()});
+
+    // console.log([this.map.getSize()[0]- $('.sidenav-left').width() , this.map.getSize()[1] ])
     this.map.getView().fit(geom, {
       'maxZoom': zoom,
-      // 'padding': padding,
+      'size':this.map.getSize(),
+      'padding': [0, 0, 0, 0],
       'duration': 500
     })
 

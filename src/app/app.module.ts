@@ -5,8 +5,11 @@ import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http);
+export function HttpLoaderFactory(httpClient: HttpClient) {
+  return new MultiTranslateHttpLoader(httpClient, [
+    { prefix: "./assets/i18n/", suffix: ".json" },
+    {prefix: './assets/i18n/tags-', suffix: '.json'}
+  ]);
 }
 
 import {setAppInjector} from 'src/helper/app-injector.helper'
@@ -53,6 +56,9 @@ import { ChartOverlayComponent } from './map/sidenav-right/download/chart-overla
 import { ListDownloadLayersComponent } from './map/sidenav-right/download/list-download-layers/list-download-layers.component';
 import { DescriptiveSheetComponent } from './map/descriptive-sheet/descriptive-sheet.component';
 import { OsmSheetComponent } from './map/descriptive-sheet/osm-sheet/osm-sheet.component';
+
+import { MultiTranslateHttpLoader } from "ngx-translate-multi-http-loader";
+
 
 @NgModule({
   declarations: [

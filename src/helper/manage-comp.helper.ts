@@ -4,6 +4,7 @@ import { Injectable, ComponentFactoryResolver, ApplicationRef, Injector, Embedde
 import {ListDownloadLayersComponent,downloadDataModelInterface} from '../app/map/sidenav-right/download/list-download-layers/list-download-layers.component'
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { modelDescriptiveSheet, DescriptiveSheetComponent } from 'src/app/map/descriptive-sheet/descriptive-sheet.component';
+import { layersInMap } from './carto.helper';
 /**
  * Open some componenents like social share, loading,modal etc...
  * Dynamically add component in html
@@ -35,6 +36,31 @@ import { modelDescriptiveSheet, DescriptiveSheetComponent } from 'src/app/map/de
     });
    }
 
+
+  /**
+   * Open descriptive sheet
+   * @param type string descriptionSheetCapabilities of the layer ( will be use for the type of the descriptiove sheet)
+   * @param layer layersInMap
+   * @param coordinates_3857 [number,number] coordinates on the geometry of the feature
+   * @param geometry Geometry the geometry if exist
+   * @param properties any properties to display if exist
+   */
+  openDescriptiveSheet(type:string,layer:layersInMap,coordinates_3857:[number,number],geometry?:any,properties?:any){
+    if (type) {
+
+      this.openDescriptiveSheetModal({
+        type:type,
+        layer:layer,
+        properties:properties,
+        geometry:geometry,
+        coordinates_3857:coordinates_3857
+      },[],()=>{
+
+      })
+
+    }
+  }
+
    /**
     * Open modal used to display descriptive sheet
     * @param data modelDescriptiveSheet
@@ -42,8 +68,10 @@ import { modelDescriptiveSheet, DescriptiveSheetComponent } from 'src/app/map/de
     * @param callBack Function
     */
    openDescriptiveSheetModal(data:modelDescriptiveSheet,size:Array<string>|[],callBack:Function){
-     console.log(this.dialog)
 
+    /**
+     * close all modal of type DescriptiveSheetComponent before open another
+     */
     for (let index = 0; index < this.dialog.openDialogs.length; index++) {
       const elementDialog = this.dialog.openDialogs[index];
       if (elementDialog.componentInstance instanceof DescriptiveSheetComponent) {
@@ -53,12 +81,14 @@ import { modelDescriptiveSheet, DescriptiveSheetComponent } from 'src/app/map/de
 
     var proprietes:MatDialogConfig = {
       disableClose: false,
-      minWidth:400,
+      minWidth:450,
+      maxHeight:400,
       width:'400px',
       data:data,
       hasBackdrop:false,
+      autoFocus:false,
       position:{
-        top:'0px',
+        top:'60px',
         left:window.innerWidth <500 ?'0px':(window.innerWidth/2 - 400/2)+'px'
       }
     }

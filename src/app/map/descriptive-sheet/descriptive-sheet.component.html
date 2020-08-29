@@ -1,16 +1,21 @@
-<h1 mat-dialog-title class="primaryColorBG white">
-  <!-- <i class="fa fa-download white icon_header" aria-hidden="true"></i> -->
+<h1 mat-dialog-title class="accentColorBG white">
+  <img [src]="imgSrc" alt="" srcset="" class="icon_header" style="margin-top: 4px;;height: 25px;">
   <i class="fa fa-times-circle close" (click)="closeModal()"></i>
   {{ descriptiveModel.layer.nom}}
 </h1>
 
-<div mat-dialog-content>
-  <app-osm-sheet *ngIf="descriptiveModel.type == 'osm'" [descriptiveModel]="descriptiveModel" ></app-osm-sheet>
-
+<div mat-dialog-content style="padding-top: 5px;">
+  <app-osm-sheet *ngIf="descriptiveModel.type == 'osm'" [descriptiveModel]="descriptiveModel"
+     (updatemMdelDescriptiveSheet)="setSescriptiveModel($event)" (closeDescriptiveSheet)="closeModal()"></app-osm-sheet>
 </div>
 
-<div mat-dialog-actions>
-  <img src="assets/icones/osm.svg" width="25px" alt="" style="    vertical-align: middle;">
-  {{ 'geosm.text' | translate }} <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">
-    {{ 'geosm.text1' | translate }} OpenStreetMap </a>
+<div mat-dialog-actions class="text-center" >
+  <button mat-raised-button (click)="shareFeature()">
+    <i class="fa fa-share-alt"> </i> {{'descriptive_sheet.share' | translate}}
+  </button>
+
+  <button mat-raised-button *ngIf="descriptiveModel.geometry" (click)="zoomOnFeatureExtent()"  >
+    <i class="fa fa-search-plus"> </i> {{'descriptive_sheet.zoomTo' | translate}}
+  </button>
+
 </div>
