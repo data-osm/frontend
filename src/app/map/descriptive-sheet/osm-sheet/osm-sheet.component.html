@@ -6,70 +6,100 @@
   </mat-chip-list>
 </div>
 
-<p style="margin-top: 10px;font-family: 'Avenir Next Rounded Pro Regular';" *ngIf="osmUrl">
-  <a href="{{osmUrl}}" target=" _blanck " class="descriptive-sheet-body-url" > Voir cette entité sur OpenstreetMap </a>
-</p>
+<ng-container *ngIf="listAttributes && listAttributes.length > 0" >
 
-<ng-container *ngFor="let attribute of listAttributes">
-  <div fxLayout class="descriptive-sheet-body" style="margin-bottom: 5px;" >
+  <p style="margin-top: 10px;font-family: 'Avenir Next Rounded Pro Regular';" *ngIf="osmUrl">
+    <a href="{{osmUrl}}" target=" _blanck " class="descriptive-sheet-body-url"> Voir cette entité sur OpenstreetMap </a>
+  </p>
+
+  <div fxLayout class="descriptive-sheet-body" style="margin-bottom: 5px;" *ngIf="adresse">
     <div fxFlex="35%" class="attribute">
-      {{ attribute.field| translate }}
-      <i class="fa fa-phone" *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'tel'"></i>
-      <i class="fa fa-link" *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'url'"></i>
-      <i class="fa fa-at" *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'email'"></i>
+      {{ 'layer_properties.adresse'| translate }}
       :
     </div>
-
     <div fxFlex class="attribute-value">
-      <div *ngIf="!configTagsOsm[attribute.field]" [innerHTML]="attribute.value"> </div>
-
-      <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'url'">
-        <a href="{{configTagsOsm[attribute.field].prefix + attribute.value}}"
-          target="_blank">{{ 'layer_properties.click_url_text' | translate }} </a>0
-      </div>
-
-      <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'tel'">
-        <a href="tel:{{attribute.value}}" target="_blank">{{attribute.value}} </a>
-      </div>
-
-      <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'email'">
-        <a href="mailto:{{attribute.value}}" target="_blank">{{attribute.value}} </a>
-      </div>
-
-      <div style="padding-left: 5px;display: flex;"
-        *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'colour'">
-
-        <span>{{attribute.value}}</span>
-        <div style="height: 30px;width: 150px;display: flex;margin-left: 10px;"
-          [ngStyle]="{'background-color': attribute.value}"> </div>
-      </div>
-
-      <div
-        (click)="openUrl(configTagsOsm[attribute.field].prefix + attribute.value + configTagsOsm[attribute.field].surfix)"
-        style="text-align: center;cursor: pointer;"
-        *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'image'">
-        <img style="max-width: 340px;height: auto;"
-          src="{{configTagsOsm[attribute.field].prefix + attribute.value + configTagsOsm[attribute.field].surfix}}">
-      </div>
-
-      <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field]?.type == 'choice'">
-
-        <span
-          *ngIf="!configTagsOsm[attribute.field]['values'][attribute.value] || configTagsOsm[attribute.field]['values'][attribute.value]['type'] == 'text'">
-          {{ attribute.value | translate }} </span>
-
-        <i class="fa fa-{{configTagsOsm[attribute.field]['values'][attribute.value]['value']}}"
-          [ngStyle]="{'color':configTagsOsm[attribute.field]['values'][attribute.value]['color']}"
-          *ngIf="configTagsOsm[attribute.field]['values'][attribute.value] && configTagsOsm[attribute.field]['values'][attribute.value]['type'] == 'fa' ">
-        </i>
-      </div>
-
-      <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'boolean'">
-
-        <i class="fa fa-check" style="color: green;" *ngIf="attribute.value=='yes' "> </i>
-        <i class="fa fa-times" style="color: red;" *ngIf="attribute.value=='no' "> </i>
-      </div>
+      {{adresse}}
     </div>
   </div>
 
+  <ng-container *ngFor="let attribute of listAttributes;let i = index">
+
+    <div fxLayout class="descriptive-sheet-body" style="margin-bottom: 5px;" *ngIf="i <= initialNumberOfAttributes">
+      <div fxFlex="35%" class="attribute">
+        {{ attribute.field| translate }}
+        <i class="fa fa-phone" style="font-size: 10px;"
+          *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'tel'"></i>
+        <i class="fa fa-link" style="font-size: 10px;"
+          *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'url'"></i>
+        <i class="fa fa-at" style="font-size: 10px;"
+          *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'email'"></i>
+        :
+      </div>
+
+      <div fxFlex class="attribute-value">
+        <div *ngIf="!configTagsOsm[attribute.field]" [innerHTML]="attribute.value"> </div>
+
+        <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'url'">
+          <a href="{{configTagsOsm[attribute.field].prefix + attribute.value}}"
+            target="_blank">{{ 'layer_properties.click_url_text' | translate }} </a>
+        </div>
+
+        <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'tel'">
+          <a href="tel:{{attribute.value}}" target="_blank">{{attribute.value}} </a>
+        </div>
+
+        <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'email'">
+          <a href="mailto:{{attribute.value}}" target="_blank">{{attribute.value}} </a>
+        </div>
+
+        <div style="padding-left: 5px;display: flex;"
+          *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'colour'">
+
+          <span>{{attribute.value}}</span>
+          <div style="height: 30px;width: 150px;display: flex;margin-left: 10px;"
+            [ngStyle]="{'background-color': attribute.value}"> </div>
+        </div>
+
+        <div
+          (click)="openUrl(configTagsOsm[attribute.field].prefix + attribute.value + configTagsOsm[attribute.field].surfix)"
+          style="text-align: center;cursor: pointer;"
+          *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'image'">
+          <img style="max-width: 340px;height: auto;"
+            src="{{configTagsOsm[attribute.field].prefix + attribute.value + configTagsOsm[attribute.field].surfix}}">
+        </div>
+
+        <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field]?.type == 'choice'">
+
+          <span
+            *ngIf="!configTagsOsm[attribute.field]['values'][attribute.value] || configTagsOsm[attribute.field]['values'][attribute.value]['type'] == 'text'">
+            {{ attribute.value | translate }} </span>
+
+          <i class="fa fa-{{configTagsOsm[attribute.field]['values'][attribute.value]['value']}}"
+            [ngStyle]="{'color':configTagsOsm[attribute.field]['values'][attribute.value]['color']}"
+            *ngIf="configTagsOsm[attribute.field]['values'][attribute.value] && configTagsOsm[attribute.field]['values'][attribute.value]['type'] == 'fa' ">
+          </i>
+        </div>
+
+        <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'boolean'">
+
+          <i class="fa fa-check" style="color: green;" *ngIf="attribute.value=='yes' "> </i>
+          <i class="fa fa-times" style="color: red;" *ngIf="attribute.value=='no' "> </i>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+
+
+<ng-container *ngIf="listAttributes.length > 5" >
+
+  <a class="descriptive-sheet-body-display-attributes-number pointer"
+    (click)="initialNumberOfAttributes = listAttributes.length+1"
+    *ngIf="initialNumberOfAttributes < listAttributes.length"> {{'descriptive_sheet.displayAllAttributes' | translate}}
+  </a>
+  <a class="descriptive-sheet-body-display-attributes-number pointer" (click)="initialNumberOfAttributes = 5"
+    *ngIf="initialNumberOfAttributes >= listAttributes.length"> {{'descriptive_sheet.displayLesAttributes' | translate}}
+  </a>
+</ng-container>
 </ng-container>

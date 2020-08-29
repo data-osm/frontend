@@ -233,7 +233,9 @@
   },
 "descriptive_sheet":{
   "share":" Partager",
-  "zoomTo":" Zoomer"
+  "zoomTo":" Zoomer",
+  "displayAllAttributes":" Afficher tous",
+  "displayLesAttributes":" Afficher moins"
 }
 
 }

@@ -994,7 +994,7 @@ export class cartoHelper {
     */
   getFeatureInfoFromWmsSource(source: ImageWMS, coordinates: Array<number>) {
     var viewResolution = this.map.getView().getResolution();
-    var url = source.getFeatureInfoUrl(coordinates, viewResolution, 'EPSG:3857') + "&INFO_FORMAT=application/json&FI_LINE_TOLERANCE=17&FI_POLYGON_TOLERANCE=17&FI_POINT_TOLERANCE=17"
+    var url = source.getFeatureInfoUrl(coordinates, viewResolution, 'EPSG:3857') + "&WITH_GEOMETRY=true&INFO_FORMAT=application/json&FI_LINE_TOLERANCE=17&FI_POLYGON_TOLERANCE=17&FI_POINT_TOLERANCE=17"
     return url
   }
 

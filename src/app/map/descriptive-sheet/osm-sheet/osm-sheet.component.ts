@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, SimpleChanges, OnChanges } from '@angular/core';
 import { modelDescriptiveSheet } from '../descriptive-sheet.component';
 import { manageDataHelper } from 'src/helper/manage-data.helper'
 import { ImageWMS, TileWMS, GeoJSON } from 'src/app/ol-module';
@@ -25,7 +25,7 @@ export interface attributeInterface {
  *
  * @todo create a general class
  */
-export class OsmSheetComponent implements OnInit {
+export class OsmSheetComponent implements OnInit,OnChanges {
 
   @Input() descriptiveModel: modelDescriptiveSheet
 
@@ -45,6 +45,11 @@ export class OsmSheetComponent implements OnInit {
    * Name of the feature
    */
   name: string = undefined
+
+  /**
+   * Adresse of the feature if exist
+   */
+  adresse:string
 
 
   /**
@@ -67,6 +72,11 @@ export class OsmSheetComponent implements OnInit {
       properties: false,
       osmUrl: false
     }
+
+  /**
+   * number of initial number of attributes that can be display
+   */
+  initialNumberOfAttributes:number = 5
 
   private readonly notifier: NotifierService;
 
@@ -118,8 +128,11 @@ export class OsmSheetComponent implements OnInit {
   ngOnChanges(changes: SimpleChanges): void {
     //Called before any other lifecycle hook. Use it to inject dependencies, but avoid any serious work here.
     //Add '${implements OnChanges}' to the class.
-    // console.log(this.descriptiveModel)
-    this.updatemMdelDescriptiveSheet.emit(this.descriptiveModel)
+    // setTimeout(() => {
+    //   console.log(changes.descriptiveModel.currentValue)
+    //   this.updatemMdelDescriptiveSheet.emit(this.descriptiveModel)
+    // }, 1000);
+
   }
 
   ngOnDestroy(): void {
@@ -128,6 +141,8 @@ export class OsmSheetComponent implements OnInit {
     this.name = undefined
     this.osmId = undefined
     this.osmUrl = undefined
+    this.initialNumberOfAttributes = 5
+
   }
 
   /**
@@ -141,7 +156,7 @@ export class OsmSheetComponent implements OnInit {
         this.descriptiveModel.coordinates_3857,
         new cartoHelper().map.getView().getResolution(),
         "EPSG:3857"
-      ) + "&FI_POINT_TOLERANCE=30&INFO_FORMAT=application/json"
+      ) + "&WITH_GEOMETRY=true&FI_POINT_TOLERANCE=30&FI_LINE_TOLERANCE=10&FI_POLYGON_TOLERANCE=10&INFO_FORMAT=application/json"
 
       this.BackendApiService.getRequestFromOtherHost(url).then(
         (response: any) => {
@@ -149,8 +164,8 @@ export class OsmSheetComponent implements OnInit {
 
           try {
             var features = new GeoJSON().readFeatures(response, {
-              dataProjection: 'EPSG:4326',
-              featureProjection: 'EPSG:3857'
+              // dataProjection: 'EPSG:4326',
+              // featureProjection: 'EPSG:3857'
             });
 
             if (features.length > 0) {
@@ -158,6 +173,8 @@ export class OsmSheetComponent implements OnInit {
               var geometry = features[0].getGeometry()
               this.descriptiveModel.properties = properties
               this.descriptiveModel.geometry = geometry
+              this.updatemMdelDescriptiveSheet.emit(this.descriptiveModel)
+
               this.formatFeatureAttributes()
             } else {
               this.closeDescriptiveSheet.emit()
@@ -240,6 +257,8 @@ export class OsmSheetComponent implements OnInit {
       }
     }
 
+    this.constructAdresse()
+
   }
 
   /**
@@ -285,9 +304,9 @@ export class OsmSheetComponent implements OnInit {
 
 
   /**
-   * is there an adress in this feature ?
+   * construct adresse of the feature osm if exist
    */
-  adresseExist() {
+  constructAdresse() {
     var count_adresse = 0
     var adresse = {
       "housenumber": undefined,
@@ -316,9 +335,7 @@ export class OsmSheetComponent implements OnInit {
       }
     }
     if (adresse.housenumber && adresse.street) {
-      return [true, adresse.housenumber + ' ' + adresse.street + ' ' + adresse.city + ' ' + adresse.postcode]
-    } else {
-      return [false]
+      this.adresse = adresse.housenumber + ' ' + adresse.street + ' ' + adresse.city + ' ' + adresse.postcode
     }
   }
 

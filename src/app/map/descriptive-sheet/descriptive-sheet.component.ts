@@ -58,7 +58,7 @@ export class DescriptiveSheetComponent implements OnInit,OnChanges {
         }),
         stroke: new Stroke({
           color: color,
-          width: 2
+          width: 6
         }),
         image: new CircleStyle({
           radius: 11,
@@ -101,6 +101,10 @@ export class DescriptiveSheetComponent implements OnInit,OnChanges {
    */
   setSescriptiveModel(data:modelDescriptiveSheet){
     this.descriptiveModel = data
+    console.log(data.geometry,data.properties)
+    if (this.descriptiveModel.geometry) {
+      this.loadGeometryInHightLightLayer()
+    }
   }
 
 
