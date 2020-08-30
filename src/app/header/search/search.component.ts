@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { debounceTime, filter, startWith, tap, map, skip } from 'rxjs/operators';
-import { from, Observable,fromEvent,merge as observerMerge } from 'rxjs';
+import { debounceTime, filter, startWith, tap, map, skip, catchError } from 'rxjs/operators';
+import { from, Observable,fromEvent,merge as observerMerge,of } from 'rxjs';
 import {BackendApiService} from 'src/app/services/backend-api/backend-api.service'
 import {StorageServiceService} from 'src/app/services/storage-service/storage-service.service'
 import { configProjetInterface } from 'src/app/type/type';
 import {responseOfSearchPhotonInterface,responseOfSerachLimitInterface} from './interface-search'
 import {handleEmpriseSearch} from './handle-emprise-search'
 import {handlePhotonSearch} from './handle-photon-search'
+import {handleAdresseFrSearch} from './handle-adresseFr-search'
 
 export interface filterOptionInterface{
   name:string
@@ -76,10 +77,16 @@ export class SearchComponent implements OnInit {
       map((value) => {
         return observerMerge (
           from(this.BackendApiService.post_requete('/searchLimite', { 'word': value.toString() })).pipe(
-            map((val:{type:String,value:{[key:string]:any}}) => { return {type:'limites',value:val}} )
+            map((val:{type:String,value:{[key:string]:any}}) => { return {type:'limites',value:val}} ),
+            catchError( (err) =>  of({type:'limites',value:{} })  )
           ),
           from(this.BackendApiService.getRequestFromOtherHost('http://photon.komoot.de/api/?&limit=7&q='+value.toString()+"&lang=fr")).pipe(
-            map((val:{type:String,value:any}) => { return {type:'photon',value:val}} )
+            map((val:{type:String,value:any}) => { return {type:'photon',value:val}} ),
+            catchError( (err) =>  of({type:'photon',value:{features:[]} })  )
+          ),
+          from(this.BackendApiService.getRequestFromOtherHost('https://api-adresse.data.gouv.fr/search/?limit=5&q='+value.toString())).pipe(
+            map((val:{type:String,value:any}) => { return {type:'adresseFr',value:val}} ),
+            catchError( (err) =>  of({type:'adresseFr',value:{features:[]} })  )
           )
         )
       })
@@ -89,7 +96,12 @@ export class SearchComponent implements OnInit {
           this.filterOptions['limites'] = new handleEmpriseSearch().formatDataForTheList(data.value)
         }else if (data.type == 'photon'){
           this.filterOptions['photon'] = new handlePhotonSearch().formatDataForTheList(data.value)
+        }else if(data.type == 'adresseFr'){
+          this.filterOptions['adresseFr'] = new handleAdresseFrSearch().formatDataForTheList(data.value)
         }
+
+        this.cleanFilterOptions()
+
       })
     })
 
@@ -108,6 +120,24 @@ export class SearchComponent implements OnInit {
       return new handleEmpriseSearch().displayWith(option)
     }else  if (option.typeOption == 'photon'){
       return new handlePhotonSearch().displayWith(option)
+    }else  if (option.typeOption == 'adresseFr'){
+      return new handleAdresseFrSearch().displayWith(option)
+    }
+  }
+
+  /**
+   * clean filterOptions data
+   * - if an option have no value, clean it
+   * - order how data are display
+   */
+  cleanFilterOptions(){
+    for (const key in this.filterOptions) {
+      if (this.filterOptions.hasOwnProperty(key)) {
+        const element = this.filterOptions[key];
+        if (element.length == 0) {
+          delete this.filterOptions[key]
+        }
+      }
     }
   }
 

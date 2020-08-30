@@ -1,0 +1,44 @@
+.header-search-form {
+  width: 400px;
+  margin: 0 auto;
+
+
+  ::ng-deep .mat-form-field-infix {
+    padding-top: 0px;
+    border: none;
+    padding-left: 6px;
+    ::-webkit-input-placeholder {
+      color: #fff;
+    }
+    ::placeholder {
+      color: #fff;
+    }
+
+    :-moz-placeholder {
+      color: #fff;
+    }
+  }
+
+  ::ng-deep .mat-form-field-flex {
+    background: rgba(255, 255, 255, 0.41);
+    height: 32px;
+    border-radius: 20px;
+  }
+
+  ::ng-deep .mat-form-field-underline {
+    display: none;
+  }
+
+  ::ng-deep .mat-form-field-wrapper {
+    padding-top: 12px;
+  }
+}
+
+::ng-deep  .mat-optgroup-label{
+  background-color: #f2f7fa;
+}
+
+.mat-option{
+  height: 50px;
+  line-height: 18px;
+}

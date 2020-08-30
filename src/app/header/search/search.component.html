@@ -1,11 +1,29 @@
 <ng-container *ngIf="form">
-  <form [formGroup]="form">
-    <mat-form-field appearance="outline">
-      <input type="text" matInput formControlName="searchWord" [matAutocomplete]="auto">
-      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayAutocompleFn" >
-        <mat-optgroup *ngFor="let option of objectsIn(filterOptions) " [label]="option">
+  <form [formGroup]="form" class="header-search-form">
+    <mat-form-field appearance="fill" style="width: 100%;">
+      <input type="text" matInput formControlName="searchWord" [matAutocomplete]="auto" class=" white "
+        placeholder="{{'search.placeholder' | translate}}">
+      <i class="fa fa-search fa-lg white" matPrefix></i>
+      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayAutocompleFn">
+        <mat-optgroup *ngFor="let option of objectsIn(filterOptions) " [label]="'search.'+[option] | translate">
           <mat-option *ngFor="let item of filterOptions[option]" [value]="item">
-            {{item.name}}
+            <ng-container *ngIf="option == 'limites'" >
+              {{item.name}}
+              <span *ngIf="item.ref"> - {{item.ref}}  </span>
+              <br>
+              <small> {{item.limitName}} </small>
+            </ng-container>
+
+            <ng-container *ngIf="option == 'photon'" >
+              {{item.name}}
+              <br>
+              <small> {{item.details}} </small>
+            </ng-container>
+
+            <ng-container *ngIf="option == 'adresseFr'" >
+              {{item.name}}
+            </ng-container>
+
           </mat-option>
         </mat-optgroup>
       </mat-autocomplete>

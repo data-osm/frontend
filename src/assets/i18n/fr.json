@@ -207,7 +207,10 @@
     "no_place_found": "Aucun lieu trouvé",
     "place": "Lieux :",
     "placeholder": "Rechercher un lieu, une adresse ou une donnée",
-    "position": "Position : "
+    "position": "Position : ",
+    "limites":"Limites adminstratives (OSM)",
+    "photon":"Lieux (Photon)",
+    "adresseFr":"Adresse (API Data Gouv)"
   },
   "zoom_to_coordinates": {
     "cancel": "Annuler",

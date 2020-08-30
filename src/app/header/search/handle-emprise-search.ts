@@ -36,7 +36,7 @@ export class handleEmpriseSearch {
               id: responseI['id'],
               table: key,
               limitName: this.getLimitName_(key),
-              typeOption:'emprises'
+              typeOption:'limites'
             })
           }
         }
