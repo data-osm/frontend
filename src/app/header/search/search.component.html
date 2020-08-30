@@ -1,0 +1,14 @@
+<ng-container *ngIf="form">
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline">
+      <input type="text" matInput formControlName="searchWord" [matAutocomplete]="auto">
+      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayAutocompleFn" >
+        <mat-optgroup *ngFor="let option of objectsIn(filterOptions) " [label]="option">
+          <mat-option *ngFor="let item of filterOptions[option]" [value]="item">
+            {{item.name}}
+          </mat-option>
+        </mat-optgroup>
+      </mat-autocomplete>
+    </mat-form-field>
+  </form>
+</ng-container>

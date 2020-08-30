@@ -58,6 +58,7 @@ import { DescriptiveSheetComponent } from './map/descriptive-sheet/descriptive-s
 import { OsmSheetComponent } from './map/descriptive-sheet/osm-sheet/osm-sheet.component';
 
 import { MultiTranslateHttpLoader } from "ngx-translate-multi-http-loader";
+import { SearchComponent } from './header/search/search.component';
 
 
 @NgModule({
@@ -89,7 +90,8 @@ import { MultiTranslateHttpLoader } from "ngx-translate-multi-http-loader";
     ChartOverlayComponent,
     ListDownloadLayersComponent,
     DescriptiveSheetComponent,
-    OsmSheetComponent
+    OsmSheetComponent,
+    SearchComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({
