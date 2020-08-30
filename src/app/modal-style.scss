@@ -1,4 +1,4 @@
-.close{
+.close {
   font-size: 18px;
   margin-right: 10px;
   margin-top: 6px;
@@ -7,35 +7,40 @@
   color: #fff;
   cursor: pointer;
 }
-.icon_header{
+.icon_header {
   float: left;
   margin-left: 10px;
   margin-top: 8px;
   font-size: 20px;
   margin-right: 5px;
 }
-  ::ng-deep .mat-dialog-content{
-      overflow: auto;
-      max-height: calc(100% - 112px);
-      height: calc(100% - 112px);
-      padding: 24px;
-  }
 
-  ::ng-deep .mat-dialog-title{
-      text-align: center;margin-left: -24px;
-      margin-right: -24px;
-      margin-top: -24px;
-      margin-bottom: 0px;
-      padding: 6px 0px;
-  }
+::ng-deep .mat-dialog-content {
+  overflow: auto !important;
+  max-height: calc(100% - 112px) !important;
+  height: calc(100% - 112px) !important;
+  padding: 24px !important;
+}
 
-  ::ng-deep .mat-dialog-actions{
-      margin: 0px -24px -24px;
-      background:rgba(255, 255, 255, 0.8);
-      padding-left: 10px;
-  }
+::ng-deep .mat-dialog-title {
+  text-align: center !important;
+  margin-left: -24px !important;
+  margin-right: -24px !important;
+  margin-top: -24px !important;
+  margin-bottom: 0px !important;
+  padding: 6px 0px !important;
+}
 
-p,span,div{
+::ng-deep .mat-dialog-actions {
+  margin: 0px -24px -24px !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  padding-left: 10px !important;
+  display: block !important;
+}
+
+p,
+span,
+div {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 .example-container {

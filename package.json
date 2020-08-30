@@ -37,6 +37,7 @@
     "ngp-sort-pipe": "0.0.4",
     "ngx-color-picker": "^9.1.0",
     "ngx-sharebuttons": "^8.0.0",
+    "ngx-translate-multi-http-loader": "^3.0.0",
     "ol": "^6.3.1",
     "rxjs": "~6.5.5",
     "tslib": "^2.0.0",

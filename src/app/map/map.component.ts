@@ -1,22 +1,23 @@
-import { Component, OnInit, ViewChild, AfterViewInit, ViewChildren } from '@angular/core';
-import {MatSidenavContainer } from '@angular/material/sidenav';
-import {rightMenuInterface} from '../type/type'
+import { Component, OnInit, ViewChild, AfterViewInit, ViewChildren, NgZone } from '@angular/core';
+import { MatSidenavContainer } from '@angular/material/sidenav';
+import { rightMenuInterface } from '../type/type'
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import {
-Map,
-View,
-TileLayer,
-XYZ,
-defaultControls,
-Attribution,
-LayerGroup
-}from '../ol-module';
-import {StorageServiceService} from '../services/storage-service/storage-service.service'
-import {ShareServiceService} from 'src/app/services/share-service/share-service.service'
+  Map,
+  View,
+  TileLayer,
+  XYZ,
+  defaultControls,
+  Attribution,
+  LayerGroup
+} from '../ol-module';
+import { StorageServiceService } from '../services/storage-service/storage-service.service'
+import { ShareServiceService } from 'src/app/services/share-service/share-service.service'
 import { TranslateService } from '@ngx-translate/core';
 import { SidenaveLeftSecondaireComponent } from './sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component';
 import * as $ from 'jquery'
-import { layersInMap, cartoHelper } from 'src/helper/carto.helper';
+import { layersInMap, cartoHelper, dataFromClickOnMapInterface } from 'src/helper/carto.helper';
+import {manageCompHelper} from 'src/helper/manage-comp.helper'
 
 var attribution = new Attribution({
   collapsible: false
@@ -25,14 +26,14 @@ var attribution = new Attribution({
 export const map = new Map({
   layers: [
     new LayerGroup({
-      nom:'group-layer-shadow',
+      nom: 'group-layer-shadow',
     })
   ],
   view: new View({
     center: [0, 0],
     zoom: 4
   }),
-  controls: defaultControls({attribution: false,zoom:false}).extend([attribution]),
+  controls: defaultControls({ attribution: false, zoom: false }).extend([attribution]),
 });
 
 @Component({
@@ -45,35 +46,37 @@ export class MapComponent implements OnInit {
   /**
    * La sidenav
    */
-  @ViewChild(MatSidenavContainer, { static: true}) sidenavContainer: MatSidenavContainer;
+  @ViewChild(MatSidenavContainer, { static: true }) sidenavContainer: MatSidenavContainer;
 
   /**
    * Second component of the left sidenav On top of the first one:
    * It is use to show details of a group thematique or a group carte
    */
-  @ViewChild(SidenaveLeftSecondaireComponent, { static: true}) SidenaveLeftSecondaireComp:SidenaveLeftSecondaireComponent
+  @ViewChild(SidenaveLeftSecondaireComponent, { static: true }) SidenaveLeftSecondaireComp: SidenaveLeftSecondaireComponent
 
   /**
    * All menu of the rith sidenav
    */
-  ritghtMenus:Array<rightMenuInterface>=[
-    {name:'toc',active:false,enable:true,tooltip:'toolpit_toc',title:'table_of_contents'},
-    {name:'edition',active:false,enable:true,tooltip:'toolpit_tools',title:'tools'},
-    {name:'routing',active:false,enable:true,tooltip:'toolpit_map_routing',title:'map_routing'},
-    {name:'legend',active:false,enable:true,tooltip:'toolpit_legend',title:'legend'},
-    {name:'download',active:false,enable:true,tooltip:'toolpit_download_data',title:'download_data'}
+  ritghtMenus: Array<rightMenuInterface> = [
+    { name: 'toc', active: false, enable: true, tooltip: 'toolpit_toc', title: 'table_of_contents' },
+    { name: 'edition', active: false, enable: true, tooltip: 'toolpit_tools', title: 'tools' },
+    { name: 'routing', active: false, enable: true, tooltip: 'toolpit_map_routing', title: 'map_routing' },
+    { name: 'legend', active: false, enable: true, tooltip: 'toolpit_legend', title: 'legend' },
+    { name: 'download', active: false, enable: true, tooltip: 'toolpit_download_data', title: 'download_data' }
   ]
 
   /**
    * all the layer in the toc
    */
-  layersInToc:Array<layersInMap> = []
+  layersInToc: Array<layersInMap> = []
 
   constructor(
-    public StorageServiceService:StorageServiceService,
+    public StorageServiceService: StorageServiceService,
     public translate: TranslateService,
     private activatedRoute: ActivatedRoute,
-    public ShareServiceService:ShareServiceService
+    public ShareServiceService: ShareServiceService,
+    private _ngZone: NgZone,
+    public manageCompHelper:manageCompHelper
   ) {
 
   }
@@ -82,10 +85,11 @@ export class MapComponent implements OnInit {
     map.setTarget('map1')
     map.setTarget('map')
 
-    this.StorageServiceService.states.subscribe((value)=>{
+    this.StorageServiceService.states.subscribe((value) => {
       if (value.loadProjectData) {
         map.getView().fit(this.StorageServiceService.getConfigProjet().bbox, { 'size': map.getSize(), 'duration': 1000 });
         this.handleMapParamsUrl()
+        this.mapClicked()
       }
     })
 
@@ -93,10 +97,10 @@ export class MapComponent implements OnInit {
      * use for the count of layers in the TOC
      * the red badge on te button toogle the TOC
      */
-    map.getLayers().on('propertychange',(ObjectEvent)=>{
-    let cartoHelperClass =  new cartoHelper()
+    map.getLayers().on('propertychange', (ObjectEvent) => {
+      let cartoHelperClass = new cartoHelper()
 
-      this.layersInToc =cartoHelperClass.getAllLayersInToc()
+      this.layersInToc = cartoHelperClass.getAllLayersInToc()
     })
 
   }
@@ -106,10 +110,10 @@ export class MapComponent implements OnInit {
    * @param name string name of the menu
    * @return rightMenuInterface|undefined
    */
-  getRightMenu(name:string):rightMenuInterface|undefined{
+  getRightMenu(name: string): rightMenuInterface | undefined {
     for (let index = 0; index < this.ritghtMenus.length; index++) {
       const element = this.ritghtMenus[index];
-      if (element.name==name) {
+      if (element.name == name) {
         return element
       }
     }
@@ -120,7 +124,7 @@ export class MapComponent implements OnInit {
    * Open right menu
    * @param name string
    */
-  openRightMenu(name:string){
+  openRightMenu(name: string) {
 
     var menu = this.getRightMenu(name)
 
@@ -129,16 +133,16 @@ export class MapComponent implements OnInit {
       this.sidenavContainer.end.close()
       for (let index = 0; index < this.ritghtMenus.length; index++) {
         const element = this.ritghtMenus[index];
-        element.active=false
+        element.active = false
       }
 
-    }else{
+    } else {
       this.sidenavContainer.end.open()
       for (let index = 0; index < this.ritghtMenus.length; index++) {
         const element = this.ritghtMenus[index];
-        element.active=false
+        element.active = false
       }
-      menu.active=true
+      menu.active = true
     }
 
   }
@@ -147,7 +151,7 @@ export class MapComponent implements OnInit {
    * Get the active right menu
    * @return rightMenuInterface
    */
-  getRightMenuActive():rightMenuInterface{
+  getRightMenuActive(): rightMenuInterface {
     for (let index = 0; index < this.ritghtMenus.length; index++) {
       if (this.ritghtMenus[index].active) {
         return this.ritghtMenus[index]
@@ -160,23 +164,77 @@ export class MapComponent implements OnInit {
    * get the constant map
    * @return Map
    */
-  getMap():Map{
+  getMap(): Map {
     return map
   }
 
   /**
    * Handle parameters of the app when opening with route /map
    */
-  handleMapParamsUrl(){
+  handleMapParamsUrl() {
     this.activatedRoute.queryParams.subscribe(params => {
       console.log(params)
+      /** share of layers */
       if (params['layers']) {
         var layers = params['layers'].split(';')
         this.ShareServiceService.addLayersFromUrl(layers)
+      }
+      if(params['feature']){
+        var parametersShared =  params['feature'].split(';')
+        this.ShareServiceService.displayFeatureShared(parametersShared)
       }
     })
   }
 
 
+  /**
+ * Initialise and handle click event on map
+ * This is to handle oncly descriptive sheet
+ */
+
+  mapClicked() {
+    map.on('click', (evt) => {
+
+      function compare( a, b ) {
+        if ( a.getZIndex() < b.getZIndex() ){
+          return 1;
+        }
+        if ( a.getZIndex() > b.getZIndex() ){
+          return -1;
+        }
+        return 0;
+      }
+
+      this._ngZone.run(() => {
+        let cartoHelperClass = new cartoHelper()
+
+        cartoHelperClass.mapHasCliked(evt, (data: dataFromClickOnMapInterface) => {
+          if (data.type == 'raster') {
+
+            var layers = data.data.layers.sort( compare );
+            var layerTopZindex = layers.length>0?layers[0]:undefined
+
+            if (layerTopZindex) {
+              var descriptionSheetCapabilities = layerTopZindex.get('descriptionSheetCapabilities')
+              this.manageCompHelper.openDescriptiveSheet(descriptionSheetCapabilities,cartoHelperClass.constructAlyerInMap(layerTopZindex),data.data.coord)
+            }
+
+            // this.featureInfoWmsClick(data) descriptionSheetCapabilities
+          } else if (data.type == 'clear') {
+
+          } else if (data.type == 'vector') {
+            var layers = data.data.layers.sort( compare );
+            var layerTopZindex = layers.length>0?layers[0]:undefined
+
+            if (layerTopZindex) {
+              var descriptionSheetCapabilities = layerTopZindex.get('descriptionSheetCapabilities')
+              this.manageCompHelper.openDescriptiveSheet(descriptionSheetCapabilities,cartoHelperClass.constructAlyerInMap(layerTopZindex),data.data.coord,data.data.feature.getGeometry(),data.data.feature.getProperties())
+            }
+          }
+        })
+
+      })
+    })
+  }
 
 }

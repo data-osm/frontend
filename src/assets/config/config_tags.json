@@ -1,0 +1,236 @@
+{
+  "osm_user":{
+      "type": "hide"
+  },
+  "osm_version":{
+      "type": "hide"
+  },
+  "osm_uid":{
+      "type": "hide"
+  },
+  "osm_timestamp":{
+      "type": "hide"
+  },
+  "osm_changeset":{
+      "type": "hide"
+  },
+  "addr:street": {
+      "type": "hide"
+  },
+  "addr:housenumber": {
+      "type": "hide"
+  },
+  "wikipedia": {
+      "type": "url",
+      "prefix": "https://fr.wikipedia.org/wiki/"
+  },
+  "brand:wikidata": {
+      "type": "url",
+      "prefix": "https://www.wikidata.org/wiki/"
+  },
+  "brand:wikipedia": {
+      "type": "url",
+      "prefix": "https://fr.wikipedia.org/wiki/"
+  },
+  "operator:wikidata": {
+      "type": "url",
+      "prefix": "https://www.wikidata.org/wiki/"
+  },
+  "artist:wikidata": {
+      "type": "url",
+      "prefix": "https://www.wikidata.org/wiki/"
+  },
+  "wikidata": {
+      "type": "url",
+      "prefix": "https://www.wikidata.org/wiki/"
+  },
+  "name:etymology:wikidata": {
+      "type": "url",
+      "prefix": "https://www.wikidata.org/wiki/"
+  },
+  "website": {
+      "type": "url",
+      "prefix": ""
+  },
+  "contact:website": {
+      "type": "url",
+      "prefix": ""
+  },
+  "brand:website": {
+      "type": "url",
+      "prefix": ""
+  },
+  "url": {
+      "type": "url",
+      "prefix": ""
+  },
+  "opening_hours:url": {
+      "type": "url",
+      "prefix": ""
+  },
+  "contact:instagram": {
+      "type": "url",
+      "prefix": ""
+  },
+  "contact:twitter":{
+      "type": "url",
+      "prefix": ""
+  },
+  "wikimedia_commons": {
+      "type": "image",
+      "prefix": "https://upload.wikimedia.org/wikipedia/commons/c/ca/",
+      "surfix": ""
+  },
+  "phone_1": {
+      "type": "tel"
+  },
+  "phone": {
+      "type": "tel"
+  },
+  "contact:fax": {
+      "type": "tel"
+  },
+  "contact:phone": {
+      "type": "tel"
+  },
+  "contact:mobile": {
+      "type": "tel"
+  },
+  "contact:facebook": {
+      "type": "url",
+      "prefix": ""
+  },
+  "facebook": {
+      "type": "url",
+      "prefix": ""
+  },
+  "fax": {
+      "type": "tel"
+  },
+  "email": {
+      "type": "email"
+  },
+  "contact:email": {
+      "type": "email"
+  },
+  "colour": {
+      "type": "colour"
+  },
+  "building:colour": {
+      "type": "colour"
+  },
+  "image": {
+      "type": "image",
+      "prefix": "",
+      "surfix": ""
+  },
+  "mapillary": {
+      "type": "image",
+      "prefix": "https://d1cuyjsrcm0gby.cloudfront.net/",
+      "surfix": "/thumb-320.jpg"
+  },
+  "flickr": {
+      "type": "image",
+      "prefix": "",
+      "surfix": ""
+  },
+  "wheelchair": {
+      "type": "choice",
+      "values": {
+          "yes": {
+              "type": "fa",
+              "value": "check",
+              "color": "green"
+          },
+          "no": {
+              "type": "fa",
+              "value": "times",
+              "color": "red"
+          },
+          "limited": {
+              "type": "text"
+          }
+      }
+  },
+  "opening_hours:covid19": {
+      "type": "choice",
+      "values": {
+          "yes": {
+              "type": "fa",
+              "value": "check",
+              "color": "green"
+          },
+          "no": {
+              "type": "fa",
+              "value": "times",
+              "color": "red"
+          },
+          "limited": {
+              "type": "text"
+          }
+      }
+  },
+  "atm": {
+      "type": "choice",
+      "values": {
+          "yes": {
+              "type": "fa",
+              "value": "check",
+              "color": "green"
+          },
+          "no": {
+              "type": "fa",
+              "value": "times",
+              "color": "red"
+          },
+          "limited": {
+              "type": "text"
+          }
+      }
+  },
+  "payment:mastercard": {
+      "type": "boolean"
+  },
+  "payment:maestro": {
+      "type": "boolean"
+  },
+  "payment:cash": {
+      "type": "boolean"
+  },
+  "payment:visa_electron": {
+      "type": "boolean"
+  },
+  "payment:cards": {
+      "type": "boolean"
+  },
+  "payment:contactless": {
+      "type": "boolean"
+  },
+  "payment:visa": {
+      "type": "boolean"
+  },
+  "payment:notes": {
+      "type": "boolean"
+  },
+  "payment:coins": {
+      "type": "boolean"
+  },
+  "payment:credit_cards": {
+      "type": "boolean"
+  },
+  "payment:american_express": {
+      "type": "boolean"
+  },
+  "payment:visa_debit": {
+      "type": "boolean"
+  },
+  "payment:cheque": {
+      "type": "boolean"
+  },
+  "payment:debit_cards": {
+      "type": "boolean"
+  },
+  "outdoor_seating":{
+      "type": "boolean"
+  }
+}

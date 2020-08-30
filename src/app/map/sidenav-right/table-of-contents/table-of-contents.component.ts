@@ -108,6 +108,7 @@ export class TableOfContentsComponent implements OnInit {
       })
     }
     this.layersInToc.sort( compare );
+    console.log(this.layersInToc)
 
   }
 

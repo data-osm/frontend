@@ -69,6 +69,7 @@ export class GeosmLayersServiceService {
         size = 40/dimension.width
       }
 
+       var pathImg = couche.logo_src?couche.logo_src:couche.img
       var layer = cartoHelperClass.constructLayer({
         nom:couche.nom,
         type:couche.service_wms == false ?'wfs':couche.type_couche,
@@ -82,13 +83,14 @@ export class GeosmLayersServiceService {
           couche_id:couche.key_couche,
           type:'couche'
         },
-        iconImagette:environment.url_prefix+'/'+couche.logo_src,
+        iconImagette:environment.url_prefix+'/'+pathImg,
         icon:environment.url_prefix+'/'+couche.img,
         cluster:true,
         size:size,
         legendCapabilities:{
           useCartoServer:true
-        }
+        },
+        descriptionSheetCapabilities:couche.wms_type?'osm':undefined
       })
       cartoHelperClass.addLayerToMap(layer)
       couche.check = true
@@ -147,7 +149,8 @@ export class GeosmLayersServiceService {
           couche_id: carte.key_couche,
           type: 'carte'
         },
-        iconImagette: environment.url_prefix + '/' + carte.image_src
+        iconImagette: environment.url_prefix + '/' + carte.image_src,
+        descriptionSheetCapabilities:undefined
       }
     )
 

@@ -2,7 +2,9 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {SocialShareComponent} from '../app/social-share/social-share.component'
 import { Injectable, ComponentFactoryResolver, ApplicationRef, Injector, EmbeddedViewRef, ComponentRef } from '@angular/core';
 import {ListDownloadLayersComponent,downloadDataModelInterface} from '../app/map/sidenav-right/download/list-download-layers/list-download-layers.component'
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { modelDescriptiveSheet, DescriptiveSheetComponent } from 'src/app/map/descriptive-sheet/descriptive-sheet.component';
+import { layersInMap } from './carto.helper';
 /**
  * Open some componenents like social share, loading,modal etc...
  * Dynamically add component in html
@@ -33,6 +35,75 @@ import { MatDialog } from '@angular/material/dialog';
       data:{url:url}
     });
    }
+
+
+  /**
+   * Open descriptive sheet
+   * @param type string descriptionSheetCapabilities of the layer ( will be use for the type of the descriptiove sheet)
+   * @param layer layersInMap
+   * @param coordinates_3857 [number,number] coordinates on the geometry of the feature
+   * @param geometry Geometry the geometry if exist
+   * @param properties any properties to display if exist
+   */
+  openDescriptiveSheet(type:string,layer:layersInMap,coordinates_3857:[number,number],geometry?:any,properties?:any){
+    if (type) {
+
+      this.openDescriptiveSheetModal({
+        type:type,
+        layer:layer,
+        properties:properties,
+        geometry:geometry,
+        coordinates_3857:coordinates_3857
+      },[],()=>{
+
+      })
+
+    }
+  }
+
+   /**
+    * Open modal used to display descriptive sheet
+    * @param data modelDescriptiveSheet
+    * @param size Array<string>|[]
+    * @param callBack Function
+    */
+   openDescriptiveSheetModal(data:modelDescriptiveSheet,size:Array<string>|[],callBack:Function){
+
+    /**
+     * close all modal of type DescriptiveSheetComponent before open another
+     */
+    for (let index = 0; index < this.dialog.openDialogs.length; index++) {
+      const elementDialog = this.dialog.openDialogs[index];
+      if (elementDialog.componentInstance instanceof DescriptiveSheetComponent) {
+        elementDialog.close()
+      }
+    }
+
+    var proprietes:MatDialogConfig = {
+      disableClose: false,
+      minWidth:450,
+      maxHeight:400,
+      width:'400px',
+      data:data,
+      hasBackdrop:false,
+      autoFocus:false,
+      position:{
+        top:'60px',
+        left:window.innerWidth <500 ?'0px':(window.innerWidth/2 - 400/2)+'px'
+      }
+    }
+
+    if (size.length >0) {
+      // proprietes['width']=size[0]
+      proprietes['height']=size[1]
+    }
+    const modal = this.dialog.open(DescriptiveSheetComponent, proprietes);
+
+    modal.afterClosed().subscribe(async (result:any) => {
+      callBack(result)
+    })
+   }
+
 
    /**
     * Open modal used to list and download data

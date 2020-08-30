@@ -1,5 +1,5 @@
 import {
-  Map, GeoJSON, Style, Fill, VectorLayer, VectorImageLayer, VectorSource, RasterSource, ImageLayer, ImageWMS, boundingExtent, Extent, transformExtent, Cluster, CircleStyle, Stroke, Text, Icon, TileLayer, XYZ, LayerGroup, TileWMS
+  Map, GeoJSON, Style, Fill, VectorLayer, VectorImageLayer, VectorSource, RasterSource, ImageLayer, ImageWMS, boundingExtent, Extent, transformExtent, Cluster, CircleStyle, Stroke, Text, Icon, TileLayer, XYZ, LayerGroup, TileWMS, Point, Feature
 } from '../app/ol-module'
 import * as $ from 'jquery'
 import { BackendApiService } from 'src/app/services/backend-api/backend-api.service'
@@ -7,30 +7,45 @@ import { environment } from 'src/environments/environment'
 import { map as portailMap } from 'src/app/map/map.component'
 import { Injectable, Injector } from '@angular/core'
 import { AppInjector } from 'src/helper/app-injector.helper'
+import { manageDataHelper } from './manage-data.helper'
+
+/**
+ * interface that describe data get by a click on the map
+ */
+export interface dataFromClickOnMapInterface {
+  type: 'vector' | 'raster' | 'clear',
+  data: {
+    coord: [number,number],
+    layers: Array<any>,
+    feature?: Feature
+    /** additional data */
+    data?: {}
+  }
+}
 
 /**
  * Interface of the table of contents capabilities
  */
-export interface tocCapabilitiesInterface{
-/**
-     * change opactity
-     */
-    opacity:boolean,
-    metadata:boolean,
-    share:boolean
+export interface tocCapabilitiesInterface {
+  /**
+       * change opactity
+       */
+  opacity: boolean,
+  metadata: boolean,
+  share: boolean
 }
 /**
  * Interface of the legend capabilities
  */
-export interface legendCapabilitiesInterface{
+export interface legendCapabilitiesInterface {
   /**
    * url of the img icon
    */
-  urlImg?:string
+  urlImg?: string
   /**
    * use legend from the carto server
    */
-  useCartoServer?:boolean
+  useCartoServer?: boolean
 }
 
 /**
@@ -38,7 +53,7 @@ export interface legendCapabilitiesInterface{
  */
 export interface layersInMap {
   nom: string
-  type_layer: 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'exportData' | 'other'|'routing',
+  type_layer: 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'exportData' | 'other' | 'routing',
   image: string
   properties: Object | null
   zIndex: number
@@ -47,27 +62,31 @@ export interface layersInMap {
   /**
    * text and background color of the badje in the table of contents
    */
-  badge?:{
-    text:string,
-    bgColor:string
+  badge?: {
+    text: string,
+    bgColor: string
   }
   /**
    * The layer type OL/layer in the map
    */
-  layer:any
-    /**
-   * capabilities of the layer in toc. They user can set opactiy ? read metadata ?...
-   * By default, all is set to true
-   */
-  tocCapabilities:tocCapabilitiesInterface
+  layer: any
+  /**
+ * capabilities of the layer in toc. They user can set opactiy ? read metadata ?...
+ * By default, all is set to true
+ */
+  tocCapabilities: tocCapabilitiesInterface
   /**
    * capabilities of the layer legend. how to display legend of the layer ? with the url of a image ? with the legend of the carto server ?
    * by default this is none => no legend to display
    */
-  legendCapabilities?:legendCapabilitiesInterface
+  legendCapabilities?: legendCapabilitiesInterface
+  /**
+   * description sheet capabilities
+   */
+  descriptionSheetCapabilities: 'osm'
 }
 
-const typeLayer = ['geosmCatalogue', 'draw', 'mesure', 'mappilary', 'exportData', 'other','routing']
+const typeLayer = ['geosmCatalogue', 'draw', 'mesure', 'mappilary', 'exportData', 'other', 'routing']
 /**
  * interface to construct  a layer
  */
@@ -76,8 +95,8 @@ export interface geosmLayer {
   /**
    * is the layer should appear in the toc ?
    */
-  'inToc':boolean
-  'type_layer': 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'exportData' | 'other'|'routing',
+  'inToc': boolean
+  'type_layer': 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'exportData' | 'other' | 'routing',
   'type': 'geojson' | 'wfs' | 'wms' | 'xyz',
   'crs'?: string,
   'visible': boolean,
@@ -97,17 +116,18 @@ export interface geosmLayer {
    * capabilities of the layer in toc. They user can set opactiy ? read metadata ?...
    * By default, all is set to true
    */
-  tocCapabilities?:tocCapabilitiesInterface
+  tocCapabilities?: tocCapabilitiesInterface
   /**
    * capabilities of the layer legend. how to display legend of the layer ? with the url of a image ? with the legend of the carto server ?
    * by default this is none => no legend to display
    */
-  legendCapabilities?:legendCapabilitiesInterface
+  legendCapabilities?: legendCapabilitiesInterface
   'properties': {
     group_id: number,
     couche_id: number,
     type: 'couche' | 'carte'
   } | null | Object
+  descriptionSheetCapabilities: 'osm'
 }
 
 
@@ -195,7 +215,13 @@ export class cartoHelper {
 
     var rasterLayer = new ImageLayer({
       source: raster,
-      nom: 'map-shadow'
+      nom: 'map-shadow',
+      /**
+       * so that map.forEachLayerAtPixel work as expected
+       * @see https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html#forEachLayerAtPixel
+       */
+      className: 'map-shadow',
+
     });
 
     return rasterLayer
@@ -243,7 +269,12 @@ export class cartoHelper {
       var layer = new TileLayer({
         source: new XYZ({
           url: couche.url
-        })
+        }),
+        /**
+      * so that map.forEachLayerAtPixel work as expected
+      * @see https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html#forEachLayerAtPixel
+      */
+        className: couche.nom + '___' + couche.type_layer
       })
     } else if (couche.type == "wms") {
 
@@ -256,6 +287,11 @@ export class cartoHelper {
 
       var layer = new TileLayer({
         source: wmsSource,
+        /**
+       * so that map.forEachLayerAtPixel work as expected
+       * @see https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html#forEachLayerAtPixel
+       */
+        className: couche.nom + '___' + couche.type_layer
       });
     } else if (couche.type == "geojson") {
       var vectorSource = new VectorSource({
@@ -265,6 +301,11 @@ export class cartoHelper {
       var layer = new layer({
         source: vectorSource,
         style: couche.style,
+        /**
+      * so that map.forEachLayerAtPixel work as expected
+      * @see https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html#forEachLayerAtPixel
+      */
+        className: couche.nom + '___' + couche.type_layer
       })
 
       if (couche.cluster) {
@@ -327,7 +368,12 @@ export class cartoHelper {
               return
             }
 
-          }
+          },
+          /**
+          * so that map.forEachLayerAtPixel work as expected
+          * @see https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html#forEachLayerAtPixel
+          */
+          className: couche.nom + '___' + couche.type_layer
         });
 
       }
@@ -345,6 +391,10 @@ export class cartoHelper {
           this.BackendApiService.getRequestFromOtherHost(url).then(
             (data) => {
               source.addFeatures(source.getFormat().readFeatures(data));
+              for (let index = 0; index < source.getFeatures().length; index++) {
+                const feature = source.getFeatures()[index];
+                feature.set('featureId',feature.getId())
+              }
             },
             (err) => {
               source.removeLoadedExtent(extent_vieuw);
@@ -360,7 +410,12 @@ export class cartoHelper {
             scale: couche.size,
             src: couche.icon
           })
-        })
+        }),
+        /**
+      * so that map.forEachLayerAtPixel work as expected
+      * @see https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html#forEachLayerAtPixel
+      */
+        className: couche.nom + '___' + couche.type_layer
       });
 
       if (couche.cluster) {
@@ -428,7 +483,12 @@ export class cartoHelper {
               return
             }
 
-          }
+          },
+          /**
+      * so that map.forEachLayerAtPixel work as expected
+      * @see https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html#forEachLayerAtPixel
+      */
+          className: couche.nom + '___' + couche.type_layer
         });
 
       }
@@ -443,7 +503,8 @@ export class cartoHelper {
     layer.set('identifiant', couche.identifiant)
     layer.set('inToc', couche.inToc)
     layer.set('tocCapabilities', couche.tocCapabilities)
-    layer.set('legendCapabilities',couche.legendCapabilities)
+    layer.set('legendCapabilities', couche.legendCapabilities)
+    layer.set('descriptionSheetCapabilities', couche.descriptionSheetCapabilities)
 
     if (couche.zindex) {
       layer.setZIndex(couche.zindex)
@@ -650,37 +711,45 @@ export class cartoHelper {
 
     for (let index = 0; index < allLayers.length; index++) {
       const layer = allLayers[index];
-      var data = null
-
-      var tocCapabilities:tocCapabilitiesInterface = {} as tocCapabilitiesInterface
-      if (layer.get('tocCapabilities')) {
-        tocCapabilities.opacity = layer.get('tocCapabilities')['opacity'] != undefined ?layer.get('tocCapabilities')['opacity']:true
-        tocCapabilities.share = layer.get('tocCapabilities')['share'] != undefined ?layer.get('tocCapabilities')['share']:true
-        tocCapabilities.metadata = layer.get('tocCapabilities')['metadata'] != undefined ?layer.get('tocCapabilities')['metadata']:true
-      }else{
-        tocCapabilities.opacity = true
-        tocCapabilities.share = true
-        tocCapabilities.metadata = true
-      }
-
       if (layer.get('inToc')) {
-        reponseLayers.push({
-          tocCapabilities:tocCapabilities,
-          legendCapabilities:layer.get('legendCapabilities'),
-          nom: layer.get('nom'),
-          type_layer: layer.get('type_layer'),
-          properties: layer.get('properties'),
-          image: layer.get('iconImagette'),
-          data: data,
-          zIndex: layer.getZIndex(),
-          visible: layer.getVisible(),
-          layer:layer
-        })
+        reponseLayers.push(this.constructAlyerInMap(layer))
       }
-
     }
 
     return reponseLayers
+  }
+
+  /**
+   * construct a layersInMap Object fron a layer in the map
+   * @param layer any
+   * @return layersInMap
+   */
+  constructAlyerInMap(layer: any): layersInMap {
+    var data = null
+    var tocCapabilities: tocCapabilitiesInterface = {} as tocCapabilitiesInterface
+    if (layer.get('tocCapabilities')) {
+      tocCapabilities.opacity = layer.get('tocCapabilities')['opacity'] != undefined ? layer.get('tocCapabilities')['opacity'] : true
+      tocCapabilities.share = layer.get('tocCapabilities')['share'] != undefined ? layer.get('tocCapabilities')['share'] : true
+      tocCapabilities.metadata = layer.get('tocCapabilities')['metadata'] != undefined ? layer.get('tocCapabilities')['metadata'] : true
+    } else {
+      tocCapabilities.opacity = true
+      tocCapabilities.share = true
+      tocCapabilities.metadata = true
+    }
+
+    return {
+      tocCapabilities: tocCapabilities,
+      legendCapabilities: layer.get('legendCapabilities'),
+      nom: layer.get('nom'),
+      type_layer: layer.get('type_layer'),
+      properties: layer.get('properties'),
+      image: layer.get('iconImagette'),
+      data: data,
+      zIndex: layer.getZIndex(),
+      visible: layer.getVisible(),
+      layer: layer,
+      descriptionSheetCapabilities: layer.get('descriptionSheetCapabilities')
+    }
   }
 
   /**
@@ -691,23 +760,23 @@ export class cartoHelper {
    * @param layer any layer to edit zindex
    * @param zIndex number
    */
-  editZindexOfLayer(layer:any,zIndex:number){
+  editZindexOfLayer(layer: any, zIndex: number) {
     for (let index = 0; index < this.getAllLayersInToc().length; index++) {
       const layerInmap = this.getAllLayersInToc()[index].layer;
 
-      console.log(layer.getZIndex() , zIndex)
-      if (layer.getZIndex() < zIndex ) {
+      console.log(layer.getZIndex(), zIndex)
+      if (layer.getZIndex() < zIndex) {
         // if the layer is going up
-        if (layerInmap.getZIndex() <= zIndex ) {
+        if (layerInmap.getZIndex() <= zIndex) {
           layerInmap.setZIndex(layerInmap.getZIndex() - 1)
-        }else if (layerInmap.getZIndex() > zIndex ){
+        } else if (layerInmap.getZIndex() > zIndex) {
           layerInmap.setZIndex(layerInmap.getZIndex() + 1)
         }
-      }else if (layer.getZIndex() > zIndex ) {
+      } else if (layer.getZIndex() > zIndex) {
         // if the layer is going down
-        if (layerInmap.getZIndex() >= zIndex ) {
+        if (layerInmap.getZIndex() >= zIndex) {
           layerInmap.setZIndex(layerInmap.getZIndex() + 1)
-        }else if (layerInmap.getZIndex() < zIndex ){
+        } else if (layerInmap.getZIndex() < zIndex) {
           layerInmap.setZIndex(layerInmap.getZIndex() - 1)
         }
       }
@@ -726,7 +795,7 @@ export class cartoHelper {
     var allZindex = [0]
     for (let index = 0; index < allLayers.length; index++) {
       var layer = allLayers[index]
-      if (layer instanceof LayerGroup ) {
+      if (layer instanceof LayerGroup) {
       } else {
         try {
           if (layer.get('inToc')) {
@@ -745,14 +814,204 @@ export class cartoHelper {
 
 
   /**
+   * Detect all layers of type WMS (ImageLayer or TileLayer) on a pixel
+   * We can also rempve layers that have certains values (oddLayersValues) for attributes (oddLayersAttr)
+   * @param number[] pixel
+   * @param string oddLayersAttr
+   * @param Array<string> oddLayersValues
+   * @returns Array<ImageLayer>
+   */
+  displayFeatureInfo(pixel: number[], oddLayersAttr: string, oddLayersValues: Array<string>): Array<any> {
+    var layers = []
+    this.map.forEachLayerAtPixel(pixel,
+      function (layer, rgb: Uint8ClampedArray) {
+
+        if (layer) {
+
+          if (layer.getSource() instanceof TileWMS && oddLayersValues.indexOf(layer.get(oddLayersAttr)) == -1) {
+            layers.push(layer)
+          }
+        }
+
+      });
+
+    return layers;
+  }
+
+
+  /**
+    *click sur la carte
+    *@param evt
+    *@param (param :dataFromClickOnMapInterface)=>void
+    */
+  mapHasCliked(evt, callback: (param: dataFromClickOnMapInterface) => void) {
+    var pixel = this.map.getEventPixel(evt.originalEvent);
+
+    var feature = this.map.forEachFeatureAtPixel(pixel,
+      function (feature, layer) {
+        return feature;
+      }, {
+      hitTolerance: 5
+    });
+
+    var layer = this.map.forEachFeatureAtPixel(pixel,
+      function (feature, layer) {
+        if (layer instanceof VectorLayer) {
+          return layer;
+        }
+
+      }, {
+      hitTolerance: 5
+    });
+
+    var layers = []
+
+    if (!feature) {
+      var all_pixels = new manageDataHelper().calcHitMatrix(evt.pixel)
+      for (let index = 0; index < all_pixels.length; index++) {
+        var un_pixel = all_pixels[index];
+        var nom_layers_load = []
+
+        for (let i = 0; i < layers.length; i++) {
+          nom_layers_load.push(layers[i].get('nom'));
+        }
+
+        var layers_in_pixels = this.displayFeatureInfo(un_pixel, 'nom', nom_layers_load)
+
+        for (let j = 0; j < layers_in_pixels.length; j++) {
+          layers.push(layers_in_pixels[j]);
+        }
+
+      }
+    }
+
+
+    if (layer instanceof VectorLayer && feature) {
+      /**
+       * if the user click on a cluser, and the cluster have more than one feature, we zoom in; but if ther is only one feature, we return the feature
+       *
+      */
+
+      if (layer.getSource() instanceof Cluster) {
+        var numberOfFeatureInCluster = this.countFeaturesInCluster(feature.get('features'));
+        // console.log(layer,feature,numberOfFeatureInCluster)
+        if (numberOfFeatureInCluster > 1) {
+          if (Object.create(feature.getGeometry()).getType() == 'Point') {
+            var coordinate = Object.create(feature.getGeometry()).getCoordinates();
+            var geom = new Point(coordinate)
+            this.fit_view(geom, this.map.getView().getZoom() + 2)
+          }
+        } else if (numberOfFeatureInCluster == 1) {
+          var feat = this.getFeatureThatIsDisplayInCulster(feature.getProperties().features)
+          var coord = this.map.getCoordinateFromPixel(pixel)
+          var data_callback: dataFromClickOnMapInterface = {
+            type: 'vector',
+            data: {
+              coord: coord,
+              layers: [layer],
+              feature: feat,
+              data: {}
+            }
+          }
+
+          callback(data_callback)
+        }
+
+      }
+
+      // var coord = this.map.getCoordinateFromPixel(pixel)
+      // var data_callback: dataFromClickOnMapInterface = {
+      //   'type': 'clear_elem_geo_surbrillance',
+      //   data: {
+      //     coord: coord,
+      //     layers: layers
+      //   }
+      // }
+      // callback(data_callback)
+
+    } else if (layers.length > 0) {
+      var coord = this.map.getCoordinateFromPixel(pixel)
+      var data_callback: dataFromClickOnMapInterface = {
+        type: 'raster',
+        data: {
+          coord: coord,
+          layers: layers
+        }
+      }
+      callback(data_callback)
+
+    } else {
+      var coord = this.map.getCoordinateFromPixel(pixel)
+      var data_callback: dataFromClickOnMapInterface = {
+        'type': 'clear',
+        data: {
+          coord: coord,
+          layers: layers
+        }
+      }
+      callback(data_callback)
+    }
+  }
+
+  /**
+   * Count features in a cluster
+   * @param features Feature
+   * @return number
+   */
+  countFeaturesInCluster(features): number {
+    var size = 0;
+    for (let index = 0; index < features.length; index++) {
+      const feat = features[index];
+      // if (feat.get('display') == true) {
+      size = size + 1
+      // }
+    }
+
+    return size
+  }
+
+  /**
+   * Get feature that is display in a cluster
+   * @param Array<Feature> features
+   * @retun Feature
+   */
+  getFeatureThatIsDisplayInCulster(features: Array<Feature>): Feature {
+    var feature
+    for (let index = 0; index < features.length; index++) {
+      const feat = features[index];
+      // if (feat.get('display') == true) {
+      feature = feat
+      // }
+    }
+    return feature
+  }
+
+
+  /**
     * Récuperer les informations d'un feature wms
     * @param WMTS source
     * @param Array<number> coordinates  coodonnées
     */
   getFeatureInfoFromWmsSource(source: ImageWMS, coordinates: Array<number>) {
     var viewResolution = this.map.getView().getResolution();
-    var url = source.getFeatureInfoUrl(coordinates, viewResolution, 'EPSG:3857') + "&INFO_FORMAT=application/json&FI_LINE_TOLERANCE=17&FI_POLYGON_TOLERANCE=17&FI_POINT_TOLERANCE=17"
+    var url = source.getFeatureInfoUrl(coordinates, viewResolution, 'EPSG:3857') + "&WITH_GEOMETRY=true&INFO_FORMAT=application/json&FI_LINE_TOLERANCE=17&FI_POLYGON_TOLERANCE=17&FI_POINT_TOLERANCE=17"
     return url
+  }
+
+  fit_view(geom, zoom, padding?) {
+    // if (padding == undefined) {
+    //   padding = this.get_padding_map()
+    // }
+    // this.map.getView().animate({zoom: zoom}, {center: geom.getCoordinates()});
+
+    // console.log([this.map.getSize()[0]- $('.sidenav-left').width() , this.map.getSize()[1] ])
+    this.map.getView().fit(geom, {
+      'maxZoom': zoom,
+      'size':this.map.getSize(),
+      'padding': [0, 0, 0, 0],
+      'duration': 500
+    })
+
   }
 
 }
