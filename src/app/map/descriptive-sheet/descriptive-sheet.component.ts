@@ -46,7 +46,7 @@ export class DescriptiveSheetComponent implements OnInit,OnChanges {
   imgSrc: string
 
   /**
-   * VectorLayer of hightlight feature
+   * VectorLayer of hightlight feature and style
    */
   highlightLayer: VectorLayer = new VectorLayer({
     source: new VectorSource(),
@@ -174,7 +174,6 @@ export class DescriptiveSheetComponent implements OnInit,OnChanges {
    * Share this feature
    */
   shareFeature(){
-    console.log(this.descriptiveModel.properties)
     var url = environment.url_frontend+'/map?'+this.ShareServiceService.shareFeature(
       this.descriptiveModel.layer.properties['type'],
       this.descriptiveModel.layer.properties['couche_id'],

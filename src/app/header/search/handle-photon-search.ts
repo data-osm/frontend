@@ -3,7 +3,8 @@ import { responseOfSerachLimitInterface } from './interface-search'
 import { configProjetInterface } from '../../type/type';
 import { StorageServiceService } from '../../../app/services/storage-service/storage-service.service'
 import { AppInjector } from '../../../helper/app-injector.helper'
-import { GeoJSON } from '../../ol-module'
+import { GeoJSON, Feature } from '../../ol-module'
+import { cartoHelper } from 'src/helper/carto.helper';
 /**
  * class for handle photon search:
  * - format data from server to display list od response
@@ -90,6 +91,44 @@ export class handlePhotonSearch {
     return option.properties.osm_value === 'yes'
       ? option.properties.osm_key
       : option.properties.osm_value;
+  }
+
+   /**
+   *  call when an option is select by the user
+   * @param emprise searchLayerToDownlodModelInterface
+   */
+  optionSelected(emprise: filterOptionInterface) {
+    if (!emprise.geometry) {
+
+    } else {
+      this._addGeometryAndZoomTO(emprise)
+    }
+  }
+
+    /**
+   * add geometry to searchResultLayer and zoom to the geometry
+   * @param emprise: filterOptionInterface
+   */
+  _addGeometryAndZoomTO(emprise: filterOptionInterface) {
+    if (emprise.geometry) {
+      var cartoClass = new cartoHelper()
+      if (cartoClass.getLayerByName('searchResultLayer').length > 0) {
+        var searchResultLayer = cartoClass.getLayerByName('searchResultLayer')[0]
+
+        var feature = new Feature()
+
+        feature.setGeometry(emprise.geometry)
+
+        searchResultLayer.getSource().clear()
+
+        searchResultLayer.getSource().addFeature(feature)
+
+        var extent = emprise.geometry.getExtent()
+
+        cartoClass.fit_view(extent, 16)
+
+      }
+    }
   }
 
 }
