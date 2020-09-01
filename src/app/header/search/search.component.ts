@@ -9,6 +9,7 @@ import {responseOfSearchPhotonInterface,responseOfSerachLimitInterface} from './
 import {handleEmpriseSearch} from './handle-emprise-search'
 import {handlePhotonSearch} from './handle-photon-search'
 import {handleAdresseFrSearch} from './handle-adresseFr-search'
+import {handleLayerSearch} from './handle-layer-search'
 import { VectorLayer, VectorSource, Style, Fill, Stroke, CircleStyle, Icon } from 'src/app/ol-module';
 import { manageDataHelper } from 'src/helper/manage-data.helper';
 import { cartoHelper } from 'src/helper/carto.helper';
@@ -136,6 +137,10 @@ export class SearchComponent implements OnInit {
           from(this.BackendApiService.getRequestFromOtherHost('https://api-adresse.data.gouv.fr/search/?limit=5&q='+value.toString())).pipe(
             map((val:{type:String,value:any}) => { return {type:'adresseFr',value:val}} ),
             catchError( (err) =>  of({type:'adresseFr',value:{features:[]} })  )
+          ),
+          from(this.BackendApiService.post_requete('/searchCouche', { 'word': value.toString() })).pipe(
+            map((val:{type:String,value:any}) => { return {type:'layer',value:val}} ),
+            catchError( (err) =>  of({type:'layer',value:{features:[]} })  )
           )
         )
       })
@@ -147,6 +152,8 @@ export class SearchComponent implements OnInit {
           this.filterOptions['photon'] = new handlePhotonSearch().formatDataForTheList(data.value)
         }else if(data.type == 'adresseFr'){
           this.filterOptions['adresseFr'] = new handleAdresseFrSearch().formatDataForTheList(data.value)
+        }else if(data.type == 'layer'){
+          this.filterOptions['layer'] = new handleLayerSearch().formatDataForTheList(data.value)
         }
 
         this.cleanFilterOptions()
@@ -171,6 +178,8 @@ export class SearchComponent implements OnInit {
       return new handlePhotonSearch().displayWith(option)
     }else  if (option.typeOption == 'adresseFr'){
       return new handleAdresseFrSearch().displayWith(option)
+    }else  if (option.typeOption == 'layer'){
+      return new handleLayerSearch().displayWith(option)
     }
   }
 
@@ -182,11 +191,14 @@ export class SearchComponent implements OnInit {
     var option:filterOptionInterface = selected.option?selected.option.value:undefined
     if (option) {
       if (option.typeOption == 'limites'){
-        return new handleEmpriseSearch().optionSelected(option)
+        new handleEmpriseSearch().optionSelected(option)
       }else  if (option.typeOption == 'photon'){
-        return new handlePhotonSearch().optionSelected(option)
+        new handlePhotonSearch().optionSelected(option)
       }else  if (option.typeOption == 'adresseFr'){
-        return new handleAdresseFrSearch().optionSelected(option)
+        new handleAdresseFrSearch().optionSelected(option)
+      }else  if (option.typeOption == 'layer'){
+        new handleLayerSearch().optionSelected(option)
+        this.clearSearch()
       }
     }
 

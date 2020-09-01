@@ -25,6 +25,15 @@
               {{item.name}}
             </ng-container>
 
+            <ng-container *ngIf="option == 'layer'" >
+              <img *ngIf="item.image_src" [src]="item.image_src" alt="{{item.name}}" class="header-search-form-option-img" >
+              <img *ngIf="item.logo_src && !item.image_src " [src]="item.logo_src" alt="{{item.name}}" class="header-search-form-option-img" >
+              {{item.name}}
+              <span *ngIf="item.number"> ({{item.number}}) </span>
+              <br>
+              <small> {{item.nameGroup}}  </small>
+            </ng-container>
+
           </mat-option>
         </mat-optgroup>
       </mat-autocomplete>

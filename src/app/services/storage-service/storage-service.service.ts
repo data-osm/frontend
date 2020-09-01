@@ -273,6 +273,36 @@ export class StorageServiceService {
     }
   }
 
+   /**
+   * Get group carte from id_carte
+   * @param id_carte number id carte of the carte
+   * @return carteInterface
+   */
+  getCarteFromIdCarte(id_carte:number):carteInterface{
+    for (let index = 0; index < this.groupCartes.getValue().length; index++) {
+      const groupCarte = this.groupCartes.getValue()[index];
+      if (groupCarte.sous_cartes) {
+        for (let sIndex = 0; sIndex < groupCarte.sous_cartes.length; sIndex++) {
+          const sous_groupe = groupCarte.sous_cartes[sIndex];
+          for (let cIndex = 0; cIndex < sous_groupe.couches.length; cIndex++) {
+            const carte = sous_groupe.couches[cIndex];
+            if (carte.key_couche == id_carte) {
+              return carte
+            }
+          }
+        }
+      } else {
+        for (let cIndex = 0; cIndex < groupCarte.couches.length; cIndex++) {
+          const carte = groupCarte.couches[cIndex];
+          if (carte.key_couche == id_carte) {
+            return carte
+          }
+        }
+      }
+
+    }
+  }
+
   /**
    * Get group thematique from id_couche
    * @param id_couche number id couche of the couche

@@ -38,7 +38,16 @@
   background-color: #f2f7fa;
 }
 
+
+
+
 .mat-option{
   height: 50px;
   line-height: 18px;
+  .header-search-form-option-img{
+    height: 32px;
+    width: 32px;
+    float: left;
+    margin-right: 10px;
+  }
 }
