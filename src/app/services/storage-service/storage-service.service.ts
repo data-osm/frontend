@@ -5,6 +5,7 @@ import { BackendApiService } from '../backend-api/backend-api.service'
 import { groupThematiqueInterface, groupCarteInterface, configProjetInterface, carteInterface, coucheInterface, groupInterface } from '../../type/type'
 import { catchError } from 'rxjs/operators';
 import { analyzeAndValidateNgModules } from '@angular/compiler';
+import { Feature, GeoJSON } from 'src/app/ol-module';
 
 @Injectable({
   providedIn: 'root'
@@ -364,6 +365,45 @@ export class StorageServiceService {
     }
   }
 
+  /**
+   * get extent of the project
+   * - if there is multiple geo signets for the project, take the active one
+   * - if there is not multiple geo signets for the project, take the ROI of the project
+   * @retrun Extent in 4326
+   */
+  getExtentOfProject():[number,number,number,number]{
+    var feature;
+    if (this.configProject.value.geosignetsProject.length > 0) {
+      for (let index = 0; index < this.configProject.value.geosignetsProject.length; index++) {
+        const geoSignet = this.configProject.value.geosignetsProject[index];
+        if(geoSignet.active){
+          var features = new GeoJSON().readFeatures(JSON.parse(geoSignet.geometry),{
+            // dataProjection: 'EPSG:4326',
+            // featureProjection: 'EPSG:3857'
+          })
+          if (features.length > 0) {
+            feature = features[0]
+          }
+        }
+      }
+    }
+
+    if (!feature) {
+      var features = new GeoJSON().readFeatures(this.configProject.value.roiGeojson,{
+        // dataProjection: 'EPSG:4326',
+        // featureProjection: 'EPSG:3857'
+      })
+      if (features.length > 0) {
+        feature = features[0]
+      }
+    }
+
+    if (feature) {
+      return feature.getGeometry().getExtent()
+    }else{
+      return
+    }
+  }
 
 
 }

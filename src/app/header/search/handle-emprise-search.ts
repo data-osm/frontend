@@ -26,6 +26,9 @@ export class handleEmpriseSearch {
    * @param responseDB any
    */
   formatDataForTheList(responseDB: any): Array<filterOptionInterface> {
+    if (responseDB.error) {
+      return []
+    }
     var response: Array<filterOptionInterface> = []
     for (const key in responseDB) {
       if (responseDB.hasOwnProperty(key) && key != 'status') {
