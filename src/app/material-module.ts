@@ -62,6 +62,7 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatListModule} from '@angular/material/list';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatSelectModule} from '@angular/material/select';
 
 @NgModule({
   exports: [
@@ -89,7 +90,8 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
     MatTabsModule,
     MatListModule,
     MatAutocompleteModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    MatSelectModule
   ]
 })
 export class ComponentMaterialModule { }

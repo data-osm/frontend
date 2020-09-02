@@ -59,6 +59,7 @@ import { OsmSheetComponent } from './map/descriptive-sheet/osm-sheet/osm-sheet.c
 
 import { MultiTranslateHttpLoader } from "ngx-translate-multi-http-loader";
 import { SearchComponent } from './header/search/search.component';
+import { SelectRoiComponent } from './header/select-roi/select-roi.component';
 
 
 @NgModule({
@@ -91,7 +92,8 @@ import { SearchComponent } from './header/search/search.component';
     ListDownloadLayersComponent,
     DescriptiveSheetComponent,
     OsmSheetComponent,
-    SearchComponent
+    SearchComponent,
+    SelectRoiComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({

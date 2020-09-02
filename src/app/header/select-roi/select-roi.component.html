@@ -1,0 +1,5 @@
+<mat-form-field appearance="fill" class="select-roi-form" *ngIf="StorageServiceService.configProject.value.geosignetsProject && StorageServiceService.configProject.value.geosignetsProject.length > 0" >
+  <mat-select [formControl]="controlSelectRoi" >
+    <mat-option *ngFor="let roi of StorageServiceService.configProject.value.geosignetsProject"  [value]="roi">  {{roi.nom}} </mat-option>
+  </mat-select>
+</mat-form-field>
