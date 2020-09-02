@@ -414,7 +414,7 @@ export interface configProjetInterface {
   /**
    * Geosignets of the projects
    */
-  geosignetsProject:geosignetsProjectInterface
+  geosignetsProject:geosignetsProjectInterface[]
 
 }
 

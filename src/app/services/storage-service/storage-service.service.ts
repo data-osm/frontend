@@ -5,6 +5,7 @@ import { BackendApiService } from '../backend-api/backend-api.service'
 import { groupThematiqueInterface, groupCarteInterface, configProjetInterface, carteInterface, coucheInterface, groupInterface } from '../../type/type'
 import { catchError } from 'rxjs/operators';
 import { analyzeAndValidateNgModules } from '@angular/compiler';
+import { Feature, GeoJSON } from 'src/app/ol-module';
 
 @Injectable({
   providedIn: 'root'
@@ -273,6 +274,36 @@ export class StorageServiceService {
     }
   }
 
+   /**
+   * Get group carte from id_carte
+   * @param id_carte number id carte of the carte
+   * @return carteInterface
+   */
+  getCarteFromIdCarte(id_carte:number):carteInterface{
+    for (let index = 0; index < this.groupCartes.getValue().length; index++) {
+      const groupCarte = this.groupCartes.getValue()[index];
+      if (groupCarte.sous_cartes) {
+        for (let sIndex = 0; sIndex < groupCarte.sous_cartes.length; sIndex++) {
+          const sous_groupe = groupCarte.sous_cartes[sIndex];
+          for (let cIndex = 0; cIndex < sous_groupe.couches.length; cIndex++) {
+            const carte = sous_groupe.couches[cIndex];
+            if (carte.key_couche == id_carte) {
+              return carte
+            }
+          }
+        }
+      } else {
+        for (let cIndex = 0; cIndex < groupCarte.couches.length; cIndex++) {
+          const carte = groupCarte.couches[cIndex];
+          if (carte.key_couche == id_carte) {
+            return carte
+          }
+        }
+      }
+
+    }
+  }
+
   /**
    * Get group thematique from id_couche
    * @param id_couche number id couche of the couche
@@ -334,6 +365,45 @@ export class StorageServiceService {
     }
   }
 
+  /**
+   * get extent of the project
+   * - if there is multiple geo signets for the project, take the active one
+   * - if there is not multiple geo signets for the project, take the ROI of the project
+   * @retrun Extent in 4326
+   */
+  getExtentOfProject():[number,number,number,number]{
+    var feature;
+    if (this.configProject.value.geosignetsProject.length > 0) {
+      for (let index = 0; index < this.configProject.value.geosignetsProject.length; index++) {
+        const geoSignet = this.configProject.value.geosignetsProject[index];
+        if(geoSignet.active){
+          var features = new GeoJSON().readFeatures(JSON.parse(geoSignet.geometry),{
+            // dataProjection: 'EPSG:4326',
+            // featureProjection: 'EPSG:3857'
+          })
+          if (features.length > 0) {
+            feature = features[0]
+          }
+        }
+      }
+    }
+
+    if (!feature) {
+      var features = new GeoJSON().readFeatures(this.configProject.value.roiGeojson,{
+        // dataProjection: 'EPSG:4326',
+        // featureProjection: 'EPSG:3857'
+      })
+      if (features.length > 0) {
+        feature = features[0]
+      }
+    }
+
+    if (feature) {
+      return feature.getGeometry().getExtent()
+    }else{
+      return
+    }
+  }
 
 
 }

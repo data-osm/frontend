@@ -18,12 +18,12 @@ export class manageDataHelper {
     return text;
   }
 
-   /**
-   * calculate a matrice of pixels around one pixel. The rayon is 5
-    * @see https://github.com/openlayers/openlayers/issues/5862
-    * @param number[] pixel
-    * @return Array<Array<number>>
-    */
+  /**
+  * calculate a matrice of pixels around one pixel. The rayon is 5
+   * @see https://github.com/openlayers/openlayers/issues/5862
+   * @param number[] pixel
+   * @return Array<Array<number>>
+   */
   calcHitMatrix(pixel: number[]): Array<Array<number>> {
     let X = 11; // -5 to + 5 in x
     let Y = 11; // -5 to + 5 in y
@@ -58,8 +58,8 @@ export class manageDataHelper {
    * @param value any
    * @return number
    */
-  public static isAttributesInObjectOfAnArray(table:Array<any>,attribute:string,value:any):number{
-    var position:number;
+  public static isAttributesInObjectOfAnArray(table: Array<any>, attribute: string, value: any): number {
+    var position: number;
     for (let index = 0; index < table.length; index++) {
       const element = table[index];
       if (element[attribute] == value) {
@@ -69,4 +69,17 @@ export class manageDataHelper {
     return position
   }
 
+  /**
+* Covert a color from hex to rgb
+* @param hex string
+* @return  {r: number, g: number, b: number }
+*/
+  static hexToRgb(hex: string): { r: number, g: number, b: number } {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  }
 }
