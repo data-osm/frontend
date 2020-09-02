@@ -3,7 +3,7 @@ import { responseOfSerachLimitInterface } from './interface-search'
 import { configProjetInterface } from '../../type/type';
 import { StorageServiceService } from '../../../app/services/storage-service/storage-service.service'
 import { AppInjector } from '../../../helper/app-injector.helper'
-import { Feature, GeoJSON } from 'src/app/ol-module';
+import { Feature, GeoJSON, getArea } from 'src/app/ol-module';
 import { cartoHelper } from 'src/helper/carto.helper';
 import {BackendApiService} from '../../../app/services/backend-api/backend-api.service'
 /**
@@ -134,13 +134,28 @@ export class handleEmpriseSearch {
    * @param emprise: filterOptionInterface
    */
   _addGeometryAndZoomTO(emprise: filterOptionInterface) {
+
+    var formatArea = function (polygon) {
+      var area = getArea(polygon);
+      var output;
+      if (area > 10000) {
+        output = Math.round((area / 1000000) * 100) / 100 + " " + "km²";
+      } else {
+        output = Math.round(area * 100) / 100 + " " + "m²";
+      }
+
+      return output;
+    };
+
     if (emprise.geometry) {
       var cartoClass = new cartoHelper()
       if (cartoClass.getLayerByName('searchResultLayer').length > 0) {
         var searchResultLayer = cartoClass.getLayerByName('searchResultLayer')[0]
 
         var feature = new Feature()
+        var textLabel = emprise.name+'('+emprise.ref +") \n" +formatArea(emprise.geometry)
 
+        feature.set('textLabel',textLabel)
         feature.setGeometry(emprise.geometry)
 
         searchResultLayer.getSource().clear()

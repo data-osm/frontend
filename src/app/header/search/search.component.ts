@@ -10,7 +10,7 @@ import {handleEmpriseSearch} from './handle-emprise-search'
 import {handlePhotonSearch} from './handle-photon-search'
 import {handleAdresseFrSearch} from './handle-adresseFr-search'
 import {handleLayerSearch} from './handle-layer-search'
-import { VectorLayer, VectorSource, Style, Fill, Stroke, CircleStyle, Icon } from 'src/app/ol-module';
+import { VectorLayer, VectorSource, Style, Fill, Stroke, CircleStyle, Icon, Text } from 'src/app/ol-module';
 import { manageDataHelper } from 'src/helper/manage-data.helper';
 import { cartoHelper } from 'src/helper/carto.helper';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
@@ -48,7 +48,12 @@ export class SearchComponent implements OnInit {
   /**
    * list of all filtterd option
    */
-  filterOptions: {[key:string]:Array<filterOptionInterface>} = {}
+  filterOptions: {[key:string]:Array<filterOptionInterface>} = {
+    layer:[],
+    limites:[],
+    photon:[],
+    adresseFr:[],
+  }
 
   objectsIn = Object.keys
 
@@ -58,6 +63,26 @@ export class SearchComponent implements OnInit {
   searchResultLayer: VectorLayer = new VectorLayer({
     source: new VectorSource(),
     style: (feature) => {
+      var textLabel;
+      var textStyle = {
+        font: "15px Calibri,sans-serif",
+        fill: new Fill({ color: "#000" }),
+        stroke: new Stroke({ color: "#000", width: 1 }),
+        padding:[10,10,10,10],
+        offsetX: 0,
+        offsetY: 0,
+       }
+      if (feature.get('textLabel')) {
+        textLabel = feature.get('textLabel')
+        textStyle['text'] = textLabel
+        if (feature.getGeometry().getType() == 'Point') {
+          textStyle.offsetY = 40
+          textStyle['backgroundFill'] = new Fill({ color: "#fff" })
+        }
+
+
+      }
+
       var color = '#FFEB3B'
       return new Style({
         fill: new Fill({
@@ -70,7 +95,8 @@ export class SearchComponent implements OnInit {
         image: new Icon({
           scale: 0.7,
           src: '/assets/icones/marker-search.png'
-        })
+        }),
+         text:new Text(textStyle)
       })
     },
     type_layer: 'searchResultLayer',
@@ -120,7 +146,7 @@ export class SearchComponent implements OnInit {
 
     empriseControl.valueChanges.pipe(
       debounceTime(300),
-      filter(value => typeof value == 'string' && value.length > 1),
+      filter(value => typeof value == 'string' && value.length > 2),
       startWith(''),
       skip(1),
       tap(() => { console.log('loading') }),
@@ -214,7 +240,7 @@ export class SearchComponent implements OnInit {
       if (this.filterOptions.hasOwnProperty(key)) {
         const element = this.filterOptions[key];
         if (element.length == 0) {
-          delete this.filterOptions[key]
+          this.filterOptions[key] = []
         }
       }
     }

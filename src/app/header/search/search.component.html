@@ -6,7 +6,7 @@
       <i class="fa fa-search fa-lg white" matPrefix></i>
       <i class="fa fa-times fa-lg white pointer" matSuffix *ngIf="form.get('searchWord').value" (click)="clearSearch()" ></i>
       <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayAutocompleFn" (optionSelected)="optionAutocomplteSelected($event)" >
-        <mat-optgroup *ngFor="let option of objectsIn(filterOptions) " [label]="'search.'+[option] | translate">
+        <mat-optgroup *ngFor="let option of objectsIn(filterOptions) " [label]="'search.'+[option] | translate" [hidden]="filterOptions[option].length == 0" >
           <mat-option *ngFor="let item of filterOptions[option]" [value]="item">
             <ng-container *ngIf="option == 'limites'" >
               {{item.name}}
@@ -29,7 +29,14 @@
               <img *ngIf="item.image_src" [src]="item.image_src" alt="{{item.name}}" class="header-search-form-option-img" >
               <img *ngIf="item.logo_src && !item.image_src " [src]="item.logo_src" alt="{{item.name}}" class="header-search-form-option-img" >
               {{item.name}}
-              <span *ngIf="item.number"> ({{item.number}}) </span>
+
+              <mat-chip-list class="header-search-form-option-badge" *ngIf="item.number">
+                <mat-chip style="padding: 5px 5px;min-height: 20px;font-size: 11px;" class="white accentColorBG" >
+                  {{item.number}}
+                </mat-chip>
+              </mat-chip-list>
+
+              <!-- <span *ngIf="item.number"> ({{item.number}}) </span> -->
               <br>
               <small> {{item.nameGroup}}  </small>
             </ng-container>

@@ -85,7 +85,9 @@ export class handleAdresseFrSearch {
         var searchResultLayer = cartoClass.getLayerByName('searchResultLayer')[0]
 
         var feature = new Feature()
+        var textLabel = emprise.name
 
+        feature.set('textLabel',textLabel)
         feature.setGeometry(emprise.geometry)
 
         searchResultLayer.getSource().clear()
