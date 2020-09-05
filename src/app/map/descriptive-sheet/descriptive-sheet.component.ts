@@ -26,7 +26,8 @@ export interface modelDescriptiveSheet {
    * Properties to displqy
    */
   properties: Object,
-  coordinates_3857: [number, number]
+  coordinates_3857: [number, number],
+  getShareUrl?:(environment,ShareServiceService:ShareServiceService)=>string
 }
 
 @Component({
@@ -101,7 +102,6 @@ export class DescriptiveSheetComponent implements OnInit,OnChanges {
    */
   setSescriptiveModel(data:modelDescriptiveSheet){
     this.descriptiveModel = data
-    console.log(data.geometry,data.properties)
     if (this.descriptiveModel.geometry) {
       this.loadGeometryInHightLightLayer()
     }
@@ -174,14 +174,7 @@ export class DescriptiveSheetComponent implements OnInit,OnChanges {
    * Share this feature
    */
   shareFeature(){
-    var url = environment.url_frontend+'/map?'+this.ShareServiceService.shareFeature(
-      this.descriptiveModel.layer.properties['type'],
-      this.descriptiveModel.layer.properties['couche_id'],
-      this.descriptiveModel.layer.properties['group_id'],
-      this.descriptiveModel.coordinates_3857,
-      this.descriptiveModel.properties?this.descriptiveModel.properties['featureId']:''
-    )
-
+    var url =  this.descriptiveModel.getShareUrl(environment,this.ShareServiceService)
     this.manageCompHelper.openSocialShare(
       url
     )

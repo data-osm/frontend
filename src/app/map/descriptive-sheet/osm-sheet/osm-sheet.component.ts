@@ -6,6 +6,10 @@ import { cartoHelper } from 'src/helper/carto.helper'
 import { BackendApiService } from 'src/app/services/backend-api/backend-api.service'
 import { StorageServiceService } from 'src/app/services/storage-service/storage-service.service'
 import { NotifierService } from "angular-notifier";
+import { retryWhen, tap, delayWhen, take } from 'rxjs/operators';
+import { HttpErrorResponse } from '@angular/common/http';
+import { timer } from 'rxjs';
+import { ShareServiceService } from 'src/app/services/share-service/share-service.service'
 
 export interface attributeInterface {
   field: string,
@@ -123,6 +127,19 @@ export class OsmSheetComponent implements OnInit,OnChanges {
     } else {
       this.getPropertiesFromCartoServer()
     }
+
+    this.descriptiveModel.getShareUrl = function (environment,ShareServiceService:ShareServiceService) {
+      return environment.url_frontend+'/map?'+ShareServiceService.shareFeature(
+        this.layer.properties['type'],
+        this.layer.properties['couche_id'],
+        this.layer.properties['group_id'],
+        this.coordinates_3857,
+        this.properties['osm_id']
+      )
+    }
+
+    this.updatemMdelDescriptiveSheet.emit(this.descriptiveModel)
+
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -158,39 +175,51 @@ export class OsmSheetComponent implements OnInit,OnChanges {
         "EPSG:3857"
       ) + "&WITH_GEOMETRY=true&FI_POINT_TOLERANCE=30&FI_LINE_TOLERANCE=10&FI_POLYGON_TOLERANCE=10&INFO_FORMAT=application/json"
 
-      this.BackendApiService.getRequestFromOtherHost(url).then(
-        (response: any) => {
-          this.loading.properties = false
+          this.BackendApiService.getRequestFromOtherHostObserver(url)
+          .pipe(
+            /** retry 3 times after 2s if querry failed  */
+            retryWhen(errors=>
+              errors.pipe(
+                tap((val:HttpErrorResponse) => {
+                  // console.log(val)
+                }),
+                delayWhen((val:HttpErrorResponse) => timer(2000)),
+                // delay(2000),
+                take(3)
+              )
+            )
+          ).subscribe(
+            (response: any) => {
+              this.loading.properties = false
+              try {
+                var features = new GeoJSON().readFeatures(response, {
+                  // dataProjection: 'EPSG:4326',
+                  // featureProjection: 'EPSG:3857'
+                });
 
-          try {
-            var features = new GeoJSON().readFeatures(response, {
-              // dataProjection: 'EPSG:4326',
-              // featureProjection: 'EPSG:3857'
-            });
+                if (features.length > 0) {
+                  var properties = features[0].getProperties()
+                  var geometry = features[0].getGeometry()
+                  this.descriptiveModel.properties = properties
+                  this.descriptiveModel.geometry = geometry
+                  this.updatemMdelDescriptiveSheet.emit(this.descriptiveModel)
 
-            if (features.length > 0) {
-              var properties = features[0].getProperties()
-              var geometry = features[0].getGeometry()
-              this.descriptiveModel.properties = properties
-              this.descriptiveModel.geometry = geometry
-              this.updatemMdelDescriptiveSheet.emit(this.descriptiveModel)
+                  this.formatFeatureAttributes()
+                } else {
+                  this.closeDescriptiveSheet.emit()
+                }
 
-              this.formatFeatureAttributes()
-            } else {
-              this.closeDescriptiveSheet.emit()
+              } catch (error) {
+                this.notifier.notify("error", "un problème est survenue lors du traitement des informations du serveur cartograohique");
+              }
+
+            },
+            (error) => {
+              this.loading.properties = false
+              this.notifier.notify("error", "Impossible de recuperer les informations du serveur cartograohique");
+
             }
-
-          } catch (error) {
-            this.notifier.notify("error", "un problème est survenue lors du traitement des informations du serveur cartograohique");
-          }
-
-        },
-        (error) => {
-          this.loading.properties = false
-          this.notifier.notify("error", "Impossible de recuperer les informations du serveur cartograohique");
-
-        }
-      )
+          )
 
 
     }

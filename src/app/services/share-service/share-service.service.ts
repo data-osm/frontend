@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { GeosmLayersServiceService } from '../geosm-layers-service/geosm-layers-service.service'
 import { StorageServiceService } from '../storage-service/storage-service.service'
+import { BackendApiService } from '../backend-api/backend-api.service'
 import { manageCompHelper } from 'src/helper/manage-comp.helper'
-import { cartoHelper } from 'src/helper/carto.helper'
-import { Point, VectorLayer, Cluster } from 'src/app/ol-module';
+import { cartoHelper, layersInMap } from 'src/helper/carto.helper'
+import { Point, VectorLayer, Cluster, Feature, GeoJSON } from 'src/app/ol-module';
 import { parse } from '@fortawesome/fontawesome-svg-core';
+import { coucheInterface } from 'src/app/type/type';
 @Injectable({
   providedIn: 'root'
 })
@@ -18,7 +20,8 @@ export class ShareServiceService {
   constructor(
     public GeosmLayersServiceService: GeosmLayersServiceService,
     public StorageServiceService: StorageServiceService,
-    public manageCompHelper: manageCompHelper
+    public manageCompHelper: manageCompHelper,
+    public BackendApiService: BackendApiService
   ) { }
 
   /**
@@ -29,8 +32,8 @@ export class ShareServiceService {
    * @param coordinates [number,number] coordinates on the geometry of the feature
    * @param featureId number id of the feature (the value returned by feature.getId())
    */
-  shareFeature(typeLayer: 'carte' | 'couche', id_layer: number, group_id: number, coordinates: [number, number],featureId:number): string {
-    return 'feature=' + typeLayer + ',' + id_layer + ',' + group_id + ',' + coordinates.join(',')+','+featureId
+  shareFeature(typeLayer: 'carte' | 'couche', id_layer: number, group_id: number, coordinates: [number, number], featureId: number): string {
+    return 'feature=' + typeLayer + ',' + id_layer + ',' + group_id + ',' + coordinates.join(',') + ',' + featureId
   }
 
   /**
@@ -42,68 +45,96 @@ export class ShareServiceService {
     for (let index = 0; index < parametersShared.length; index++) {
       const parameterOneFeature = parametersShared[index].split(',');
       if (parameterOneFeature.length == 6) {
+
+        var group_id = parseInt(parameterOneFeature[2]),
+          couche_id = parseInt(parameterOneFeature[1]),
+          type = parameterOneFeature[0],
+          id = parameterOneFeature[5]
         this.addLayersFromUrl([
-          parameterOneFeature[0]+","+
-          parameterOneFeature[1]+","+
-          parameterOneFeature[2]+","
+          type + "," +
+          couche_id + "," +
+          group_id + ","
         ])
 
         var cartoClass = new cartoHelper()
-        var geom = new Point([parseFloat(parameterOneFeature[3]), parseFloat(parameterOneFeature[4])])
 
-        setTimeout(()=>{
-          cartoClass.fit_view(geom, 12)
-        },1000)
 
         setTimeout(() => {
           var layer = cartoClass.getLayerByPropertiesCatalogueGeosm({
-            group_id: parseInt(parameterOneFeature[2]),
-            couche_id: parseInt(parameterOneFeature[1]),
-            type: parameterOneFeature[0],
+            group_id: group_id,
+            couche_id: couche_id,
+            type: type,
           })
           var tries = 0
           while (tries < 5 && layer.length == 0) {
             tries++
             layer = cartoClass.getLayerByPropertiesCatalogueGeosm({
-              group_id: parseInt(parameterOneFeature[2]),
-              couche_id: parseInt(parameterOneFeature[1]),
-              type: parameterOneFeature[0],
+              group_id: group_id,
+              couche_id: couche_id,
+              type: type,
             })
           }
 
+          var geom = new Point([parseFloat(parameterOneFeature[3]), parseFloat(parameterOneFeature[4])])
+          cartoClass.fit_view(geom, 12)
+
           if (layer.length > 0) {
-            if (layer[0] instanceof VectorLayer ) {
-              var source = layer[0].getSource()
-              if (layer[0].getSource() instanceof Cluster) {
-                source = source.getSource()
+
+            var couche: coucheInterface = this.StorageServiceService.getCouche(group_id, couche_id)
+
+            this.getFeatureOSMFromCartoServer(couche, id).then(
+              (feature) => {
+                console.log(feature)
+                if (feature) {
+                  var propertie = feature.getProperties()
+                  var geometry = feature.getGeometry()
+                  this.manageCompHelper.openDescriptiveSheet(
+                    layer[0].get('descriptionSheetCapabilities'),
+                    cartoClass.constructAlyerInMap(layer[0]),
+                    [parseFloat(parameterOneFeature[3]), parseFloat(parameterOneFeature[4])],
+                    geometry,
+                    propertie
+                  )
+                }
               }
-              var feature = source.getFeatureById(parameterOneFeature[5])
-              if (feature) {
-                var propertie = feature.getProperties()
-                var geometry = feature.getGeometry()
-                this.manageCompHelper.openDescriptiveSheet(
-                  layer[0].get('descriptionSheetCapabilities'),
-                  cartoClass.constructAlyerInMap(layer[0]),
-                  [parseFloat(parameterOneFeature[3]), parseFloat(parameterOneFeature[4])],
-                  geometry,
-                  propertie
-                )
-              }
-            }else{
-              this.manageCompHelper.openDescriptiveSheet(
-                layer[0].get('descriptionSheetCapabilities'),
-                cartoClass.constructAlyerInMap(layer[0]),
-                [parseFloat(parameterOneFeature[3]), parseFloat(parameterOneFeature[4])]
-              )
-            }
+            )
+
           }
 
-        }, 5000);
+        }, 3000);
 
       }
     }
   }
 
+  /**
+   * Fecth feature of type osm in carto server
+   * We use a WFS request with filter base on osm_id
+   * @param couche coucheInterface
+   * @param osmId number
+   * @return Feature
+   */
+  getFeatureOSMFromCartoServer(couche: coucheInterface, osmId: number): Promise<Feature> {
+    var url = couche.url + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GETFEATURE&outputFormat=GeoJSON&typeName=' + couche.identifiant + '&EXP_FILTER=osm_id=' + osmId;
+    return this.BackendApiService.getRequestFromOtherHost(url).then(
+      (response) => {
+        var features = new GeoJSON().readFeatures(response, {
+          dataProjection: 'EPSG:4326',
+          featureProjection: 'EPSG:3857'
+        });
+        if (features.length == 1) {
+          return features[0]
+        } else {
+          return
+        }
+      },
+      (err) => {
+        return
+      }
+    )
+  }
+
+  // http://tiles.geosm.org/ows/?map=france/france10.qgs&SERVICE=WFS&VERSION=1.1.0&REQUEST=GETFEATURE&outputFormat=GeoJSON&typeName=Histoire&GEOMETRYNAME=null&EXP_FILTER=osm_id=7816986187
   /**
    * get parameters to share one layer
    * @param 'carte'|'couche' typeLayer type of the layer
