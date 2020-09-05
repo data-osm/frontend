@@ -108,7 +108,6 @@ export class TableOfContentsComponent implements OnInit {
       })
     }
     this.layersInToc.sort( compare );
-    console.log(this.layersInToc)
 
   }
 
@@ -201,7 +200,6 @@ export class TableOfContentsComponent implements OnInit {
  */
   shareLayer(layer:layersInMap){
     var params =this.ShareServiceService.shareLayer(layer.properties['type'],layer.properties['couche_id'],layer.properties['group_id'])
-    console.log(params)
     var url_share = environment.url_frontend + '/map?'+ params
     this.manageCompHelper.openSocialShare(url_share,7)
 
@@ -266,7 +264,6 @@ export class TableOfContentsComponent implements OnInit {
       });
 
       MetaData.afterClosed().subscribe(result => {
-        console.log('The dialog was closed :', result);
       });
     }else{
       const MetaData = this.dialog.open(MetadataComponent, {
