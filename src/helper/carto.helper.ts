@@ -8,6 +8,9 @@ import { map as portailMap } from 'src/app/map/map.component'
 import { Injectable, Injector } from '@angular/core'
 import { AppInjector } from 'src/helper/app-injector.helper'
 import { manageDataHelper } from './manage-data.helper'
+import { HttpErrorResponse } from '@angular/common/http'
+import { from, timer } from 'rxjs'
+import { retryWhen, tap, delay, take, delayWhen, retry, shareReplay } from 'rxjs/operators'
 
 /**
  * interface that describe data get by a click on the map
@@ -387,19 +390,33 @@ export class cartoHelper {
           var url = couche.url +
             '?bbox=' + transformExtent(extent_vieuw, 'EPSG:3857', 'EPSG:4326').join(',') +
             '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GETFEATURE&outputFormat=GeoJSON&typeName=' + couche.identifiant;
-          // console.log(this.BackendApiService)
-          this.BackendApiService.getRequestFromOtherHost(url).then(
-            (data) => {
+          this.BackendApiService.getRequestFromOtherHostObserver(url)
+          .pipe(
+            /** retry 3 times after 2s if querry failed  */
+            retryWhen(errors=>
+              errors.pipe(
+                tap((val:HttpErrorResponse) => {
+                  // console.log(val)
+                }),
+                delayWhen((val:HttpErrorResponse) => timer(2000)),
+                // delay(2000),
+                take(3)
+              )
+            )
+          )
+          .subscribe(
+            (data)=>{
               source.addFeatures(source.getFormat().readFeatures(data));
               for (let index = 0; index < source.getFeatures().length; index++) {
                 const feature = source.getFeatures()[index];
                 feature.set('featureId',feature.getId())
               }
             },
-            (err) => {
+            (err:HttpErrorResponse) => {
               source.removeLoadedExtent(extent_vieuw);
             }
           )
+
         }
       });
 
