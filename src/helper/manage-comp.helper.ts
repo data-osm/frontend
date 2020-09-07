@@ -4,7 +4,8 @@ import { Injectable, ComponentFactoryResolver, ApplicationRef, Injector, Embedde
 import {ListDownloadLayersComponent,downloadDataModelInterface} from '../app/map/sidenav-right/download/list-download-layers/list-download-layers.component'
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { modelDescriptiveSheet, DescriptiveSheetComponent } from 'src/app/map/descriptive-sheet/descriptive-sheet.component';
-import { layersInMap } from './carto.helper';
+import { layersInMap, cartoHelper } from './carto.helper';
+import { LayerGroup } from 'src/app/ol-module';
 /**
  * Open some componenents like social share, loading,modal etc...
  * Dynamically add component in html
@@ -48,6 +49,10 @@ import { layersInMap } from './carto.helper';
   openDescriptiveSheet(type:string,layer:layersInMap,coordinates_3857:[number,number],geometry?:any,properties?:any){
     if (type) {
 
+      if (layer.layer instanceof LayerGroup) {
+        layer.layer = new cartoHelper().getLayerQuerryBleInLayerGroup(layer.layer)
+      }
+      console.log(layer)
       this.openDescriptiveSheetModal({
         type:type,
         layer:layer,

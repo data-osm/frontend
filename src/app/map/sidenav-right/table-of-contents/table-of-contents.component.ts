@@ -124,6 +124,7 @@ export class TableOfContentsComponent implements OnInit {
     moveItemInArray(this.layersInToc, event.previousIndex, event.currentIndex);
 
     this.getAllLayersForTOC()
+    console.log(this.layersInToc)
   }
 
   /**

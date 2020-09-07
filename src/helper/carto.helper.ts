@@ -281,21 +281,47 @@ export class cartoHelper {
       })
     } else if (couche.type == "wms") {
 
-      var wmsSource = new TileWMS({
+      var wmsSourceTile = new TileWMS({
         url: couche.url,
         params: { 'LAYERS': couche.identifiant, 'TILED': true },
         serverType: 'qgis',
         crossOrigin: 'anonymous',
       });
 
-      var layer = new TileLayer({
-        source: wmsSource,
+      var layerTile = new TileLayer({
+        source: wmsSourceTile,
         /**
        * so that map.forEachLayerAtPixel work as expected
        * @see https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html#forEachLayerAtPixel
        */
-        className: couche.nom + '___' + couche.type_layer
+        className: couche.nom + '___' + couche.type_layer,
+        minResolution: this.map.getView().getResolutionForZoom(11)
       });
+
+      var wmsSourceImage = new ImageWMS({
+        url: couche.url,
+        params: { 'LAYERS': couche.identifiant, 'TILED': true },
+        serverType: 'qgis',
+        crossOrigin: 'anonymous',
+      });
+
+      var layerImage = new ImageLayer({
+        source: wmsSourceImage,
+        /**
+       * so that map.forEachLayerAtPixel work as expected
+       * @see https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html#forEachLayerAtPixel
+       */
+        className: couche.nom + '___' + couche.type_layer,
+        maxResolution: this.map.getView().getResolutionForZoom(11),
+      });
+
+      var layer = new LayerGroup({
+        layers: [
+          layerTile,
+          layerImage
+        ]
+      })
+
     } else if (couche.type == "geojson") {
       var vectorSource = new VectorSource({
         format: new GeoJSON(),
@@ -513,18 +539,10 @@ export class cartoHelper {
 
     }
 
-    layer.set('properties', couche.properties)
-    layer.set('nom', couche.nom)
-    layer.set('type_layer', couche.type_layer)
-    layer.set('iconImagette', couche.iconImagette)
-    layer.set('identifiant', couche.identifiant)
-    layer.set('inToc', couche.inToc)
-    layer.set('tocCapabilities', couche.tocCapabilities)
-    layer.set('legendCapabilities', couche.legendCapabilities)
-    layer.set('descriptionSheetCapabilities', couche.descriptionSheetCapabilities)
+    this.setPropertiesToLayer(layer,couche)
 
     if (couche.zindex) {
-      layer.setZIndex(couche.zindex)
+      this.setZindexToLayer(layer,couche.zindex)
     }
 
     if (couche.minzoom) {
@@ -538,6 +556,39 @@ export class cartoHelper {
     layer.setVisible(couche.visible)
 
     return layer
+
+  }
+
+  /**
+   * Set properties to a layer
+   * @param layer
+   * @param couche
+   */
+  setPropertiesToLayer(layer:any,couche:geosmLayer){
+    if (layer instanceof LayerGroup) {
+      for (let index = 0; index < layer.getLayers().getArray().length; index++) {
+        const element = layer.getLayers().getArray()[index];
+        element.set('properties', couche.properties)
+        element.set('nom', couche.nom)
+        element.set('type_layer', couche.type_layer)
+        element.set('iconImagette', couche.iconImagette)
+        element.set('identifiant', couche.identifiant)
+        element.set('inToc', couche.inToc)
+        element.set('tocCapabilities', couche.tocCapabilities)
+        element.set('legendCapabilities', couche.legendCapabilities)
+        element.set('descriptionSheetCapabilities', couche.descriptionSheetCapabilities)
+      }
+    }
+
+    layer.set('properties', couche.properties)
+    layer.set('nom', couche.nom)
+    layer.set('type_layer', couche.type_layer)
+    layer.set('iconImagette', couche.iconImagette)
+    layer.set('identifiant', couche.identifiant)
+    layer.set('inToc', couche.inToc)
+    layer.set('tocCapabilities', couche.tocCapabilities)
+    layer.set('legendCapabilities', couche.legendCapabilities)
+    layer.set('descriptionSheetCapabilities', couche.descriptionSheetCapabilities)
 
   }
 
@@ -564,7 +615,7 @@ export class cartoHelper {
     if (layer.get('nom') && layer.get('type_layer')) {
 
       if (!layer.getZIndex()) {
-        layer.setZIndex(zIndex)
+        this.setZindexToLayer(layer,zIndex)
       }
 
       // var groupLayer = this.getLayerGroupByNom(group)
@@ -576,6 +627,19 @@ export class cartoHelper {
 
     }
 
+  }
+/**
+ * set zIndex to a layer
+ * @param layer any any type of layer
+ * @param zIndex
+ */
+  setZindexToLayer(layer:any,zIndex:number){
+    layer.setZIndex(zIndex)
+    if (layer instanceof LayerGroup) {
+      for (let index = 0; index < layer.getLayers().getArray().length; index++) {
+        layer.getLayers().getArray()[index].setZIndex(zIndex);
+      }
+    }
   }
 
   /**
@@ -785,21 +849,20 @@ export class cartoHelper {
       if (layer.getZIndex() < zIndex) {
         // if the layer is going up
         if (layerInmap.getZIndex() <= zIndex) {
-          layerInmap.setZIndex(layerInmap.getZIndex() - 1)
+          this.setZindexToLayer(layerInmap,layerInmap.getZIndex() - 1)
         } else if (layerInmap.getZIndex() > zIndex) {
-          layerInmap.setZIndex(layerInmap.getZIndex() + 1)
+          this.setZindexToLayer(layerInmap,layerInmap.getZIndex() + 1)
         }
       } else if (layer.getZIndex() > zIndex) {
         // if the layer is going down
         if (layerInmap.getZIndex() >= zIndex) {
-          layerInmap.setZIndex(layerInmap.getZIndex() + 1)
+          this.setZindexToLayer(layerInmap,layerInmap.getZIndex() + 1)
         } else if (layerInmap.getZIndex() < zIndex) {
-          layerInmap.setZIndex(layerInmap.getZIndex() - 1)
+          this.setZindexToLayer(layerInmap,layerInmap.getZIndex() - 1)
         }
       }
     }
-
-    layer.setZIndex(zIndex)
+    this.setZindexToLayer(layer,zIndex)
   }
 
   /**
@@ -812,18 +875,15 @@ export class cartoHelper {
     var allZindex = [0]
     for (let index = 0; index < allLayers.length; index++) {
       var layer = allLayers[index]
-      if (layer instanceof LayerGroup) {
-      } else {
+
         try {
           if (layer.get('inToc')) {
             allZindex.push(layer.getZIndex())
           }
-
           // console.log(layer.get('nom'),layer.getZIndex())
         } catch (error) {
           console.error(error)
         }
-      }
 
     }
     return Math.max(...allZindex)
@@ -845,7 +905,7 @@ export class cartoHelper {
 
         if (layer) {
 
-          if (layer.getSource() instanceof TileWMS && oddLayersValues.indexOf(layer.get(oddLayersAttr)) == -1) {
+          if ( (layer instanceof ImageLayer || layer instanceof TileLayer) && layer.get('descriptionSheetCapabilities') && oddLayersValues.indexOf(layer.get(oddLayersAttr)) == -1) {
             layers.push(layer)
           }
         }
@@ -902,8 +962,7 @@ export class cartoHelper {
       }
     }
 
-
-    if (layer instanceof VectorLayer && feature) {
+    if (layer instanceof VectorLayer && feature ) {
       /**
        * if the user click on a cluser, and the cluster have more than one feature, we zoom in; but if ther is only one feature, we return the feature
        *
@@ -955,6 +1014,7 @@ export class cartoHelper {
           layers: layers
         }
       }
+      console.log(data_callback)
       callback(data_callback)
 
     } else {
@@ -1013,6 +1073,26 @@ export class cartoHelper {
     var viewResolution = this.map.getView().getResolution();
     var url = source.getFeatureInfoUrl(coordinates, viewResolution, 'EPSG:3857') + "&WITH_GEOMETRY=true&INFO_FORMAT=application/json&FI_LINE_TOLERANCE=17&FI_POLYGON_TOLERANCE=17&FI_POINT_TOLERANCE=17"
     return url
+  }
+
+  /**
+   * Find a layer querryBle in a layer group : a VectorLayer or TileLayer
+   * @param layer LayerGroup
+   * @return any the layer
+   */
+  getLayerQuerryBleInLayerGroup(layer:LayerGroup):any{
+    if (layer instanceof LayerGroup) {
+        for (let index = 0; index < layer.getLayers().getArray().length; index++) {
+          const element = layer.getLayers().getArray()[index];
+          if (element instanceof TileLayer) {
+            return element
+          }else if(element instanceof VectorLayer){
+            return element
+          }
+        }
+    }else{
+      return layer
+    }
   }
 
   fit_view(geom, zoom, padding?) {
