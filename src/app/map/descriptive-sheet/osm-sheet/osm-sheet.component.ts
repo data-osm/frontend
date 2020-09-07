@@ -80,17 +80,22 @@ export class OsmSheetComponent implements OnInit,OnChanges {
   /**
    * number of initial number of attributes that can be display
    */
-  initialNumberOfAttributes:number = 5
+  initialNumberOfAttributes:number = 3
 
   private readonly notifier: NotifierService;
 
   configTagsOsm: {
     [key: string]: {
       /**
+       * display attribute or not
+       */
+      display:boolean,
+      /**
        * type of config
-       * hide, url, image,tel
+       * url, image,tel
        */
       type: string,
+      header:string
       /**
        * url to insert before the value
        */
@@ -158,7 +163,7 @@ export class OsmSheetComponent implements OnInit,OnChanges {
     this.name = undefined
     this.osmId = undefined
     this.osmUrl = undefined
-    this.initialNumberOfAttributes = 5
+    this.initialNumberOfAttributes = 3
 
   }
 
@@ -370,6 +375,14 @@ export class OsmSheetComponent implements OnInit,OnChanges {
 
   openUrl(url) {
     window.open(url, '_blank')
+  }
+
+  /**
+   * alert value
+   * @param value string
+   */
+  alertValue(value:string){
+    alert(value)
   }
 
 }

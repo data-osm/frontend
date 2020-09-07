@@ -32,3 +32,14 @@
   font-family: 'Avenir Next Rounded Pro Italic';
   text-decoration: underline;
 }
+.descriptive-sheet-body-header-btn{
+  button{
+    margin-right: 5px;
+    margin-left: 5px;
+    // height: 50px;
+    // width: 50px;
+    border: 2px solid #06aca7;
+    background-color: transparent;
+    box-shadow: none;
+  }
+}

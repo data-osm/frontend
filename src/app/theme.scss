@@ -25,6 +25,10 @@
     background-color: mat-color($primary) !important;
   }
 
+  .accentColor {
+    color: mat-color($accent) !important;
+  }
+
   .accentColorBG {
     background-color: mat-color($accent) !important;
   }
