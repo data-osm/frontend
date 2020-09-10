@@ -4,7 +4,7 @@
   {{ descriptiveModel.layer.nom}}
 </h1>
 
-<div mat-dialog-content style="padding-top: 5px;">
+<div mat-dialog-content style="padding-top: 5px;max-height: 250px !important;" class="scroll">
   <app-osm-sheet *ngIf="descriptiveModel.type == 'osm'" [descriptiveModel]="descriptiveModel"
      (updatemMdelDescriptiveSheet)="setSescriptiveModel($event)" (closeDescriptiveSheet)="closeModal()"></app-osm-sheet>
 </div>

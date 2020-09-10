@@ -2,7 +2,7 @@
 
   <mat-accordion multi="true" class="couche-thematique">
     <mat-expansion-panel class="couche-thematique-panel"
-      *ngFor="let sous_thematique of groupThematique.sous_thematiques">
+      *ngFor="let sous_thematique of groupThematique.sous_thematiques" expanded="true">
       <mat-expansion-panel-header class="primary_transparent_bg">
         <mat-panel-title>
           {{sous_thematique.nom}}

@@ -55,10 +55,11 @@
     </button>
 
     <button
+
       mat-mini-fab
       class="primaryColorBG"
       (click)="zoomTo()"
-      style="margin-top: 100px;"
+      style="margin-top: 100px;display: none;"
       matTooltip="{{ 'naviguation_tools.zoom_to_coordinates' | translate }}"
     >
       <i class="fas fa-map-marker fa-lg" style="color: #fff;"></i>
@@ -68,6 +69,7 @@
       mat-mini-fab
       class="primaryColorBG"
       (click)="rollBack()"
+      style="margin-top: 100px;"
       matTooltip="{{ 'naviguation_tools.past_view' | translate }} "
     >
       <i class="fas fa-angle-left fa-lg" style="color: #fff;"></i>
@@ -85,6 +87,7 @@
 
   <div class="vertical-toolbar-groupe-btn-2">
     <button
+    style="display: none;"
       matTooltip="{{ 'naviguation_tools.mappilary' | translate }} "
       class="primaryColorBG"
       mat-mini-fab
@@ -97,6 +100,7 @@
     </button>
 
     <button
+    style="display: none;"
       matTooltip="{{ 'naviguation_tools.compare_maps' | translate }}"
       mat-mini-fab
       (click)="toogleCompare()"

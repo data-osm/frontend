@@ -33,6 +33,7 @@
   text-decoration: underline;
 }
 .descriptive-sheet-body-header-btn{
+  margin-bottom: 10px;
   button{
     margin-right: 5px;
     margin-left: 5px;
@@ -41,5 +42,8 @@
     border: 2px solid #06aca7;
     background-color: transparent;
     box-shadow: none;
+  }
+  .descriptive-sheet-body-header-btn-osm{
+    background-color: #06aca7 !important;
   }
 }

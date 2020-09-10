@@ -190,7 +190,15 @@ export class TableOfContentsComponent implements OnInit {
     let reponseLayers:Array<layersInMap> = cartoHelperClass.getAllLayersInToc()
     for (let index = 0; index < reponseLayers.length; index++) {
       const layer = reponseLayers[index];
-      this.removeLayer(layer)
+      if (layer['properties']['type']=='carte') {
+        var carte = this.StorageServiceService.getCarte(layer['properties']['group_id'],layer['properties']['couche_id'])
+        if (!carte.principal) {
+          this.removeLayer(layer)
+
+        }
+      }else{
+        this.removeLayer(layer)
+      }
     }
 
   }

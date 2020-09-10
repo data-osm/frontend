@@ -1,0 +1,2385 @@
+ "fields": {
+                "access": {
+                    "label": "Accès autorisé",
+                    "options": {
+                        "designated": {
+                            "description": "Accès autorisé selon la signalisation ou la réglementation locale ",
+                            "title": "Prévu spécifiquement pour certains types de véhicules"
+                        },
+                        "destination": {
+                            "description": "Accès autorisé uniquement pour atteindre une destination",
+                            "title": "Interdit sauf riverains"
+                        },
+                        "dismount": {
+                            "description": "Accès autorisé avec pied à terre",
+                            "title": "Mettre pied à terre"
+                        },
+                        "no": {
+                            "description": "Accès non autorisé au public",
+                            "title": "Interdit"
+                        },
+                        "permissive": {
+                            "description": "Accès autorisé jusqu'à ce que le propriétaire révoques la permission",
+                            "title": "Accès toléré"
+                        },
+                        "permit": {
+                            "description": "Accès autorisés uniquement avec une licence ou permis valide",
+                            "title": "Permis"
+                        },
+                        "private": {
+                            "description": "Accès autorisés uniquement sur autorisation nominative du propriétaire",
+                            "title": "Privé"
+                        },
+                        "yes": {
+                            "description": "Accès autorisé par la loi ; droit de passage",
+                            "title": "Autorisé"
+                        }
+                    },
+                    "placeholder": "Non spécifié",
+                    "terms": "Accès autorisé, accès alloué",
+                    "types": {
+                        "access": "Tous",
+                        "bicycle": "Vélos",
+                        "foot": "À pied",
+                        "horse": "Cavaliers",
+                        "motor_vehicle": "Véhicules motorisés"
+                    }
+                },
+                "access_aisle": {
+                    "label": "Type"
+                },
+                "access_simple": {
+                    "label": "Accès autorisé",
+                    "terms": "permis,autorisé,privé,public,publique"
+                },
+                "addr/interpolation": {
+                    "label": "Adresses interpolées",
+                    "options": {
+                        "all": "Toutes",
+                        "alphabetic": "Alphabétique",
+                        "even": "Paires",
+                        "odd": "Impaires"
+                    }
+                },
+                "address": {
+                    "label": "Adresse",
+                    "placeholders": {
+                        "block_number": "Numéro de bloc",
+                        "block_number!jp": "Bloc numéro",
+                        "city": "Ville",
+                        "city!cn": "Ville/Préfecture/Ligue",
+                        "city!jp": "Ville/Village/Quartier spécial de Tokyo",
+                        "city!vn": "Ville (plus de 10 000 habitants)",
+                        "conscriptionnumber": "123",
+                        "country": "Pays",
+                        "county": "Comté",
+                        "county!jp": "District",
+                        "district": "District",
+                        "district!cn": "District/Conté/Bannière",
+                        "district!vn": "Arrondissement/Ville/District",
+                        "floor": "Étage",
+                        "hamlet": "Hameau",
+                        "housename": "Nom de la maison",
+                        "housenumber": "123",
+                        "housenumber!jp": "Bâtiment No./Lot No.",
+                        "neighbourhood": "Quartier de voisinage",
+                        "neighbourhood!jp": "Chōme/Aza/Koaza (Quartier de voisinage)",
+                        "place": "attribut d'adresse (Place)",
+                        "postcode": "Code postal",
+                        "province": "Province",
+                        "province!cn": "Province/Municipalité/RA/RAS",
+                        "province!jp": "Préfecture",
+                        "quarter": "Quartier (division urbaine)",
+                        "quarter!jp": "Ōaza/Machi (Quartier)",
+                        "state": "État",
+                        "street": "Rue, Voie",
+                        "subdistrict": "Sous-district",
+                        "subdistrict!vn": "Quartier/Commune/Village",
+                        "suburb": "Quartier (division urbaine)",
+                        "suburb!jp": "Quartier, district électoral",
+                        "unit": "Unité"
+                    },
+                    "terms": "adresse"
+                },
+                "admin_level": {
+                    "label": "Niveau administratif"
+                },
+                "aerialway": {
+                    "label": "Type"
+                },
+                "aerialway/access": {
+                    "label": "Accès",
+                    "options": {
+                        "both": "Les deux",
+                        "entry": "Entrée",
+                        "exit": "Sortie"
+                    }
+                },
+                "aerialway/bubble": {
+                    "label": "Bulle"
+                },
+                "aerialway/capacity": {
+                    "label": "Capacité (par heure)",
+                    "placeholder": "500, 2500, 5000..."
+                },
+                "aerialway/duration": {
+                    "label": "Durée (minutes)",
+                    "placeholder": "1, 2, 3..."
+                },
+                "aerialway/heating": {
+                    "label": "Chauffé"
+                },
+                "aerialway/occupancy": {
+                    "label": "Nombre de places",
+                    "placeholder": "2, 4, 8..."
+                },
+                "aerialway/summer/access": {
+                    "label": "Accès (été)",
+                    "options": {
+                        "both": "Les deux",
+                        "entry": "Entrée",
+                        "exit": "Sortie"
+                    }
+                },
+                "aeroway": {
+                    "label": "Type"
+                },
+                "agrarian": {
+                    "label": "Produits"
+                },
+                "air_conditioning": {
+                    "label": "Climatisation",
+                    "terms": "Climatisation, climatiseur"
+                },
+                "amenity": {
+                    "label": "Type"
+                },
+                "animal_boarding": {
+                    "label": "Pour animaux"
+                },
+                "animal_breeding": {
+                    "label": "Pour animaux"
+                },
+                "animal_shelter": {
+                    "label": "Pour animaux"
+                },
+                "architect": {
+                    "label": "Architecte",
+                    "terms": "architecte,architecture,conception de bâtiment,bâtiment,concepteur"
+                },
+                "area/highway": {
+                    "label": "Type"
+                },
+                "artist": {
+                    "label": "Artiste"
+                },
+                "artwork_type": {
+                    "label": "Type"
+                },
+                "ascent": {
+                    "label": "Dénivelé positif total",
+                    "terms": "ascension,ascention,montée,élévation,dénivelé"
+                },
+                "atm": {
+                    "label": "Distributeur de billets"
+                },
+                "attraction": {
+                    "label": "Type"
+                },
+                "automated": {
+                    "label": "Automatisé"
+                },
+                "baby_feeding": {
+                    "label": "Zone pour nourrir des bébés",
+                    "options": {
+                        "no": "Aucun",
+                        "room": "Pièce dédiée",
+                        "yes": "Emplacement marqué"
+                    },
+                    "terms": "zone pour nourrir des bébés,nourrir des bébés,bébés,mère,tétée,donner le sein,manger"
+                },
+                "baby_seat": {
+                    "label": "Siège bébé"
+                },
+                "backcountry": {
+                    "label": "Hors-piste",
+                    "terms": "hors-piste, hors piste"
+                },
+                "backrest": {
+                    "label": "Dossier de siège"
+                },
+                "bar": {
+                    "label": "Bar",
+                    "terms": "Bar, brasserie, café, pub"
+                },
+                "barrier": {
+                    "label": "Type"
+                },
+                "basin": {
+                    "label": "Type"
+                },
+                "bath/open_air": {
+                    "label": "Plein air"
+                },
+                "bath/sand_bath": {
+                    "label": "Bain de sable"
+                },
+                "bath/type": {
+                    "label": "Spécialité"
+                },
+                "beauty": {
+                    "label": "Services"
+                },
+                "bench": {
+                    "label": "Banc",
+                    "terms": "Banc"
+                },
+                "bicycle_parking": {
+                    "label": "Type"
+                },
+                "bin": {
+                    "label": "Poubelle",
+                    "terms": "poubelle, poubelle publique, poubelle urbaine, poubelle de ville, poubelle de rue, petite poubelle, ordures, déchets, corbeille, bac à ordures, bac à déchets, bac à marée, conteneur à ordures, conteneur à déchets, tri sélectif, recyclage, waste basket, amenity waste basket, wastebasket, rubbish bin, litter bin, trash can, garbage can"
+                },
+                "blind": {
+                    "label": "Accessibilité aux non-voyants",
+                    "options": {
+                        "limited": "Limitée",
+                        "no": "Non",
+                        "yes": "Oui"
+                    },
+                    "terms": "déficient visuel,déficience visuelle,aveugle,non voyant,non-voyant,malvoyant"
+                },
+                "blood_components": {
+                    "label": "Composants du sang",
+                    "options": {
+                        "plasma": "plasma",
+                        "platelets": "plaquettes",
+                        "stemcells": "échantillon de cellule souche",
+                        "whole": "sang total"
+                    }
+                },
+                "board_type": {
+                    "label": "Type"
+                },
+                "bollard": {
+                    "label": "Type"
+                },
+                "booth": {
+                    "label": "Type de cabine"
+                },
+                "bottle": {
+                    "label": "Remplissage de bouteilles"
+                },
+                "boules": {
+                    "label": "Type"
+                },
+                "boundary": {
+                    "label": "Type"
+                },
+                "brand": {
+                    "label": "Marque",
+                    "terms": "marque"
+                },
+                "brewery": {
+                    "label": "Bières à la pression",
+                    "terms": "bière pression,à la pression,pression"
+                },
+                "bridge": {
+                    "label": "Type",
+                    "placeholder": "Défaut"
+                },
+                "bridge/support": {
+                    "label": "Type"
+                },
+                "bridge_combo": {
+                    "label": "Type"
+                },
+                "building": {
+                    "label": "Bâtiment ",
+                    "terms": "bâtiment,construction,bâtiment,batiment"
+                },
+                "building/levels": {
+                    "label": "Étages",
+                    "placeholder": "2, 4, 6...",
+                    "terms": "niveaux,étages,paliers"
+                },
+                "building/levels/underground": {
+                    "label": "Niveaux souterrains",
+                    "placeholder": "2, 4, 6…",
+                    "terms": "niveaux sous-sol,sous-sol,cave,souterrain"
+                },
+                "building/levels_building": {
+                    "label": "Nombre de niveaux",
+                    "placeholder": "2, 4, 6...",
+                    "terms": "niveaux, étages, paliers"
+                },
+                "building/material": {
+                    "label": "Matériau",
+                    "terms": "matériaux, matière, substance"
+                },
+                "building_area": {
+                    "label": "Bâtiment",
+                    "terms": "bâtiment,construction,bâtiment,batiment,building"
+                },
+                "bunker_type": {
+                    "label": "Type"
+                },
+                "cables": {
+                    "label": "Cables ",
+                    "placeholder": "1, 2, 3..."
+                },
+                "camera/direction": {
+                    "label": "Direction (en degrés dans le sens horaire)",
+                    "placeholder": "45, 90, 180, 270"
+                },
+                "camera/mount": {
+                    "label": "Support de caméra"
+                },
+                "camera/type": {
+                    "label": "Type de caméra",
+                    "options": {
+                        "dome": "Dôme",
+                        "fixed": "Fixée",
+                        "panning": "Panoramique"
+                    }
+                },
+                "capacity": {
+                    "label": "Capacité",
+                    "placeholder": "50, 100, 200...",
+                    "terms": "capacité, quantité, nombre"
+                },
+                "capacity/disabled_parking": {
+                    "label": "Emplacements PMR",
+                    "placeholder": "1, 2, 3..."
+                },
+                "capacity_parking": {
+                    "label": "Emplacements totaux",
+                    "placeholder": "10, 20, 30..."
+                },
+                "cash_in": {
+                    "label": "Dépôt"
+                },
+                "castle_type": {
+                    "label": "Type"
+                },
+                "changing_table": {
+                    "label": "Table à langer"
+                },
+                "charge_fee": {
+                    "label": "Montant",
+                    "placeholder": "1 EUR, 5 USD, 10 JPY…",
+                    "terms": "Montant des frais, frais, charges"
+                },
+                "charge_toll": {
+                    "label": "Montant",
+                    "placeholder": "1 EUR, 5 USD, 10 JPY…",
+                    "terms": "Tarif péage, frais d'autoroute"
+                },
+                "check_date": {
+                    "label": "Dernière date de vérification",
+                    "placeholder": "AAAA-MM-JJ"
+                },
+                "circumference": {
+                    "label": "Circonférence",
+                    "placeholder": "1 m, 20 cm, 30 in…",
+                    "terms": "circonférence,contour,longueur,rayon"
+                },
+                "clothes": {
+                    "label": "Vêtements"
+                },
+                "club": {
+                    "label": "Type"
+                },
+                "collection_times": {
+                    "label": "Horaires de collecte"
+                },
+                "collector": {
+                    "label": "Objets"
+                },
+                "colour": {
+                    "label": "Couleur",
+                    "terms": "couleur"
+                },
+                "comment": {
+                    "label": "Commentaires du groupe de modifications",
+                    "placeholder": "Brève description de vos contributions (requis)"
+                },
+                "communication_multi": {
+                    "label": "Type de communication",
+                    "terms": "type,type de télécommunication,tour de télécommunication,diffusion,antenne,téléphone portable,téléphone cellulaire,gsm,tour,radio,mât de transmission,pylône de transmission"
+                },
+                "connectivity": {
+                    "label": "Connectivité"
+                },
+                "construction": {
+                    "label": "Type"
+                },
+                "consulate": {
+                    "label": "Type"
+                },
+                "consulting": {
+                    "label": "Expertise"
+                },
+                "contact/webcam": {
+                    "label": "adresse de visioconférence",
+                    "placeholder": "http://example.com/"
+                },
+                "content": {
+                    "label": "Contenu"
+                },
+                "conveying": {
+                    "label": "Sens de déplacement",
+                    "options": {
+                        "backward": "Vers l'arrière",
+                        "forward": "Vers l'avant",
+                        "reversible": "Réversible"
+                    }
+                },
+                "conveying_escalator": {
+                    "label": "Escalator"
+                },
+                "country": {
+                    "label": "Pays"
+                },
+                "country_flag": {
+                    "label": "Drapeau du pays"
+                },
+                "couplings": {
+                    "label": "Raccords",
+                    "placeholder": "1, 2, 3..."
+                },
+                "covered": {
+                    "label": "Couvert",
+                    "terms": "couvert,recouvert"
+                },
+                "craft": {
+                    "label": "Type"
+                },
+                "crane/type": {
+                    "label": "Type de Grue",
+                    "options": {
+                        "floor-mounted_crane": "Grue inamovible",
+                        "portal_crane": "Grue chargeant un porte-conteneur",
+                        "travel_lift": "Chariot de manutention de bateaux"
+                    }
+                },
+                "crop": {
+                    "label": "Cultures"
+                },
+                "crossing": {
+                    "label": "Type"
+                },
+                "crossing/island": {
+                    "label": "Île de refuge"
+                },
+                "cuisine": {
+                    "label": "Cuisines",
+                    "terms": "cuisines,types de nourriture,nourriture,type de nourriture"
+                },
+                "currency_multi": {
+                    "label": "Types de devises",
+                    "terms": "billets,liquide,pièces,argent,monnaie,type"
+                },
+                "cutting": {
+                    "label": "Type",
+                    "placeholder": "Défaut"
+                },
+                "cycle_network": {
+                    "label": "Réseau"
+                },
+                "cycleway": {
+                    "label": "Bandes cyclables",
+                    "options": {
+                        "lane": {
+                            "description": "Une bande cyclable séparée du trafic automobile par une ligne peinte",
+                            "title": "Bande cyclable ordinaire"
+                        },
+                        "none": {
+                            "description": "Pas de bande cyclable",
+                            "title": "Aucune"
+                        },
+                        "opposite": {
+                            "description": "Une bande cyclable qui permet de se déplacer dans les deux sens dans une rue à sens unique",
+                            "title": "Circulation cyclable à contre-sens sans voie dédiée"
+                        },
+                        "opposite_lane": {
+                            "description": "Une bande cyclable qui permet de se déplacer dans la direction opposée du trafic",
+                            "title": "Double-sens cyclable, Bande cyclable à contresens"
+                        },
+                        "share_busway": {
+                            "description": "Une bande cyclable partagée avec une voie de bus",
+                            "title": "Bande cyclable partagée avec les bus"
+                        },
+                        "shared_lane": {
+                            "description": "Une bande cyclable sans séparation avec le trafic automobile",
+                            "title": "Bande cyclable partagée"
+                        },
+                        "track": {
+                            "description": "Une voie cyclable séparée du trafic par une barrière physique",
+                            "title": "Piste cyclable"
+                        }
+                    },
+                    "placeholder": "Aucun",
+                    "terms": "voies de vélo,vélo,cycliste,bande cyclable,voie cyclable,cyclable",
+                    "types": {
+                        "cycleway:left": "Côté gauche",
+                        "cycleway:right": "Côté droit"
+                    }
+                },
+                "dance/style": {
+                    "label": "Styles de danses"
+                },
+                "date": {
+                    "label": "Date"
+                },
+                "delivery": {
+                    "label": "Livraison",
+                    "terms": "livraison"
+                },
+                "denomination": {
+                    "label": "Dénomination ",
+                    "terms": "dénomination,église,religion"
+                },
+                "denotation": {
+                    "label": "Signification"
+                },
+                "departures_board": {
+                    "label": "Tableau des départs",
+                    "options": {
+                        "no": "Aucun",
+                        "realtime": "Temps réel",
+                        "timetable": "Horaires prévisionnels",
+                        "yes": "Oui"
+                    }
+                },
+                "depth": {
+                    "label": "Profondeur (mètres)"
+                },
+                "descent": {
+                    "label": "Dénivelé négatif total",
+                    "terms": "déscente,descente,élévation,dénivelé"
+                },
+                "description": {
+                    "label": "Description",
+                    "terms": "description,résumé"
+                },
+                "design": {
+                    "label": "Type"
+                },
+                "destination": {
+                    "label": "Destinations"
+                },
+                "destination/ref": {
+                    "label": "Identifiant de la destination"
+                },
+                "destination/ref_oneway": {
+                    "label": "Identifiant de la destination"
+                },
+                "destination/symbol": {
+                    "label": "Symbole de la destination"
+                },
+                "destination/symbol_oneway": {
+                    "label": "Symbole de la destination",
+                    "terms": "symboles,marques,dessin"
+                },
+                "destination_oneway": {
+                    "label": "Destinations"
+                },
+                "destination_waterway": {
+                    "label": "Destination"
+                },
+                "devices": {
+                    "label": "Appareils",
+                    "placeholder": "1, 2, 3..."
+                },
+                "diameter": {
+                    "label": "Diamètre",
+                    "placeholder": "5 mm, 10 cm, 15 in…"
+                },
+                "diet_multi": {
+                    "label": "Types de régimes",
+                    "terms": "types de régimes,sans gluten,fruit,halal,kasher,sans lactose,gluten,lactose,viande,vegan,végétarien,cru"
+                },
+                "diplomatic": {
+                    "label": "Type"
+                },
+                "diplomatic/services": {
+                    "label": "Services diplomatiques"
+                },
+                "direction": {
+                    "label": "Direction (en degrés dans le sens horaire)",
+                    "placeholder": "45, 90, 180, 270",
+                    "terms": "direction,orientation"
+                },
+                "direction_cardinal": {
+                    "label": "Direction",
+                    "options": {
+                        "E": "Est",
+                        "ENE": "Est-Nord-Est",
+                        "ESE": "Est-Sud-Est",
+                        "N": "Nord",
+                        "NE": "Nord-Est",
+                        "NNE": "Nord-Nord-Est",
+                        "NNW": "Nord-Nord-Ouest",
+                        "NW": "Nord-Ouest",
+                        "S": "Sud",
+                        "SE": "Sud-Est",
+                        "SSE": "Sud-Sud-Est",
+                        "SSW": "Sud-Sud-Ouest",
+                        "SW": "Sud-Ouest",
+                        "W": "Ouest",
+                        "WNW": "Ouest-Nord-Ouest",
+                        "WSW": "Ouest-Sud-Ouest"
+                    }
+                },
+                "direction_clock": {
+                    "label": "Direction",
+                    "options": {
+                        "anticlockwise": "Sens anti-horaire",
+                        "clockwise": "Sens horaire"
+                    }
+                },
+                "direction_vertex": {
+                    "label": "Direction affectée",
+                    "options": {
+                        "backward": "Vers l'arrière",
+                        "both": "Les deux / Tous",
+                        "forward": "Vers l'avant"
+                    }
+                },
+                "direction_vertex_dual": {
+                    "label": "Direction affectée",
+                    "options": {
+                        "backward": "Sens inverse",
+                        "forward": "Vers l'avant"
+                    }
+                },
+                "dispensing": {
+                    "label": "Peut délivrer des médicaments sous ordonnance"
+                },
+                "display": {
+                    "label": "Affichage"
+                },
+                "distance": {
+                    "label": "Distance",
+                    "terms": "distance, longueur, kilométrage, bornes"
+                },
+                "disused/railway": {
+                    "label": "Type"
+                },
+                "disused/shop": {
+                    "label": "Type"
+                },
+                "dock": {
+                    "label": "Type"
+                },
+                "dog": {
+                    "label": "Accès aux chiens",
+                    "options": {
+                        "leashed": "Tenus en laisse",
+                        "no": "Interdits",
+                        "yes": "Autorisés"
+                    },
+                    "terms": "chiens,animaux,canin"
+                },
+                "door": {
+                    "label": "Porte"
+                },
+                "door_type": {
+                    "label": "Type"
+                },
+                "drink_multi": {
+                    "label": "Boissons"
+                },
+                "drinking_water": {
+                    "label": "Potable",
+                    "terms": "potable,buvable,eau potable"
+                },
+                "drive_through": {
+                    "label": "Service Drive",
+                    "terms": "service au comptoir,service au volant,point retrait"
+                },
+                "duration": {
+                    "label": "Durée",
+                    "placeholder": "00:00",
+                    "terms": "durée"
+                },
+                "ele": {
+                    "label": "Altitude",
+                    "terms": "altitude,hauteur,élévation"
+                },
+                "ele_node": {
+                    "label": "Altitude",
+                    "terms": "altitude,hauteur,élévation"
+                },
+                "electrified": {
+                    "label": "Électrification",
+                    "options": {
+                        "contact_line": "Ligne de contact",
+                        "no": "Non",
+                        "rail": "Rails électrifiés",
+                        "yes": "Oui (non spécifié)"
+                    },
+                    "placeholder": "Caténaire, troisième rail…",
+                    "terms": "électrification,électrifié,sous tension,caténaire,troisième rail"
+                },
+                "email": {
+                    "label": "Courrier électronique",
+                    "placeholder": "example@example.com",
+                    "terms": "courriel,email,e-mail,mail"
+                },
+                "embankment": {
+                    "label": "Type",
+                    "placeholder": "Défaut"
+                },
+                "embassy": {
+                    "label": "Type"
+                },
+                "emergency": {
+                    "label": "Urgence"
+                },
+                "emergency_combo": {
+                    "label": "Type"
+                },
+                "emergency_ward_entrance": {
+                    "label": "Type"
+                },
+                "enforcement": {
+                    "label": "Type"
+                },
+                "entrance": {
+                    "label": "Type"
+                },
+                "except": {
+                    "label": "Exceptions"
+                },
+                "faces": {
+                    "label": "Faces"
+                },
+                "fax": {
+                    "label": "Fax",
+                    "placeholder": "+33 1 23 45 67 89",
+                    "terms": "fax"
+                },
+                "fee": {
+                    "label": "Prix",
+                    "terms": "frais,charges,montant,coût"
+                },
+                "fence_type": {
+                    "label": "Type"
+                },
+                "fire_hydrant/diameter": {
+                    "label": "Diamètre (mm, pouces, ou lettres)",
+                    "terms": "diamètre"
+                },
+                "fire_hydrant/pressure": {
+                    "label": "Pression (bar)",
+                    "terms": "pression"
+                },
+                "fire_hydrant/type": {
+                    "label": "Forme",
+                    "options": {
+                        "pillar": "Pilier/Hors-sol",
+                        "pipe": "Tuyau",
+                        "underground": "Souterrain",
+                        "wall": "Mur"
+                    }
+                },
+                "fireplace": {
+                    "label": "Cheminée"
+                },
+                "fishing": {
+                    "label": "Pêche",
+                    "terms": "pêche"
+                },
+                "fitness_station": {
+                    "label": "Type d'équipement "
+                },
+                "fixme": {
+                    "label": "À corriger",
+                    "terms": "demande d'aide,aide,correction,corrigez-moi"
+                },
+                "flag/type": {
+                    "label": "Type de drapeau"
+                },
+                "floating": {
+                    "label": "Flottant"
+                },
+                "flood_prone": {
+                    "label": "Risque de crue",
+                    "terms": "débordement,crue,montée des eaux"
+                },
+                "ford": {
+                    "label": "Type",
+                    "placeholder": "Défaut"
+                },
+                "fountain": {
+                    "label": "Type"
+                },
+                "frequency": {
+                    "label": "Fréquence ",
+                    "terms": "fréquence,régulier,régulièrement"
+                },
+                "frequency_electrified": {
+                    "label": "Fréquence",
+                    "terms": "fréquence,régulier,régulièrement"
+                },
+                "from": {
+                    "label": "De"
+                },
+                "fuel": {
+                    "label": "Carburant"
+                },
+                "fuel_multi": {
+                    "label": "Types de carburants"
+                },
+                "gambling": {
+                    "label": "Jeux"
+                },
+                "garden/type": {
+                    "label": "Type de jardin"
+                },
+                "gauge": {
+                    "label": "Écartement"
+                },
+                "gender": {
+                    "label": "Genre",
+                    "options": {
+                        "female": "Femme",
+                        "male": "Homme",
+                        "unisex": "Unisexe"
+                    },
+                    "placeholder": "Inconnu",
+                    "terms": "genre,accès,femmes,hommes,unisexe,filles,garçons"
+                },
+                "generator/method": {
+                    "label": "Méthode"
+                },
+                "generator/output/electricity": {
+                    "label": "Puissance",
+                    "placeholder": "50 MW, 100 MW, 200 MW..."
+                },
+                "generator/source": {
+                    "label": "Source"
+                },
+                "generator/type": {
+                    "label": "Type"
+                },
+                "geyser/height": {
+                    "label": "Hauteur de l'éruption"
+                },
+                "gnis/feature_id": {
+                    "label": "Identifiant d'élément GNIS"
+                },
+                "government": {
+                    "label": "Type"
+                },
+                "grape_variety": {
+                    "label": "Cépages"
+                },
+                "group_only": {
+                    "label": "Groupes uniquement"
+                },
+                "guest_house": {
+                    "label": "Type"
+                },
+                "handicap": {
+                    "label": "Handicap",
+                    "placeholder": "1-18"
+                },
+                "handrail": {
+                    "label": "Rampe, Main courante",
+                    "terms": "rampe,main courante,rambarde"
+                },
+                "hashtags": {
+                    "label": "Hashtags",
+                    "placeholder": "#exemple"
+                },
+                "healthcare": {
+                    "label": "Type"
+                },
+                "healthcare/speciality": {
+                    "label": "Spécialités"
+                },
+                "height": {
+                    "label": " Hauteur (Mètres)",
+                    "terms": "hauteur"
+                },
+                "height_building": {
+                    "label": "Hauteur du bâtiment (mètres)",
+                    "terms": "hauteur"
+                },
+                "highspeed": {
+                    "label": "Ligne à grande vitesse",
+                    "terms": "grande vitesse,TGV,LGV,train rapide,rapide,vitesse"
+                },
+                "highway": {
+                    "label": "Type"
+                },
+                "historic": {
+                    "label": "Type"
+                },
+                "historic/civilization": {
+                    "label": "Civilisation historique"
+                },
+                "historic/wreck/date_sunk": {
+                    "label": "Date du naufrage"
+                },
+                "historic/wreck/visible_at_high_tide": {
+                    "label": "Visible à marée haute"
+                },
+                "historic/wreck/visible_at_low_tide": {
+                    "label": "Visible à marée basse"
+                },
+                "hoops": {
+                    "label": "Nombre d'arceaux",
+                    "placeholder": "1, 2, 4..."
+                },
+                "horse_dressage": {
+                    "label": "Dressage",
+                    "options": {
+                        "equestrian": "Oui",
+                        "undefined": "Non"
+                    }
+                },
+                "horse_riding": {
+                    "label": "Équitation",
+                    "options": {
+                        "horse_riding": "Oui",
+                        "undefined": "Non"
+                    }
+                },
+                "horse_scale": {
+                    "label": "Difficulté à cheval",
+                    "options": {
+                        "common": "Facile : pas de problème ou de difficulté. (par défaut)",
+                        "critical": "Limite : passable uniquement pour des cavaliers et des chevaux expérimentés. Obstacles majeurs. Les ponts devraient être examinés avec attention.",
+                        "dangerous": "Dangereux : passable uniquement pour des cavaliers et des chevaux très expérimentés et seulement par beau temps. Descendre du cheval.",
+                        "demanding": "Utiliser avec prudence : voie inégale, passages difficiles occasionnels.",
+                        "difficult": "Difficile : voie étroite et exposée. Peut contenir des obstacles par dessus lesquels passer et des passages étroits.",
+                        "impossible": "Impossible : Voie ou pont impossible à franchir pour les chevaux. Trop étroit, support insuffisant, obstacles comme des échelles. Danger de mort."
+                    },
+                    "placeholder": "Difficile, Dangereux...",
+                    "terms": "équitation,équestre,cheval,difficulté"
+                },
+                "horse_stables": {
+                    "label": "Étable pour cavaliers",
+                    "options": {
+                        "stables": "Oui",
+                        "undefined": "Non"
+                    }
+                },
+                "hot_water": {
+                    "label": "Eau chaude"
+                },
+                "iata": {
+                    "label": "Code aéroport AITA"
+                },
+                "icao": {
+                    "label": "Code aéroport OACI"
+                },
+                "image": {
+                    "label": "Image",
+                    "placeholder": "https://exemple.fr/photo.jpg",
+                    "terms": "icône,symbole,photo,photographie,image"
+                },
+                "incline": {
+                    "label": "Pente",
+                    "terms": "inclinaison,direction"
+                },
+                "incline_steps": {
+                    "label": "Pente",
+                    "options": {
+                        "down": "Descendante",
+                        "up": "Montante"
+                    }
+                },
+                "indoor": {
+                    "label": "Intérieur",
+                    "terms": "intérieur"
+                },
+                "indoor_type": {
+                    "label": "Type"
+                },
+                "industrial": {
+                    "label": "Type"
+                },
+                "informal": {
+                    "label": "Informel",
+                    "terms": "informel,officieux,spontané"
+                },
+                "information": {
+                    "label": "Type"
+                },
+                "inscription": {
+                    "label": "Inscription",
+                    "terms": "inscription,panneau,information,plaque"
+                },
+                "intermittent": {
+                    "label": "Intermittent",
+                    "terms": "intermittent,saisonnier"
+                },
+                "intermittent_yes": {
+                    "label": "Intermittent"
+                },
+                "internet_access": {
+                    "label": "Accès Internet",
+                    "options": {
+                        "no": "Non",
+                        "terminal": "Terminal",
+                        "wired": "Par câble",
+                        "wlan": "Wifi",
+                        "yes": "Oui"
+                    },
+                    "terms": "wifi,wi-fi,réseau,internet,web"
+                },
+                "internet_access/fee": {
+                    "label": "Accès Internet payant",
+                    "options": {
+                        "customers": "Réservé à la clientèle",
+                        "no": "Gratuit",
+                        "yes": "Payant"
+                    }
+                },
+                "internet_access/ssid": {
+                    "label": "Nom du réseau WiFi",
+                    "terms": "ssid,nom du réseau"
+                },
+                "interval": {
+                    "label": "Intervalle",
+                    "terms": "interval"
+                },
+                "junction/ref_oneway": {
+                    "label": "Identifiant de l'embranchement",
+                    "terms": "numéro de jonction,carrefour,jonction,intersection,référence"
+                },
+                "junction_line": {
+                    "label": "Jonction routière",
+                    "options": {
+                        "circular": "Rond-point",
+                        "jughandle": "Tourne-à-droite",
+                        "roundabout": "Rond-point"
+                    },
+                    "terms": "Jonction routière, Jonction, Carrefour, Intersection routière,  Intersection"
+                },
+                "kerb": {
+                    "label": "Aménagement de trottoir, Abaissement (bateau)"
+                },
+                "kerb/height": {
+                    "label": "Hauteur"
+                },
+                "kneipp_water_cure_multi": {
+                    "label": "Types de bassin"
+                },
+                "label": {
+                    "label": "Étiquette"
+                },
+                "lamp_type": {
+                    "label": "Type"
+                },
+                "landuse": {
+                    "label": "Type"
+                },
+                "lanes": {
+                    "label": "Voies",
+                    "placeholder": "1, 2, 3...",
+                    "terms": "voies,bandes"
+                },
+                "language_multi": {
+                    "label": "Langues"
+                },
+                "layer": {
+                    "label": "Couche",
+                    "placeholder": "0",
+                    "terms": "couche"
+                },
+                "leaf_cycle": {
+                    "label": "Phénologie du feuillage",
+                    "options": {
+                        "deciduous": "caduc",
+                        "evergreen": "sempervirent, persistant",
+                        "mixed": "mélangé",
+                        "semi_deciduous": "semi-caduc",
+                        "semi_evergreen": "semi-sempervirent"
+                    }
+                },
+                "leaf_cycle_singular": {
+                    "label": "Phénologie du feuillage",
+                    "options": {
+                        "deciduous": "caduc",
+                        "evergreen": "sempervirent, persistant",
+                        "semi_deciduous": "semi-caduc",
+                        "semi_evergreen": "semi-sempervirent"
+                    }
+                },
+                "leaf_type": {
+                    "label": "Type de feuilles",
+                    "options": {
+                        "broadleaved": "arbres feuillus",
+                        "leafless": "plantes sans feuilles",
+                        "mixed": "mélangé",
+                        "needleleaved": "arbres à aiguilles"
+                    }
+                },
+                "leaf_type_singular": {
+                    "label": "Type de feuilles",
+                    "options": {
+                        "broadleaved": "feuilles",
+                        "leafless": "sans feuilles",
+                        "needleleaved": "aiguilles"
+                    }
+                },
+                "leisure": {
+                    "label": "Type"
+                },
+                "length": {
+                    "label": "Longueur (mètres)"
+                },
+                "level": {
+                    "label": "Niveau (étage)",
+                    "terms": "niveau,étage,palier"
+                },
+                "level_semi": {
+                    "label": "Niveaux",
+                    "terms": "niveaux,étages,paliers"
+                },
+                "liaison": {
+                    "label": "Type"
+                },
+                "line_attachment": {
+                    "label": "Armement aérien"
+                },
+                "lit": {
+                    "label": "Éclairé",
+                    "terms": "éclairé,lampe,lampadaire"
+                },
+                "location": {
+                    "label": "Lieu",
+                    "terms": "emplacement"
+                },
+                "location_pool": {
+                    "label": "Emplacement",
+                    "options": {
+                        "indoor": "Intérieur",
+                        "outdoor": "Extérieur",
+                        "roof": "Sur le toit"
+                    }
+                },
+                "lock": {
+                    "label": "Écluse"
+                },
+                "lockable": {
+                    "label": "Ferme à clé",
+                    "terms": "ferme à clé,clé,clef,verrouillable"
+                },
+                "man_made": {
+                    "label": "Type"
+                },
+                "manhole": {
+                    "label": "Type"
+                },
+                "manufacturer": {
+                    "label": "Fabricant",
+                    "terms": "manufacture,artisan,artisanat"
+                },
+                "map_size": {
+                    "label": "Emprise, Couverture"
+                },
+                "map_type": {
+                    "label": "Type"
+                },
+                "mapillary": {
+                    "label": "ID de l'image Mapillary",
+                    "terms": "identifiant, image, mapillary"
+                },
+                "marker": {
+                    "label": "Type"
+                },
+                "material": {
+                    "label": "Matériau",
+                    "terms": "matériau,matière,substance"
+                },
+                "max_age": {
+                    "label": "Âge maximum",
+                    "terms": "Age maxi,Âge maximum,Âge maxi,Limite d'âge,Limite d'age"
+                },
+                "maxheight": {
+                    "label": "Hauteur maximum",
+                    "placeholder": "4, 4.5, 5, 14'0\", 14'6\", 15'0\"",
+                    "terms": "hauteur"
+                },
+                "maxspeed": {
+                    "label": "Vitesse maximale autorisée",
+                    "placeholder": "30, 50, 70, 90, etc.",
+                    "terms": "limitation de vitesse,limite de vitesse,vitesse max,vitesse limite"
+                },
+                "maxspeed/advisory": {
+                    "label": "Vitesse conseillée",
+                    "placeholder": "40, 50, 60...",
+                    "terms": "conseil de vitesse,limite de vitesse,vitesse conseillée"
+                },
+                "maxstay": {
+                    "label": "Durée maximale",
+                    "terms": "durée maximale,séjour"
+                },
+                "maxweight": {
+                    "label": "Charge maximale",
+                    "terms": "poids,limite,maximum,poids max,poids limite,limite de poids"
+                },
+                "maxweight_bridge": {
+                    "label": "Charge maximale",
+                    "terms": "poids,limite,maximum,poids max,poids limite,limite de poids"
+                },
+                "memorial": {
+                    "label": "Type"
+                },
+                "microbrewery": {
+                    "label": "Micro-brasserie",
+                    "terms": "bière artisanale,brasserie"
+                },
+                "mimics": {
+                    "label": "Imite",
+                    "terms": "ressemble,arbre,camouflage,déguisement"
+                },
+                "min_age": {
+                    "label": "Âge minimum",
+                    "terms": "Age mini,Âge minimum,Âge mini,Limite d'âge,Limite d'age"
+                },
+                "minspeed": {
+                    "label": "Vitesse minimale autorisée",
+                    "placeholder": "20, 30, 40...",
+                    "terms": "limitation de vitesse,limite de vitesse,vitesse minimale,vitesse limite"
+                },
+                "monitoring_multi": {
+                    "label": "Surveillance"
+                },
+                "mtb/scale": {
+                    "label": "Difficulté VTT",
+                    "options": {
+                        "0": "0 : Gravier/terre battue, grandes courbes, pas d'obstacles",
+                        "1": "1 : Sol parfois meuble, courbes grandes à sérrées, petits obstacles",
+                        "2": "2 : Sol souvent meuble, épingles à cheveux faciles, petits sauts",
+                        "3": "3 : Revêtement glissant, épingles serrées, grosses ruptures de pente ",
+                        "4": "4 : Revêtement avec des rochers, des épingles à cheveux dangereuses",
+                        "5": "5 : Difficulté maximale, champs de blocs, glissements de terrain",
+                        "6": "6 : Non praticable, ou seulement par les meilleurs vététistes"
+                    },
+                    "placeholder": "0, 1, 2, 3...",
+                    "terms": "VTT,cyclisme,difficulté"
+                },
+                "mtb/scale/imba": {
+                    "label": "Difficulté sur échelle IMBA ",
+                    "options": {
+                        "0": "Simplissime (ronds blancs)",
+                        "1": "Facile (ronds verts)",
+                        "2": "Intermédiaire (carrés bleus)",
+                        "3": "Difficile (losanges noirs)",
+                        "4": "Extrêmement difficile (doubles losanges noirs)"
+                    },
+                    "placeholder": "Facile, Intermédiaire, Difficile...",
+                    "terms": "IMBA"
+                },
+                "mtb/scale/uphill": {
+                    "label": "Difficulté VTT en montée",
+                    "options": {
+                        "0": "0 : Inclinaison < 10 % , sol compact, pas d'obstacles",
+                        "1": "1 : Inclinaison < 15 %, sol compact, quelques petits obstacles",
+                        "2": "2 : Inclinaison < 20 %, revêtement stable, pierres/racines",
+                        "3": "3 : Inclinaison < 25 %, revêtement variable, pierres/branches",
+                        "4": "4 : Inclinaison < 30 %, conditions difficiles, rochers/branches",
+                        "5": "5 : Abrupt, le vélo doit généralement être porté ou poussé"
+                    },
+                    "placeholder": "0, 1, 2, 3...",
+                    "terms": "VTT,cyclisme,difficulté"
+                },
+                "museum": {
+                    "label": "Type"
+                },
+                "name": {
+                    "label": "Nom",
+                    "placeholder": "Nom courant (si existant)",
+                    "terms": "nom,étiquette,label,titre"
+                },
+                "natural": {
+                    "label": "Nature"
+                },
+                "network": {
+                    "label": "Réseau",
+                    "terms": "réseau"
+                },
+                "network/type": {
+                    "label": "Type de réseau"
+                },
+                "network_bicycle": {
+                    "label": "Classification du réseau",
+                    "options": {
+                        "icn": "International",
+                        "lcn": "Local",
+                        "ncn": "National",
+                        "rcn": "Régional"
+                    },
+                    "placeholder": "Local, régional, national, international"
+                },
+                "network_foot": {
+                    "label": "Classification du réseau",
+                    "options": {
+                        "iwn": "International",
+                        "lwn": "Local",
+                        "nwn": "National",
+                        "rwn": "Régional"
+                    },
+                    "placeholder": "Local, régional, national, international"
+                },
+                "network_horse": {
+                    "label": "Classification du réseau",
+                    "options": {
+                        "ihn": "International",
+                        "lhn": "Local",
+                        "nhn": "National",
+                        "rhn": "Régional"
+                    },
+                    "placeholder": "Local, régional, national, international"
+                },
+                "network_road": {
+                    "label": "Réseau"
+                },
+                "not/name": {
+                    "label": "Noms incorrects",
+                    "terms": "noms incorrects"
+                },
+                "note": {
+                    "label": "Note",
+                    "terms": "note,commentaire"
+                },
+                "office": {
+                    "label": "Type"
+                },
+                "oneway": {
+                    "label": "Sens unique",
+                    "options": {
+                        "alternating": "En alternance",
+                        "no": "Non",
+                        "reversible": "Réversible",
+                        "undefined": "Par défaut : Non",
+                        "yes": "Oui"
+                    }
+                },
+                "oneway/bicycle": {
+                    "label": "Sens unique cyclable",
+                    "terms": "sens unique cyclable,cycliste,vélo"
+                },
+                "oneway_yes": {
+                    "label": "Sens unique",
+                    "options": {
+                        "alternating": "En alternance",
+                        "no": "Non",
+                        "reversible": "Réversible",
+                        "undefined": "Par défaut : Oui",
+                        "yes": "Oui"
+                    }
+                },
+                "openfire": {
+                    "label": "Feux ouverts autorisés"
+                },
+                "opening_date": {
+                    "label": "Date d'ouverture prévue",
+                    "placeholder": "AAAA-MM-JJ"
+                },
+                "opening_hours": {
+                    "label": "Horaires d'ouverture",
+                    "placeholder": "Inconnues",
+                    "terms": "horaires,heures,horraires"
+                },
+                "opening_hours/covid19": {
+                    "label": "Horaires pendant l'épidémie Covid-19",
+                    "terms": "coronavirus,corona,covid,covid19,SARS-Cov-2,confinement,horaires"
+                },
+                "operator": {
+                    "label": "Exploitant",
+                    "terms": "exploitant,opérateur"
+                },
+                "operator/type": {
+                    "label": "Type d'exploitant"
+                },
+                "outdoor_seating": {
+                    "label": "Places en terrasse",
+                    "terms": "places en terrase,terrasse,beer garden,biergarten,restaurant,bar"
+                },
+                "par": {
+                    "label": "Par",
+                    "placeholder": "3, 4, 5..."
+                },
+                "park_ride": {
+                    "label": "Parking-relais",
+                    "terms": "Parking, Zone de Stationnement, Stationnement"
+                },
+                "parking": {
+                    "label": "Type",
+                    "options": {
+                        "carports": "Auvent",
+                        "garage_boxes": "Box",
+                        "lane": "Bordure de voie",
+                        "multi-storey": "Sur plusieurs niveaux",
+                        "rooftop": "Toiture",
+                        "sheds": "Abri privé",
+                        "surface": "En surface",
+                        "underground": "Souterrain"
+                    }
+                },
+                "parking_space": {
+                    "label": "Type"
+                },
+                "payment_multi": {
+                    "label": "Types de paiement",
+                    "terms": "billets,liquide,pièces,argent,monnaie,type de paiement,carte bancaire,carte bleue,carte de crédit,carte de débit,chèque,chéquier,bitcoin,visa,mastercard"
+                },
+                "payment_multi_fee": {
+                    "label": "Types de paiement",
+                    "terms": "billets,liquide,pièces,argent,monnaie,type de paiement,carte bancaire,carte bleue,carte de crédit,carte de débit,chèque,chéquier,bitcoin,visa,mastercard"
+                },
+                "phases": {
+                    "label": "Phases",
+                    "placeholder": "1, 2, 3..."
+                },
+                "phone": {
+                    "label": "Téléphone",
+                    "placeholder": "+33 1 23 45 67 89",
+                    "terms": "téléphone,numéro de téléphone"
+                },
+                "piste/difficulty": {
+                    "label": "Difficulté",
+                    "options": {
+                        "advanced": "Avancé",
+                        "easy": "Facile",
+                        "expert": "Expert",
+                        "extreme": "Extrème",
+                        "freeride": "Hors-piste",
+                        "intermediate": "Intermédiaire",
+                        "novice": "Débutant"
+                    },
+                    "placeholder": "Facile, intermédiaire, avancé..."
+                },
+                "piste/difficulty_downhill": {
+                    "label": "Difficulté",
+                    "options": {
+                        "advanced": "Piste noire (EU)",
+                        "easy": "Piste bleue (EU)",
+                        "expert": "Piste orange ou double noire (EU)",
+                        "extreme": "Ski alpinisme",
+                        "freeride": "Hors-piste ou piste jaune (CH) (EU)",
+                        "intermediate": "Piste rouge (EU)",
+                        "novice": "Piste verte (EU)"
+                    },
+                    "placeholder": "Bleue, rouge, verte ..."
+                },
+                "piste/difficulty_nordic": {
+                    "label": "Difficulté de la section",
+                    "options": {
+                        "advanced": "Avancé - Piste étroite, pente forte, glacée, virage serré",
+                        "easy": "Facile - Petites bosses, pentes courtes",
+                        "expert": "Expert - Terrain dangereux autour de la piste",
+                        "intermediate": "Intermédiaire - Pente forte ou passage étroit",
+                        "novice": "Débutant - Terrain plat"
+                    },
+                    "placeholder": "Section facile, intermédiaire, difficile ..."
+                },
+                "piste/difficulty_skitour": {
+                    "label": "Difficulté",
+                    "options": {
+                        "advanced": "Avancé - S: pente 40-45°",
+                        "easy": "Facile - WS: pente 30-35°",
+                        "expert": "Expert : SS: pente 45-50°",
+                        "extreme": "Extrême - EX: pente > 55°",
+                        "freeride": "AS: pente 50-55°",
+                        "intermediate": "Intermédiaire - ZS: pente 35-40°",
+                        "novice": "Débutant - L: pente <30°"
+                    },
+                    "placeholder": "Difficulté L, ZS, ... (Club Alpin Suisse)"
+                },
+                "piste/grooming": {
+                    "label": "Préparation",
+                    "options": {
+                        "backcountry": "Hors-piste, pas de préparation",
+                        "classic": "Classique par dameuse, pour ski alpin ou nordique en pas alternatif",
+                        "classic+skating": "Classique et Skating",
+                        "mogul": "Ski de bosses",
+                        "scooter": "Classique par motoneige",
+                        "skating": "Skating, pour ski nordique en pas de patineur"
+                    }
+                },
+                "piste/grooming_downhill": {
+                    "label": "Damage",
+                    "options": {
+                        "backcountry": "Piste balisée non-damée",
+                        "classic": "Piste damée",
+                        "mogul": "Bosses"
+                    }
+                },
+                "piste/grooming_hike": {
+                    "label": "Damage",
+                    "options": {
+                        "backcountry": "Non damée - raquettes",
+                        "classic": "Damée - piétons"
+                    }
+                },
+                "piste/grooming_nordic": {
+                    "label": "Damage",
+                    "options": {
+                        "backcountry": "Non damée - Ski de randonnée nordique",
+                        "classic": "Traces pour classique / alternatif",
+                        "classic+skating": "Traces classiques et plan lisse",
+                        "scooter": "Simple passage à la motoneige",
+                        "skating": "Plan lisse pour skating"
+                    }
+                },
+                "piste/type": {
+                    "label": "Type",
+                    "options": {
+                        "connection": "Connexion",
+                        "downhill": "Descente, ski alpin",
+                        "hike": "Randonnée pédestre",
+                        "ice_skate": "Patin à glace",
+                        "nordic": "Nordique",
+                        "playground": "Aire de jeux",
+                        "skitour": "Randonnée à ski ",
+                        "sled": "Luge",
+                        "sleigh": "Traîneau",
+                        "snow_park": "Parc à neige"
+                    }
+                },
+                "place": {
+                    "label": "Type"
+                },
+                "plant": {
+                    "label": "Type de plante"
+                },
+                "plant/method": {
+                    "label": "Méthode de génération"
+                },
+                "plant/output/electricity": {
+                    "label": "Puissance",
+                    "placeholder": "500 MW, 1000 MW, 2000 MW..."
+                },
+                "plant/source": {
+                    "label": "Source d'énergie"
+                },
+                "playground": {
+                    "label": "Type"
+                },
+                "playground/theme": {
+                    "label": "Thème"
+                },
+                "plots": {
+                    "placeholder": "10, 20, 30..."
+                },
+                "polling_station": {
+                    "label": "Bureau de vote",
+                    "terms": "bureau de vote"
+                },
+                "population": {
+                    "label": "Population"
+                },
+                "post": {
+                    "label": "Adresse de livraison"
+                },
+                "power": {
+                    "label": "Type"
+                },
+                "power_supply": {
+                    "label": "Source de courant",
+                    "terms": "électricité,electricité,énergie"
+                },
+                "preschool": {
+                    "label": "École maternelle"
+                },
+                "produce": {
+                    "label": "Produits agricoles"
+                },
+                "product": {
+                    "label": "Produits manufacturés",
+                    "terms": "produits"
+                },
+                "public_bookcase/type": {
+                    "label": "Type"
+                },
+                "pump": {
+                    "label": "Pompe",
+                    "options": {
+                        "manual": "Pompe manuelle",
+                        "no": "Aucun",
+                        "powered": "Pompe automatique",
+                        "yes": "Oui"
+                    }
+                },
+                "railway": {
+                    "label": "Type"
+                },
+                "railway/position": {
+                    "label": "Position de la borne",
+                    "placeholder": "Distance à une décimale (123,4)"
+                },
+                "railway/signal/direction": {
+                    "label": "Direction affectée",
+                    "options": {
+                        "backward": "Vers l'arrière",
+                        "both": "Les deux / Tous",
+                        "forward": "Vers l'avant"
+                    }
+                },
+                "rating": {
+                    "label": "Puissance"
+                },
+                "rcn_ref": {
+                    "label": "Code du réseau cyclable"
+                },
+                "recycling_accepts": {
+                    "label": "Accepte"
+                },
+                "recycling_type": {
+                    "label": "Type",
+                    "options": {
+                        "centre": "Centre de recyclage",
+                        "container": "Conteneur de recyclage"
+                    },
+                    "placeholder": "Conteneur, Centre"
+                },
+                "ref": {
+                    "label": "Code d'identification",
+                    "terms": "référence,numéro de série,numéro de référence"
+                },
+                "ref/isil": {
+                    "label": "Code ISIL"
+                },
+                "ref/vatin": {
+                    "label": "Numéro d'identifiant TVA",
+                    "terms": "TVA, taxe, identifiant, intracommunautaire"
+                },
+                "ref_aeroway_gate": {
+                    "label": "Numéro de porte"
+                },
+                "ref_golf_hole": {
+                    "label": "Numéro du trou",
+                    "placeholder": "1-18"
+                },
+                "ref_highway_junction": {
+                    "label": "Identifiant de l'embranchement"
+                },
+                "ref_platform": {
+                    "label": "Identifiant du quai"
+                },
+                "ref_road_number": {
+                    "label": "Identifiant de la route",
+                    "terms": "numéro de route,route,référence"
+                },
+                "ref_room_number": {
+                    "label": "Numéro de la pièce"
+                },
+                "ref_route": {
+                    "label": "Identifiant de l'itinéraire",
+                    "terms": "numéro du circuit,circuit,référence,itinéraire"
+                },
+                "ref_runway": {
+                    "label": "Numéro de la piste",
+                    "placeholder": "p.ex. 01L/19R"
+                },
+                "ref_stop_position": {
+                    "label": "Identifiant de l'arrêt"
+                },
+                "ref_taxiway": {
+                    "label": "Nom de la voie de circulation",
+                    "placeholder": "p.ex. A5"
+                },
+                "relation": {
+                    "label": "Type"
+                },
+                "religion": {
+                    "label": "Religion",
+                    "terms": "religion,église,temple"
+                },
+                "reservation": {
+                    "label": "Réservations",
+                    "options": {
+                        "no": "refusées",
+                        "recommended": "recommandées",
+                        "required": "requises",
+                        "yes": "acceptées"
+                    },
+                    "terms": "réservations,à l'avance"
+                },
+                "residential": {
+                    "label": "Type"
+                },
+                "resort": {
+                    "label": "Type"
+                },
+                "resource": {
+                    "label": "Ressources"
+                },
+                "restriction": {
+                    "label": "Type"
+                },
+                "restrictions": {
+                    "label": "Interdictions de tourner"
+                },
+                "roof/colour": {
+                    "label": "Couleur du toit",
+                    "terms": "couleur du toit"
+                },
+                "room": {
+                    "label": "Type"
+                },
+                "rooms": {
+                    "label": "Chambres"
+                },
+                "route": {
+                    "label": "Type"
+                },
+                "route_master": {
+                    "label": "Type"
+                },
+                "ruins": {
+                    "label": "Type"
+                },
+                "rwn_ref": {
+                    "label": "Code du réseau piéton"
+                },
+                "sac_scale": {
+                    "label": "Difficulté de la randonnée",
+                    "options": {
+                        "alpine_hiking": "T4 : randonnée alpine",
+                        "demanding_alpine_hiking": "T5 : randonnée alpine exigeante",
+                        "demanding_mountain_hiking": "T3 : randonnée de montagne exigeante",
+                        "difficult_alpine_hiking": "T6 : randonnée alpine difficile",
+                        "hiking": "T1 : randonnée",
+                        "mountain_hiking": "T2 : randonnée de montagne"
+                    },
+                    "placeholder": "Randonnée de montagne, randonnée alpine…",
+                    "terms": "difficulté,randonnée"
+                },
+                "salt": {
+                    "label": "Salé",
+                    "terms": "sel,salin,salé"
+                },
+                "sanitary_dump_station": {
+                    "label": "Station de vidange sanitaire",
+                    "terms": "chasse d'eau,toilettes chimiques,toilettes sèches"
+                },
+                "screen": {
+                    "label": "Écrans",
+                    "placeholder": "1, 4, 8…"
+                },
+                "scuba_diving": {
+                    "label": "Services"
+                },
+                "seamark/beacon_isolated_danger/shape": {
+                    "label": "Forme"
+                },
+                "seamark/beacon_lateral/category": {
+                    "label": "Catégorie",
+                    "options": {
+                        "danger_left": "Danger à gauche",
+                        "danger_right": "Danger à droite",
+                        "port": "Babord",
+                        "starboard": "Tribord",
+                        "waterway_left": "Voie navigable, gauche",
+                        "waterway_right": "Voie navigable, droite"
+                    }
+                },
+                "seamark/beacon_lateral/colour": {
+                    "label": "Couleur",
+                    "options": {
+                        "green": "Vert",
+                        "grey": "Gris",
+                        "red": "Rouge"
+                    }
+                },
+                "seamark/beacon_lateral/shape": {
+                    "label": "Forme"
+                },
+                "seamark/beacon_lateral/system": {
+                    "label": "Système",
+                    "options": {
+                        "cevni": "CEVNI",
+                        "iala-a": "IALA A",
+                        "iala-b": "IALA B",
+                        "other": "Autre"
+                    }
+                },
+                "seamark/buoy_lateral/category": {
+                    "label": "Catégorie",
+                    "options": {
+                        "channel_left": "Chenal, gauche",
+                        "channel_right": "Chenal, droite",
+                        "danger_left": "Danger à gauche",
+                        "danger_right": "Danger à droite",
+                        "port": "Babord",
+                        "preferred_channel_port": "Chenal préféré : babord",
+                        "preferred_channel_starboard": "Chenal préféré : tribord",
+                        "starboard": "Tribord",
+                        "waterway_left": "Voie navigable, gauche",
+                        "waterway_right": "Voie navigable, droite"
+                    }
+                },
+                "seamark/buoy_lateral/colour": {
+                    "label": "Couleur",
+                    "options": {
+                        "green": "Vert",
+                        "green;red;green": "Vert-Rouge-Vert",
+                        "green;white;green;white": "Vert-Blanc-Vert-Blanc",
+                        "red": "Rouge",
+                        "red;green;red": "Rouge-Vert-Rouge",
+                        "red;white;red;white": "Rouge-Blanc-Rouge-Blanc",
+                        "white": "Blanc",
+                        "yellow": "Jaune"
+                    }
+                },
+                "seamark/buoy_lateral/shape": {
+                    "label": "Forme"
+                },
+                "seamark/buoy_lateral/system": {
+                    "label": "Système",
+                    "options": {
+                        "cevni": "CEVNI",
+                        "iala-a": "IALA A",
+                        "iala-b": "IALA B",
+                        "other": "Autre"
+                    }
+                },
+                "seamark/mooring/category": {
+                    "label": "Catégorie"
+                },
+                "seamark/type": {
+                    "label": "Balise maritime",
+                    "terms": "maritime,marin,balisage,balise de mer,marine,bâteau,bateau"
+                },
+                "seamark/wreck/category": {
+                    "label": "Catégorie"
+                },
+                "seasonal": {
+                    "label": "Saisonnier"
+                },
+                "seats": {
+                    "label": "Sièges",
+                    "placeholder": "2, 4, 6..."
+                },
+                "second_hand": {
+                    "label": "Vente d'occasion",
+                    "options": {
+                        "no": "Non",
+                        "only": "Uniquement",
+                        "yes": "Oui"
+                    },
+                    "placeholder": "Oui, non, uniquement",
+                    "terms": "seconde-main,seconde main,occasion,deuxième-main"
+                },
+                "segregated": {
+                    "label": "Séparation cyclistes-piétons"
+                },
+                "self_service": {
+                    "label": "Libre service"
+                },
+                "service": {
+                    "label": "Type"
+                },
+                "service/bicycle": {
+                    "label": "Services"
+                },
+                "service/vehicle": {
+                    "label": "Services"
+                },
+                "service_rail": {
+                    "label": "Type de voie d'accès",
+                    "options": {
+                        "crossover": "Voie de traversée",
+                        "siding": "Voie courte, parallèle et connectée à une voie principale",
+                        "spur": "Voie courte, embranchement connectant à une voie principale (fret)",
+                        "yard": "Voie interne pour le triage ou la maintenance"
+                    },
+                    "terms": "type de service,voie de garage,parking,allée"
+                },
+                "service_times": {
+                    "label": "Horaires des services"
+                },
+                "shelter": {
+                    "label": "Abri"
+                },
+                "shelter_type": {
+                    "label": "Type"
+                },
+                "shop": {
+                    "label": "Type"
+                },
+                "shower": {
+                    "label": "Douches"
+                },
+                "siren/purpose": {
+                    "label": "Usage"
+                },
+                "siren/type": {
+                    "label": "Type",
+                    "options": {
+                        "electronic": "Électronique",
+                        "other": "Autre",
+                        "pneumatic": "Pneumatique"
+                    }
+                },
+                "site": {
+                    "label": "Type de site"
+                },
+                "site_type": {
+                    "label": "Type de Site"
+                },
+                "smoking": {
+                    "label": "Fumeur",
+                    "options": {
+                        "dedicated": "Réservé aux fumeurs (ex. : club de fumeurs)",
+                        "isolated": "Zone non-fumeur et fumeur dans des salles réservées, isolées physiquement",
+                        "no": "Interdiction de fumer",
+                        "outside": "Autorisé en extérieur",
+                        "separated": "Zones non-fumeur et fumeur, non isolées",
+                        "yes": "Autorisé partout"
+                    },
+                    "placeholder": "Non, zones, oui…",
+                    "terms": "fumeur,zone fumeur,cigarette,fumer"
+                },
+                "smoothness": {
+                    "label": "Régularité du sol, aptitude à rouler sur la surface",
+                    "options": {
+                        "bad": "À roues, robuste : VTT, voiture, pousse-pousse",
+                        "excellent": "À roulettes : rollers, patins, planche à roulettes",
+                        "good": "À roues fines : vélo de course",
+                        "horrible": "Véhicule tout-terrain lourd",
+                        "impassable": "Infranchissable / pas de véhicules à roues",
+                        "intermediate": "À roues : vélo de ville, fauteuil roulant, voiture avec faible garde au sol",
+                        "very_bad": "Véhicule à garde au sol élevée, véhicule tout-terrain léger",
+                        "very_horrible": "Véhicule spécifique tout-terrain : tracteur, 4x4"
+                    },
+                    "placeholder": "Roulettes, roues, tout-terrain, …",
+                    "terms": "rugosité,lisse"
+                },
+                "sms": {
+                    "label": "SMS",
+                    "terms": "sms,texto"
+                },
+                "social_facility": {
+                    "label": "Type"
+                },
+                "social_facility_for": {
+                    "label": "Personnes aidées"
+                },
+                "source": {
+                    "label": "Sources",
+                    "terms": "sources,références"
+                },
+                "species/wikidata": {
+                    "label": "Wikidata de l'espèce",
+                    "terms": "wikidata,espèce"
+                },
+                "sport": {
+                    "label": "Sport"
+                },
+                "sport_ice": {
+                    "label": "Sports"
+                },
+                "sport_racing_motor": {
+                    "label": "Sports"
+                },
+                "sport_racing_nonmotor": {
+                    "label": "Sports"
+                },
+                "stars": {
+                    "label": "Étoiles",
+                    "terms": "étoiles,niveau,notation,côte,évaluation"
+                },
+                "start_date": {
+                    "label": "Date de début",
+                    "placeholder": "AAAA-MM-JJ",
+                    "terms": "date de début,début"
+                },
+                "step_count": {
+                    "label": "Nombre de marches",
+                    "terms": "marches,nombre de marches,escalier"
+                },
+                "stile": {
+                    "label": "Type"
+                },
+                "stop": {
+                    "label": "Routes avec arrêt à l'intersection",
+                    "options": {
+                        "all": "Toutes les routes",
+                        "minor": "Seulement les routes mineures"
+                    }
+                },
+                "street_cabinet": {
+                    "label": "Type"
+                },
+                "stroller": {
+                    "label": "Accès en poussette",
+                    "options": {
+                        "limited": "Limité",
+                        "no": "Non",
+                        "yes": "Oui"
+                    },
+                    "terms": "poussette"
+                },
+                "structure": {
+                    "label": "Structure",
+                    "options": {
+                        "bridge": "Pont",
+                        "cutting": "Tranchée",
+                        "embankment": "Remblai",
+                        "ford": "Gué",
+                        "tunnel": "Tunnel"
+                    },
+                    "placeholder": "Inconnu",
+                    "terms": "structure"
+                },
+                "structure_waterway": {
+                    "label": "Structure",
+                    "options": {
+                        "tunnel": "Tunnel"
+                    },
+                    "placeholder": "Inconnu"
+                },
+                "studio": {
+                    "label": "Type"
+                },
+                "substance": {
+                    "label": "Substance"
+                },
+                "substation": {
+                    "label": "Type"
+                },
+                "supervised": {
+                    "label": "Supervisé par un agent",
+                    "terms": "supervisé,gardé,surveillé"
+                },
+                "support": {
+                    "label": "Support"
+                },
+                "surface": {
+                    "label": "Revêtement",
+                    "terms": "surface,type de surface,revêtement,goudron,tablier,sol"
+                },
+                "surveillance": {
+                    "label": "Objet de la surveillance"
+                },
+                "surveillance/type": {
+                    "label": "Moyen de surveillance",
+                    "options": {
+                        "ALPR": "Lecture automatique de plaque d'immatriculation",
+                        "camera": "Caméra de surveillance",
+                        "guard": "Humain : gardien, vigile"
+                    }
+                },
+                "surveillance/zone": {
+                    "label": "Zone de surveillance"
+                },
+                "survey/date": {
+                    "label": "Dernière date de relevé",
+                    "terms": "dernière vérification terrain,terrain"
+                },
+                "swimming_pool": {
+                    "label": "Type de piscine"
+                },
+                "switch": {
+                    "label": "Type",
+                    "options": {
+                        "circuit_breaker": "Disjoncteur",
+                        "disconnector": "Sectionneur",
+                        "earthing": "Sectionneur de terre",
+                        "mechanical": "Interrupteur"
+                    }
+                },
+                "tactile_paving": {
+                    "label": "Surface podotactile",
+                    "terms": "surface podotactile,podotactile,bosse,aveugle"
+                },
+                "takeaway": {
+                    "label": "À emporter",
+                    "options": {
+                        "no": "Non",
+                        "only": "À emporter seulement",
+                        "yes": "Oui"
+                    },
+                    "placeholder": "Oui, non, à emporter seulement…",
+                    "terms": "à emporter"
+                },
+                "target": {
+                    "label": "Cible"
+                },
+                "telecom/medium": {
+                    "label": "Moyenne"
+                },
+                "tidal": {
+                    "label": "Sous l'influence de la marée",
+                    "terms": "marée,influence maritime"
+                },
+                "to": {
+                    "label": "Vers"
+                },
+                "toilets": {
+                    "label": "Toiletes "
+                },
+                "toilets/disposal": {
+                    "label": "Évacuation/traitement",
+                    "options": {
+                        "bucket": "Seau/contenant vidé manuellement",
+                        "chemical": "Produit chimique dans une fosse avec revêtement",
+                        "flush": "Chasse d'eau, entraînement par liquide",
+                        "pitlatrine": "Toilette sèche"
+                    }
+                },
+                "toilets/handwashing": {
+                    "label": "Lavabo",
+                    "terms": "lavage de main,savon,lavabo,laver les mains"
+                },
+                "toilets/position": {
+                    "label": "Positions",
+                    "terms": "emplacements,positions"
+                },
+                "toll": {
+                    "label": "Droit de péage",
+                    "terms": "tarif,péage,autoroute"
+                },
+                "tomb": {
+                    "label": "Type"
+                },
+                "tourism": {
+                    "label": "Attration, équipement, point d'intérêt"
+                },
+                "tower/construction": {
+                    "label": "Construction",
+                    "placeholder": "Aubans, treillis, dissimulée, …"
+                },
+                "tower/type": {
+                    "label": "Fonction"
+                },
+                "townhall/type": {
+                    "label": "Type"
+                },
+                "tracktype": {
+                    "label": "Type de voie",
+                    "options": {
+                        "grade1": "Revêtement dur de type asphalte ou composée de matériaux très compactés",
+                        "grade2": "Revêtement compact, mélange majoritaire en gravier ou pierre, avec des matériaux mous tels que sable ou argile",
+                        "grade3": "Revêtement assez compact, mélange avec quantité équivalente en gravier ou pierre et en matériaux mous tels que sable, terre ou argile",
+                        "grade4": "Revêtement assez mou, mélange majoritaire de terre, sable ou herbe, avec des matériaux durs",
+                        "grade5": "Revêtement mou de terre, sable ou herbe, surface naturelle devenue voie de passage à l'usage"
+                    },
+                    "placeholder": "Dur, compact, mou…"
+                },
+                "trade": {
+                    "label": "Type"
+                },
+                "traffic_calming": {
+                    "label": "Dispositif"
+                },
+                "traffic_sign": {
+                    "label": "Panneau de signalisation"
+                },
+                "traffic_sign/direction": {
+                    "label": "Direction affectée",
+                    "options": {
+                        "backward": "Vers l'arrière",
+                        "both": "Les deux/toutes",
+                        "forward": "Vers l'avant"
+                    }
+                },
+                "traffic_signals": {
+                    "label": "Feu de signalisation spécifique"
+                },
+                "traffic_signals/direction": {
+                    "label": "Direction affectée",
+                    "options": {
+                        "backward": "Vers l'arrière",
+                        "both": "Les deux / Tous",
+                        "forward": "Vers l'avant"
+                    }
+                },
+                "trail_visibility": {
+                    "label": "Visibilité du sentier",
+                    "options": {
+                        "bad": "Mauvais : pas de balisage, sentier parfois non visible",
+                        "excellent": "Excellent : chemin clairement identifiable ou balisage fréquent",
+                        "good": "Bon : balisage globalement visible",
+                        "horrible": "Horrible : sentier souvent non visible, nécessite de s'orienter",
+                        "intermediate": "Intermédiaire : peu de balisage, sentier identifiable",
+                        "no": "Non : pas de sentier visible, nécessite de bonnes compétences d'orientation"
+                    },
+                    "placeholder": "Excellent, bon, mauvais…",
+                    "terms": "visibilité"
+                },
+                "transformer": {
+                    "label": "Type",
+                    "options": {
+                        "auto": "Autotransformateur",
+                        "auxiliary": "auxiliaire",
+                        "converter": "Convertisseur",
+                        "distribution": "Distribution",
+                        "generator": "Générateur",
+                        "phase_angle_regulator": "Déphaseur",
+                        "traction": "Traction",
+                        "yes": "Inconnu"
+                    }
+                },
+                "trees": {
+                    "label": "Arbres"
+                },
+                "trench": {
+                    "label": "Type"
+                },
+                "trolley_wire": {
+                    "label": "Câble pour trolley",
+                    "terms": "Tyrolienne"
+                },
+                "tunnel": {
+                    "label": "Type",
+                    "placeholder": "Défaut"
+                },
+                "usage_rail": {
+                    "label": "Utilisation",
+                    "options": {
+                        "branch": "Secondaire",
+                        "industrial": "Industrielle",
+                        "main": "Principale",
+                        "military": "Militaire",
+                        "test": " Voie de test pour les nouveaux trains",
+                        "tourism": "Touristique"
+                    },
+                    "terms": "utilisation,type"
+                },
+                "utility_semi": {
+                    "label": "Infrastructures"
+                },
+                "valve": {
+                    "label": "Type"
+                },
+                "vending": {
+                    "label": "Marchandise proposée"
+                },
+                "video_calls": {
+                    "label": "Appels vidéo",
+                    "terms": "appels vidéo,visioconférence,vidéo"
+                },
+                "visibility": {
+                    "label": "Visibilité",
+                    "options": {
+                        "area": "Plus de 20m (65ft)",
+                        "house": "Jusqu'à 5m (16ft)",
+                        "street": "5 à 20m (16 à 65ft)"
+                    }
+                },
+                "volcano/status": {
+                    "label": "Statut",
+                    "options": {
+                        "active": "Actif",
+                        "dormant": "Endormi",
+                        "extinct": "Éteint"
+                    }
+                },
+                "volcano/type": {
+                    "label": "Type de Volcan",
+                    "options": {
+                        "scoria": "Cône de scories",
+                        "shield": "Volcan bouclier",
+                        "stratovolcano": "Stratovolcan"
+                    }
+                },
+                "voltage": {
+                    "label": "Tension électrique"
+                },
+                "voltage/primary": {
+                    "label": "Tension primaire",
+                    "terms": "voltage,primaire,tension"
+                },
+                "voltage/secondary": {
+                    "label": "Tension secondaire",
+                    "terms": "voltage,secondaire,tension"
+                },
+                "voltage/tertiary": {
+                    "label": "Tension tertiaire",
+                    "terms": "voltage,tertiaire,tension"
+                },
+                "voltage_electrified": {
+                    "label": "Tension électrique",
+                    "terms": "voltage,tension"
+                },
+                "wall": {
+                    "label": "Type"
+                },
+                "waste": {
+                    "label": "Déchets"
+                },
+                "water": {
+                    "label": "Type"
+                },
+                "water_point": {
+                    "label": "Point d'eau"
+                },
+                "water_source": {
+                    "label": "Source d'eau"
+                },
+                "water_volume": {
+                    "label": "Volume du réservoir d'eau (m³)",
+                    "terms": "volume,réserve"
+                },
+                "waterway": {
+                    "label": "Type"
+                },
+                "website": {
+                    "label": "Site Web",
+                    "placeholder": "https://exemple.com",
+                    "terms": "site web,site internet,web,internet,site,page web,page internet,url,uri"
+                },
+                "wetland": {
+                    "label": "Type"
+                },
+                "wheelchair": {
+                    "label": "Accès en fauteuil roulant",
+                    "options": {
+                        "limited": "Limité",
+                        "no": "Non",
+                        "yes": "Oui"
+                    },
+                    "terms": "accès en fauteuil roulant,fauteuil roulant,handicapé"
+                },
+                "wholesale": {
+                    "label": "Type de commerce de gros"
+                },
+                "width": {
+                    "label": "Largeur (mètres)",
+                    "terms": "largeur"
+                },
+                "wikidata": {
+                    "label": "Wikidata",
+                    "terms": "wikidata"
+                },
+                "wikimedia_commons": {
+                    "label": "Page Wikimedia Commons",
+                    "placeholder": "File:Example.jpg"
+                },
+                "wikipedia": {
+                    "label": "Wikipédia",
+                    "terms": "wikipédia,wikipedia"
+                },
+                "windings": {
+                    "label": "Enroulements",
+                    "placeholder": "1, 2, 3...",
+                    "terms": "enroulement,bobinage,enroulage,bobine"
+                },
+                "windings/configuration": {
+                    "label": "Configuration des enroulements",
+                    "options": {
+                        "delta": "Triangle",
+                        "leblanc": "Leblanc",
+                        "open": "Ouverte",
+                        "open-delta": "Triangle-ouvert",
+                        "scott": "Scott",
+                        "star": "Étoile",
+                        "zigzag": "Zig-zag "
+                    },
+                    "terms": "configuration enroulement,enroulement,bobinage,enroulage,bobine"
+                }
+            },

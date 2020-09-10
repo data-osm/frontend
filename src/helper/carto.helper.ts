@@ -295,7 +295,7 @@ export class cartoHelper {
        * @see https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html#forEachLayerAtPixel
        */
         className: couche.nom + '___' + couche.type_layer,
-        minResolution: this.map.getView().getResolutionForZoom(11)
+        minResolution: this.map.getView().getResolutionForZoom(9)
       });
 
       var wmsSourceImage = new ImageWMS({
@@ -312,7 +312,7 @@ export class cartoHelper {
        * @see https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html#forEachLayerAtPixel
        */
         className: couche.nom + '___' + couche.type_layer,
-        maxResolution: this.map.getView().getResolutionForZoom(11),
+        maxResolution: this.map.getView().getResolutionForZoom(9),
       });
 
       var layer = new LayerGroup({
@@ -665,11 +665,12 @@ export class cartoHelper {
   getAllLAyerInMap(): Array<any> {
     var responseLayers = []
     this.map.getLayers().forEach((group) => {
-      if (group instanceof LayerGroup) {
-        responseLayers = responseLayers.concat(group.getLayers().getArray())
-      } else {
-        responseLayers.push(group)
-      }
+      responseLayers.push(group)
+      // if (group instanceof LayerGroup) {
+      //   responseLayers = responseLayers.concat(group.getLayers().getArray())
+      // } else {
+      //   responseLayers.push(group)
+      // }
     });
     return responseLayers
   }

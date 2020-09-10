@@ -223,4 +223,18 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
     this.SidenaveLeftSecondaireComp.open()
   }
 
+  /**
+   * display label for the bibliotheque arborescence ?
+   * if we have more than one group cates or if the only group carte is not the principal one
+   */
+  displayLabelForBibliothequeArborescence(){
+    if (this.StorageServiceService.getAllGroupCarte().length > 1) {
+      return true
+    }else if(this.StorageServiceService.getAllGroupCarte().length == 1 && this.StorageServiceService.getAllGroupCarte()[0].id_cartes != this.donnePrincipalMap.groupCarte.id_cartes ) {
+      return true
+    }else{
+      return false
+    }
+  }
+
 }

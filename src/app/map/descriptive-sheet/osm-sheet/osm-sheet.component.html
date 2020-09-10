@@ -9,6 +9,11 @@
 <ng-container *ngIf="listAttributes && listAttributes.length > 0">
   <div class="text-center descriptive-sheet-body-header-btn " style="margin-top: 10px;">
 
+    <button [matTooltip]="'OpenStreetMap'" mat-mini-fab class="descriptive-sheet-body-header-btn-osm"
+    *ngIf="osmUrl" (click)="openUrl(osmUrl)">
+    <img src="assets/icones/descriptive-sheet/Logo_mono.svg" alt="" srcset="" style="margin-top: -6px;height: 25px">
+  </button>
+
     <ng-container *ngFor="let attribute of listAttributes;let i = index">
       <ng-container *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].header">
 
@@ -46,9 +51,9 @@
     </ng-container>
   </div>
 
-  <p style="margin-top: 10px;font-family: 'Avenir Next Rounded Pro Regular';" *ngIf="osmUrl">
+  <!-- <p style="margin-top: 10px;font-family: 'Avenir Next Rounded Pro Regular';" *ngIf="osmUrl">
     <a href="{{osmUrl}}" target=" _blanck " class="descriptive-sheet-body-url"> Voir cette entité sur OpenStreetMap </a>
-  </p>
+  </p> -->
 
   <div fxLayout class="descriptive-sheet-body" style="margin-bottom: 5px;" *ngIf="adresse">
     <div fxFlex="35%" class="attribute">
@@ -132,7 +137,7 @@
 
 
 
-  <ng-container *ngIf="listAttributes.length > 3">
+  <ng-container *ngIf="listAttributes.length > 5">
 
     <a class="descriptive-sheet-body-display-attributes-number pointer"
       (click)="initialNumberOfAttributes = listAttributes.length+1"

@@ -11,6 +11,7 @@ export const environment = {
   url_service: 'http://service.geosm.org/',
   path_qgis: "/var/www/geosm/",
   pojet_nodejs: "france",
+  nom_instance:"Data OSM"
 };
 
 /*

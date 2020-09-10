@@ -51,11 +51,11 @@ export class StorageServiceService {
     return new Promise((resolve, reject) => {
 
       forkJoin(
-        from(this.BackendApiService.getRequest("/geoportail/getCatalogue/")),
-        from(this.BackendApiService.getRequest("/api/v1/RestFull/catalogAdminCartes/")),
-        from(this.BackendApiService.getRequest("/getZoneInteret/")),
-        from(this.BackendApiService.getRequest("/geoportail/getAllExtents/")),
-        from(this.BackendApiService.getRequest("/config_bd_projet/")),
+        from(this.BackendApiService.getRequest("/geoportail/getCatalogue")),
+        from(this.BackendApiService.getRequest("/api/v1/RestFull/catalogAdminCartes")),
+        from(this.BackendApiService.getRequest("/getZoneInteret")),
+        from(this.BackendApiService.getRequest("/geoportail/getAllExtents")),
+        from(this.BackendApiService.getRequest("/config_bd_projet")),
       )
         .pipe(
           catchError(err => {

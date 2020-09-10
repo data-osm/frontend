@@ -1,0 +1,104 @@
+<h1 mat-dialog-title style="    text-align: center;margin-left: -24px;
+margin-right: -24px;
+margin-top: 45px;
+margin-bottom: 0px;background-color: white;">
+
+        <svg x="0px" y="0px" viewBox="0 0 28.1 28.1"
+                style="height: 25px;width: 25px;float: left; margin-left: 10px;margin-top: 5px;padding: 5px;">
+
+                <path id="help-circle" class="primaryColorFill" d="M18.4,13l-1.3,1.3c-1.2,1-1.8,2.5-1.6,4h-2.8v-0.7c0-1.5,0.6-2.9,1.6-4l1.7-1.8
+c0.5-0.5,0.8-1.2,0.8-2c0-1.6-1.3-2.8-2.9-2.8c-1.5,0-2.7,1.2-2.8,2.8H8.4c0-3.1,2.5-5.6,5.6-5.6s5.6,2.5,5.6,5.6
+C19.7,11,19.2,12.2,18.4,13 M15.5,23.9h-2.8v-2.8h2.8 M14.1,0C6.3,0,0,6.3,0,14.1c0,7.8,6.3,14.1,14.1,14.1s14.1-6.3,14.1-14.1
+c0,0,0,0,0,0C28.1,6.3,21.8,0,14.1,0z" />
+        </svg>
+
+
+        <span class="bold primaryColor " style="font-size: 17px;" *ngIf="environment.nom_instance">
+                {{ environment.nom_instance  }}
+        </span>
+
+
+        <i (click)="onNoClick()" class="fa fa-times primaryColor pointer close" style="opacity: 1;
+      font-size: 18px;;margin-right: 10px;margin-top: 6px;"></i>
+</h1>
+
+<style>
+        .text_infos {
+                text-align: justify;
+                background-color: #fff;
+                font-family: Roboto;
+                font-size: 14px;
+                font-weight: normal;
+                font-stretch: normal;
+                font-style: normal;
+                line-height: 1.71;
+                letter-spacing: normal;
+                color: rgba(0, 0, 0, 0.87);
+                padding: 10px;
+                font: 500 15px/32px Roboto, "Helvetica Neue", sans-serif !important;
+        }
+</style>
+<mat-dialog-content style="background:rgba(255, 255, 255, 0.8);padding: 34px;">
+
+        <div class="example-container text_infos" style="text-align:justify;background-color: #fff; width: 600px;">
+
+                <div >
+                        <p>
+                                GeOsm est une infrastructure offrant la possibilité de manipuler, valoriser et
+                                télécharger les données OpenStreetMap de façon simple et sans que cela ne nécessite de
+                                compétences avancées en développement informatique.
+                                Il est basé sur le serveur cartographique QGIS SERVER
+                        </p>
+                </div>
+
+                <div>
+                        <ul style="text-align: left;">
+
+                                <li> <a
+                                                href="https://github.com/GeoOSM/backend_nodejs/issues" target="_blank">
+                                                https://github.com/GeoOSM/backend_nodejs/issues </a> </li>
+                                <li>
+
+                                        <a href="https://github.com/GeoOSM/backend_nodejs/blob/master/README.md#thanks"
+                                                target="_blank">
+                                                https://github.com/GeoOSM/backend_nodejs/blob/master/README.md#thanks</a>
+
+                                </li>
+
+                                <li > Pour les ajouts / modifications des thèmes : <a
+                                                href="https://www.loomio.org/d/018TijXh/th-mes-utilisateurs-"
+                                                target="_blank">
+                                                https://www.loomio.org/d/018TijXh/th-mes-utilisateurs- </a> </li>
+                                <li > Pour créer des cartes personnalisées sur des fonds
+                                        <a href="https://osm.org" target="_blank" rel="noopener noreferrer">
+                                                OpenStreetMap </a> en un instant et les afficher dans votre site. :
+                                        <a href="https://umap.openstreetmap.fr/" target="_blank"
+                                                rel="noopener noreferrer">https://umap.openstreetmap.fr/</a> </li>
+                        </ul>
+
+                </div>
+                <div style="text-align: left;" >
+                        Remerciements à <a href="https://twitter.com/JLZIMMERMANN" target="_blank">@ J.L ZIMMERMANN</a>
+                        pour son implication et l'ordonnance des 16 thèmes
+                </div>
+        </div>
+
+
+
+
+
+        <div class="text-center" style="margin-top:20px" >
+                <div style="width: 150px;height: initial;margin: 0 auto;cursor: pointer;"
+                        (click)="openUrl('https://www.openstreetmap.fr/')">
+                        <a href="https://www.openstreetmap.fr/" target="_blank" class="a_link">
+                                <img width="150" style="cursor: pointer;"
+                                        src="https://wiki.openstreetmap.org/w/images/thumb/8/8c/Openstreepmap-france-logo-texte-carre.pdf/page1-250px-Openstreepmap-france-logo-texte-carre.pdf.jpg"
+                                        alt="" srcset="">
+
+                        </a>
+                </div>
+
+        </div>
+
+</mat-dialog-content>
+

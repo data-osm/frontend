@@ -6,6 +6,7 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { modelDescriptiveSheet, DescriptiveSheetComponent } from 'src/app/map/descriptive-sheet/descriptive-sheet.component';
 import { layersInMap, cartoHelper } from './carto.helper';
 import { LayerGroup } from 'src/app/ol-module';
+import {InfoComponent} from 'src/app/modal/info/info.component'
 /**
  * Open some componenents like social share, loading,modal etc...
  * Dynamically add component in html
@@ -87,7 +88,7 @@ import { LayerGroup } from 'src/app/ol-module';
     var proprietes:MatDialogConfig = {
       disableClose: false,
       minWidth:450,
-      maxHeight:400,
+      maxHeight:460,
       width:'400px',
       data:data,
       hasBackdrop:false,
@@ -172,5 +173,24 @@ import { LayerGroup } from 'src/app/ol-module';
 
     return;
   }
+
+  /**
+    * Open modal info of the app
+    * @param size Array<string>|[]
+    * @param callBack Function
+    */
+   openModalInfo(size:Array<string>|[]){
+    var proprietes = {
+      disableClose: false,
+      minWidth:400,
+    }
+
+    if (size.length >0) {
+      proprietes['width']=size[0]
+      proprietes['height']=size[1]
+    }
+    const modal = this.dialog.open(InfoComponent, proprietes);
+
+   }
 
  }

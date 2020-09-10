@@ -80,7 +80,7 @@ export class OsmSheetComponent implements OnInit,OnChanges {
   /**
    * number of initial number of attributes that can be display
    */
-  initialNumberOfAttributes:number = 3
+  initialNumberOfAttributes:number = 5
 
   private readonly notifier: NotifierService;
 
@@ -163,7 +163,7 @@ export class OsmSheetComponent implements OnInit,OnChanges {
     this.name = undefined
     this.osmId = undefined
     this.osmUrl = undefined
-    this.initialNumberOfAttributes = 3
+    this.initialNumberOfAttributes = 5
 
   }
 

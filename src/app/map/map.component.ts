@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild, AfterViewInit, ViewChildren, NgZone } from '@angular/core';
-import { MatSidenavContainer } from '@angular/material/sidenav';
+import { Component, OnInit, ViewChild, AfterViewInit, ViewChildren, NgZone, QueryList } from '@angular/core';
+import { MatSidenavContainer, MatDrawer } from '@angular/material/sidenav';
 import { rightMenuInterface } from '../type/type'
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import {
@@ -60,7 +60,7 @@ export class MapComponent implements OnInit {
   ritghtMenus: Array<rightMenuInterface> = [
     { name: 'toc', active: false, enable: true, tooltip: 'toolpit_toc', title: 'table_of_contents' },
     { name: 'edition', active: false, enable: true, tooltip: 'toolpit_tools', title: 'tools' },
-    { name: 'routing', active: false, enable: true, tooltip: 'toolpit_map_routing', title: 'map_routing' },
+    { name: 'routing', active: false, enable: false, tooltip: 'toolpit_map_routing', title: 'map_routing' },
     { name: 'legend', active: false, enable: true, tooltip: 'toolpit_legend', title: 'legend' },
     { name: 'download', active: false, enable: true, tooltip: 'toolpit_download_data', title: 'download_data' }
   ]
@@ -84,12 +84,22 @@ export class MapComponent implements OnInit {
   ngOnInit(): void {
     map.setTarget('map1')
     map.setTarget('map')
+    map.updateSize()
+
 
     this.StorageServiceService.states.subscribe((value) => {
       if (value.loadProjectData) {
         map.getView().fit(this.StorageServiceService.getConfigProjet().bbox, { 'size': map.getSize(), 'duration': 1000 });
         this.handleMapParamsUrl()
         this.mapClicked()
+        map.updateSize()
+        var drawers:QueryList<MatDrawer> = this.sidenavContainer._drawers
+        drawers.forEach((drawer)=>{
+          drawer.openedChange.subscribe(()=>{
+            console.log('close open')
+            map.updateSize()
+          })
+        })
       }
     })
 
