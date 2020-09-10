@@ -1,6 +1,8 @@
-<h1 mat-dialog-title class="accentColorBG white">
+<h1 mat-dialog-title class="accentColorBG white" cdkDrag cdkDragRootElement=".cdk-overlay-pane" style="cursor: move;">
   <img [src]="imgSrc" alt="" srcset="" class="icon_header" style="margin-top: 4px;;height: 25px;">
   <i class="fa fa-times-circle close" (click)="closeModal()"></i>
+  <i class="fa fa-arrows-alt white" style="font-size:20px" aria-hidden="true"></i>
+
   {{ descriptiveModel.layer.nom}}
 </h1>
 

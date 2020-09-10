@@ -78,9 +78,22 @@ import {InfoComponent} from 'src/app/modal/info/info.component'
     /**
      * close all modal of type DescriptiveSheetComponent before open another
      */
+    var position = {
+      top:'60px',
+        left:window.innerWidth <500 ?'0px':(window.innerWidth/2 - 400/2)+'px'
+    }
     for (let index = 0; index < this.dialog.openDialogs.length; index++) {
       const elementDialog = this.dialog.openDialogs[index];
+
       if (elementDialog.componentInstance instanceof DescriptiveSheetComponent) {
+        console.log(elementDialog)
+        if (document.getElementById(elementDialog.id)) {
+            if (document.getElementById(elementDialog.id).parentElement) {
+              position.top =  document.getElementById(elementDialog.id).parentElement.getBoundingClientRect().top+'px'
+              position.left =  document.getElementById(elementDialog.id).parentElement.getBoundingClientRect().left+'px'
+            }
+        }
+
         elementDialog.close()
       }
     }
@@ -93,10 +106,7 @@ import {InfoComponent} from 'src/app/modal/info/info.component'
       data:data,
       hasBackdrop:false,
       autoFocus:false,
-      position:{
-        top:'60px',
-        left:window.innerWidth <500 ?'0px':(window.innerWidth/2 - 400/2)+'px'
-      }
+      position:position
     }
 
     if (size.length >0) {

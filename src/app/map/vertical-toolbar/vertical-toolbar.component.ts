@@ -1,10 +1,13 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import {
-  Map, Zoom,
+  Map, Zoom, Point,
 } from '../../ol-module';
 import { MatSidenavContainer } from '@angular/material/sidenav';
 import { SidenaveLeftSecondaireComponent } from '../sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component'
+import { StorageServiceService } from 'src/app/services/storage-service/storage-service.service'
+import { cartoHelper } from 'src/helper/carto.helper';
+import { map } from '../map.component';
 /**
  * vertical toolbar that contains naviguation button
  */
@@ -33,7 +36,23 @@ export class VerticalToolbarComponent implements OnInit {
  */
   @Input() SidenaveLeftSecondaireComp: SidenaveLeftSecondaireComponent
 
-  constructor() {
+  /**
+   * user moved map ?
+   */
+  userMovedMap:boolean = false
+  /**
+   * index of historyMapPosition that represnet current position
+   */
+  indexHstoryMapPosition=0
+  /**
+   * History of positions of map when moved
+   */
+  historyMapPosition: Array<{ coordinates: [number, number], zoom: number }> = []
+
+
+  constructor(
+    public StorageServiceService: StorageServiceService
+  ) {
     this.environment = environment
   }
 
@@ -55,20 +74,44 @@ export class VerticalToolbarComponent implements OnInit {
 
   ngOnInit(): void {
     this.initialiseMatTools()
+    this.StorageServiceService.states.subscribe((value) => {
+      if (value.loadProjectData) {
+        this.map.on('movestart', () => {
+          if (!this.userMovedMap) {
+            this.historyMapPosition = [{
+              coordinates: [this.map.getView().getCenter()[0], this.map.getView().getCenter()[1]],
+              zoom: this.map.getView().getZoom()
+            }]
+            this.indexHstoryMapPosition = 0
+          }
+        })
+
+        this.map.on('moveend', () => {
+          if (!this.userMovedMap) {
+            this.historyMapPosition[1] = {
+              coordinates: [this.map.getView().getCenter()[0], this.map.getView().getCenter()[1]],
+              zoom: this.map.getView().getZoom()
+            }
+            this.indexHstoryMapPosition = 0
+          }
+        })
+      }
+    })
+
   }
 
   /**
    * Get the color for the background of the div toogle sidenav left
    */
-  getBackgroundColorOfTheToogleSlidenav():string{
-    return this.SidenaveLeftSecondaireComp.getBackgroundColor()?this.SidenaveLeftSecondaireComp.getBackgroundColor():'#fff'
+  getBackgroundColorOfTheToogleSlidenav(): string {
+    return this.SidenaveLeftSecondaireComp.getBackgroundColor() ? this.SidenaveLeftSecondaireComp.getBackgroundColor() : '#fff'
   }
 
   /**
    * Get the color of the icon in  the div toogle sidenav left
    */
-  getColorOfTheToogleSlidenav():string{
-    return this.SidenaveLeftSecondaireComp.getBackgroundColor()?'#fff':environment.primaryColor
+  getColorOfTheToogleSlidenav(): string {
+    return this.SidenaveLeftSecondaireComp.getBackgroundColor() ? '#fff' : environment.primaryColor
   }
 
   /**
@@ -94,7 +137,7 @@ export class VerticalToolbarComponent implements OnInit {
    * Zoom to global view of the project
    */
   globalView() {
-
+    new cartoHelper().fit_view(this.StorageServiceService.getExtentOfProject(true), 15)
   }
 
   /**
@@ -108,6 +151,16 @@ export class VerticalToolbarComponent implements OnInit {
    * Roolback the state of map
    */
   rollBack() {
+    if (this.historyMapPosition.length > 0 && this.indexHstoryMapPosition == 0 ) {
+      this.userMovedMap = true
+      this.indexHstoryMapPosition = 1
+      console.log('back')
+      new cartoHelper().fit_view(new Point(this.historyMapPosition[0 ].coordinates),this.historyMapPosition[0 ].zoom)
+      setTimeout(() => {
+      this.userMovedMap = false
+
+      }, 2000);
+    }
 
   }
 
@@ -115,7 +168,15 @@ export class VerticalToolbarComponent implements OnInit {
    * rollFront the state of map
    */
   rollFront() {
+    if (this.historyMapPosition.length > 0 &&  this.indexHstoryMapPosition == 1 ) {
+      this.userMovedMap = true
+      this.indexHstoryMapPosition = 0
+      new cartoHelper().fit_view(new Point(this.historyMapPosition[1].coordinates), this.historyMapPosition[1 ].zoom)
+      setTimeout(() => {
+        this.userMovedMap = false
 
+        }, 2000);
+    }
   }
 
   /**
