@@ -5,8 +5,8 @@
   </mat-sidenav>
 
   <mat-sidenav-content class="sidenav-content">
-    <div id="map" >
-      <div id="map-attribution" ></div>
+
+    <div id="map" (contextmenu)="ContextMenuComp?ContextMenuComp.setRightClickPixel($event):undefined" [shAttachMenu]="ContextMenuComp?ContextMenuComp.menu:undefined" [shMenuData]="ContextMenuComp?ContextMenuComp.listItems:[]">
     </div>
     <app-vertical-toolbar [map]="getMap()" [SidenaveLeftSecondaireComp]="SidenaveLeftSecondaireComp"  [sidenavContainer]="sidenavContainer"  class="sidenav-content-toolbar whiteBG"> </app-vertical-toolbar>
 
@@ -126,3 +126,4 @@ c1.3-0.1,2.3-1.2,2.5-2.5l0-6.8L20.6,11.5z"
 
   </mat-sidenav>
 </mat-sidenav-container>
+<app-context-menu></app-context-menu>

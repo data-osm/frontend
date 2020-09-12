@@ -7,6 +7,7 @@ import { modelDescriptiveSheet, DescriptiveSheetComponent } from 'src/app/map/de
 import { layersInMap, cartoHelper } from './carto.helper';
 import { LayerGroup } from 'src/app/ol-module';
 import {InfoComponent} from 'src/app/modal/info/info.component'
+import {AddGeosignetComponent} from 'src/app/map/context-menu/add-geosignet/add-geosignet.component'
 /**
  * Open some componenents like social share, loading,modal etc...
  * Dynamically add component in html
@@ -201,6 +202,28 @@ import {InfoComponent} from 'src/app/modal/info/info.component'
     }
     const modal = this.dialog.open(InfoComponent, proprietes);
 
+   }
+
+   /**
+    * Open modal to add geo signet
+    * @param size Array<string>|[]
+    * @param callBack Function
+    */
+   openModalAddGeosignet(size:Array<string>|[],callBack:Function){
+    var proprietes = {
+      disableClose: false,
+      minWidth:400,
+    }
+
+    if (size.length >0) {
+      proprietes['width']=size[0]
+      proprietes['height']=size[1]
+    }
+    const modal = this.dialog.open(AddGeosignetComponent, proprietes);
+
+    modal.afterClosed().subscribe(async (result:string) => {
+      callBack(result)
+    })
    }
 
  }

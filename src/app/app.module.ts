@@ -4,6 +4,7 @@ import { NgModule, Injector } from '@angular/core';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import {ShContextMenuModule} from 'ng2-right-click-menu'
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
   return new MultiTranslateHttpLoader(httpClient, [
@@ -61,6 +62,9 @@ import { MultiTranslateHttpLoader } from "ngx-translate-multi-http-loader";
 import { SearchComponent } from './header/search/search.component';
 import { SelectRoiComponent } from './header/select-roi/select-roi.component';
 import { InfoComponent } from './modal/info/info.component';
+import { ContextMenuComponent } from './map/context-menu/context-menu.component';
+import { AddGeosignetComponent } from './map/context-menu/add-geosignet/add-geosignet.component';
+import { ListGeosignetComponent } from './map/context-menu/list-geosignet/list-geosignet.component';
 
 
 @NgModule({
@@ -95,7 +99,10 @@ import { InfoComponent } from './modal/info/info.component';
     OsmSheetComponent,
     SearchComponent,
     SelectRoiComponent,
-    InfoComponent
+    InfoComponent,
+    ContextMenuComponent,
+    AddGeosignetComponent,
+    ListGeosignetComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({
@@ -119,11 +126,12 @@ import { InfoComponent } from './modal/info/info.component';
         useFactory: HttpLoaderFactory,
         deps: [HttpClient],
       }
-    })
+    }),
+    ShContextMenuModule
   ],
   providers: [StorageServiceService,BackendApiService,manageCompHelper],
   bootstrap: [AppComponent],
-  entryComponents:[MetadataComponent,ListDownloadLayersComponent]
+  entryComponents:[MetadataComponent,ListDownloadLayersComponent,AddGeosignetComponent,ListGeosignetComponent]
 })
 export class AppModule {
   constructor(injector: Injector) {

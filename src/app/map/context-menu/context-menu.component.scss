@@ -1,0 +1,17 @@
+@import '../../theme.scss';
+
+.item_right {
+  padding: 5px 10px 5px 15px;
+}
+
+.item_right:hover {
+  background: $primary;
+  color: #fff;
+}
+.item_right:hover span svg * {
+  fill: #fff !important;
+}
+::ng-deep .sh-context-menu--item:hover, .sh-context-menu--item__sub-active{
+  background: transparent !important;
+  color: $primary !important;
+}

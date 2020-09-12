@@ -5,9 +5,6 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import {
   Map,
   View,
-  TileLayer,
-  XYZ,
-  defaultControls,
   Attribution,
   LayerGroup
 } from '../ol-module';
@@ -18,6 +15,7 @@ import { SidenaveLeftSecondaireComponent } from './sidenav-left/sidenave-left-se
 import * as $ from 'jquery'
 import { layersInMap, cartoHelper, dataFromClickOnMapInterface } from 'src/helper/carto.helper';
 import {manageCompHelper} from 'src/helper/manage-comp.helper'
+import {ContextMenuComponent} from '../map/context-menu/context-menu.component'
 
 var attribution = new Attribution({
   collapsible: false,
@@ -44,6 +42,11 @@ export const map = new Map({
   styleUrls: ['./map.component.scss']
 })
 export class MapComponent implements OnInit {
+
+  /**
+   * Context menu component of the app
+   */
+  @ViewChild(ContextMenuComponent, { static: true }) ContextMenuComp: ContextMenuComponent;
 
   /**
    * La sidenav
@@ -98,7 +101,6 @@ export class MapComponent implements OnInit {
         var drawers:QueryList<MatDrawer> = this.sidenavContainer._drawers
         drawers.forEach((drawer)=>{
           drawer.openedChange.subscribe(()=>{
-            console.log('close open')
             map.updateSize()
           })
         })
@@ -193,7 +195,7 @@ export class MapComponent implements OnInit {
    */
   handleMapParamsUrl() {
     this.activatedRoute.queryParams.subscribe(params => {
-      console.log(params)
+      // console.log(params)
       /** share of layers */
       if (params['layers']) {
         var layers = params['layers'].split(';')
