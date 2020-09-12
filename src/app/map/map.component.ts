@@ -117,7 +117,7 @@ export class MapComponent implements OnInit {
         /**
          * open right sidenav if there are 2 layers in the TOC
          */
-      if (this.layersInToc .length == 2) {
+      if (this.layersInToc .length == 2 && !this.getRightMenu('toc').active) {
         this.openRightMenu('toc')
       }
 
