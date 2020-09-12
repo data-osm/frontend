@@ -130,6 +130,11 @@
             <i class="fa fa-check" style="color: green;" *ngIf="attribute.value=='yes' "> </i>
             <i class="fa fa-times" style="color: red;" *ngIf="attribute.value=='no' "> </i>
           </div>
+
+          <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'area'">
+            {{formatArea(attribute.value)}}
+          </div>
+
         </div>
       </div>
     </ng-container>

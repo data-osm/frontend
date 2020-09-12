@@ -26,6 +26,14 @@
   "addr:housenumber": {
       "display":false
   },
+  "way_area":{
+    "display":true,
+    "type":"area"
+  },
+  "area":{
+    "display":true,
+    "type":"area"
+  },
   "wikipedia": {
       "display":false,
       "type": "url",

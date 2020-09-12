@@ -43,11 +43,25 @@
   background: unset !important;
   padding: 0px;
 }
+#ghostMap{
+  .ol-attribution{
+    display: none !important;
+  }
+}
 .ol-attribution{
   background: rgba(255,255,255,0.8) !important;
   font-family: Roboto, "Helvetica Neue", sans-serif !important;
-  font-size: 10px;
+  font-size: 11px;
+  padding: 3px;
   position: absolute !important;
+  display: block !important;
+  button{
+    width: 25px !important;
+    height: 25px !important;
+    margin-bottom: 0px;
+    border-radius: 0px !important;
+    background: #033f5e;
+  }
 }
 .tooltip.tooltip-static,.tooltip.tooltip-measure{
   background-color: #3a3a3a;

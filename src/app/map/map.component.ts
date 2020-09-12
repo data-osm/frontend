@@ -20,7 +20,8 @@ import { layersInMap, cartoHelper, dataFromClickOnMapInterface } from 'src/helpe
 import {manageCompHelper} from 'src/helper/manage-comp.helper'
 
 var attribution = new Attribution({
-  collapsible: false
+  collapsible: false,
+  // target:'map-attribution'
 });
 
 export const map = new Map({
@@ -33,7 +34,8 @@ export const map = new Map({
     center: [0, 0],
     zoom: 4
   }),
-  controls: defaultControls({ attribution: false, zoom: false }).extend([attribution]),
+  // controls: defaultControls({ attribution: false, zoom: false }).extend([attribution]),
+  // controls: defaultControls({ attribution: true, zoom: false }),
 });
 
 @Component({
@@ -111,6 +113,14 @@ export class MapComponent implements OnInit {
       let cartoHelperClass = new cartoHelper()
 
       this.layersInToc = cartoHelperClass.getAllLayersInToc()
+
+        /**
+         * open right sidenav if there are 2 layers in the TOC
+         */
+      if (this.layersInToc .length == 2) {
+        this.openRightMenu('toc')
+      }
+
     })
 
   }

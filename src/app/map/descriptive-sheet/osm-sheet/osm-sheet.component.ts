@@ -10,7 +10,7 @@ import { retryWhen, tap, delayWhen, take } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { timer } from 'rxjs';
 import { ShareServiceService } from 'src/app/services/share-service/share-service.service'
-
+import {measureUtil} from 'src/utils/measureUtils'
 export interface attributeInterface {
   field: string,
   value: string,
@@ -371,6 +371,27 @@ export class OsmSheetComponent implements OnInit,OnChanges {
     if (adresse.housenumber && adresse.street) {
       this.adresse = adresse.housenumber + ' ' + adresse.street + ' ' + adresse.city + ' ' + adresse.postcode
     }
+  }
+
+  /**
+   * Format area
+   * @param area
+   */
+  formatArea(area):string{
+    var intArea = parseInt(area)
+    var unit:"sqm" | "hectar" | "sqkm" | "sqft" | "sqmi" = 'sqm'
+    var unitHuman = 'm²'
+    if (area > 1000) {
+      unit = 'hectar'
+      unitHuman = 'hectare'
+    }
+
+    if (area > 100000000) {
+      unit = 'sqkm'
+      unitHuman = 'Km²'
+    }
+
+    return Math.round((new measureUtil().getFormattedArea(unit,area) + Number.EPSILON) * 100) / 100+' '+unitHuman
   }
 
   openUrl(url) {

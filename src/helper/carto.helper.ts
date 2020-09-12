@@ -271,7 +271,8 @@ export class cartoHelper {
     if (couche.type == "xyz") {
       var layer = new TileLayer({
         source: new XYZ({
-          url: couche.url
+          url: couche.url,
+          attributions:'<a target="_blank" href="https://www.openstreetmap.org/copyright"> © OpenStreetMap </a> contributors , develop by <a target="_blank" href="https://twitter.com/armeltayou"> @armeltayou </a>',
         }),
         /**
       * so that map.forEachLayerAtPixel work as expected
