@@ -1016,7 +1016,6 @@ export class cartoHelper {
           layers: layers
         }
       }
-      console.log(data_callback)
       callback(data_callback)
 
     } else {

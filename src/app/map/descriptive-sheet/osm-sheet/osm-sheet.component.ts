@@ -245,19 +245,40 @@ export class OsmSheetComponent implements OnInit,OnChanges {
       this.getOsmLink()
     }
 
-    if (this.descriptiveModel.properties['hstore_to_json'] && typeof this.descriptiveModel.properties['hstore_to_json'] == 'object') {
-      for (const key in this.descriptiveModel.properties['hstore_to_json']) {
-        if (this.descriptiveModel.properties['hstore_to_json'].hasOwnProperty(key) && ['osm_user', 'osm_changeset', 'osm_timestamp', 'osm_version', "osm_uid","featureId"].indexOf(key) == -1) {
-          const value = this.descriptiveModel.properties['hstore_to_json'][key];
+    if (this.descriptiveModel.properties['hstore_to_json'] ) {
+      let values_hstore_to_json:attributeInterface[] = []
+      if (typeof this.descriptiveModel.properties['hstore_to_json'] === 'object') {
+        values_hstore_to_json = this._formatHtsore(this.descriptiveModel.properties['hstore_to_json'])
 
-          this.listAttributes.push({
-            field: key,
-            value: value,
-            display: true
-          })
+      }else if (typeof this.descriptiveModel.properties['hstore_to_json'] === 'string'){
+        let stringToJson = function(myString){
+          let myObject = {}
+          for (let index = 0; index < myString.split(',').length; index++) {
+            const element = myString.split(',')[index];
+            myObject[element.split(': ')[0].replace(/\s/, '')] = element.split(': ')[1]
+          }
+          return JSON.stringify(myObject)
+        }
 
+        try {
+
+          let objetHstore = JSON.parse(stringToJson(this.descriptiveModel.properties['hstore_to_json']))
+
+          values_hstore_to_json = this._formatHtsore(objetHstore)
+        } catch (error) {
+          console.error(error,stringToJson(this.descriptiveModel.properties['hstore_to_json']))
+          values_hstore_to_json = []
         }
       }
+      for (let index = 0; index <values_hstore_to_json.length; index++) {
+        const element = values_hstore_to_json[index];
+        this.listAttributes.push({
+          field: element.field,
+          value: element.value,
+          display: element.display
+        })
+      }
+
     }
 
 
@@ -293,6 +314,23 @@ export class OsmSheetComponent implements OnInit,OnChanges {
 
     this.constructAdresse()
 
+  }
+
+  _formatHtsore(hstore_to_json:Object):attributeInterface[]{
+    let values:attributeInterface[] = []
+    for (const key in hstore_to_json) {
+      if (hstore_to_json.hasOwnProperty(key) && ['osm_user', 'osm_changeset', 'osm_timestamp', 'osm_version', "osm_uid","featureId"].indexOf(key) == -1) {
+        const value = hstore_to_json[key];
+
+        values.push({
+          field: key,
+          value: value,
+          display: true
+        })
+
+      }
+    }
+    return values
   }
 
   /**
@@ -381,7 +419,7 @@ export class OsmSheetComponent implements OnInit,OnChanges {
     var intArea = parseInt(area)
     var unit:"sqm" | "hectar" | "sqkm" | "sqft" | "sqmi" = 'sqm'
     var unitHuman = 'm²'
-    if (area > 1000) {
+    if (area > 10000) {
       unit = 'hectar'
       unitHuman = 'hectare'
     }
@@ -391,7 +429,7 @@ export class OsmSheetComponent implements OnInit,OnChanges {
       unitHuman = 'Km²'
     }
 
-    return Math.round((new measureUtil().getFormattedArea(unit,area) + Number.EPSILON) * 100) / 100+' '+unitHuman
+    return Math.round((new measureUtil().getFormattedArea(unit,intArea) + Number.EPSILON) * 100) / 100+' '+unitHuman
   }
 
   openUrl(url) {

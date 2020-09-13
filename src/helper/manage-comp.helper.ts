@@ -54,7 +54,6 @@ import {AddGeosignetComponent} from 'src/app/map/context-menu/add-geosignet/add-
       if (layer.layer instanceof LayerGroup) {
         layer.layer = new cartoHelper().getLayerQuerryBleInLayerGroup(layer.layer)
       }
-      console.log(layer)
       this.openDescriptiveSheetModal({
         type:type,
         layer:layer,
@@ -87,7 +86,6 @@ import {AddGeosignetComponent} from 'src/app/map/context-menu/add-geosignet/add-
       const elementDialog = this.dialog.openDialogs[index];
 
       if (elementDialog.componentInstance instanceof DescriptiveSheetComponent) {
-        console.log(elementDialog)
         if (document.getElementById(elementDialog.id)) {
             if (document.getElementById(elementDialog.id).parentElement) {
               position.top =  document.getElementById(elementDialog.id).parentElement.getBoundingClientRect().top+'px'

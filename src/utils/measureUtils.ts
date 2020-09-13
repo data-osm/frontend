@@ -41,7 +41,6 @@ export class measureUtil {
 
   _sqmToHectar(area) {
     return area * 0.0001;
-    10000
   }
 
 }
