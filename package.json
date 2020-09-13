@@ -2,6 +2,7 @@
   "name": "geosm-frontend",
   "version": "0.0.0",
   "scripts": {
+    "compodoc": "npx compodoc -p src/tsconfig.app.json",
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",

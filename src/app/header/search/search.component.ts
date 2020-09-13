@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { debounceTime, filter, startWith, tap, map, skip, catchError } from 'rxjs/operators';
+import { debounceTime, filter, startWith, tap, map, skip, catchError, take, switchMap } from 'rxjs/operators';
 import { from, Observable, fromEvent, merge as observerMerge, of } from 'rxjs';
 import { BackendApiService } from 'src/app/services/backend-api/backend-api.service'
 import { StorageServiceService } from 'src/app/services/storage-service/storage-service.service'
@@ -200,32 +200,29 @@ export class SearchComponent implements OnInit {
     var empriseControl = new FormControl('', [Validators.minLength(2)])
     empriseControl.valueChanges.pipe(
       debounceTime(500),
-      filter(value => typeof value == 'string' && value.length > 2),
-      startWith(''),
-      skip(1),
+      filter(value => typeof value === 'string' && value.length > 2),
       tap(() => { console.log('loading') }),
-      map((value) => {
+      switchMap((value) => {
         return observerMerge(
           ...this.getQuerryForSerach(value)
+        ).pipe(
+          map(value=>value)
         )
       })
     ).subscribe((value) => {
-      value.subscribe((data) => {
-        console.log(this.StorageServiceService.getExtentOfProject())
 
-        if (data.type == 'limites') {
-          this.filterOptions['limites'] = new handleEmpriseSearch().formatDataForTheList(data.value)
-        } else if (data.type == 'photon') {
-          this.filterOptions['photon'] = new handlePhotonSearch().formatDataForTheList(data.value)
-        } else if (data.type == 'adresseFr') {
-          this.filterOptions['adresseFr'] = new handleAdresseFrSearch().formatDataForTheList(data.value)
-        } else if (data.type == 'layer') {
-          this.filterOptions['layer'] = new handleLayerSearch().formatDataForTheList(data.value)
+        if (value.type == 'limites') {
+          this.filterOptions['limites'] = new handleEmpriseSearch().formatDataForTheList(value.value)
+        } else if (value.type == 'photon') {
+          this.filterOptions['photon'] = new handlePhotonSearch().formatDataForTheList(value.value)
+        } else if (value.type == 'adresseFr') {
+          this.filterOptions['adresseFr'] = new handleAdresseFrSearch().formatDataForTheList(value.value)
+        } else if (value.type == 'layer') {
+          this.filterOptions['layer'] = new handleLayerSearch().formatDataForTheList(value.value)
         }
 
         this.cleanFilterOptions()
 
-      })
     })
 
     this.form = this.fb.group({
