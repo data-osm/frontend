@@ -63,7 +63,7 @@ import {MatListModule} from '@angular/material/list';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatSelectModule} from '@angular/material/select';
-
+import {MatBottomSheetModule} from '@angular/material/bottom-sheet'
 @NgModule({
   exports: [
     A11yModule,
@@ -91,7 +91,8 @@ import {MatSelectModule} from '@angular/material/select';
     MatListModule,
     MatAutocompleteModule,
     MatSlideToggleModule,
-    MatSelectModule
+    MatSelectModule,
+    MatBottomSheetModule
   ]
 })
 export class ComponentMaterialModule { }

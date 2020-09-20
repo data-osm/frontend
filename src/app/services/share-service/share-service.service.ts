@@ -84,7 +84,6 @@ export class ShareServiceService {
 
             this.getFeatureOSMFromCartoServer(couche, id).then(
               (feature) => {
-                console.log(feature)
                 if (feature) {
                   var propertie = feature.getProperties()
                   var geometry = feature.getGeometry()
