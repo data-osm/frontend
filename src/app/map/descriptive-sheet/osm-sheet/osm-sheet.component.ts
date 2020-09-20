@@ -416,7 +416,7 @@ export class OsmSheetComponent implements OnInit,OnChanges {
    * @param area
    */
   formatArea(area):string{
-    var intArea = parseInt(area)
+    var intArea = parseFloat(area)
     var unit:"sqm" | "hectar" | "sqkm" | "sqft" | "sqmi" = 'sqm'
     var unitHuman = 'm²'
     if (area > 10000) {

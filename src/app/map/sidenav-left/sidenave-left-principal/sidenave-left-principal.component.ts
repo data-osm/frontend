@@ -82,6 +82,13 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
       if (value.loadProjectData) {
         this.addLayerShadow()
         this.tooglePrincipalMapLayer()
+
+        setTimeout(() => {
+          if (this.StorageServiceService.getGroupThematiqueById(10)) {
+            this.openGroupThematiqueSlide(this.StorageServiceService.getGroupThematiqueById(10))
+          }
+
+        }, 500);
       }
     })
   }
