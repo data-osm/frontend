@@ -1,0 +1,44 @@
+<h1 mat-dialog-title class="primaryColorBG white">
+  <i class="fa fa-download white icon_header" aria-hidden="true"></i>
+  <i class="fa fa-times-circle close" (click)="closeModal()"></i>
+  {{ 'dowloadLayers.title' | translate }}
+</h1>
+
+<div mat-dialog-content>
+
+  <mat-card *ngFor="let layer of listLayers" style="margin-bottom: 15px;">
+    <mat-card-header>
+      <img mat-card-avatar [src]="environment.url_prefix+layer.layer.img" alt="">
+      <mat-card-title>{{layer.nom}}</mat-card-title>
+      <mat-card-subtitle>{{layer.groupThematique.nom}}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+
+      <mat-chip-list>
+        <mat-chip >
+
+          {{layer.number}} {{ 'dowloadLayers.features' | translate }}
+
+        </mat-chip>
+        <mat-chip  class=" accentColorBG white ">
+
+          {{layer.empriseName}}
+
+        </mat-chip>
+      </mat-chip-list>
+
+    </mat-card-content>
+    <mat-card-actions style="text-align: right;" >
+      <a [href]="layer.url" target="_blanck">
+      <button mat-flat-button class=" primaryColor " style="background: rgb(0 0 0 / 0.03);" >{{ 'dowloadLayers.download' | translate }}</button>
+    </a>
+    </mat-card-actions>
+  </mat-card>
+
+</div>
+
+<div mat-dialog-actions>
+  <img src="assets/icones/osm.svg" width="25px" alt="" style="    vertical-align: middle;">
+  {{ 'geosm.text' | translate }} <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">
+    {{ 'geosm.text1' | translate }}  OpenStreetMap </a>
+</div>

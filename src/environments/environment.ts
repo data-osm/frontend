@@ -4,17 +4,20 @@
 
 export const environment = {
   production: false,
-  global_logo:undefined,
-  primaryColor:'#1F8FEA',
-  url_prefix:"http://adminfrance.geocameroun.xyz/",
-  url_frontend:"http://localhost:4200/"
-
+  global_logo: undefined,
+  primaryColor: '#023f5f',
+  url_prefix: "http://adminfrance.geosm.org/",
+  url_frontend: "http://localhost:4200/",
+  url_service: 'http://service.geosm.org/',
+  path_qgis: "/var/www/geosm/",
+  pojet_nodejs: "france",
+  nom_instance:"Data OSM"
 };
 
 /*
  * For easier debugging in development mode, you can import the following file
  * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
- *
+ *"http://adminfrance.geocameroun.xyz/",
  * This import should be commented out in production mode because it will have a negative impact
  * on performance if an error is thrown.
  */

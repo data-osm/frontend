@@ -1,0 +1,31 @@
+<ng-container *ngIf="groupThematique.sous_thematiques">
+
+  <mat-accordion multi="true" class="couche-thematique">
+    <mat-expansion-panel class="couche-thematique-panel"
+      *ngFor="let sous_thematique of groupThematique.sous_thematiques" expanded="true">
+      <mat-expansion-panel-header class="primary_transparent_bg">
+        <mat-panel-title>
+          {{sous_thematique.nom}}
+        </mat-panel-title>
+
+      </mat-expansion-panel-header>
+      <div fxLayout="row wrap">
+        <ng-container *ngFor=" let couche of sous_thematique.couches">
+          <app-couche-thematique fxFlex="50%" [couche]="couche"></app-couche-thematique>
+        </ng-container>
+      </div>
+    </mat-expansion-panel>
+
+  </mat-accordion>
+
+</ng-container>
+
+<ng-container *ngIf="!groupThematique.sous_thematiques">
+
+  <div fxLayout="row wrap">
+    <ng-container *ngFor=" let couche of groupThematique.couches">
+      <app-couche-thematique fxFlex="50%" [couche]="couche"></app-couche-thematique>
+    </ng-container>
+  </div>
+
+</ng-container>

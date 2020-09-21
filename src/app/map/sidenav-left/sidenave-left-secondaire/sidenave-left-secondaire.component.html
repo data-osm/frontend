@@ -1,0 +1,18 @@
+<ng-container *ngIf="activeGroup">
+  <div class="sidenav-left-second-header-ghost"  ></div>
+  <div class=" black sidenav-left-second-header white" [ngClass]="{'primaryColorBG': !activeGroup.color}"
+    [ngStyle]="{'background-color': activeGroup.color}" >
+
+    <i fxFlex="20px" class="fa fa-angle-left fa-lg white pointer " (click)="close()"></i>
+
+    <img fxFlex="25px" class="sidenav-left-second-header-img" src="{{activeGroup.img}}" alt="">
+
+    <h5 fxFlex class="bold  white sidenav-left-second-header-title" matTooltip="{{activeGroup.nom}}"> {{activeGroup.nom}}</h5>
+
+  </div>
+
+  <app-list-group-thematique class="scroll" *ngIf="groupThematique" [groupThematique]="groupThematique" ></app-list-group-thematique>
+
+  <app-list-group-carte class="scroll" *ngIf="groupCarte" [groupCarte]="groupCarte" ></app-list-group-carte>
+
+</ng-container>

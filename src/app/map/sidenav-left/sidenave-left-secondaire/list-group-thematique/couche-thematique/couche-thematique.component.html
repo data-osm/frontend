@@ -1,0 +1,17 @@
+<div [matTooltip]="couche.nom" class="couches" [ngClass]="{'opacity_disabled': disabled_couche(couche)}">
+  <div fxLayout>
+    <div fxFlex>
+      <img src="{{url_prefix+couche.img}}" *ngIf="couche.logo_src == null" />
+      <img src="{{url_prefix+couche.logo_src}}" *ngIf="couche.logo_src != null" />
+    </div>
+    <div fxFlex="50px" style="position: relative;padding-top: 13px;">
+      <mat-checkbox class="primaryColor center_checkbox" color="primary" [(ngModel)]="couche.check"
+        [disabled]="disabled_couche(couche)" (change)="toogleLayer(couche)" >
+      </mat-checkbox>
+    </div>
+  </div>
+  <div class="couches-nom black" style="-webkit-box-orient: vertical;">
+    <div>{{couche.nom}}</div>
+  </div>
+
+</div>

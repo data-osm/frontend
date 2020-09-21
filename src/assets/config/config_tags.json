@@ -1,0 +1,321 @@
+{
+  "osm_user": {
+    "display": false
+  },
+  "name": {
+    "display": false
+  },
+  "amenity": {
+    "display": false
+  },
+  "osm_version": {
+    "display": false
+  },
+  "osm_uid": {
+    "display": false
+  },
+  "osm_timestamp": {
+    "display": false
+  },
+  "osm_changeset": {
+    "display": false
+  },
+  "hstore_to_json": {
+    "display": false
+  },
+  "addr:street": {
+    "display": false
+  },
+  "addr:housenumber": {
+    "display": false
+  },
+  "way_area": {
+    "display": true,
+    "type": "area"
+  },
+  "area": {
+    "display": true,
+    "type": "area"
+  },
+  "wikipedia": {
+    "display": false,
+    "type": "url",
+    "prefix": "https://fr.wikipedia.org/wiki/",
+    "header": "wikipedia"
+  },
+  "brand:wikidata": {
+    "display": false,
+    "type": "url",
+    "prefix": "https://www.wikidata.org/wiki/",
+    "header": "wikidata"
+  },
+  "brand:wikipedia": {
+    "display": false,
+    "type": "url",
+    "prefix": "https://fr.wikipedia.org/wiki/",
+    "header": "wikipedia"
+  },
+  "operator:wikidata": {
+    "display": false,
+    "type": "url",
+    "prefix": "https://www.wikidata.org/wiki/",
+    "header": "wikidata"
+  },
+  "artist:wikidata": {
+    "display": false,
+    "type": "url",
+    "prefix": "https://www.wikidata.org/wiki/",
+    "header": "wikidata"
+  },
+  "wikidata": {
+    "display": false,
+    "type": "url",
+    "prefix": "https://www.wikidata.org/wiki/",
+    "header": "wikidata"
+  },
+  "name:etymology:wikidata": {
+    "display": false,
+    "type": "url",
+    "prefix": "https://www.wikidata.org/wiki/",
+    "header": "wikidata"
+  },
+  "website": {
+    "display": false,
+    "type": "url",
+    "prefix": "",
+    "header": "website"
+  },
+  "contact:website": {
+    "display": false,
+    "type": "url",
+    "prefix": "",
+    "header": "website"
+  },
+  "brand:website": {
+    "display": false,
+    "type": "url",
+    "prefix": "",
+    "header": "website"
+  },
+  "url": {
+    "display": false,
+    "type": "url",
+    "prefix": "",
+    "header": "website"
+  },
+  "opening_hours:url": {
+    "display": true,
+    "type": "url",
+    "prefix": ""
+  },
+  "contact:instagram": {
+    "display": true,
+    "type": "url",
+    "prefix": ""
+  },
+  "contact:twitter": {
+    "display": true,
+    "type": "url",
+    "prefix": ""
+  },
+  "wikimedia_commons": {
+    "display": false,
+    "type": "image",
+    "prefix": "https://upload.wikimedia.org/wikipedia/commons/c/ca/",
+    "surfix": "",
+    "header": "wikimedia"
+  },
+  "phone_1": {
+    "display": true,
+    "type": "tel",
+    "header": "tel"
+  },
+  "phone": {
+    "display": true,
+    "type": "tel",
+    "header": "tel"
+  },
+  "contact:fax": {
+    "display": true,
+    "type": "tel",
+    "header": "tel"
+  },
+  "contact:phone": {
+    "display": true,
+    "type": "tel",
+    "header": "tel"
+  },
+  "contact:mobile": {
+    "display": true,
+    "type": "tel",
+    "header": "tel"
+  },
+  "contact:facebook": {
+    "display": true,
+    "type": "url",
+    "prefix": ""
+  },
+  "facebook": {
+    "display": true,
+    "type": "url",
+    "prefix": ""
+  },
+  "fax": {
+    "display": true,
+    "type": "tel",
+    "header": "tel"
+  },
+  "email": {
+    "display": false,
+    "type": "email",
+    "header": "email"
+  },
+  "contact:email": {
+    "display": false,
+    "type": "email",
+    "header": "email"
+  },
+  "colour": {
+    "display": true,
+    "type": "colour"
+  },
+  "building:colour": {
+    "display": true,
+    "type": "colour"
+  },
+  "image": {
+    "display": true,
+    "type": "image",
+    "prefix": "",
+    "surfix": ""
+  },
+  "mapillary": {
+    "display": true,
+    "type": "image",
+    "prefix": "https://d1cuyjsrcm0gby.cloudfront.net/",
+    "surfix": "/thumb-320.jpg"
+  },
+  "flickr": {
+    "display": true,
+    "type": "image",
+    "prefix": "",
+    "surfix": ""
+  },
+  "wheelchair": {
+    "display": true,
+    "type": "choice",
+    "values": {
+      "yes": {
+        "type": "fa",
+        "value": "check",
+        "color": "green"
+      },
+      "no": {
+        "type": "fa",
+        "value": "times",
+        "color": "red"
+      },
+      "limited": {
+        "type": "text"
+      }
+    }
+  },
+  "opening_hours:covid19": {
+    "display": true,
+    "type": "choice",
+    "values": {
+      "yes": {
+        "type": "fa",
+        "value": "check",
+        "color": "green"
+      },
+      "no": {
+        "type": "fa",
+        "value": "times",
+        "color": "red"
+      },
+      "limited": {
+        "type": "text"
+      }
+    }
+  },
+  "atm": {
+    "display": true,
+    "type": "choice",
+    "values": {
+      "yes": {
+        "type": "fa",
+        "value": "check",
+        "color": "green"
+      },
+      "no": {
+        "type": "fa",
+        "value": "times",
+        "color": "red"
+      },
+      "limited": {
+        "type": "text"
+      }
+    }
+  },
+  "payment:mastercard": {
+    "display": true,
+    "type": "boolean"
+  },
+  "payment:maestro": {
+    "display": true,
+    "type": "boolean"
+  },
+  "payment:cash": {
+    "display": true,
+    "type": "boolean"
+  },
+  "payment:visa_electron": {
+    "display": true,
+    "type": "boolean"
+  },
+  "payment:cards": {
+    "display": true,
+    "type": "boolean"
+  },
+  "payment:contactless": {
+    "display": true,
+    "type": "boolean"
+  },
+  "payment:visa": {
+    "display": true,
+    "type": "boolean"
+  },
+  "payment:notes": {
+    "display": true,
+    "type": "boolean"
+  },
+  "payment:coins": {
+    "display": true,
+    "type": "boolean"
+  },
+  "payment:credit_cards": {
+    "display": true,
+    "type": "boolean"
+  },
+  "payment:american_express": {
+    "display": true,
+    "type": "boolean"
+  },
+  "payment:visa_debit": {
+    "display": true,
+    "type": "boolean"
+  },
+  "payment:cheque": {
+    "display": true,
+    "type": "boolean"
+  },
+  "payment:debit_cards": {
+    "display": true,
+    "type": "boolean"
+  },
+  "outdoor_seating": {
+    "display": true,
+    "type": "boolean"
+  }
+}

@@ -14,10 +14,8 @@
       "path": "./tsconfig.spec.json"
     },
     {
-      "path": "./tsconfig.ol.json"
-    },
-    {
       "path": "./e2e/tsconfig.json"
     }
 ]
 }
+

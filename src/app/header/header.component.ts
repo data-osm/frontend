@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-
+import {manageCompHelper} from 'src/helper/manage-comp.helper'
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -7,9 +7,18 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HeaderComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    public manageCompHelper:manageCompHelper
+  ) { }
 
   ngOnInit(): void {
+  }
+
+  /**
+   * open info modal
+   */
+  openModalInfo(){
+    this.manageCompHelper.openModalInfo([])
   }
 
 }

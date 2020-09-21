@@ -1,149 +1,160 @@
-@import '~@angular/material/theming';
-@import '../../src//environments/color.scss';
+@import "~@angular/material/theming";
+@import "../../src//environments/color.scss";
 @include mat-core();
 
 @mixin theme-color-grabber($theme) {
-    // Parse the theme and create variables for each color in the pallete #c1000a(rouge) jaune #ffd800
-    $primary: map-get($theme, primary);
-    $accent: map-get($theme, accent);
-    $warn: map-get($theme, warn);
-    // Create theme specfic styles
+  // Parse the theme and create variables for each color in the pallete #c1000a(rouge) jaune #ffd800
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $warn: map-get($theme, warn);
+  // Create theme specfic styles
 
-    .primaryColor {
-        color: mat-color($primary) !important;
-    }
+  .primaryColor {
+    color: mat-color($primary) !important;
+  }
 
-    .primaryColorBorder {
-        border-color: mat-color($primary) !important;
-    }
+  .primaryColorBorder {
+    border-color: mat-color($primary) !important;
+  }
 
-    .primaryColorFill {
-        fill: mat-color($primary) !important;
-    }
+  .primaryColorFill {
+    fill: mat-color($primary) !important;
+  }
 
-    .primaryColorBG {
-        background-color: mat-color($primary) !important;
-    }
+  .primaryColorBG {
+    background-color: mat-color($primary) !important;
+  }
 
-    .accentColorBG {
-        background-color: mat-color($accent) !important;
-    }
+  .accentColor {
+    color: mat-color($accent) !important;
+  }
 
-    .accentColorFill {
-        fill: mat-color($accent) !important;
-    }
+  .accentColorBG {
+    background-color: mat-color($accent) !important;
+  }
 
-    .warnColorBG {
-        background-color: mat-color($warn);
+  .accentColorFill {
+    fill: mat-color($accent) !important;
+  }
 
-    }
+  .warnColorBG {
+    background-color: mat-color($warn);
+  }
 
-    .mat-expansion-indicator:after {
-        color: mat-color($primary) !important;
-    }
+  .mat-expansion-indicator:after {
+    color: mat-color($primary) !important;
+  }
 
-    .white {
-        color: #fff !important;
-    }
+  .white {
+    color: #fff !important;
+  }
 
-    .whiteFill {
-        fill: #fff !important;
-    }
+  .whiteFill {
+    fill: #fff !important;
+  }
 
-    .whiteBG {
-        background-color: #fff !important;
-    }
+  .whiteBG {
+    background-color: #fff !important;
+  }
 
-    .black {
-        color: #3a3a3a !important;
-    }
+  .black {
+    color: #3a3a3a !important;
+  }
 
-    .blackBG {
-        background-color: #3a3a3a !important;
-    }
+  .blackBG {
+    background-color: #3a3a3a !important;
+  }
 
-    .blackFill {
-        fill: #3a3a3a !important;
-    }
+  .gray {
+    color: rgba(0, 0, 0, 0.12) !important;
+  }
 
-    .whiteBorder {
-        border-color: #fff !important;
-    }
+  .grayBG {
+    background-color: rgba(0, 0, 0, 0.12) !important;
+  }
 
-    .font {
-        font-family: Roboto, "Helvetica Neue", sans-serif;
-    }
+  .blackFill {
+    fill: #3a3a3a !important;
+  }
 
+  .whiteBorder {
+    border-color: #fff !important;
+  }
 
-    .red {
-        color: red;
-    }
+  .font {
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+  }
 
-    .redBG {
-        background-color: red;
-    }
+  .red {
+    color: red;
+  }
 
-    .redBorder {
-        border-color: red !important;
-    }
+  .redBG {
+    background-color: red;
+  }
 
-    .primary_transparent_bg{
-      background-color: $primary_transparent_bg !important;
-    }
+  .redBorder {
+    border-color: red !important;
+  }
 
-
+  .primary_transparent_bg {
+    background-color: $primary_transparent_bg !important;
+  }
 }
 
+$primary: $primary_color;
 
-$primary:$primary_color;
+$primary_transparent_bg: #f2f7fa;
 
-$primary_transparent_bg:#f2f7fa;
+$color_prim: (
+  50: #000,
+  100: $primary,
+  200: $primary,
+  300: $primary,
+  400: $primary,
+  500: $primary,
+  600: $primary,
+  700: $primary,
+  800: $primary,
+  900: $primary,
+  A100: #000,
+  A200: #000,
+  A400: $primary,
+  A700: $primary,
+  contrast: (
+    500: black,
+    600: black,
+    700: black,
+    800: black,
+    900: black,
+    A700: black,
+  ),
+);
 
-$color_prim: (50: #000,
-    100: $primary,
-    200: $primary,
-    300: $primary,
-    400: $primary,
-    500: $primary,
-    600: $primary,
-    700: $primary,
-    800: $primary,
-    900: $primary,
-    A100: #000,
-    A200: #000,
-    A400: $primary,
-    A700: $primary,
-    contrast: (500: black,
-        600: black,
-        700: black,
-        800: black,
-        900: black,
-        A700: black,
-    ));
-
-
-$color_accent: (50: #000,
-    100: #00ada7,
-    200: #00ada7,
-    300: #00ada7,
-    400: #00ada7,
-    500: #00ada7,
-    600: #00ada7,
-    700: #00ada7,
-    800: #00ada7,
-    900: #00ada7,
-    A100: #000,
-    A200: #000,
-    A400: #00ada7,
-    A700: #00ada7,
-    contrast: (500: black,
-        600: black,
-        700: black,
-        800: black,
-        900: black,
-        A700: black,
-    ));
-
+$color_accent: (
+  50: #000,
+  100: #00ada7,
+  200: #00ada7,
+  300: #00ada7,
+  400: #00ada7,
+  500: #00ada7,
+  600: #00ada7,
+  700: #00ada7,
+  800: #00ada7,
+  900: #00ada7,
+  A100: #000,
+  A200: #000,
+  A400: #00ada7,
+  A700: #00ada7,
+  contrast: (
+    500: black,
+    600: black,
+    700: black,
+    800: black,
+    900: black,
+    A700: black,
+  ),
+);
 
 $theme-primary: mat-palette($color_prim, 500);
 $theme-accent: mat-palette($color_accent, 600);

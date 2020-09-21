@@ -108,7 +108,7 @@
   "name_1": "Langue",
   "artist_name": "Nom d'artiste",
   "addr:unit": "Voie intérieure",
-  "way_area": "Surface (m²)",
+  "way_area": "Surface",
   "opening_hours": "Horaires d'ouverture",
   "addr:city": "Ville",
   "network": "Réseau",

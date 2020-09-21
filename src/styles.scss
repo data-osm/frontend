@@ -5,7 +5,7 @@
 @import './app/theme';
 @import './style-ol.scss';
 @include mat-core();
-
+@import './assets/font/avenir-next-rounded-pro-cufonfonts-webfont/style.scss';
 
 html, body { height: 100%;overflow: hidden; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
@@ -17,6 +17,22 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .text-center{
   text-align: center;
 }
+.bold{
+  font-weight: bold !important;
+}
+
+.shadow_5px {
+  box-shadow: inset 0 0 1px #ccc, 0 0 2px #434343;
+}
+
+::ng-deep .mat-dialog-container{
+  padding: 0px !important;
+}
+
+.mat-primary .mat-slider-thumb-label-text{
+  color:#fff !important;
+}
+
 /* ///// spinner ////////////// */
 
 .lds-ripple {
@@ -52,3 +68,69 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 	}
   }
 /* ////////////////////////////////////////// //spiner ////////////// */
+.scroll::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px #f7f7f7;
+	box-shadow: inset 0 0 6px #f7f7f7;
+	background-color: #f7f7f7;
+	// border-radius: 10px;
+}
+
+.scroll::-webkit-scrollbar
+{
+	width: 5px;
+	background-color: #f7f7f7;
+}
+
+.scroll::-webkit-scrollbar-thumb
+{
+	background-color: #747678;
+	border-radius: 10px;
+
+}
+
+.mat-drawer-inner-container{
+  overflow-x: hidden !important;
+}
+
+.mat-drawer-inner-container::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px #f7f7f7;
+	box-shadow: inset 0 0 6px #f7f7f7;
+	background-color: #f7f7f7;
+	// border-radius: 10px;
+}
+
+.mat-drawer-inner-container::-webkit-scrollbar
+{
+	width: 5px;
+	background-color: #f7f7f7;
+}
+
+.mat-drawer-inner-container::-webkit-scrollbar-thumb
+{
+	background-color: #747678;
+	border-radius: 10px;
+
+}
+mat-dialog-container::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px #f7f7f7;
+	box-shadow: inset 0 0 6px #f7f7f7;
+	background-color: #f7f7f7;
+	// border-radius: 10px;
+}
+
+mat-dialog-container::-webkit-scrollbar
+{
+	width: 5px;
+	background-color: #f7f7f7;
+}
+
+mat-dialog-container::-webkit-scrollbar-thumb
+{
+	background-color: #747678;
+	border-radius: 10px;
+
+}
+

@@ -9,7 +9,6 @@ import { manageDataHelper } from '../../../../../helper/manage-data.helper'
 import { cartoHelper } from '../../../../../helper/carto.helper'
 import { NotifierService } from "angular-notifier";
 import { TranslateService } from '@ngx-translate/core';
-
 @Component({
   selector: 'app-measure',
   templateUrl: './measure.component.html',
@@ -140,9 +139,11 @@ export class MeasureComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.map.addLayer(this.vector)
-
-
+    // this.map.addLayer(this.vector)
+    var cartoHelperClassMap = new cartoHelper(this.map)
+    var groupLayerShadow = cartoHelperClassMap.getLayerGroupByNom('group-layer-shadow')
+    this.vector.setZIndex(1000)
+    groupLayerShadow.getLayers().getArray().unshift(this.vector)
 
     this.translate.get('right_menu').subscribe((res: any) => {
       console.log(res)

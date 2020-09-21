@@ -1,0 +1,49 @@
+<ng-container *ngIf="form">
+  <form [formGroup]="form" class="header-search-form">
+    <mat-form-field appearance="fill" style="width: 100%;">
+      <input type="text" matInput formControlName="searchWord" [matAutocomplete]="auto" class=" white "
+        placeholder="{{'search.placeholder' | translate}}">
+      <i class="fa fa-search fa-lg white" matPrefix></i>
+      <i class="fa fa-times fa-lg white pointer" matSuffix *ngIf="form.get('searchWord').value" (click)="clearSearch()" ></i>
+      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayAutocompleFn" (optionSelected)="optionAutocomplteSelected($event)" >
+        <mat-optgroup *ngFor="let option of objectsIn(filterOptions) " [label]="'search.'+[option] | translate" [hidden]="filterOptions[option].length == 0" >
+          <mat-option *ngFor="let item of filterOptions[option]" [value]="item">
+            <ng-container *ngIf="option == 'limites'" >
+              {{item.name}}
+              <span *ngIf="item.ref"> - {{item.ref}}  </span>
+              <br>
+              <small> {{item.limitName}} </small>
+            </ng-container>
+
+            <ng-container *ngIf="option == 'photon'" >
+              {{item.name}}
+              <br>
+              <small> {{item.details}} </small>
+            </ng-container>
+
+            <ng-container *ngIf="option == 'adresseFr'" >
+              {{item.name}}
+            </ng-container>
+
+            <ng-container *ngIf="option == 'layer'" >
+              <img *ngIf="item.image_src" [src]="item.image_src" alt="{{item.name}}" class="header-search-form-option-img" >
+              <img *ngIf="item.logo_src && !item.image_src " [src]="item.logo_src" alt="{{item.name}}" class="header-search-form-option-img" >
+              {{item.name}}
+
+              <mat-chip-list class="header-search-form-option-badge" *ngIf="item.number">
+                <mat-chip style="padding: 5px 5px;min-height: 20px;font-size: 11px;" class="white accentColorBG" >
+                  {{item.number}}
+                </mat-chip>
+              </mat-chip-list>
+
+              <!-- <span *ngIf="item.number"> ({{item.number}}) </span> -->
+              <br>
+              <small> {{item.nameGroup}}  </small>
+            </ng-container>
+
+          </mat-option>
+        </mat-optgroup>
+      </mat-autocomplete>
+    </mat-form-field>
+  </form>
+</ng-container>

@@ -7,6 +7,7 @@ import WMTS from 'ol/source/WMTS.js';
 import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
 import ImageLayer from 'ol/layer/Image.js';
 import ImageWMS from 'ol/source/ImageWMS.js';
+import TileWMS from 'ol/source/TileWMS';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import RasterSource from 'ol/source/Raster';
 import TileImage from 'ol/source/TileImage'
@@ -29,6 +30,7 @@ import LinearRing from 'ol/geom/LinearRing';
 import Point from 'ol/geom/Point';
 import Circle from 'ol/geom/Circle';
 import MultiPoint from 'ol/geom/MultiPoint';
+import Polyline from 'ol/format/Polyline';
 import Polygon from 'ol/geom/Polygon';
 import MultiPolygon from 'ol/geom/MultiPolygon';
 import LineString from 'ol/geom/LineString';
@@ -99,5 +101,7 @@ export {
   RasterSource,
   getArea,
   getLength,
-  Circle
+  Circle,
+  TileWMS,
+  Polyline
 };

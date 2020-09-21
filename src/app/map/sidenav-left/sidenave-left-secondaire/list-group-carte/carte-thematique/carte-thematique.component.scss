@@ -1,0 +1,11 @@
+.carte-thematique {
+  height: 90px;
+  margin-bottom: 15px;
+  mat-card-actions {
+    text-align: right;
+  }
+  .carte-thematique-img{
+    max-height: 77px;
+    margin-bottom: 0px !important;
+  }
+}

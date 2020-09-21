@@ -1,0 +1,8 @@
+<p class="text-center primaryColor" style="font-weight: bold;
+padding: 10px;margin-bottom: -13px;"> {{ 'choose_signet.title' | translate }} </p>
+
+<mat-nav-list>
+  <a *ngFor="let signet of  signets" mat-list-item  class="text-center list-geosignets-item" (click)="select(signet.id)">
+     {{signet.nom}}
+  </a>
+</mat-nav-list>

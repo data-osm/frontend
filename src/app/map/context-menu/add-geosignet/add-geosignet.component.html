@@ -1,0 +1,33 @@
+<h1 mat-dialog-title style="    text-align: center;margin-left: -24px;
+margin-right: -24px;
+margin-top: -24px;
+margin-bottom: 0px;background-color: white;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" width="11.435" height="19.058" viewBox="0 0 11.435 19.058"
+    class="primaryColorBorder icon_header"
+    style="height: 15px;width: 15px;float: left; margin-left: 10px;margin-top: 5px;border-radius: 100%;padding: 5px;border: 1px solid;">
+    <path id="pin"
+      d="M15.529 11.529V3.906h.953V2H6.953v1.906h.953v7.623L6 13.435v1.905h4.955v5.717h1.525V15.34h4.955v-1.905z"
+      class="primaryColorFill" transform="translate(-6 -2)" />
+  </svg>
+
+  <span class="bold primaryColor " style="font-size: 17px;">{{ 'ajout_signet.title' | translate }}</span>
+
+  <i (click)="onNoClick()" class="fa fa-times primaryColor pointer close" style="opacity: 1;
+      font-size: 18px;;margin-right: 10px;margin-top: 6px;"></i>
+</h1>
+
+<div mat-dialog-content style="background:rgba(255, 255, 255, 0.8);padding: 24px;">
+  <form [formGroup]="signet">
+    <mat-form-field style="    width: 100%;">
+      <input matInput placeholder="{{ 'ajout_signet.placeholder' | translate }}" formControlName="nom">
+    </mat-form-field>
+  </form>
+
+</div>
+
+<div mat-dialog-actions style="margin: 0px -24px -24px;background:rgba(255, 255, 255, 0.8);padding-left: 10px;">
+  <button mat-button (click)="onNoClick()" style="margin-right: 10px;">{{ 'ajout_signet.cancel' | translate }}</button>
+  <button [disabled]="signet.valid == false" mat-flat-button color="primary" class="white"
+    (click)="valider()">{{ 'ajout_signet.save' | translate }}</button>
+</div>
