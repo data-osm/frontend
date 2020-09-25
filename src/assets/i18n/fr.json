@@ -59,10 +59,7 @@
     "save": "SAUVEGARDER"
   },
   "header": {
-    "toolpit_info": "GeOSM ?"
-  },
-  "infos_plateform": {
-    "title": "GeoCameroun"
+    "toolpit_info": "Data OSM ?"
   },
   "layer_properties": {
     "click_url_text": "Cliquer ici",
@@ -227,7 +224,7 @@
   },
 
   "geosm": {
-    "text": "GeOsm utilise les données",
+    "text": "Data OSM utilise les données",
     "text1": " d'"
   },
   "dowloadLayers":{
