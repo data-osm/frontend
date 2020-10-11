@@ -1,0 +1,28 @@
+<div class="login-content">
+
+    <div class="login-form-wrapper">
+        <h1>
+            {{'login.title' | translate}} 
+        </h1>
+        <div class="form-body">
+            <form [formGroup]="loginForm" (submit)="submitLoginForm()" >
+
+                <mat-form-field appearance="outline" style="width: 100%;margin-bottom: 10px;" >
+                    <mat-label>{{'login.label_email' | translate}}</mat-label>
+                    <input matInput formControlName="email">
+                    <mat-error> {{'login.error_email' | translate}} </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" style="width: 100%;margin-bottom: 10px;">
+                    <mat-label> {{'login.label_password' | translate}} </mat-label>
+                    <input matInput type="password" formControlName="password">
+                    <mat-error> {{'login.error_password' | translate}} </mat-error>
+                </mat-form-field>
+
+                <button mat-flat-button color="primary" [disabled]="!loginForm.valid" class=" white " type="submit" style="width: 100%;">{{'login.connect' | translate}} </button>
+
+            </form>
+        </div>
+    </div>
+
+</div>

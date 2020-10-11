@@ -19,14 +19,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.StorageServiceService.loadProjectData().then(
-      (response)=>{
-        $('.loading-apps').hide()
-      },
-      (error)=>{
-
-      }
-    )
+    
   }
 
 }

@@ -6,6 +6,7 @@ export const environment = {
   production: false,
   global_logo: undefined,
   primaryColor: '#023f5f',
+  backend:'http://127.0.0.1:8000/',
   url_prefix: "http://adminfrance.geosm.org/",
   url_frontend: "http://localhost:4200/",
   url_service: 'http://service.geosm.org/',

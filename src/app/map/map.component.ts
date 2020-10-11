@@ -87,6 +87,16 @@ export class MapComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+    this.StorageServiceService.loadProjectData().then(
+      (response)=>{
+        $('.loading-apps').hide()
+      },
+      (error)=>{
+
+      }
+    )
+    
     map.setTarget('map1')
     map.setTarget('map')
     map.updateSize()
