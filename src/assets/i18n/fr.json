@@ -237,6 +237,15 @@
   "zoomTo":" Zoomer",
   "displayAllAttributes":" Afficher tout",
   "displayLesAttributes":" Afficher moins"
+},
+"login":{
+  "error":" Email ou mot de passe invalide",
+  "label_email":"Email ",
+  "label_password":"Mot de passe",
+  "error_password":"Champ vide",
+  "error_email":" Email incorrect",
+  "connect":" Se connecter",
+  "title":" Connecter vous"
 }
 
 }

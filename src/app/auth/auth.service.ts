@@ -12,7 +12,7 @@ import { of } from 'rxjs/internal/observable/of';
 /**
  * Service to manage auth service: Login, logout, store token and refresh token
  */
-export class AuthiService {
+export class AuthService {
 
   headers: HttpHeaders = new HttpHeaders({});
   headers_nodejs: Headers = new Headers({});
@@ -30,7 +30,7 @@ export class AuthiService {
    * Get header
    */
   get_header() {
-    this.headers.set('Authorization', 'Bearer  ' + localStorage.getItem('token'))
+    this.headers = this.headers.set('Authorization', 'Bearer  ' + localStorage.getItem('token'))
     return this.headers
   }
 
@@ -51,7 +51,7 @@ export class AuthiService {
    */
   getUserConnect():Observable<User>{
 
-    return from(this.getRequest('/auth/users/me/')).pipe(
+    return from(this.getRequest('auth/users/me/')).pipe(
         map((user:User)=>{
             return user
         }),
@@ -70,25 +70,32 @@ export class AuthiService {
   login(email:string,pwd:string):Promise<{ error: boolean, msg?: string }> {
     return new Promise((resolve, reject) => {
         
-        from(this.post_requete('/auth/jwt/create/',{
-            username:email,
+        from(this.post_requete('auth/jwt/create/',{
+            email:email,
             password:pwd
         })).pipe(
             catchError((err) => {
-                reject({
+                resolve({
                   error: true,
-                  msg: err
+                  msg: ''
                 })
-                return ''
+                // return ''
+                throw new Error(err);
+                
               })
         ).subscribe(
             (credentials:{
-                token:string,
+                access:string,
                 refresh:string
             })=>{
-                this.storeToken(credentials.token,credentials.refresh)
+                this.storeToken(credentials.access,credentials.refresh)
                 resolve({
                     error: false
+                  })
+            },
+            (err)=>{
+                reject({
+                    resolve: true
                   })
             }
         )
@@ -101,9 +108,8 @@ export class AuthiService {
  * @param string path url
  */
 getRequest(path: string): Promise<any> {
-
     let promise = new Promise((resolve, reject) => {
-      this.http.get(this.url_prefix + path, { headers: this.headers })
+      this.http.get(this.url_prefix + path, { headers: this.get_header() })
         .toPromise()
         .then(
           res => {

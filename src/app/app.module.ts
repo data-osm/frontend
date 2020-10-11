@@ -65,6 +65,7 @@ import { InfoComponent } from './modal/info/info.component';
 import { ContextMenuComponent } from './map/context-menu/context-menu.component';
 import { AddGeosignetComponent } from './map/context-menu/add-geosignet/add-geosignet.component';
 import { ListGeosignetComponent } from './map/context-menu/list-geosignet/list-geosignet.component';
+import { AuthGuard } from './auth/guard/auth.guard';
 
 
 @NgModule({
@@ -129,7 +130,7 @@ import { ListGeosignetComponent } from './map/context-menu/list-geosignet/list-g
     }),
     ShContextMenuModule
   ],
-  providers: [StorageServiceService,BackendApiService,manageCompHelper],
+  providers: [StorageServiceService,BackendApiService,manageCompHelper, AuthGuard, AuthGuard],
   bootstrap: [AppComponent],
   entryComponents:[MetadataComponent,ListDownloadLayersComponent,AddGeosignetComponent,ListGeosignetComponent]
 })
