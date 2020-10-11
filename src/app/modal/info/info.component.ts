@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { MatDialogRef } from '@angular/material/dialog';
+import * as moment from 'moment'
 
 @Component({
   selector: 'app-info',
@@ -8,7 +9,7 @@ import { MatDialogRef } from '@angular/material/dialog';
   styleUrls: ['./info.component.scss']
 })
 export class InfoComponent implements OnInit {
-
+  lastSaturday = moment().isoWeekday(6).locale("fr");
   environment = environment
 
   constructor(
@@ -16,6 +17,8 @@ export class InfoComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // let lastSaturday = moment().isoWeekday(6).locale("fr");
+    // console.log(lastSaturday.format("dddd DD-MM-YYYY "))
   }
 
   onNoClick(): void {
