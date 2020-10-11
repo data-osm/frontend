@@ -3,8 +3,11 @@ import { configProjetInterface } from '../../type/type';
 import { StorageServiceService } from '../../../app/services/storage-service/storage-service.service'
 import { GeosmLayersServiceService } from '../../../app/services/geosm-layers-service/geosm-layers-service.service'
 import { AppInjector } from '../../../helper/app-injector.helper'
+import { manageCompHelper } from '../../../helper/manage-comp.helper'
 import { GeoJSON, Feature, Style, Icon } from '../../ol-module'
 import { environment } from 'src/environments/environment';
+import * as $ from 'jquery'
+
 /**
  * class for handle couche thematique   search:
  * - format data from server to display list od response
@@ -13,6 +16,7 @@ import { environment } from 'src/environments/environment';
 export class handleLayerSearch {
 
   StorageServiceService: StorageServiceService = AppInjector.get(StorageServiceService);
+  manageCompHelper: manageCompHelper = AppInjector.get(manageCompHelper);
   GeosmLayersServiceService: GeosmLayersServiceService = AppInjector.get(GeosmLayersServiceService);
   configProject: configProjetInterface = this.StorageServiceService.getConfigProjet()
 
@@ -82,11 +86,25 @@ export class handleLayerSearch {
   optionSelected(data: filterOptionInterface) {
     if (data.type == 'couche') {
       var couche = this.StorageServiceService.getCoucheFromKeyCouche(data.id)
+      let groupThem = this.StorageServiceService.getGroupThematiqueFromIdCouche(data.id)
+      if (groupThem) {
+        this.manageCompHelper.openGroupThematiqueSlide(groupThem)
+      }
       if (couche) {
         this.GeosmLayersServiceService.addLayerCouche(couche)
+        setTimeout(() => {
+          try {
+            $('#couche_'+couche.key_couche)[0].scrollIntoView(false);
+          } catch (error) {
+          }
+        }, 1000);
       }
     }else if (data.type == 'carte'){
       var carte = this.StorageServiceService.getCarteFromIdCarte(data.id)
+      let groupCarte = this.StorageServiceService.getGroupCarteFromIdCarte(data.id)
+      if (groupCarte) {
+        this.manageCompHelper.openGroupCarteSlide(groupCarte)
+      }
       if (carte) {
         this.GeosmLayersServiceService.addLayerCarte(carte)
       }

@@ -8,6 +8,9 @@ import { layersInMap, cartoHelper } from './carto.helper';
 import { LayerGroup } from 'src/app/ol-module';
 import {InfoComponent} from 'src/app/modal/info/info.component'
 import {AddGeosignetComponent} from 'src/app/map/context-menu/add-geosignet/add-geosignet.component'
+import {SidenaveLeftSecondaireComponent}  from 'src/app/map/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component'
+import { groupCarteInterface, groupThematiqueInterface } from '../app/type/type';
+
 /**
  * Open some componenents like social share, loading,modal etc...
  * Dynamically add component in html
@@ -16,6 +19,8 @@ import {AddGeosignetComponent} from 'src/app/map/context-menu/add-geosignet/add-
   providedIn: 'root'
 })
  export class manageCompHelper{
+
+  SidenaveLeftSecondaireComp:SidenaveLeftSecondaireComponent
 
    constructor(
      private _snackBar: MatSnackBar,
@@ -26,6 +31,31 @@ import {AddGeosignetComponent} from 'src/app/map/context-menu/add-geosignet/add-
      ){
 
    }
+
+   setComponent(component:string,comp:any){
+     if (component == 'SidenaveLeftSecondaireComp') {
+       this.SidenaveLeftSecondaireComp = comp
+     }
+   }
+
+   /**
+   * Open group thematique slide
+   * @param groupThematique groupThematiqueInterface
+   */
+  openGroupThematiqueSlide(groupThematique: groupThematiqueInterface) {
+    this.SidenaveLeftSecondaireComp.setGroupThematique(groupThematique)
+    this.SidenaveLeftSecondaireComp.open()
+  }
+
+  /**
+   * Open group carte slide
+   * @param groupCarte groupCarteInterface
+   */
+  openGroupCarteSlide(groupCarte: groupCarteInterface) {
+    this.SidenaveLeftSecondaireComp.setGroupCarte(groupCarte)
+    this.SidenaveLeftSecondaireComp.open()
+  }
+  
 
    /**
     * Open the snackbar for social sharing

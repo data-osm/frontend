@@ -11,7 +11,7 @@
       </mat-expansion-panel-header>
       <div fxLayout="row wrap">
         <ng-container *ngFor=" let couche of sous_thematique.couches">
-          <app-couche-thematique fxFlex="50%" [couche]="couche"></app-couche-thematique>
+          <app-couche-thematique id="{{'couche_'+couche.key_couche}}" fxFlex="50%" [couche]="couche"></app-couche-thematique>
         </ng-container>
       </div>
     </mat-expansion-panel>
@@ -24,7 +24,7 @@
 
   <div fxLayout="row wrap">
     <ng-container *ngFor=" let couche of groupThematique.couches">
-      <app-couche-thematique fxFlex="50%" [couche]="couche"></app-couche-thematique>
+      <app-couche-thematique id="{{'couche_'+couche.key_couche}}" fxFlex="50%" [couche]="couche"></app-couche-thematique>
     </ng-container>
   </div>
 
