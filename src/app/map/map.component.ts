@@ -86,8 +86,14 @@ export class MapComponent implements OnInit {
 
   }
 
-  ngOnInit(): void {
+  ngAfterViewInit() {
+    /**
+     * set componwnt to the helper
+     */
+    this.manageCompHelper.setComponent('SidenaveLeftSecondaireComp',this.SidenaveLeftSecondaireComp)
+  }
 
+  ngOnInit(): void {
     this.StorageServiceService.loadProjectData().then(
       (response)=>{
         $('.loading-apps').hide()

@@ -7,6 +7,8 @@ import { cartoHelper, layersInMap } from 'src/helper/carto.helper'
 import { Point, VectorLayer, Cluster, Feature, GeoJSON } from 'src/app/ol-module';
 import { parse } from '@fortawesome/fontawesome-svg-core';
 import { coucheInterface } from 'src/app/type/type';
+import * as $ from 'jquery'
+
 @Injectable({
   providedIn: 'root'
 })
@@ -176,11 +178,25 @@ export class ShareServiceService {
           var carte = this.StorageServiceService.getCarte(parseInt(element[2]), parseInt(element[1]))
           if (carte) {
             this.GeosmLayersServiceService.addLayerCarte(carte)
+            let groupCarte = this.StorageServiceService.getGroupCarteFromIdCarte(carte.key_couche)
+            if (groupCarte) {
+              this.manageCompHelper.openGroupCarteSlide(groupCarte)
+            }
           }
         } else if (type == 'couche') {
           var couche = this.StorageServiceService.getCouche(parseInt(element[2]), parseInt(element[1]))
           if (couche) {
             this.GeosmLayersServiceService.addLayerCouche(couche)
+            let groupThem = this.StorageServiceService.getGroupThematiqueFromIdCouche(couche.key_couche)
+            if (groupThem) {
+              this.manageCompHelper.openGroupThematiqueSlide(groupThem)
+              setTimeout(() => {
+                try {
+                  $('#couche_'+couche.key_couche)[0].scrollIntoView(false);
+                } catch (error) {
+                }
+              }, 1000);
+            }
           }
         }
       } catch (error) {
