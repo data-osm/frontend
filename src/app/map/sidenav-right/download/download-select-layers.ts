@@ -5,7 +5,16 @@ import { StorageServiceService } from '../../../services/storage-service/storage
 import { startWith, map, filter } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { cartoHelper, layersInMap } from 'src/helper/carto.helper';
+import { cartoHelper, layersInMap } from '../../../../helper/carto.helper';
+
+/**
+   * Interface of Parameters to get geometry in DB
+   */
+export interface ParametersGeometryDB{
+  table: string,
+  id: number,
+  name: string
+}
 /**
  * Interface of the model that manage download features
  */
@@ -24,11 +33,7 @@ export interface downloadModelInterface {
   /**
    * Parameters to get geometry in DB
    */
-  parametersGeometryDB?: {
-    table: string,
-    id: number,
-    name: string
-  }
+  parametersGeometryDB?: ParametersGeometryDB
   /**
    * OL geometry of the region of interest
    */
@@ -78,7 +83,9 @@ export class selectLayersForDownload {
   constructor(
     public StorageServiceService: StorageServiceService,
     public fb: FormBuilder
-  ) { }
+  ) { 
+    
+  }
 
 
   /**
@@ -88,6 +95,9 @@ export class selectLayersForDownload {
   initialiseFormsLayers(loadTOCLayers: boolean = false) {
     this.formsLayers = this.fb.group({
       layers: this.fb.array([this.createInputFormsLayer()])
+    })
+    new cartoHelper().map.getLayers().on('propertychange', (ObjectEvent) => {
+      this.addAllLayersInTOC()
     })
   }
 

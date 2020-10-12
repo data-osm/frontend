@@ -89,7 +89,6 @@ export class handleEmpriseSearch {
    * @param emprise searchLayerToDownlodModelInterface
    */
   optionSelected(emprise: filterOptionInterface) {
-    console.log(emprise)
     if (!emprise.geometry) {
       var cartoClass = new cartoHelper()
       this._getGeometryOfEmprise({
@@ -100,6 +99,14 @@ export class handleEmpriseSearch {
           if (geometry) {
             emprise.geometry = geometry
             this._addGeometryAndZoomTO(emprise)
+            this.StorageServiceService.adminstrativeLimitLoad.next({
+              'table':emprise.table,
+              'id':emprise.id,
+              'ref':emprise.ref,
+              'limitName':emprise.limitName,
+              'name':emprise.name,
+              'geometry':geometry
+            })
           }
         }
       )

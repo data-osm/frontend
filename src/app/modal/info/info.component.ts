@@ -9,7 +9,7 @@ import * as moment from 'moment'
   styleUrls: ['./info.component.scss']
 })
 export class InfoComponent implements OnInit {
-  lastSaturday = moment().isoWeekday(6).locale("fr");
+  lastSaturday = moment().subtract(1, 'weeks').isoWeekday(6).locale("fr");
   environment = environment
 
   constructor(

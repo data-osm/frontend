@@ -33,22 +33,22 @@ height: 100px;">
               <small> {{option.description}} </small>
             </mat-option>
           </mat-autocomplete>
-          <i class="fa fa-trash primaryColor pointer" matSuffix (click)="removeInputInFormsLayer(i)"></i>
+          <i class="fa fa-trash primaryColor pointer" matSuffix style="transform: translateY(-4px);" (click)="removeInputInFormsLayer(i)"></i>
         </mat-form-field>
       </div>
     </div>
   </form>
 
   <div class="download-layers-data-in-btn" >
-    <button mat-raised-button class="primaryColorBG " [matTooltip]="'dowload_data.toolTipAddInput' | translate "  (click)="addInputInFormsLayer()">
+    <!-- <button mat-raised-button class="primaryColorBG " [matTooltip]="'dowload_data.toolTipAddInput' | translate "  (click)="addInputInFormsLayer()">
       <i class="fa fa-plus white" style="margin-bottom: 13px;"></i>
-    </button>
-    <button mat-raised-button class="whiteBG primaryColorBorder " [matTooltip]="'dowload_data.toolTipLoadLayersInTOC' | translate " (click)="addAllLayersInTOC()">
+    </button> -->
+    <!-- <button mat-raised-button class="whiteBG primaryColorBorder " [matTooltip]="'dowload_data.toolTipLoadLayersInTOC' | translate " (click)="addAllLayersInTOC()">
       <svg x="0px" y="0px" viewBox="0 0 23.4 24.8" style="width: 15px;margin-bottom: 16px;">
         <path class=" primaryColorFill " d="M11.7,0L0,9.1l2.1,1.7l9.6,7.5l9.6-7.5l2.1-1.7L11.7,0z M11.7,21.5l-9.6-7.5L0,15.7l11.7,9.1
   l11.7-9.1l-2.1-1.7L11.7,21.5z"  />
       </svg>
-    </button>
+    </button> -->
   </div>
 
   <h5 class="bold primaryColor primary_transparent_bg group-download">
