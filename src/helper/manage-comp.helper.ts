@@ -189,7 +189,6 @@ import { groupCarteInterface, groupThematiqueInterface } from '../app/type/type'
     if (componentProps && typeof componentRef.instance === 'object') {
       Object.assign(componentRef.instance as object, componentProps);
     }
-    console.log(componentRef.instance)
     return componentRef;
   }
 

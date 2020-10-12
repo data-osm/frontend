@@ -1,13 +1,13 @@
 import { Component, OnInit, ViewChild, ElementRef, Renderer2, EventEmitter } from '@angular/core';
-import { coucheInterface, carteInterface, configProjetInterface } from 'src/app/type/type';
+import { coucheInterface, carteInterface, configProjetInterface } from '../../..//type/type';
 import { FormGroup, FormArray, FormBuilder, FormControl, AbstractControl, Validators } from '@angular/forms';
-import { StorageServiceService } from 'src/app/services/storage-service/storage-service.service'
-import { BackendApiService } from 'src/app/services/backend-api/backend-api.service'
+import { StorageServiceService } from '../../../services/storage-service/storage-service.service'
+import { BackendApiService } from '../../..//services/backend-api/backend-api.service'
 import { startWith, map, filter, debounceTime, tap } from 'rxjs/operators';
 import { from, Observable } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { selectLayersForDownload, downloadModelInterface } from './download-select-layers'
-import { GeoJSON, VectorLayer, VectorSource, Style, Stroke, Fill, Feature, Overlay, getCenter } from 'src/app/ol-module';
+import { selectLayersForDownload, downloadModelInterface, ParametersGeometryDB } from './download-select-layers'
+import { GeoJSON, VectorLayer, VectorSource, Style, Stroke, Fill, Feature, Overlay, getCenter } from '../../..//ol-module';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { environment } from 'src/environments/environment';
 import { cartoHelper } from 'src/helper/carto.helper'
@@ -16,29 +16,9 @@ import { manageCompHelper } from 'src/helper/manage-comp.helper'
 import { ChartOverlayComponent } from './chart-overlay/chart-overlay.component'
 import * as $ from 'jquery'
 import {ListDownloadLayersComponent,downloadDataModelInterface} from './list-download-layers/list-download-layers.component'
+import { ResponseOfSerachLimitInterface } from '../../../type/type';
 
-/**
- * Interface of the model return when user  search a emprise
- */
-export interface responseOfSerachLimitInterface {
-  /**
-   * DB table corresponding
-   */
-  table: string
-  /**
-   * id DB of in the table
-   */
-  id: number
-  /**
-   * name of the limit
-   */
-  limitName: string
-  /**
-   * name
-   */
-  name: string
-  ref: string
-}
+
 
 @Component({
   selector: 'app-download',
@@ -85,7 +65,7 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
    */
   formsEmprise: FormGroup;
 
-  filterEmpriseOptions: responseOfSerachLimitInterface[] = []
+  filterEmpriseOptions: ResponseOfSerachLimitInterface[] = []
 
   constructor(
     private renderer: Renderer2,
@@ -118,8 +98,31 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
         this.userListFilesToDownload.subscribe((idOverlay) => {
           this.openModalListDonwnloadLayers(idOverlay)
         })
+
+        if (this.formsEmprise.get('emprise')) {
+          this.StorageServiceService.adminstrativeLimitLoad.pipe().subscribe(
+            (limit:ResponseOfSerachLimitInterface)=>{
+              if (limit ) {
+                this.formsEmprise.get('emprise').setValue(limit)
+                this.setParametersGeometryBd({
+                  table: limit.table,
+                  id: limit.id,
+                  name: limit.name
+                })
+                if (limit.geometry) {
+                  this.downloadModel.roiGeometry = limit.geometry
+                }else{
+                  this.getGeometryOfEmprise({ table: limit.table, id: limit.id })
+                }
+              }
+            }
+          )
+        }
+
       }
     })
+
+    
   }
 
   /**
@@ -173,7 +176,7 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
     ).subscribe((value: Observable<any>) => {
 
       value.subscribe((data) => {
-        var response: Array<responseOfSerachLimitInterface> = []
+        var response: Array<ResponseOfSerachLimitInterface> = []
         for (const key in data) {
           if (data.hasOwnProperty(key) && key != 'status') {
             const element = data[key];
@@ -207,7 +210,7 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
    * @param emprise searchLayerToDownlodModelInterface
    * @return string
    */
-  displayAutocompleEmpriseFn(emprise: responseOfSerachLimitInterface): string {
+  displayAutocompleEmpriseFn(emprise: ResponseOfSerachLimitInterface): string {
     if (emprise) {
       if (emprise.ref) {
         return emprise.name + '(' + emprise.ref + ')'
@@ -224,14 +227,26 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
    * @param option MatAutocompleteSelectedEvent
    */
   empriseSelected(option: MatAutocompleteSelectedEvent) {
-    var empriseInForm: responseOfSerachLimitInterface = option.option.value
+    var empriseInForm: ResponseOfSerachLimitInterface = option.option.value
     if (empriseInForm.table && empriseInForm.id) {
-      this.downloadModel.parametersGeometryDB = {
+      this.setParametersGeometryBd({
         table: empriseInForm.table,
         id: empriseInForm.id,
         name: empriseInForm.name
-      }
+      })
       this.getGeometryOfEmprise({ table: empriseInForm.table, id: empriseInForm.id })
+    }
+  }
+
+/**
+ * set parameters that can help to fetch the geometry of a administrative limit
+ * @param parameters ParametersGeometryDB
+ */
+  setParametersGeometryBd(parameters:ParametersGeometryDB){
+    this.downloadModel.parametersGeometryDB = {
+      table: parameters.table,
+      id: parameters.id,
+      name: parameters.name
     }
   }
 
