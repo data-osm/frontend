@@ -30,11 +30,6 @@
         class="toogle-sidenav-right-button"
           *ngIf="ritghtMenu_i.enable"
           (click)="openRightMenu(ritghtMenu_i.name)"
-          [matBadge]="layersInToc.length"
-          [matBadgeHidden]="ritghtMenu_i.name!='toc'"
-          matBadgeSize="medium"
-          matBadgeColor="warn"
-          matBadgePosition='above before'
           [matTooltip]="
             'right_menu.button.' + [ritghtMenu_i.tooltip] | translate
           "
