@@ -60,7 +60,7 @@
     height: 25px !important;
     margin-bottom: 0px;
     border-radius: 0px !important;
-    background: #033f5e;
+    background: #023f5f94;
   }
 }
 .tooltip.tooltip-static,.tooltip.tooltip-measure{
@@ -81,4 +81,14 @@
   font-size: 13px;
   font-weight: bold;
   font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+.ol-scale-line-inner{
+   font-size: 13px !important;
+}
+.ol-scale-line{
+    background: #023f5f94 !important;
+        position: absolute;
+}
+.ol-mouse-position{
+  position: unset;
 }
