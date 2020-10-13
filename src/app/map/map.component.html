@@ -21,6 +21,7 @@
   <mat-sidenav-content class="sidenav-content">
 
     <div id="map" (contextmenu)="ContextMenuComp?ContextMenuComp.setRightClickPixel($event):undefined" [shAttachMenu]="ContextMenuComp?ContextMenuComp.menu:undefined" [shMenuData]="ContextMenuComp?ContextMenuComp.listItems:[]">
+      <div id="scale-map" ></div>
     </div>
     <app-vertical-toolbar [map]="getMap()" [SidenaveLeftSecondaireComp]="SidenaveLeftSecondaireComp"  [sidenavContainer]="sidenavContainer"  class="sidenav-content-toolbar whiteBG"> </app-vertical-toolbar>
 
