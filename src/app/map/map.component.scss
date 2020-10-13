@@ -74,9 +74,22 @@ $height: calc(100% - 60px);
     height: 100%;
     #scale-map{
       position: absolute;
-      left: 70px;
+      left: 180px;
       bottom: 0px;
       z-index: 1;
+    }
+    #mouse-position-map{
+      background: #023f5f94;
+      position: absolute;
+      color: #fff;
+      left: 70px;
+      width: 105px;
+      bottom: 10px;
+      z-index: 1;
+      text-align: left;
+      padding: 3px;
+      text-align: center;
+      border-radius: 6px;
     }
   }
   .sidenav-content-toolbar {

@@ -107,6 +107,7 @@ export class MapComponent implements OnInit {
     map.setTarget('map')
     map.updateSize()
     map.addControl(cartoHelper.scaleControl('scaleline','scale-map'))
+    map.addControl(cartoHelper.mousePositionControl('mouse-position-map'))
 
 
     this.StorageServiceService.states.subscribe((value) => {
