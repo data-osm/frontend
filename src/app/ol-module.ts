@@ -25,7 +25,8 @@ import WFS from 'ol/format/WFS';
 import { buffer, extend as Extent, createEmpty as createEmptyExtent } from 'ol/extent';
 import Zoom from 'ol/control/Zoom';
 import Rotate from 'ol/control/Rotate';
-import { defaults as defaultControls, Attribution } from 'ol/control.js';
+import { defaults as defaultControls, Attribution, ScaleLine, MousePosition } from 'ol/control.js';
+import {createStringXY} from 'ol/coordinate';
 import LinearRing from 'ol/geom/LinearRing';
 import Point from 'ol/geom/Point';
 import Circle from 'ol/geom/Circle';
@@ -103,5 +104,8 @@ export {
   getLength,
   Circle,
   TileWMS,
-  Polyline
+  Polyline,
+  ScaleLine,
+  MousePosition,
+  createStringXY
 };

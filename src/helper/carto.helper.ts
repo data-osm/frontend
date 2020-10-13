@@ -1,6 +1,8 @@
 import {
   Map, GeoJSON, Style, Fill, VectorLayer, VectorImageLayer, VectorSource, RasterSource, ImageLayer, ImageWMS, boundingExtent, Extent, transformExtent, Cluster, CircleStyle, Stroke, Text, Icon, TileLayer, XYZ, LayerGroup, TileWMS, Point, Feature
-} from '../app/ol-module'
+  ,ScaleLine,
+  MousePosition,
+  createStringXY} from '../app/ol-module'
 import * as $ from 'jquery'
 import { BackendApiService } from 'src/app/services/backend-api/backend-api.service'
 import { environment } from 'src/environments/environment'
@@ -1111,5 +1113,54 @@ export class cartoHelper {
     })
 
   }
+
+    /**
+   * get map scale control for ol map
+   * @param scaleType 'scaleline'|'scalebar'
+   * @param target string id of the target html element
+   * @returns ScaleLine
+   */
+
+  static scaleControl(scaleType:'scaleline'|'scalebar', target:string):ScaleLine{
+    let scaleBarSteps = 4;
+    let scaleBarText = true;
+    let control;
+    if (scaleType === 'scaleline') {
+      control = new ScaleLine({
+        units: 'metric',//'metric','nautical','us','degrees'
+        target:target
+      });
+    }else if (scaleType === 'scalebar'){
+      control = new ScaleLine({
+        units: 'metric',
+        target:target,
+        bar: true,
+        steps: scaleBarSteps,
+        text: scaleBarText,
+        minWidth: 140,
+      });
+    }
+    return control;
+   }
+
+   /**
+    * get mouse position control for ol map
+    * @param target string id of the target html element
+    * @returns MousePosition
+    */
+
+    static mousePositionControl(target:string):MousePosition{
+      let mousePositionControl = new MousePosition({
+        coordinateFormat: createStringXY(4),
+        projection: 'EPSG:4326',
+        // comment the following two lines to have the mouse position
+        // be placed within the map.
+        // className: 'custom-mouse-position',
+        target: document.getElementById(target),
+        undefinedHTML: 'WGS 84',
+      });
+      return mousePositionControl
+    }
+
 
 }

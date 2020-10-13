@@ -13,7 +13,7 @@ import { ShareServiceService } from 'src/app/services/share-service/share-servic
 import { TranslateService } from '@ngx-translate/core';
 import { SidenaveLeftSecondaireComponent } from './sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component';
 import * as $ from 'jquery'
-import { layersInMap, cartoHelper, dataFromClickOnMapInterface } from 'src/helper/carto.helper';
+import { layersInMap, cartoHelper, dataFromClickOnMapInterface } from '../../helper/carto.helper';
 import {manageCompHelper} from 'src/helper/manage-comp.helper'
 import {ContextMenuComponent} from '../map/context-menu/context-menu.component'
 
@@ -106,6 +106,8 @@ export class MapComponent implements OnInit {
     map.setTarget('map1')
     map.setTarget('map')
     map.updateSize()
+    map.addControl(cartoHelper.scaleControl('scaleline','scale-map'))
+    map.addControl(cartoHelper.mousePositionControl('mouse-position-map'))
 
 
     this.StorageServiceService.states.subscribe((value) => {
