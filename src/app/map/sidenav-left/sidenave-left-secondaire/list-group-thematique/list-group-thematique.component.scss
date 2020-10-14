@@ -1,13 +1,15 @@
-.couche-thematique{
-  ::ng-deep .mat-expansion-panel-body{
+.couche-thematique {
+  ::ng-deep .mat-expansion-panel-body {
     padding: 10px 5px 16px !important;
+    padding-top: 0px !important;
+    margin-top: -12px;
   }
 
-  .couche-thematique-panel{
-    margin-bottom:20px ;
+  .couche-thematique-panel {
+    margin-bottom: 20px;
   }
 }
-app-couche-thematique{
-  padding-left: 15px;
-  padding-right: 15px;
+app-couche-thematique {
+  // padding-left: 15px;
+  // padding-right: 15px;
 }
