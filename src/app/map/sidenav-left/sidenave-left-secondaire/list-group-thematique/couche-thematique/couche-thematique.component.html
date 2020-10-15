@@ -1,4 +1,4 @@
-<div [matTooltip]="couche.nom" class="couches" [ngClass]="{'opacity_disabled': disabled_couche(couche)}">
+<!-- <div [matTooltip]="couche.nom" class="couches" [ngClass]="{'opacity_disabled': disabled_couche(couche)}">
   <div fxLayout>
     <div fxFlex>
       <img src="{{url_prefix+couche.img}}" *ngIf="couche.logo_src == null" />
@@ -14,4 +14,25 @@
     <div>{{couche.nom}}</div>
   </div>
 
-</div>
+</div> -->
+
+<mat-list-option
+  [matTooltip]="couche.nom"
+  [disabled]="disabled_couche(couche)"
+  [value]="couche"
+  [selected]="couche.check"
+>
+  <img
+    src="{{ url_prefix + couche.img }}"
+    mat-list-icon
+    *ngIf="couche.logo_src == null"
+  />
+  <img
+    src="{{ url_prefix + couche.logo_src }}"
+    mat-list-icon
+    *ngIf="couche.logo_src != null"
+  />
+
+  <div mat-line>{{ couche.nom }}</div>
+</mat-list-option>
+<mat-divider style="margin-left: 50px" [inset]="true"></mat-divider>
