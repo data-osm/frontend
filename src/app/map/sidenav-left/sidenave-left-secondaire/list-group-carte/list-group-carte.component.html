@@ -1,18 +1,24 @@
-<ng-container *ngIf="groupCarte.sous_cartes">
-
+<div *ngIf="groupCarte.sous_cartes">
   <div *ngFor="let sous_cartes of groupCarte.sous_cartes">
-
-    <h5 class="bold primaryColor primary_transparent_bg list-group-carte-sous-cartes-tilte"> {{sous_cartes.nom}} </h5>
+    <h5
+      class="bold primaryColor primary_transparent_bg list-group-carte-sous-cartes-tilte"
+    >
+      {{ sous_cartes.nom }}
+    </h5>
     <div class="list-group-carte-carte">
-      <app-carte-thematique *ngFor="let carte of sous_cartes.couches" [carte]="carte"></app-carte-thematique>
+      <app-carte-thematique
+        *ngFor="let carte of sous_cartes.couches"
+        [carte]="carte"
+      ></app-carte-thematique>
     </div>
-
   </div>
+</div>
 
-</ng-container>
-
-<ng-container *ngIf="!groupCarte.sous_cartes">
-  <div class="list-group-carte-carte" style="margin-top: 20px;">
-    <app-carte-thematique *ngFor="let carte of groupCarte.couches" [carte]="carte"></app-carte-thematique>
+<div *ngIf="!groupCarte.sous_cartes">
+  <div class="list-group-carte-carte" style="margin-top: 20px">
+    <app-carte-thematique
+      *ngFor="let carte of groupCarte.couches"
+      [carte]="carte"
+    ></app-carte-thematique>
   </div>
-</ng-container>
+</div>

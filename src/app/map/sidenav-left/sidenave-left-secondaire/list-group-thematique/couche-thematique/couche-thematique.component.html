@@ -16,7 +16,12 @@
 
 </div> -->
 
-<mat-list-option>
+<mat-list-option
+  [matTooltip]="couche.nom"
+  [disabled]="disabled_couche(couche)"
+  [value]="couche"
+  [selected]="couche.check"
+>
   <img
     src="{{ url_prefix + couche.img }}"
     mat-list-icon

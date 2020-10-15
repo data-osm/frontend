@@ -15,7 +15,7 @@
         </mat-panel-title>
       </mat-expansion-panel-header>
       <div>
-        <mat-selection-list>
+        <mat-selection-list (selectionChange)="coucheSelected($event)">
           <!-- <mat-list-option> -->
           <app-couche-thematique
             *ngFor="let couche of sous_thematique.couches"
@@ -39,7 +39,7 @@
 
 <ng-container *ngIf="!groupThematique.sous_thematiques">
   <div>
-    <mat-selection-list>
+    <mat-selection-list (selectionChange)="coucheSelected($event)">
       <!-- <mat-list-option> -->
       <app-couche-thematique
         *ngFor="let couche of groupThematique.couches"

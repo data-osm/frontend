@@ -49,7 +49,7 @@ export class CoucheThematiqueComponent implements OnInit {
    * Toogle layer
    * @param couche coucheInterface
    */
-  toogleLayer(couche:coucheInterface){
+  toogleLayer(couche:coucheInterface){ console.log(couche,2)
     if (couche.check) {
       this.GeosmLayersServiceService.addLayerCouche(couche)
     }else{
