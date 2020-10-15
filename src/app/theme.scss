@@ -155,6 +155,7 @@ $color_accent: (
     A700: black,
   ),
 );
+$accent_color: #00ada7;
 
 $theme-primary: mat-palette($color_prim, 500);
 $theme-accent: mat-palette($color_accent, 600);
