@@ -10,3 +10,49 @@
 .actions-icons{
     margin-bottom: 20px;
 }
+
+.loading-icons{
+    mat-spinner{
+        margin: auto;
+        margin-top: 40px;
+    }
+}
+
+.all-group-icon{
+    .one-group-icon{
+        margin-bottom: 24px;
+        // background-color: #f3f5f6;
+        // padding: 24px;
+        .one-group-icon-title{
+            padding: 14px;
+            border-bottom: 5px solid #023f5e;
+        }
+        .one-icon{
+            height: 108px;
+            text-align: center;
+            position: relative;
+            padding-top: 25px;
+            cursor: pointer;
+            .fa-trash{
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                display: none;
+            }
+            img{
+                width: 63px;
+                height: 63px;
+            }
+        }
+        .one-icon:hover{
+            background: #f3f5f6;
+            border-radius: 5px;
+            .fa-trash{
+                display: block;
+            }
+        }
+    }
+    // padding: 20px 20px 0px 20px;
+    border-radius: 10px;
+    margin-top: 48px;
+}

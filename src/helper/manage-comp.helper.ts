@@ -10,7 +10,6 @@ import {InfoComponent} from 'src/app/modal/info/info.component'
 import {AddGeosignetComponent} from 'src/app/map/context-menu/add-geosignet/add-geosignet.component'
 import {SidenaveLeftSecondaireComponent}  from 'src/app/map/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component'
 import { groupCarteInterface, groupThematiqueInterface } from '../app/type/type';
-import { AddGroupIconComponent } from '../app/admin/administration/content/icons/add-group-icon/add-group-icon.component';
 import { AddIconComponent } from '../app/admin/administration/content/icons/add-icon/add-icon.component';
 
 /**

@@ -1,9 +1,10 @@
-<div fxLayout fxLayoutGap="15px" fxLayoutAlign="end" class="actions-icons">
-    <!-- <button fxFlex="150px"  mat-stroked-button color="primary"  >{{ 'admin.icon.add_group' | translate }}</button> -->
+<!-- <div fxLayout fxLayoutGap="15px" fxLayoutAlign="end" class="actions-icons">
     <button fxFlex="150px"  mat-flat-button color="accent" class="white" (click)="addIcon()" > {{ 'admin.icon.add_icons' | translate }} </button>
-</div>
+</div> -->
 
-<div class="search-icons" fxLayout>
+<div class="search-icons" fxLayout="row wrap">
+    <h2 class="one-group-icon-title" fxFlex="calc(100% - 170px)" > Rechercher une icone </h2>
+    <button fxFlex="150px" style="margin-bottom: 10px;" mat-flat-button color="accent" class="white" (click)="addIcon()" > {{ 'admin.icon.add_icons' | translate }} </button>
     <form fxFlex="100%">
         <mat-form-field appearance="outline" style="width: 100%;" >
             <i class="fa fa-search black " aria-hidden="true" matPrefix ></i>
@@ -11,4 +12,20 @@
         </mat-form-field>
     </form>
     
+</div>
+
+<div class="text-center loading-icons">
+    <mat-spinner color="primary" diameter="150" *ngIf="IconService.iconList.getValue() == undefined" ></mat-spinner>
+</div>
+
+<div class="all-group-icon">
+        <div class="one-group-icon" *ngFor="let group of IconService.getCategoryIcons()" > 
+            <h2 class="one-group-icon-title" > {{group}} </h2>
+            <div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="center">
+                <div fxFlex="108px" class="one-icon" *ngFor="let icon of IconService.getAllIconsFromCategory(group)" >
+                    <i class="fa fa-trash red"></i>
+                    <img src="{{url_prefix+icon.path}}" alt="" srcset="">
+                </div>
+            </div>
+        </div>
 </div>

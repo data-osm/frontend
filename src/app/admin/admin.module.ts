@@ -20,12 +20,11 @@ import { SidenavLeftAdminComponent } from './administration/sidenav-left-admin/s
 import { NavBarComponent } from './administration/nav-bar/nav-bar.component';
 import { IconsComponent } from './administration/content/icons/icons.component'
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { AddGroupIconComponent } from './administration/content/icons/add-group-icon/add-group-icon.component';
 import { AddIconComponent } from './administration/content/icons/add-icon/add-icon.component';
 import { FileUploadComponent } from './administration/content/icons/add-icon/file-upload/file-upload.component';
 
 @NgModule({
-  declarations: [AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddGroupIconComponent, AddIconComponent, FileUploadComponent],
+  declarations: [AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent],
   imports: [
     CommonModule,
     AdminRoutingModule,
