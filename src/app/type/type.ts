@@ -486,4 +486,5 @@ export interface Icon{
   category:string
   icon?:File
   tags:string[]
+  attribution:string
 }

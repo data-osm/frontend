@@ -5,6 +5,13 @@
     .fa-search{
         font-size: 22px;
     }
+    .fa-times-circle{
+        font-size: 20px;
+        transform: translateY(-4px);
+    }
+    ::ng-deep  .mat-option{
+        height: 55px;
+    }
 }
 
 .actions-icons{

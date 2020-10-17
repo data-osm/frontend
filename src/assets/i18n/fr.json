@@ -249,7 +249,8 @@
   "admin": {
     "icon": {
       "add_group": "Ajouter un groupe",
-      "add_icons": "Ajouter des icones"
+      "add_icons": "Ajouter des icones",
+      "search_icons": "Rechercher une icone"
     },
     "lef_sidenav": {
       "icons": "Icones"

@@ -133,6 +133,16 @@ export class IconService {
   }
 
   /**
+   * Search an icon
+   * @param search_word string
+   */
+  searchIcon(search_word:string):Observable<Icon[]>{
+    return from(this.http.post(this.url_prefix + '/api/group/icons/search', {'search_word':search_word}, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
+      map((value: HttpResponse<any>):Icon[] => { return value.body })
+    ))
+  }
+
+  /**
 * Make a get request to Backend
 * @param string path url
 */
