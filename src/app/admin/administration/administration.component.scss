@@ -1,0 +1,15 @@
+.sidenav-admin-container{
+    height: 100%;
+    width: 100%;
+    .sidenav-admin-start{
+        width: 256px;
+        border: none;
+    }
+    .sidenav-admin-content{
+        padding: 24px;
+        height: 100%;
+    }
+    .mat-sidenav-content{
+        background-color: #e7ebed;
+    }
+}

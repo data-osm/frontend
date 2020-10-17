@@ -51,7 +51,7 @@ export class AuthService {
    */
   getUserConnect():Observable<User>{
 
-    return from(this.getRequest('auth/users/me/')).pipe(
+    return from(this.getRequest('/auth/users/me/')).pipe(
         map((user:User)=>{
             return user
         }),
@@ -70,7 +70,7 @@ export class AuthService {
   login(email:string,pwd:string):Promise<{ error: boolean, msg?: string }> {
     return new Promise((resolve, reject) => {
         
-        from(this.post_requete('auth/jwt/create/',{
+        from(this.post_requete('/auth/jwt/create/',{
             email:email,
             password:pwd
         })).pipe(

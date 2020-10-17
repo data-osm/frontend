@@ -7,6 +7,8 @@ import { CdkTableModule } from '@angular/cdk/table';
 import { CdkTreeModule } from '@angular/cdk/tree';
 import { NgModule } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
+import {MatProgressBarModule} from '@angular/material/progress-bar'
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner'
 // import {
 //   MatAutocompleteModule,
 //   MatBadgeModule,
@@ -92,6 +94,8 @@ import {MatBottomSheetModule} from '@angular/material/bottom-sheet'
     MatAutocompleteModule,
     MatSlideToggleModule,
     MatSelectModule,
+    MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatBottomSheetModule
   ]
 })

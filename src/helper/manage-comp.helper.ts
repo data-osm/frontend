@@ -10,6 +10,7 @@ import {InfoComponent} from 'src/app/modal/info/info.component'
 import {AddGeosignetComponent} from 'src/app/map/context-menu/add-geosignet/add-geosignet.component'
 import {SidenaveLeftSecondaireComponent}  from 'src/app/map/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component'
 import { groupCarteInterface, groupThematiqueInterface } from '../app/type/type';
+import { AddIconComponent } from '../app/admin/administration/content/icons/add-icon/add-icon.component';
 
 /**
  * Open some componenents like social share, loading,modal etc...
@@ -249,6 +250,28 @@ import { groupCarteInterface, groupThematiqueInterface } from '../app/type/type'
     const modal = this.dialog.open(AddGeosignetComponent, proprietes);
 
     modal.afterClosed().subscribe(async (result:string) => {
+      callBack(result)
+    })
+   }
+
+      /**
+    * Open modal to add a group icon
+    * @param size Array<string>|[]
+    * @param callBack Function
+    */
+   openModalAddcon(size:Array<string>|[],callBack:Function){
+    var proprietes = {
+      disableClose: false,
+      minWidth:400,
+    }
+
+    if (size.length >0) {
+      proprietes['width']=size[0]
+      proprietes['height']=size[1]
+    }
+    const modal = this.dialog.open(AddIconComponent, proprietes);
+
+    modal.afterClosed().subscribe((result:boolean) => {
       callBack(result)
     })
    }
