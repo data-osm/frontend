@@ -49,10 +49,10 @@
     "title_choose_thematique": "Choisir une thématique",
     "title_choose_type_emprise": "Votre emprise spatiale",
     "title_data_in": "Données d'entrées",
-    "toolTipLoadLayersInTOC":"Charger les couches en cours",
-    "toolTipAddInput":"Ajouter une nouvelle couche",
-    "toolTipDownloadGpkg":"Afficher les GPKG en téléchargements",
-    "toolTipDownloadImage":"Télécharger cette image"
+    "toolTipLoadLayersInTOC": "Charger les couches en cours",
+    "toolTipAddInput": "Ajouter une nouvelle couche",
+    "toolTipDownloadGpkg": "Afficher les GPKG en téléchargements",
+    "toolTipDownloadImage": "Télécharger cette image"
   },
   "draw_in_map": {
     "apply_draw": "APPLIQUER",
@@ -140,8 +140,8 @@
     },
     "download_data": {
       "title": "Téléchargement de données",
-      "downloadCompleteDataTooltip":"Télécharger les données completes (sans intersection géographiques)",
-      "downloadCompleteData":"Export total des couches"
+      "downloadCompleteDataTooltip": "Télécharger les données completes (sans intersection géographiques)",
+      "downloadCompleteData": "Export total des couches"
     },
     "legend": {
       "title": "Légende"
@@ -205,10 +205,10 @@
     "place": "Lieux :",
     "placeholder": "Rechercher un lieu, une adresse ou une donnée",
     "position": "Position : ",
-    "limites":"Limites adminstratives (OSM)",
-    "photon":"Lieux (Photon)",
-    "adresseFr":"Adresse (API Data Gouv)",
-    "layer":"Données et cartes"
+    "limites": "Limites adminstratives (OSM)",
+    "photon": "Lieux (Photon)",
+    "adresseFr": "Adresse (API Data Gouv)",
+    "layer": "Données et cartes"
   },
   "zoom_to_coordinates": {
     "cancel": "Annuler",
@@ -222,30 +222,46 @@
     "no_ressourses": "Aucune ressouces disponibles",
     "download": "Telecharger"
   },
-
   "geosm": {
     "text": "Data OSM utilise les données",
     "text1": " d'"
   },
-  "dowloadLayers":{
-    "features":" entité(s)",
-    "download":"Télécharger",
-    "title":"Télécharger vos fichiers"
+  "dowloadLayers": {
+    "features": " entité(s)",
+    "download": "Télécharger",
+    "title": "Télécharger vos fichiers"
   },
-"descriptive_sheet":{
-  "share":" Partager",
-  "zoomTo":" Zoomer",
-  "displayAllAttributes":" Afficher tout",
-  "displayLesAttributes":" Afficher moins"
-},
-"login":{
-  "error":" Email ou mot de passe invalide",
-  "label_email":"Email ",
-  "label_password":"Mot de passe",
-  "error_password":"Champ vide",
-  "error_email":" Email incorrect",
-  "connect":" Se connecter",
-  "title":" Connecter vous"
-}
-
+  "descriptive_sheet": {
+    "share": " Partager",
+    "zoomTo": " Zoomer",
+    "displayAllAttributes": " Afficher tout",
+    "displayLesAttributes": " Afficher moins"
+  },
+  "login": {
+    "error": " Email ou mot de passe invalide",
+    "label_email": "Email ",
+    "label_password": "Mot de passe",
+    "error_password": "Champ vide",
+    "error_email": " Email incorrect",
+    "connect": " Se connecter",
+    "title": " Connecter vous"
+  },
+  "admin": {
+    "icon": {
+      "add_group": "Ajouter un groupe",
+      "add_icons": "Ajouter des icones"
+    },
+    "lef_sidenav": {
+      "icons": "Icones"
+    }
+  },
+  "add_icon": {
+    "title": "Ajouter des icones",
+    "category": "Slectionnez la catégorie des icones",
+    "category_error": "Champ obligatoire",
+    "image_error": "Ajouter au moins une image",
+    "attribnution": "Attribution des images"
+  },
+  "save": "Valider",
+  "cancel": "Annuler"
 }

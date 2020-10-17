@@ -1,0 +1,14 @@
+<div fxLayout fxLayoutGap="15px" fxLayoutAlign="end" class="actions-icons">
+    <!-- <button fxFlex="150px"  mat-stroked-button color="primary"  >{{ 'admin.icon.add_group' | translate }}</button> -->
+    <button fxFlex="150px"  mat-flat-button color="accent" class="white" (click)="addIcon()" > {{ 'admin.icon.add_icons' | translate }} </button>
+</div>
+
+<div class="search-icons" fxLayout>
+    <form fxFlex="100%">
+        <mat-form-field appearance="outline" style="width: 100%;" >
+            <i class="fa fa-search black " aria-hidden="true" matPrefix ></i>
+            <input matInput >
+        </mat-form-field>
+    </form>
+    
+</div>

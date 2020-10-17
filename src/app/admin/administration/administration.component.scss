@@ -3,5 +3,11 @@
     width: 100%;
     .sidenav-admin-start{
         width: 256px;
+        border: none;
+    }
+    .sidenav-admin-content{
+        padding: 24px;
+        background-color: #e7ebed;
+        height: 100%;
     }
 }
