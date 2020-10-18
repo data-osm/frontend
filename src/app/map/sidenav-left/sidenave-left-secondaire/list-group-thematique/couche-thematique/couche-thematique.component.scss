@@ -39,3 +39,20 @@
 .couches:hover{
 background: rgba(185, 235, 187, 0.45);
 }
+
+.couche-img{
+	width: 35px !important;
+	height: 35px !important;
+	border-radius: 15px !important;
+}
+
+.couche-title{
+	font-size: 15px !important;
+}
+
+::ng-deep .couche-toolipt{
+	background-color: white;
+	color: #000;
+	border: 1px solid #023f5f;
+	font-size: 13px;
+}

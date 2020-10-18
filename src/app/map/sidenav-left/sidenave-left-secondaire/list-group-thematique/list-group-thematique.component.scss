@@ -8,8 +8,14 @@
   .couche-thematique-panel {
     margin-bottom: 20px;
   }
-}
-app-couche-thematique {
-  // padding-left: 15px;
-  // padding-right: 15px;
+
+  mat-panel-title{
+    color: #fff !important;
+    font-size: 16px;
+  }
+  
+  ::ng-deep .mat-expansion-indicator::after{
+    color: #fff !important;
+  }
+
 }

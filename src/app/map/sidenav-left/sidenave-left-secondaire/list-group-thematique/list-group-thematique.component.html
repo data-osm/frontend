@@ -6,7 +6,7 @@
       expanded="true"
     >
       <mat-expansion-panel-header
-        class="primary_transparent_bg"
+        class="accentColorBG"
         collapsedHeight="45px"
         expandedHeight="45px"
       >
@@ -14,7 +14,7 @@
           {{ sous_thematique.nom }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <div>
+      <div style="margin-top: 15px;">
         <mat-selection-list (selectionChange)="coucheSelected($event)">
           <!-- <mat-list-option> -->
           <app-couche-thematique
