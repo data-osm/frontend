@@ -27,9 +27,10 @@ import { ListVectorProviderComponent } from './administration/content/provider/l
 import { CdkTable, CDK_TABLE, _CoalescedStyleScheduler} from '@angular/cdk/table';
 import { _VIEW_REPEATER_STRATEGY, _DisposeViewRepeaterStrategy } from '@angular/cdk/collections';
 import { MatTable } from '@angular/material/table';
+import { DetailsVectorProviderComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/details-vector-provider.component';
 
 @NgModule({
-  declarations: [AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent],
+  declarations: [AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent],
   imports: [
     CommonModule,
     AdminRoutingModule,

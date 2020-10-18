@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpClientModule, HttpEvent, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpClientModule, HttpEvent, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject, from, of } from 'rxjs';
 import { catchError, finalize, retry, tap } from 'rxjs/operators';
 import { map } from 'rxjs/operators';
@@ -91,6 +91,28 @@ export class VectorProviderService {
     return from(this.http.post(this.url_prefix + '/api/provider/vector/search', {'search_word':search_word}, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
       map((value: HttpResponse<any>):VectorProvider[] => { return value.body })
     ))
+  }
+
+  /**
+   * get a vector providor by provider_vector_id
+   * @param id number 
+   * @returns Observable<VectorProvider>
+   */
+  getVectorProvider(id:number):Observable<VectorProvider|HttpErrorResponse>{
+
+    return from(this.getRequest('/api/provider/vector/'+id)).pipe(
+      map((value: VectorProvider):VectorProvider => { return value }),
+      catchError((err:HttpErrorResponse) => of(err) )
+      // catchError((err:HttpErrorResponse) => { 
+      //   this.notifier.notify("error", "An error occured while loading vector provider");
+      //   console.log(err); 
+      //   // return 
+      //   of(undefined)
+      //   // throw new Error('err'); 
+
+      // }),
+    )
+  
   }
 
 
