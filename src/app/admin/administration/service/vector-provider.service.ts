@@ -84,6 +84,17 @@ export class VectorProviderService {
   }
 
   /**
+   * Search an vector provider
+   * @param search_word string
+   */
+  searchVectorProvider(search_word:string):Observable<VectorProvider[]>{
+    return from(this.http.post(this.url_prefix + '/api/provider/vector/search', {'search_word':search_word}, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
+      map((value: HttpResponse<any>):VectorProvider[] => { return value.body })
+    ))
+  }
+
+
+  /**
   * Get header
   * @returns HttpHeaders
   */

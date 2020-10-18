@@ -33,6 +33,9 @@ export class ListVectorProviderComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
  
+  searchtVectorProviderForm:FormGroup = this.fb.group({})
+  searchResultVectorProvider:Observable<VectorProvider[]> 
+
   constructor(
     public VectorProviderService:VectorProviderService,
     public manageCompHelper:manageCompHelper,
@@ -58,7 +61,30 @@ export class ListVectorProviderComponent implements OnInit {
         }
       }
     )
+    this.initilialiseSearchIcon()
   }
+
+  initilialiseSearchIcon() {
+    let searchControl = new FormControl(null, Validators.min(3))
+
+    this.searchResultVectorProvider = searchControl.valueChanges.pipe(
+      filter((search_word) => typeof search_word === 'string' &&  search_word.length > 2),
+      catchError((err) => of([]) ),
+      switchMap((search_word) => {
+        return this.VectorProviderService.searchVectorProvider(search_word)
+      })
+    )
+     
+    this.searchtVectorProviderForm.addControl('search_word', searchControl)
+
+  }
+
+  displaySelectedIcon(vectorProvider:VectorProvider):string{
+    if (vectorProvider) {
+      return vectorProvider.name
+    }
+  }
+
 
 
   /**
