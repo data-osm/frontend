@@ -86,7 +86,7 @@ export class AddIconComponent implements OnInit {
      forkJoin(...this.formatIconsToSave())
     .pipe(
       switchMap(value=> value),
-      catchError( (err)=> { this.notifier.notify("error", "An error occured");throw new Error(err); }),
+      catchError( (err)=> { this.notifier.notify("error", "An error occured when saving icons");throw new Error(err); }),
       finalize(()=>{
         this.form.enable();
         this.progress = 0

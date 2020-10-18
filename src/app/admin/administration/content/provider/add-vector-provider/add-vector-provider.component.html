@@ -1,0 +1,38 @@
+<h1 mat-dialog-title>
+    <i class="fa fa-th-large primaryColorBorder icon_header"> </i>
+
+    <span class="bold primaryColor " style="font-size: 17px;">{{ 'add_vector_provider.title' | translate }}
+    </span>
+
+    <i (click)="close()" class="fa fa-times primaryColor pointer close"></i>
+</h1>
+
+
+<mat-dialog-content>
+    <form [formGroup]="form" (ngSubmit)="saveVectorProvider()">
+        <mat-form-field appearance="outline" *ngIf="form.get('name')" style="width: 100%;">
+            <mat-label> {{ 'add_vector_provider.name' | translate }} </mat-label>
+            <input matInput formControlName="name">
+            <mat-error> {{ 'add_vector_provider.name_error' | translate }} </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" *ngIf="form.get('geometry_type')" style="width: 100%;">
+            <mat-label> {{ 'add_vector_provider.geometry_type' | translate }} </mat-label>
+            <mat-select formControlName="geometry_type">
+                <mat-option value="Point"> {{ 'add_vector_provider.geometry_type_point' | translate }} </mat-option>
+                <mat-option value="Polygon"> {{ 'add_vector_provider.geometry_type_polygon' | translate }} </mat-option>
+                <mat-option value="LineString"> {{ 'add_vector_provider.geometry_type_lineString' | translate }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <div fxLayout fxLayoutGap="15px" fxLayoutAlign="end">
+        <mat-progress-bar fxFlex="100%" mode="indeterminate" *ngIf="form.disabled"></mat-progress-bar>
+        <button fxFlex="150px" mat-stroked-button color="primary" [disabled]="form.disabled"
+            (click)="close()">{{ 'cancel' | translate }}</button>
+        <button fxFlex="150px" mat-flat-button color="accent" class="white" (click)="saveVectorProvider()"
+            [disabled]="!form.valid || form.disabled"> {{ 'save' | translate }} </button>
+    </div>
+</mat-dialog-actions>
