@@ -91,6 +91,24 @@ $height: calc(100% - 60px);
       text-align: center;
       border-radius: 6px;
     }
+    .geolocate-user {
+      position: absolute;
+      bottom: 60px;
+      right: 6px;
+      z-index: 1;
+      width: 25px;
+      height: 25px;
+      background: #fff;
+      box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2),
+        0px 6px 10px 0px rgba(0, 0, 0, 0.14),
+        0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+      border: 2px solid #fff;
+      border-radius: 50%;
+      svg {
+        height: 21px;
+        margin: 2px;
+      }
+    }
   }
   .sidenav-content-toolbar {
     position: absolute;
