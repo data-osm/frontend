@@ -1188,19 +1188,42 @@ export class cartoHelper {
 
     let positionFeature = new Feature();
     positionFeature.setStyle(
-      new Style({
+      [
+        new Style({
         image: new CircleStyle({
-          radius: 10,
+          radius: 8,
           fill: new Fill({
             color: this.environment.primaryColor,
           }),
-          stroke: new Stroke({
-            color: '#fff',
-            width: 4,
-          }),
+          // stroke: new Stroke({
+          //   color: '#fff',
+          //   width: 0,
+          // }),
         }),
+      }),
+      new Style({
+        image: new Icon({
+          scale: 0.7,
+          src: '/assets/icones/geolocation_pin.png',
+          anchor:[0.5,0.95]
+        }),
+        // text: new Text({
+        //   font: "15px Calibri,sans-serif",
+        //   fill: new Fill({ color: "#000" }),
+        //   text:"Your position",
+        //   stroke: new Stroke({ color: "#000", width: 1 }),
+        //   padding: [10, 10, 10, 10],
+        //   backgroundFill:new Fill({ color: "#fff" }),
+        //   offsetX: 0,
+        //   offsetY: 30,
+        // })
       })
+    ]
     );
+    // 
+
+    
+
 
     let geolocation = new Geolocation({
       // enableHighAccuracy must be set to true to have the heading value.
