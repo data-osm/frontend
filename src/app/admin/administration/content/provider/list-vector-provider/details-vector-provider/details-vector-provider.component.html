@@ -1,1 +1,15 @@
-<p>details-vector-provider works!</p>
+<mat-tab-group>
+    <mat-tab label=" {{ 'admin.vector_provider.details.datasource_tab' | translate }}">
+      <ng-template matTabContent>
+          <app-osm-querry *ngIf="vectorProvider" [provider_vector_id]="vectorProvider.provider_vector_id" ></app-osm-querry>
+      </ng-template>
+    </mat-tab>
+    <mat-tab label="{{ 'admin.vector_provider.details.style_tab' | translate }}">
+      <ng-template matTabContent>
+      </ng-template>
+    </mat-tab>
+    <mat-tab label="{{ 'admin.vector_provider.details.general_tab' | translate }}">
+      <ng-template matTabContent>
+      </ng-template>
+    </mat-tab>
+</mat-tab-group>

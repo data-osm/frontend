@@ -488,7 +488,9 @@ export interface Icon {
   tags: string[]
   attribution: string
 }
-
+/**
+ * interface of a vector provider
+ */
 export interface VectorProvider {
   provider_vector_id: number
   name:string
@@ -522,4 +524,13 @@ export interface VectorProvider {
    * state of the data
    */
   state:'good'|'not_working'|'action_require'|'unknow'
+}
+
+/**
+ * interface of an osm querry
+ */
+export interface OsmQuerry{
+  select:string,
+  where:string
+  provider_vector_id:number
 }

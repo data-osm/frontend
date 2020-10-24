@@ -259,19 +259,30 @@
         "header": {
           "name": "Nom",
           "state": "Etat du provider",
-          "state_type":{
-            "good":"Actif",
-            "not_working":"Hors service",
-            "action_require":"Action requise",
-            "unknow":"Inconnu",
-            "null":"Inconnu"
+          "state_type": {
+            "good": "Actif",
+            "not_working": "Hors service",
+            "action_require": "Action requise",
+            "unknow": "Inconnu",
+            "null": "Inconnu"
           }
         }
+      },
+      "details": {
+        "datasource_tab": "Source de données",
+        "style_tab": "Styles",
+        "general_tab": "General"
       }
     },
     "lef_sidenav": {
       "icons": "Icones",
       "vector_provider": "Provider vecteur"
+    },
+    "osm_querry": {
+      "where": "Clause where de la requete",
+      "edit_where_querry": "Editer la clause where de la requete",
+      "edit_select_querry": "Editer la clause select de la requete",
+      "select": "Clause select de la requete"
     }
   },
   "add_icon": {

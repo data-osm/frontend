@@ -1,0 +1,10 @@
+:host ::ng-deep mat-tab-header {
+    background-color: #fff;
+    .mat-tab-label .mat-tab-label-content{
+        font-size: 15px;
+    }
+}
+
+:host ::ng-deep .mat-tab-body-content{
+    padding-top: 24px;
+}
