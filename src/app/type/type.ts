@@ -531,6 +531,7 @@ export interface VectorProvider {
  */
 export interface OsmQuerry{
   select:string,
-  where:string
+  where:string,
+  sql?:string
   provider_vector_id:number
 }
