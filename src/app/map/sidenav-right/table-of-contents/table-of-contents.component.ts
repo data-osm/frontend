@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { Observable, fromEvent,merge as observerMerge } from 'rxjs';
 
-import {cartoHelper, layersInMap} from 'src/helper/carto.helper'
+import {cartoHelper, layersInMap} from '../../../../helper/carto.helper'
 import {manageCompHelper} from 'src/helper/manage-comp.helper'
 import {
   Map

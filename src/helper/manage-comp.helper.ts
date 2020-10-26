@@ -8,6 +8,10 @@ import { layersInMap, cartoHelper } from './carto.helper';
 import { LayerGroup } from 'src/app/ol-module';
 import {InfoComponent} from 'src/app/modal/info/info.component'
 import {AddGeosignetComponent} from 'src/app/map/context-menu/add-geosignet/add-geosignet.component'
+import {SidenaveLeftSecondaireComponent}  from 'src/app/map/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component'
+import { groupCarteInterface, groupThematiqueInterface } from '../app/type/type';
+import { AddIconComponent } from '../app/admin/administration/content/icons/add-icon/add-icon.component';
+
 /**
  * Open some componenents like social share, loading,modal etc...
  * Dynamically add component in html
@@ -16,6 +20,8 @@ import {AddGeosignetComponent} from 'src/app/map/context-menu/add-geosignet/add-
   providedIn: 'root'
 })
  export class manageCompHelper{
+
+  SidenaveLeftSecondaireComp:SidenaveLeftSecondaireComponent
 
    constructor(
      private _snackBar: MatSnackBar,
@@ -26,6 +32,31 @@ import {AddGeosignetComponent} from 'src/app/map/context-menu/add-geosignet/add-
      ){
 
    }
+
+   setComponent(component:string,comp:any){
+     if (component == 'SidenaveLeftSecondaireComp') {
+       this.SidenaveLeftSecondaireComp = comp
+     }
+   }
+
+   /**
+   * Open group thematique slide
+   * @param groupThematique groupThematiqueInterface
+   */
+  openGroupThematiqueSlide(groupThematique: groupThematiqueInterface) {
+    this.SidenaveLeftSecondaireComp.setGroupThematique(groupThematique)
+    this.SidenaveLeftSecondaireComp.open()
+  }
+
+  /**
+   * Open group carte slide
+   * @param groupCarte groupCarteInterface
+   */
+  openGroupCarteSlide(groupCarte: groupCarteInterface) {
+    this.SidenaveLeftSecondaireComp.setGroupCarte(groupCarte)
+    this.SidenaveLeftSecondaireComp.open()
+  }
+  
 
    /**
     * Open the snackbar for social sharing
@@ -159,7 +190,6 @@ import {AddGeosignetComponent} from 'src/app/map/context-menu/add-geosignet/add-
     if (componentProps && typeof componentRef.instance === 'object') {
       Object.assign(componentRef.instance as object, componentProps);
     }
-    console.log(componentRef.instance)
     return componentRef;
   }
 
@@ -220,6 +250,28 @@ import {AddGeosignetComponent} from 'src/app/map/context-menu/add-geosignet/add-
     const modal = this.dialog.open(AddGeosignetComponent, proprietes);
 
     modal.afterClosed().subscribe(async (result:string) => {
+      callBack(result)
+    })
+   }
+
+      /**
+    * Open modal to add a group icon
+    * @param size Array<string>|[]
+    * @param callBack Function
+    */
+   openModalAddcon(size:Array<string>|[],callBack:Function){
+    var proprietes = {
+      disableClose: false,
+      minWidth:400,
+    }
+
+    if (size.length >0) {
+      proprietes['width']=size[0]
+      proprietes['height']=size[1]
+    }
+    const modal = this.dialog.open(AddIconComponent, proprietes);
+
+    modal.afterClosed().subscribe((result:boolean) => {
       callBack(result)
     })
    }

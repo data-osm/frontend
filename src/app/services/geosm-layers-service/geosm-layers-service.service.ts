@@ -33,7 +33,6 @@ export class GeosmLayersServiceService {
       couche_id: couche.key_couche,
       type: 'couche'
     })
-    console.log(layer)
     for (let index = 0; index < layer.length; index++) {
       cartoHelperClass.removeLayerToMap(layer[index])
       couche.check = false

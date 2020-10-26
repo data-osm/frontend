@@ -436,3 +436,55 @@ export interface geosignetsProjectInterface {
    */
   nom: string
 }
+
+/**
+ * User interface
+ */
+export interface User{
+  /**
+   * Name of the user
+   */
+  username:string
+  id:number
+  /**
+   * email of the user
+   */
+  email:string
+}
+
+/**
+ * Interface of the model return when user  search a emprise
+ */
+export interface ResponseOfSerachLimitInterface {
+  /**
+   * DB table corresponding
+   */
+  table: string
+  /**
+   * id DB of in the table
+   */
+  id: number
+  /**
+   * name of the limit
+   */
+  limitName: string
+  /**
+   * name
+   */
+  name: string
+  ref: string
+  geometry?:any
+}
+
+/**
+ * interface of a icon
+ */
+export interface Icon{
+  icon_id:number
+  path:string
+  name:string
+  category:string
+  icon?:File
+  tags:string[]
+  attribution:string
+}

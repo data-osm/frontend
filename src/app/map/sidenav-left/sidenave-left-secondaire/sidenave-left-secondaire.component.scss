@@ -1,46 +1,47 @@
-.sidenav-left-second-header-ghost{
+.sidenav-left-second-header-ghost {
   height: 55px;
 }
-.sidenav-left-second-header{
-    height: 55px;
-    padding-top: 15px;
-    position: fixed;
-    top: 60px;
-    left: 0px;
-    z-index: 1;
-    width: 230px;
-    .fa-angle-left{
-      margin-top: -10px;
-      font-size: 25px;
-      padding: 12px;
+.sidenav-left-second-header {
+  height: 55px;
+  padding-top: 15px;
+  position: fixed;
+  top: 60px;
+  left: 0px;
+  z-index: 1;
+  width: 265px;
+  .fa-angle-left {
+    margin-top: -10px;
+    font-size: 25px;
+    padding: 12px;
   }
-    .sidenav-left-second-header-img{
-      height: 20px;
-      margin-left: 10px;
-      margin-right: 5px;
-      max-width: 25px;
-      min-width: 25px;
-    }
+  .sidenav-left-second-header-img {
+    height: 20px;
+    margin-left: 10px;
+    margin-right: 5px;
+    max-width: 25px;
+    min-width: 25px;
+  }
 
-    .sidenav-left-second-header-title{
-      text-align: left;
+  .sidenav-left-second-header-title {
+    text-align: left;
     padding: 0px;
     overflow: hidden !important;
     white-space: nowrap;
     text-overflow: ellipsis !important;
-    font-size: 14px;
-    }
+    font-size: 17px;
+    padding-top: 2px;
+  }
 }
 
-app-list-group-thematique{
+app-list-group-thematique {
   padding: 5px;
   padding-top: 20px;
   display: block;
   overflow-y: auto;
   height: calc(100% - 80px);
 }
-app-list-group-carte{
+app-list-group-carte {
   overflow-y: auto;
-    height: calc(100% - 60px);
-    display: block;
+  height: calc(100% - 60px);
+  display: block;
 }

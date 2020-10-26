@@ -1,3 +1,5 @@
+@import './theme.scss';
+
 .close {
   font-size: 18px;
   margin-right: 10px;
@@ -29,12 +31,14 @@
   margin-top: -24px !important;
   margin-bottom: 0px !important;
   padding: 6px 0px !important;
+  background-color: $primary_transparent_bg !important;
 }
 
 ::ng-deep .mat-dialog-actions {
   margin: 0px -24px -24px !important;
   background: rgba(255, 255, 255, 0.8) !important;
-  padding-left: 10px !important;
+  padding: 8px 15px !important;
+  min-height: 40px !important;
   display: block !important;
 }
 

@@ -1,0 +1,8 @@
+<div class="file-drop-area">
+    <span class="fake-btn">Choose file</span>
+
+    <span class="file-msg" >{{getListFiles().length > 0 ? getListFiles().length +' Files to upload' : 'or drag and drop file here' }}</span>
+    <!-- <span class="file-msg" *ngFor="let myFile of getListFiles()" >{{myFile ? myFile.name : 'or drag and drop file here' }}</span> -->
+    <input class="file-input" type="file" *ngIf="!multiple" accept="{{accept}}" >
+    <input class="file-input" type="file" multiple *ngIf="multiple" accept="{{accept}}">
+  </div>

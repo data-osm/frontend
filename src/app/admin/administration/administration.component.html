@@ -1,0 +1,11 @@
+<mat-sidenav-container #sidenavContainer class="sidenav-admin-container" >
+    <mat-sidenav opened mode="side" position="start" class="sidenav-admin-start primaryColorBG white " >
+        <app-sidenav-left-admin></app-sidenav-left-admin>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <app-nav-bar></app-nav-bar>
+        <div class="sidenav-admin-content">
+            <router-outlet></router-outlet>
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>

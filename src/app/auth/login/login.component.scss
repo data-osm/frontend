@@ -1,0 +1,162 @@
+@import '../../theme.scss';
+
+$mk-colors: (
+        'primary': #33414e,
+        'advanced': $primary_color,
+        'accent': #fea223,
+        'success': #95b75d,
+        'info': #3fbae4,
+        'danger': #b64645,
+        'background': #e8e8e8,
+        'foreground': #ffffff
+);
+
+@function mk-color($key: 'primary') {
+  @return map-get($mk-colors, $key);
+}
+
+//-------------------------------------------
+
+$form-width: 465px;
+$header-height: 115px;
+
+
+.login-content {
+  align-items: center;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: mk-color('background');
+  display: flex;
+  justify-content: center;
+}
+
+.login-form-wrapper {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  background-color: mk-color('foreground');
+  border: solid 1px;
+  border-color: #F3F3F3 #cccccc #B6B6B6;
+  border-radius: 3px;
+  position: relative;
+  width: $form-width;
+
+  h1 {
+    color: mk-color('advanced');
+    border: solid mk-color('advanced');
+    border-width: 0 0 0 3px;
+    display: block;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    left: -1px;
+    margin: 40px 0 40px;
+    padding: 15px 57px;
+    position: relative;
+    text-transform: uppercase;
+  }
+
+  .form-body {
+    padding: 0 60px 60px;
+
+    .fieldset {
+      font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+      font-size: 24px;
+      font-weight: 400;
+      margin-top: 50px;
+      position: relative;
+      width: 100%;
+
+      input {
+        border: solid mk-color('background');
+        border-width: 0 0 1px 0;
+        box-sizing: border-box;
+        color: mk-color('primary');
+        font-size: 24px;
+        outline: none;
+        padding: 15px 0;
+        width: 100%;
+
+        &:focus,
+        &:valid {
+          ~ label {
+            color: #B8CFE4;
+            font-size: 18px;
+            top: -35px;
+          }
+
+          ~ .highlighter {
+            width: 100%;
+            left: 0;
+          }
+        }
+      }
+
+      label {
+        position: absolute;
+        top: 0;
+        left: 0;
+        cursor: text;
+        color: mk-color('primary');
+        font-size: 24px;
+        font-weight: 300;
+        line-height: 60px;
+        -webkit-transition: 0.2s ease;
+        transition: 0.2s ease;
+      }
+
+      .highlighter {
+        height: 1px;
+        width: 0;
+        position: relative;
+        left: 50%;
+        background-color: mk-color('primary');
+        -webkit-transition: 0.2s ease;
+        transition: 0.2s ease;
+      }
+
+      .error-message {
+        color: mk-color('advanced');
+        display: block;
+        font-size: 15px;
+        font-weight: 600;
+        text-align: right;
+        width: 100%;
+      }
+
+      &:first-child {
+        margin-top: 0px;
+      }
+
+      &.invalid {
+        .highlighter {
+          background-color: mk-color('advanced');
+        }
+      }
+    }
+
+    input[type=submit] {
+      background-color: #fff;
+      border: 2px solid #e3e3e3;
+      color: #e3e3e3;
+      cursor: pointer;
+      font-size: 24px;
+      font-weight: 600;
+      left: 50%;
+      line-height: 1;
+      margin-left: -120px;
+      padding: 20px 0;
+      position: relative;
+      text-transform: uppercase;
+      width: 240px;
+
+      &:hover {
+        border-color: mk-color('advanced');
+        color: mk-color('advanced');
+      }
+
+      &:active {
+        background-color: mk-color('advanced');
+        border-color: mk-color('advanced');
+        color: #fff;
+      }
+    }
+  }
+}

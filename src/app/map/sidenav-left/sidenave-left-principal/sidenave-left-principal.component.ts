@@ -5,9 +5,9 @@ import {
   Map
 } from '../../../ol-module';
 import { groupCarteInterface, carteInterface, groupThematiqueInterface, groupInterface } from 'src/app/type/type';
-import { SidenaveLeftSecondaireComponent } from '../sidenave-left-secondaire/sidenave-left-secondaire.component'
 import * as $ from 'jquery'
 import { cartoHelper } from 'src/helper/carto.helper'
+import { manageCompHelper } from 'src/helper/manage-comp.helper'
 
 /**
  * first composant of the left sidenav
@@ -29,12 +29,6 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
   @Input() map: Map
 
   /**
-   * Secondary component of the left sidenav. On top of the first one:
-   * It is use to show details of a group thematique or a group carte
-   */
-  @Input() SidenaveLeftSecondaireComp: SidenaveLeftSecondaireComponent
-
-  /**
    * Data of the main map to display in the app
    */
   donnePrincipalMap: {
@@ -43,7 +37,8 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
   } | null
 
   constructor(
-    public StorageServiceService: StorageServiceService
+    public StorageServiceService: StorageServiceService,
+    public manageCompHelper:manageCompHelper
   ) {
     this.environment = environment
   }
@@ -211,8 +206,7 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
    * @param groupThematique groupThematiqueInterface
    */
   openGroupThematiqueSlide(groupThematique: groupThematiqueInterface) {
-    this.SidenaveLeftSecondaireComp.setGroupThematique(groupThematique)
-    this.SidenaveLeftSecondaireComp.open()
+    this.manageCompHelper.openGroupThematiqueSlide(groupThematique)
   }
 
   /**
@@ -220,8 +214,7 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
    * @param groupCarte groupCarteInterface
    */
   openGroupCarteSlide(groupCarte: groupCarteInterface) {
-    this.SidenaveLeftSecondaireComp.setGroupCarte(groupCarte)
-    this.SidenaveLeftSecondaireComp.open()
+    this.manageCompHelper.openGroupCarteSlide(groupCarte)
   }
 
   /**

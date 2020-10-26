@@ -1,5 +1,8 @@
 import {
   Map, GeoJSON, Style, Fill, VectorLayer, VectorImageLayer, VectorSource, RasterSource, ImageLayer, ImageWMS, boundingExtent, Extent, transformExtent, Cluster, CircleStyle, Stroke, Text, Icon, TileLayer, XYZ, LayerGroup, TileWMS, Point, Feature
+  , ScaleLine,
+  MousePosition,
+  createStringXY
 } from '../app/ol-module'
 import * as $ from 'jquery'
 import { BackendApiService } from 'src/app/services/backend-api/backend-api.service'
@@ -11,14 +14,14 @@ import { manageDataHelper } from './manage-data.helper'
 import { HttpErrorResponse } from '@angular/common/http'
 import { from, timer } from 'rxjs'
 import { retryWhen, tap, delay, take, delayWhen, retry, shareReplay } from 'rxjs/operators'
-
+import Geolocation from 'ol/Geolocation';
 /**
  * interface that describe data get by a click on the map
  */
 export interface dataFromClickOnMapInterface {
   type: 'vector' | 'raster' | 'clear',
   data: {
-    coord: [number,number],
+    coord: [number, number],
     layers: Array<any>,
     feature?: Feature
     /** additional data */
@@ -272,7 +275,7 @@ export class cartoHelper {
       var layer = new TileLayer({
         source: new XYZ({
           url: couche.url,
-          attributions:'<a target="_blank" href="https://www.openstreetmap.org/copyright"> © OpenStreetMap </a> contributors , develop by <a target="_blank" href="https://twitter.com/armeltayou"> @armeltayou </a>',
+          attributions: '<a target="_blank" href="https://www.openstreetmap.org/copyright"> © OpenStreetMap </a> contributors , develop by <a target="_blank" href="https://twitter.com/armeltayou"> @armeltayou </a>',
         }),
         /**
       * so that map.forEachLayerAtPixel work as expected
@@ -418,31 +421,31 @@ export class cartoHelper {
             '?bbox=' + transformExtent(extent_vieuw, 'EPSG:3857', 'EPSG:4326').join(',') +
             '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GETFEATURE&outputFormat=GeoJSON&typeName=' + couche.identifiant;
           this.BackendApiService.getRequestFromOtherHostObserver(url)
-          .pipe(
-            /** retry 3 times after 2s if querry failed  */
-            retryWhen(errors=>
-              errors.pipe(
-                tap((val:HttpErrorResponse) => {
-                  // console.log(val)
-                }),
-                delayWhen((val:HttpErrorResponse) => timer(2000)),
-                // delay(2000),
-                take(3)
+            .pipe(
+              /** retry 3 times after 2s if querry failed  */
+              retryWhen(errors =>
+                errors.pipe(
+                  tap((val: HttpErrorResponse) => {
+                    // console.log(val)
+                  }),
+                  delayWhen((val: HttpErrorResponse) => timer(2000)),
+                  // delay(2000),
+                  take(3)
+                )
               )
             )
-          )
-          .subscribe(
-            (data)=>{
-              source.addFeatures(source.getFormat().readFeatures(data));
-              for (let index = 0; index < source.getFeatures().length; index++) {
-                const feature = source.getFeatures()[index];
-                feature.set('featureId',feature.getId())
+            .subscribe(
+              (data) => {
+                source.addFeatures(source.getFormat().readFeatures(data));
+                for (let index = 0; index < source.getFeatures().length; index++) {
+                  const feature = source.getFeatures()[index];
+                  feature.set('featureId', feature.getId())
+                }
+              },
+              (err: HttpErrorResponse) => {
+                source.removeLoadedExtent(extent_vieuw);
               }
-            },
-            (err:HttpErrorResponse) => {
-              source.removeLoadedExtent(extent_vieuw);
-            }
-          )
+            )
 
         }
       });
@@ -540,10 +543,10 @@ export class cartoHelper {
 
     }
 
-    this.setPropertiesToLayer(layer,couche)
+    this.setPropertiesToLayer(layer, couche)
 
     if (couche.zindex) {
-      this.setZindexToLayer(layer,couche.zindex)
+      this.setZindexToLayer(layer, couche.zindex)
     }
 
     if (couche.minzoom) {
@@ -565,7 +568,7 @@ export class cartoHelper {
    * @param layer
    * @param couche
    */
-  setPropertiesToLayer(layer:any,couche:geosmLayer){
+  setPropertiesToLayer(layer: any, couche: geosmLayer) {
     if (layer instanceof LayerGroup) {
       for (let index = 0; index < layer.getLayers().getArray().length; index++) {
         const element = layer.getLayers().getArray()[index];
@@ -616,7 +619,7 @@ export class cartoHelper {
     if (layer.get('nom') && layer.get('type_layer')) {
 
       if (!layer.getZIndex()) {
-        this.setZindexToLayer(layer,zIndex)
+        this.setZindexToLayer(layer, zIndex)
       }
 
       // var groupLayer = this.getLayerGroupByNom(group)
@@ -629,12 +632,12 @@ export class cartoHelper {
     }
 
   }
-/**
- * set zIndex to a layer
- * @param layer any any type of layer
- * @param zIndex
- */
-  setZindexToLayer(layer:any,zIndex:number){
+  /**
+   * set zIndex to a layer
+   * @param layer any any type of layer
+   * @param zIndex
+   */
+  setZindexToLayer(layer: any, zIndex: number) {
     layer.setZIndex(zIndex)
     if (layer instanceof LayerGroup) {
       for (let index = 0; index < layer.getLayers().getArray().length; index++) {
@@ -851,20 +854,20 @@ export class cartoHelper {
       if (layer.getZIndex() < zIndex) {
         // if the layer is going up
         if (layerInmap.getZIndex() <= zIndex) {
-          this.setZindexToLayer(layerInmap,layerInmap.getZIndex() - 1)
+          this.setZindexToLayer(layerInmap, layerInmap.getZIndex() - 1)
         } else if (layerInmap.getZIndex() > zIndex) {
-          this.setZindexToLayer(layerInmap,layerInmap.getZIndex() + 1)
+          this.setZindexToLayer(layerInmap, layerInmap.getZIndex() + 1)
         }
       } else if (layer.getZIndex() > zIndex) {
         // if the layer is going down
         if (layerInmap.getZIndex() >= zIndex) {
-          this.setZindexToLayer(layerInmap,layerInmap.getZIndex() + 1)
+          this.setZindexToLayer(layerInmap, layerInmap.getZIndex() + 1)
         } else if (layerInmap.getZIndex() < zIndex) {
-          this.setZindexToLayer(layerInmap,layerInmap.getZIndex() - 1)
+          this.setZindexToLayer(layerInmap, layerInmap.getZIndex() - 1)
         }
       }
     }
-    this.setZindexToLayer(layer,zIndex)
+    this.setZindexToLayer(layer, zIndex)
   }
 
   /**
@@ -878,14 +881,14 @@ export class cartoHelper {
     for (let index = 0; index < allLayers.length; index++) {
       var layer = allLayers[index]
 
-        try {
-          if (layer.get('inToc')) {
-            allZindex.push(layer.getZIndex())
-          }
-          // console.log(layer.get('nom'),layer.getZIndex())
-        } catch (error) {
-          console.error(error)
+      try {
+        if (layer.get('inToc')) {
+          allZindex.push(layer.getZIndex())
         }
+        // console.log(layer.get('nom'),layer.getZIndex())
+      } catch (error) {
+        console.error(error)
+      }
 
     }
     return Math.max(...allZindex)
@@ -907,7 +910,7 @@ export class cartoHelper {
 
         if (layer) {
 
-          if ( (layer instanceof ImageLayer || layer instanceof TileLayer) && layer.get('descriptionSheetCapabilities') && oddLayersValues.indexOf(layer.get(oddLayersAttr)) == -1) {
+          if ((layer instanceof ImageLayer || layer instanceof TileLayer) && layer.get('descriptionSheetCapabilities') && oddLayersValues.indexOf(layer.get(oddLayersAttr)) == -1) {
             layers.push(layer)
           }
         }
@@ -964,7 +967,7 @@ export class cartoHelper {
       }
     }
 
-    if (layer instanceof VectorLayer && feature ) {
+    if (layer instanceof VectorLayer && feature) {
       /**
        * if the user click on a cluser, and the cluster have more than one feature, we zoom in; but if ther is only one feature, we return the feature
        *
@@ -1081,21 +1084,27 @@ export class cartoHelper {
    * @param layer LayerGroup
    * @return any the layer
    */
-  getLayerQuerryBleInLayerGroup(layer:LayerGroup):any{
+  getLayerQuerryBleInLayerGroup(layer: LayerGroup): any {
     if (layer instanceof LayerGroup) {
-        for (let index = 0; index < layer.getLayers().getArray().length; index++) {
-          const element = layer.getLayers().getArray()[index];
-          if (element instanceof TileLayer) {
-            return element
-          }else if(element instanceof VectorLayer){
-            return element
-          }
+      for (let index = 0; index < layer.getLayers().getArray().length; index++) {
+        const element = layer.getLayers().getArray()[index];
+        if (element instanceof TileLayer) {
+          return element
+        } else if (element instanceof VectorLayer) {
+          return element
         }
-    }else{
+      }
+    } else {
       return layer
     }
   }
 
+  /**
+   * Fit view to an geometry or extent
+   * @param geom Geometry|Extent geometry or extexnt
+   * @param zoom number
+   * @param padding  
+   */
   fit_view(geom, zoom, padding?) {
     // if (padding == undefined) {
     //   padding = this.get_padding_map()
@@ -1105,11 +1114,160 @@ export class cartoHelper {
     // console.log([this.map.getSize()[0]- $('.sidenav-left').width() , this.map.getSize()[1] ])
     this.map.getView().fit(geom, {
       'maxZoom': zoom,
-      'size':this.map.getSize(),
+      'size': this.map.getSize(),
       'padding': [0, 0, 0, 0],
       'duration': 500
     })
 
   }
+
+  /**
+ * get map scale control for ol map
+ * @param scaleType 'scaleline'|'scalebar'
+ * @param target string id of the target html element
+ * @returns ScaleLine
+ */
+
+  static scaleControl(scaleType: 'scaleline' | 'scalebar', target: string): ScaleLine {
+    let scaleBarSteps = 4;
+    let scaleBarText = true;
+    let control;
+    if (scaleType === 'scaleline') {
+      control = new ScaleLine({
+        units: 'metric',//'metric','nautical','us','degrees'
+        target: target
+      });
+    } else if (scaleType === 'scalebar') {
+      control = new ScaleLine({
+        units: 'metric',
+        target: target,
+        bar: true,
+        steps: scaleBarSteps,
+        text: scaleBarText,
+        minWidth: 140,
+      });
+    }
+    return control;
+  }
+
+  /**
+   * get mouse position control for ol map
+   * @param target string id of the target html element
+   * @returns MousePosition
+   */
+
+  static mousePositionControl(target: string): MousePosition {
+    let mousePositionControl = new MousePosition({
+      coordinateFormat: createStringXY(4),
+      projection: 'EPSG:4326',
+      // comment the following two lines to have the mouse position
+      // be placed within the map.
+      // className: 'custom-mouse-position',
+      target: document.getElementById(target),
+      undefinedHTML: 'WGS 84',
+    });
+    return mousePositionControl
+  }
+
+  /**
+   * geolocate user : 
+   * - get the geolocation layer
+   * - clear all the features of the geolocation layer
+   * - create a feature
+   * - get the coordinates of the user
+   * - set the coordiantes of the user to the feature
+   * - add the feature in the geolocation layer
+   * - Fit the view map to the user coordinates
+   */
+  geolocateUser() {
+    if (this.getLayerByName('user_position').length == 0) {
+      this.initialiserLayerGeoLocalisation()
+    }
+    let geolocalisationLayer = this.getLayerByName('user_position')[0]
+    geolocalisationLayer.getSource().clear()
+
+    let positionFeature = new Feature();
+    positionFeature.setStyle(
+      [
+        new Style({
+        image: new CircleStyle({
+          radius: 8,
+          fill: new Fill({
+            color: this.environment.primaryColor,
+          }),
+          // stroke: new Stroke({
+          //   color: '#fff',
+          //   width: 0,
+          // }),
+        }),
+      }),
+      new Style({
+        image: new Icon({
+          scale: 0.7,
+          src: '/assets/icones/geolocation_pin.png',
+          anchor:[0.5,0.95]
+        }),
+        // text: new Text({
+        //   font: "15px Calibri,sans-serif",
+        //   fill: new Fill({ color: "#000" }),
+        //   text:"Your position",
+        //   stroke: new Stroke({ color: "#000", width: 1 }),
+        //   padding: [10, 10, 10, 10],
+        //   backgroundFill:new Fill({ color: "#fff" }),
+        //   offsetX: 0,
+        //   offsetY: 30,
+        // })
+      })
+    ]
+    );
+    // 
+
+    
+
+
+    let geolocation = new Geolocation({
+      // enableHighAccuracy must be set to true to have the heading value.
+      trackingOptions: {
+        enableHighAccuracy: true,
+      },
+      tracking: true,
+      projection: this.map.getView().getProjection(),
+    });
+
+    geolocation.once('change:position', () => {
+      var coordinates = geolocation.getPosition();
+      positionFeature.setGeometry(coordinates ? new Point(coordinates) : null);
+      if (coordinates) {
+        this.fit_view(new Point(coordinates), 18)
+      }
+    });
+
+    geolocation.on('change:position', () => {
+      var coordinates = geolocation.getPosition();
+      positionFeature.setGeometry(coordinates ? new Point(coordinates) : null);
+    });
+
+    geolocation.on('error', (e) => {
+      console.error(e)
+    });
+
+    geolocalisationLayer.getSource().addFeature(positionFeature)
+    console.log(geolocalisationLayer)
+  }
+
+  /**
+   * initialise layer of the geolocation layer and add it to the map
+   */
+  initialiserLayerGeoLocalisation() {
+
+    let geolocalisationLayer = new VectorLayer({
+      nom: 'user_position',
+      source: new VectorSource({
+      }),
+    });
+    geolocalisationLayer.setZIndex(99999999)
+    this.map.addLayer(geolocalisationLayer)
+  }
+
 
 }

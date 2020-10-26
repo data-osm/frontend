@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, forkJoin, from, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { BackendApiService } from '../backend-api/backend-api.service'
-import { groupThematiqueInterface, groupCarteInterface, configProjetInterface, carteInterface, coucheInterface, groupInterface } from '../../type/type'
+import { groupThematiqueInterface, groupCarteInterface, configProjetInterface, carteInterface, coucheInterface, groupInterface, ResponseOfSerachLimitInterface } from '../../type/type'
 import { catchError } from 'rxjs/operators';
 import { analyzeAndValidateNgModules } from '@angular/compiler';
 import { Feature, GeoJSON } from 'src/app/ol-module';
@@ -19,7 +19,10 @@ export class StorageServiceService {
     public BackendApiService: BackendApiService
   ) { }
 
-
+    /**
+     * store an adminstrative layer load in the application
+     */
+  adminstrativeLimitLoad:BehaviorSubject<ResponseOfSerachLimitInterface>= new BehaviorSubject<ResponseOfSerachLimitInterface>(undefined)
   /**
    * BehaviorSubject of Differents states of the application
    */
