@@ -17,6 +17,7 @@ import { ChartOverlayComponent } from './chart-overlay/chart-overlay.component'
 import * as $ from 'jquery'
 import {ListDownloadLayersComponent,downloadDataModelInterface} from './list-download-layers/list-download-layers.component'
 import { ResponseOfSerachLimitInterface } from '../../../type/type';
+import * as moment from 'moment';
 
 
 
@@ -31,7 +32,7 @@ import { ResponseOfSerachLimitInterface } from '../../../type/type';
 export class DownloadComponent extends selectLayersForDownload implements OnInit {
 
   @ViewChild('downlod_list_overlays') downlodListOverlays: ElementRef;
-
+  lastSaturday = moment().subtract(1, 'weeks').isoWeekday(6).locale("fr");
   /**
    * Event emitter listen when a overlay is closed
    */

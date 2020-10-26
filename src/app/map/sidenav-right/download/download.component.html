@@ -96,6 +96,9 @@ c-2.6,0-4.7,2.1-4.7,4.7c0,2.6,2.1,4.7,4.7,4.7c2.6,0,4.7-2.1,4.7-4.7C14.6,7.4,12.
 </ng-container>
 
 <div style="background-color: white; padding: 10px;position: fixed;bottom: 0px;text-align: center;">
+  <p style="color: rgba(0, 0, 0, 0.7);font-style: italic;    font-size: 12px;">
+    Dernière mise à jour de la BD OSM : {{lastSaturday.format("dddd DD-MM-YYYY ")}}, 23h50
+</p>
   <img src="assets/icones/osm.svg" width="25px" alt="" style="    vertical-align: middle;">
   {{ 'geosm.text' | translate }} <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">
     {{ 'geosm.text1' | translate }} OpenStreetMap </a>
