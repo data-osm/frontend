@@ -1,35 +1,71 @@
-<div class="loading-apps" >
-  <div style="position:absolute;top:calc(50% - 50px);left:45%" >
-		<div class="lds-ripple" style="width: 100px;
-			height: 100px;" >
-				<div ></div>
-				<div ></div>
-		  </div>
+<div class="loading-apps">
+  <div style="position: absolute; top: calc(50% - 50px); left: 45%">
+    <div class="lds-ripple" style="width: 100px; height: 100px">
+      <div></div>
+      <div></div>
+    </div>
 
-		  <div style="margin-left: -90px; margin-top: -35px;" class="primaryColor" >
-			  {{ 'loading.loading_catalog' | translate }}
-		  </div>
-	</div>
+    <div style="margin-left: -90px; margin-top: -35px" class="primaryColor">
+      {{ "loading.loading_catalog" | translate }}
+    </div>
+  </div>
 </div>
 <app-header></app-header>
 <mat-sidenav-container class="sidenav-container" #sidenavContainer>
   <mat-sidenav class="sidenav-left" opened mode="side" position="start">
     <app-sidenave-left-secondaire></app-sidenave-left-secondaire>
-    <app-sidenave-left-principal [map]="getMap()"  ></app-sidenave-left-principal>
+    <app-sidenave-left-principal [map]="getMap()"></app-sidenave-left-principal>
   </mat-sidenav>
 
   <mat-sidenav-content class="sidenav-content">
-
-    <div id="map" (contextmenu)="ContextMenuComp?ContextMenuComp.setRightClickPixel($event):undefined" [shAttachMenu]="ContextMenuComp?ContextMenuComp.menu:undefined" [shMenuData]="ContextMenuComp?ContextMenuComp.listItems:[]">
-      <div id="scale-map" ></div>
-      <div id="mouse-position-map" ></div>
+    <div
+      id="map"
+      (contextmenu)="
+        ContextMenuComp ? ContextMenuComp.setRightClickPixel($event) : undefined
+      "
+      [shAttachMenu]="ContextMenuComp ? ContextMenuComp.menu : undefined"
+      [shMenuData]="ContextMenuComp ? ContextMenuComp.listItems : []"
+    >
+      <div id="scale-map"></div>
+      <div id="mouse-position-map"></div>
+      <div class="geolocate-user pointer" (click)="toggleGeolocation()">
+        <svg x="0px" y="0px" viewBox="0 0 384 384">
+          <g>
+            <g>
+              <path
+                class="primaryColorFill"
+                d="M192,136c-30.872,0-56,25.12-56,56s25.128,56,56,56s56-25.12,56-56S222.872,136,192,136z M192,216
+			c-13.232,0-24-10.768-24-24s10.768-24,24-24s24,10.768,24,24S205.232,216,192,216z"
+              />
+            </g>
+          </g>
+          <g>
+            <g>
+              <path
+                class="primaryColorFill"
+                d="M368,176h-32.944C327.648,109.368,274.632,56.352,208,48.944V16c0-8.832-7.168-16-16-16c-8.832,0-16,7.168-16,16v32.944
+			C109.368,56.352,56.352,109.368,48.944,176H16c-8.832,0-16,7.168-16,16c0,8.832,7.168,16,16,16h32.944
+			C56.352,274.632,109.368,327.648,176,335.056V368c0,8.832,7.168,16,16,16c8.832,0,16-7.168,16-16v-32.944
+			c66.632-7.408,119.648-60.424,127.056-127.056H368c8.832,0,16-7.168,16-16C384,183.168,376.832,176,368,176z M192,304
+			c-61.76,0-112-50.24-112-112S130.24,80,192,80s112,50.24,112,112S253.76,304,192,304z"
+              />
+            </g>
+          </g>
+        </svg>
+      </div>
     </div>
-    <app-vertical-toolbar [map]="getMap()" [SidenaveLeftSecondaireComp]="SidenaveLeftSecondaireComp"  [sidenavContainer]="sidenavContainer"  class="sidenav-content-toolbar whiteBG"> </app-vertical-toolbar>
+    <app-vertical-toolbar
+      [map]="getMap()"
+      [SidenaveLeftSecondaireComp]="SidenaveLeftSecondaireComp"
+      [sidenavContainer]="sidenavContainer"
+      class="sidenav-content-toolbar whiteBG"
+    >
+    </app-vertical-toolbar>
 
-    <div class="toogle-sidenav-right" >
+    <div class="toogle-sidenav-right">
       <ng-container *ngFor="let ritghtMenu_i of ritghtMenus">
         <button
-        class="toogle-sidenav-right-button"
+          class="toogle-sidenav-right-button"
           *ngIf="ritghtMenu_i.enable"
           (click)="openRightMenu(ritghtMenu_i.name)"
           [matTooltip]="
@@ -37,7 +73,7 @@
           "
           mat-raised-button
           color="primary"
-          style="width: 100%; border-radius: 0px;"
+          style="width: 100%; border-radius: 0px"
           [ngClass]="{
             primaryColorBG: !ritghtMenu_i.active,
             whiteBG: ritghtMenu_i.active
@@ -47,7 +83,7 @@
             x="0px"
             y="0px"
             viewBox="0 0 23.4 24.8"
-            style="width: 21px;"
+            style="width: 21px"
             *ngIf="ritghtMenu_i.name == 'toc'"
           >
             <path
@@ -64,7 +100,7 @@ l11.7-9.1l-2.1-1.7L11.7,21.5z"
             x="0px"
             y="0px"
             viewBox="0 0 20.8 20.8"
-            style="width: 21px;"
+            style="width: 21px"
             *ngIf="ritghtMenu_i.name == 'edition'"
           >
             <path
@@ -78,7 +114,7 @@ l-2.7-2.7c-0.4-0.4-1.2-0.5-1.6,0c0,0,0,0,0,0L14,2.5l4.3,4.3L20.5,4.7L20.5,4.7z"
           </svg>
 
           <svg
-            style="width: 22px;"
+            style="width: 22px"
             x="0px"
             y="0px"
             viewBox="0 0 23.1 23.4"
@@ -122,19 +158,32 @@ c1.3-0.1,2.3-1.2,2.5-2.5l0-6.8L20.6,11.5z"
   </mat-sidenav-content>
 
   <mat-sidenav class="sidenav-right" closed mode="side" position="end">
-    <div class="sidenav-right-title" *ngIf="getRightMenuActive()" >
-       {{ 'right_menu.'+getRightMenuActive().title+'.title' | translate }}
-       <span [hidden]="!getRightMenu('toc').active" > ({{layersInToc.length}}) </span>
+    <div class="sidenav-right-title" *ngIf="getRightMenuActive()">
+      {{ "right_menu." + getRightMenuActive().title + ".title" | translate }}
+      <span [hidden]="!getRightMenu('toc').active">
+        ({{ layersInToc.length }})
+      </span>
     </div>
     <div class="sidenav-right-title-fake"></div>
-    <div class="sidenav-right-content" >
-      <app-table-of-contents [map]="getMap()" [hidden]="!getRightMenu('toc').active"></app-table-of-contents>
-      <app-map-tools [map]="getMap()"  [hidden]="!getRightMenu('edition').active"></app-map-tools>
-      <app-routing [map]="getMap()" [hidden]="!getRightMenu('routing').active"></app-routing>
-      <app-legend [map]="getMap()" [hidden]="!getRightMenu('legend').active"></app-legend>
+    <div class="sidenav-right-content">
+      <app-table-of-contents
+        [map]="getMap()"
+        [hidden]="!getRightMenu('toc').active"
+      ></app-table-of-contents>
+      <app-map-tools
+        [map]="getMap()"
+        [hidden]="!getRightMenu('edition').active"
+      ></app-map-tools>
+      <app-routing
+        [map]="getMap()"
+        [hidden]="!getRightMenu('routing').active"
+      ></app-routing>
+      <app-legend
+        [map]="getMap()"
+        [hidden]="!getRightMenu('legend').active"
+      ></app-legend>
       <app-download [hidden]="!getRightMenu('download').active"></app-download>
     </div>
-
   </mat-sidenav>
 </mat-sidenav-container>
 <app-context-menu></app-context-menu>
