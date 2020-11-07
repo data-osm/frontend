@@ -38,6 +38,10 @@ export class IconService {
     this.fetchAndStoreListIcons()
   }
 
+  /**
+   * fecth all list icon from backend and store it in observable iconList
+   * If error emit boolean value on observable iconListLoadError
+   */
   fetchAndStoreListIcons() {
     this.iconList.next(undefined)
     this.getIconsGroupByCategory().pipe(
@@ -127,7 +131,7 @@ export class IconService {
    */
   uploadIcon(icon: any) {
     return from(this.http.post(this.url_prefix + '/api/group/icons/add', icon, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
-      map((value: HttpResponse<any>) => { return value.body })
+      map((value: HttpResponse<any>):Icon => { return value.body })
     ))
     // return from(this.post_requete('api/group/icons/add',icon))
   }

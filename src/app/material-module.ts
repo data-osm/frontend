@@ -9,6 +9,8 @@ import { NgModule } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
 import {MatProgressBarModule} from '@angular/material/progress-bar'
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner'
+import {MatTableModule} from '@angular/material/table'
+
 // import {
 //   MatAutocompleteModule,
 //   MatBadgeModule,
@@ -66,6 +68,7 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatSelectModule} from '@angular/material/select';
 import {MatBottomSheetModule} from '@angular/material/bottom-sheet'
+import {MatPaginatorModule} from '@angular/material/paginator'
 @NgModule({
   exports: [
     A11yModule,
@@ -96,7 +99,9 @@ import {MatBottomSheetModule} from '@angular/material/bottom-sheet'
     MatSelectModule,
     MatProgressSpinnerModule,
     MatProgressBarModule,
-    MatBottomSheetModule
+    MatBottomSheetModule,
+    MatPaginatorModule,
+    MatTableModule
   ]
 })
 export class ComponentMaterialModule { }

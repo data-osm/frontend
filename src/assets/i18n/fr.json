@@ -250,10 +250,39 @@
     "icon": {
       "add_group": "Ajouter un groupe",
       "add_icons": "Ajouter des icones",
-      "search_icons": "Rechercher une icone"
+      "search_icons": "Rechercher un icone"
+    },
+    "vector_provider": {
+      "search_vector_provider": "Rechercher un provider vecteur",
+      "add_vector_provider": "Ajouter un provider vecteur",
+      "table": {
+        "header": {
+          "name": "Nom",
+          "state": "Etat du provider",
+          "state_type": {
+            "good": "Actif",
+            "not_working": "Hors service",
+            "action_require": "Action requise",
+            "unknow": "Inconnu",
+            "null": "Inconnu"
+          }
+        }
+      },
+      "details": {
+        "datasource_tab": "Source de données",
+        "style_tab": "Styles",
+        "general_tab": "General"
+      }
     },
     "lef_sidenav": {
-      "icons": "Icones"
+      "icons": "Icones",
+      "vector_provider": "Provider vecteur"
+    },
+    "osm_querry": {
+      "where": "Clause where de la requete",
+      "edit_where_querry": "Editer la clause where de la requete",
+      "edit_select_querry": "Editer la clause select de la requete",
+      "select": "Clause select de la requete"
     }
   },
   "add_icon": {
@@ -264,5 +293,14 @@
     "attribnution": "Attribution des images"
   },
   "save": "Valider",
-  "cancel": "Annuler"
+  "cancel": "Annuler",
+  "add_vector_provider": {
+    "title": "Ajouter un provideur vecteur",
+    "name": "Le nom du provideur vecteur",
+    "name_error": "Champ obligatoire",
+    "geometry_type": "Selectionner le type de géometrie",
+    "geometry_type_point": "Point et centroid des polygonnes",
+    "geometry_type_polygon": "Polygon uniquement",
+    "geometry_type_lineString": "Lignes uniquement"
+  }
 }

@@ -1,4 +1,4 @@
-import {StorageServiceService} from '../services/storage-service/storage-service.service'
+import { StorageServiceService } from '../services/storage-service/storage-service.service'
 /**
  * Properties of a right menu
  */
@@ -7,7 +7,7 @@ export interface rightMenuInterface {
   tooltip: string,
   active: boolean,
   enable: boolean,
-  title:string
+  title: string
 }
 
 /**
@@ -74,9 +74,9 @@ export interface coucheInterface {
    * categorie of the layer
    */
   categorie: categorieInterface
- /**
-   * Is the layer in map ?
-   */
+  /**
+    * Is the layer in map ?
+    */
   check: boolean
   /**
    * Only if wms_type is OSM and categorie.mode_sql is false
@@ -166,7 +166,7 @@ export interface coucheInterface {
   /**
    * render layer in wms ?, if false, render layer in wfs
    */
-  service_wms:boolean
+  service_wms: boolean
   /**
    * Url of QGIS SERVER
    */
@@ -206,7 +206,7 @@ export interface sousThematiqueInterface {
   nom: string
 }
 
-export interface  groupInterface{
+export interface groupInterface {
   /**
    *  background color
    */
@@ -256,7 +256,7 @@ export interface groupThematiqueInterface extends groupInterface {
  * Interface for a carte
  * @interface carteInterface
  */
-export interface carteInterface  {
+export interface carteInterface {
   /**
   * Extend of the layer if exists
   * @example "40.91789245605469,29.5161103,40.91789245605469,29.5161103"
@@ -344,7 +344,7 @@ export interface sousCarteIntgerface {
  * interface for classes that represent a group of carte
  * @interface groupCarteInterface
  */
-export interface groupCarteInterface extends groupInterface  {
+export interface groupCarteInterface extends groupInterface {
 
   id: number
   /**
@@ -354,7 +354,7 @@ export interface groupCarteInterface extends groupInterface  {
   /**
    * Is this group the principal group of cartes
    */
-  principal:boolean
+  principal: boolean
   /**
    * Sous thematiques
    */
@@ -406,7 +406,7 @@ export interface configProjetInterface {
   /**
    * Geojson of the region of interest
    */
-  roiGeojson:any
+  roiGeojson: any
   /**
    * Geographic limit of the project
    */
@@ -414,7 +414,7 @@ export interface configProjetInterface {
   /**
    * Geosignets of the projects
    */
-  geosignetsProject:geosignetsProjectInterface[]
+  geosignetsProject: geosignetsProjectInterface[]
 
 }
 
@@ -426,7 +426,7 @@ export interface geosignetsProjectInterface {
    * Is the geosignet active ?
    */
   active: boolean
-  geometry:string
+  geometry: string
   /**
    * Id in DB
    */
@@ -440,16 +440,16 @@ export interface geosignetsProjectInterface {
 /**
  * User interface
  */
-export interface User{
+export interface User {
   /**
    * Name of the user
    */
-  username:string
-  id:number
+  username: string
+  id: number
   /**
    * email of the user
    */
-  email:string
+  email: string
 }
 
 /**
@@ -473,18 +473,65 @@ export interface ResponseOfSerachLimitInterface {
    */
   name: string
   ref: string
-  geometry?:any
+  geometry?: any
 }
 
 /**
  * interface of a icon
  */
-export interface Icon{
-  icon_id:number
-  path:string
+export interface Icon {
+  icon_id: number
+  path: string
+  name: string
+  category: string
+  icon?: File
+  tags: string[]
+  attribution: string
+}
+/**
+ * interface of a vector provider
+ */
+export interface VectorProvider {
+  provider_vector_id: number
   name:string
-  category:string
-  icon?:File
-  tags:string[]
-  attribution:string
+  /** the table where data are store */
+  table:string
+  /** the shema where data are store */
+  shema:string
+  geometry_type:'Polygon'|'Point'|'LineString'
+  /** url of the carto server */
+  url_server:string
+  /** identifiant of this ressource in the carto server */
+  id_server:string
+  /**extent of this ressource  */
+  extent:[number,number,number,number]
+  z_min:number
+  z_max:number
+  /**
+   * number of feature of this ressources 
+   */
+  count:number
+  /**
+   * total lenght of the ressource if geometry type is LineString 
+   */
+  total_lenght:number
+  /**
+   * total area of the ressource if geometry type is Polygon 
+   */
+  total_area:number
+  epsg:number
+  /**
+   * state of the data
+   */
+  state:'good'|'not_working'|'action_require'|'unknow'
+}
+
+/**
+ * interface of an osm querry
+ */
+export interface OsmQuerry{
+  select:string,
+  where:string,
+  sql?:string
+  provider_vector_id:number
 }

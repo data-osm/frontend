@@ -22,9 +22,16 @@ import { IconsComponent } from './administration/content/icons/icons.component'
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { AddIconComponent } from './administration/content/icons/add-icon/add-icon.component';
 import { FileUploadComponent } from './administration/content/icons/add-icon/file-upload/file-upload.component';
+import { AddVectorProviderComponent } from './administration/content/provider/add-vector-provider/add-vector-provider.component';
+import { ListVectorProviderComponent } from './administration/content/provider/list-vector-provider/list-vector-provider.component';
+import { CdkTable, CDK_TABLE, _CoalescedStyleScheduler} from '@angular/cdk/table';
+import { _VIEW_REPEATER_STRATEGY, _DisposeViewRepeaterStrategy } from '@angular/cdk/collections';
+import { MatTable } from '@angular/material/table';
+import { DetailsVectorProviderComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/details-vector-provider.component';
+import { OsmQuerryComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/osm-querry/osm-querry.component';
 
 @NgModule({
-  declarations: [AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent],
+  declarations: [AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent],
   imports: [
     CommonModule,
     AdminRoutingModule,
@@ -40,6 +47,10 @@ import { FileUploadComponent } from './administration/content/icons/add-icon/fil
         deps: [HttpClient],
       }
     }),
-  ]
+  ],
+  providers:[_CoalescedStyleScheduler,
+    {provide: _VIEW_REPEATER_STRATEGY, useClass: _DisposeViewRepeaterStrategy},
+    {provide: CdkTable, useExisting: MatTable},
+    {provide: CDK_TABLE, useExisting: MatTable},]
 })
 export class AdminModule { }
