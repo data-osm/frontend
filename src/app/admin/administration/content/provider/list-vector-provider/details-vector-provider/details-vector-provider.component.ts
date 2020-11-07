@@ -39,7 +39,6 @@ export class DetailsVectorProviderComponent implements OnInit {
       map((value)=> value)
     ).subscribe(
       (val)=>{
-        console.log(val)
         if ( val instanceof HttpErrorResponse ) {
           if (val.status == 404) {
             this.notifier.notify("error", " Cannot find vector provider");

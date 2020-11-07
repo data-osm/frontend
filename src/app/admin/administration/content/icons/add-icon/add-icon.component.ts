@@ -6,7 +6,7 @@ import { requiredFileType } from '../../../../../validators/upload-file-validato
 import {IconService} from '../../../service/icon.service'
 import { Observable, fromEvent,merge as observerMerge, forkJoin, concat } from 'rxjs';
 import { HttpEvent } from '@angular/common/http';
-import { catchError, finalize, map, switchMap } from 'rxjs/operators';
+import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-add-icon',
@@ -82,9 +82,10 @@ export class AddIconComponent implements OnInit {
    * Save icons
    */
    saveIcon(){
-     this.form.disable()
+     
      forkJoin(...this.formatIconsToSave())
     .pipe(
+      tap(value => this.form.disable() ),
       switchMap(value=> value),
       catchError( (err)=> { this.notifier.notify("error", "An error occured when saving icons");throw new Error(err); }),
       finalize(()=>{

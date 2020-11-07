@@ -54,9 +54,8 @@ export class OsmQuerryComponent implements OnInit {
 
    ngOnInit() {
     
-    this.OsmQuerryService.getOsmQuerry(this.provider_vector_id).pipe(
-      map((value)=> value)
-    ).subscribe(
+    this.OsmQuerryService.getOsmQuerry(this.provider_vector_id)
+    .subscribe(
       (val)=>{
         if ( val instanceof HttpErrorResponse ) {
           if (val.status == 404) {
@@ -141,10 +140,9 @@ export class OsmQuerryComponent implements OnInit {
       provider_vector_id:this.provider_vector_id
     }
     this.OsmQuerryService.updateOsmQuerry(data).pipe(
-      map((value: OsmQuerry):OsmQuerry => { return value }),
       catchError( (err:HttpErrorResponse)=> of(err)),
     ).subscribe(
-      (response)=>{
+      (response:OsmQuerry)=>{
         if (response instanceof HttpErrorResponse) {
           this.handleErrorOnSavingQuerry(response)
         } else {

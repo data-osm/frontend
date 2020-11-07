@@ -6,7 +6,7 @@ import { requiredFileType } from '../../../../../validators/upload-file-validato
 import {VectorProviderService} from '../../../service/vector-provider.service'
 import { Observable, fromEvent,merge as observerMerge, forkJoin, concat, from } from 'rxjs';
 import { HttpEvent, HttpResponse } from '@angular/common/http';
-import { catchError, finalize, map, switchMap } from 'rxjs/operators';
+import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { VectorProvider } from '../../../../../type/type';
 
 @Component({
@@ -51,10 +51,11 @@ export class AddVectorProviderComponent implements OnInit {
    * Save vector provider
    */
   saveVectorProvider(){
-    this.form.disable()
+    
     from(this.VectorProviderService.addVectorProvider(this.form.value)).pipe(
+      tap(value => this.form.disable()),
+      map((value: HttpResponse<any>):VectorProvider => value.body ),
       catchError( (err)=> { this.notifier.notify("error", "An error occured when saving vector provider");throw new Error(err); }),
-      map((value: HttpResponse<any>):VectorProvider => { return value.body }),
       finalize(()=>{
         this.form.enable();
       })
@@ -63,9 +64,6 @@ export class AddVectorProviderComponent implements OnInit {
         this.notifier.notify("success", "Vector provider upload successfully")
         this.VectorProviderService.fetchAndStoreListVectorProvider()
         this.dialogRef.close(true);
-      },
-      (error)=>{
-
       }
     )
   }

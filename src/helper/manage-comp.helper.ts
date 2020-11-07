@@ -110,26 +110,21 @@ export class manageCompHelper {
     /**
      * close all modal of type DescriptiveSheetComponent before open another
      */
-    var position = {
+    let position = {
       top: '60px',
       left: window.innerWidth < 500 ? '0px' : (window.innerWidth / 2 - 400 / 2) + 'px'
     }
     for (let index = 0; index < this.dialog.openDialogs.length; index++) {
       const elementDialog = this.dialog.openDialogs[index];
 
-      if (elementDialog.componentInstance instanceof DescriptiveSheetComponent) {
-        if (document.getElementById(elementDialog.id)) {
-          if (document.getElementById(elementDialog.id).parentElement) {
+      if (elementDialog.componentInstance instanceof DescriptiveSheetComponent && document.getElementById(elementDialog.id) && document.getElementById(elementDialog.id).parentElement ) {
             position.top = document.getElementById(elementDialog.id).parentElement.getBoundingClientRect().top + 'px'
             position.left = document.getElementById(elementDialog.id).parentElement.getBoundingClientRect().left + 'px'
-          }
-        }
-
-        elementDialog.close()
+          elementDialog.close()
       }
     }
 
-    var proprietes: MatDialogConfig = {
+    let proprietes: MatDialogConfig = {
       disableClose: false,
       minWidth: 450,
       maxHeight: 460,
