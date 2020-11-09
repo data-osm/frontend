@@ -21,9 +21,9 @@ export class VectorProviderService {
   /**
    * list of icons, group by category
    */
-  public vectorProviderList: BehaviorSubject<VectorProvider[]> = new BehaviorSubject(undefined)
+  // public vectorProviderList: BehaviorSubject<VectorProvider[]> = new BehaviorSubject(undefined)
 
-  public vectorProviderListLoadError: BehaviorSubject<boolean> = new BehaviorSubject(false)
+  // public vectorProviderListLoadError: BehaviorSubject<boolean> = new BehaviorSubject(false)
 
   constructor(
     private http: HttpClient,
@@ -34,7 +34,6 @@ export class VectorProviderService {
     this.headers.append('Content-Type', 'application/json');
     this.notifier = notifierService;
 
-    this.fetchAndStoreListVectorProvider()
   }
 
   /**
@@ -42,45 +41,20 @@ export class VectorProviderService {
    * If error emit boolean value on observable vectorProviderListLoadError
    */
   fetchAndStoreListVectorProvider(){
-    this.vectorProviderList.next(undefined)
-    from(this.getRequest('/api/provider/vector')).pipe(
-      catchError((err) => { this.notifier.notify("error", "An error occured while loading vector provider"); throw new Error(err); }),
-    ).subscribe(
-      (response: VectorProvider[]) => {
-        this.vectorProviderList.next(response)
-        this.vectorProviderListLoadError.next(false)
-      }, (error) => {
-        this.vectorProviderListLoadError.next(true)
-      }
-    )
+    return this.http.get<VectorProvider[]>(this.url_prefix +'/api/provider/vector',{ headers: this.get_header() })
+  
   }
 
   /**
    * add  icon
    * @param group 
+   * @returns Observable<HttpResponse<any>>
    */
   addVectorProvider(vectorProvicer: VectorProvider) {
-    // return from(this.http.post(this.url_prefix + '/api/provider/vector', vectorProvicer, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
-    //   map((value: HttpResponse<any>):VectorProvider => { return value.body }),
-    //   catchError((err) => { return err }),
-    // ))
 
-    return new Promise((resolve, reject) => {
-      this.http.post(this.url_prefix + '/api/provider/vector', vectorProvicer, {
-        headers: this.get_header(), reportProgress: true,
-        observe: 'events'
-      })
-        .toPromise()
-        .then(
-          res => {
-            resolve(res);
-          },
-          msg => { // Error
-
-            reject(msg.error);
-          }
-        );
-    });
+    return this.http.post(this.url_prefix + '/api/provider/vector', vectorProvicer, {headers: this.get_header(), reportProgress: true,}).pipe(
+      map((value:HttpResponse<any>) => value),
+    )
   }
 
   /**
@@ -88,31 +62,42 @@ export class VectorProviderService {
    * @param search_word string
    */
   searchVectorProvider(search_word:string):Observable<VectorProvider[]>{
-    return from(this.http.post(this.url_prefix + '/api/provider/vector/search', {'search_word':search_word}, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
+    return this.http.post(this.url_prefix + '/api/provider/vector/search', {'search_word':search_word}, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
       map((value: HttpResponse<any>):VectorProvider[] => { return value.body })
-    ))
+    )
+  }
+
+  /**
+   * delete vector providers
+   * @param provider_vector_ids Array<number>
+   * @returns Observable<HttpResponse<any>>
+   */
+  deleteVectorProvider(provider_vector_ids:Array<number>):Observable<HttpResponse<any>>{
+    const options = {
+      headers: this.get_header(),
+      body: {
+        provider_vector_ids: provider_vector_ids,
+      },
+    };
+
+    return this.http.delete<HttpResponse<any>>(this.url_prefix + '/api/provider/vector', options)
+    // .pipe(
+    //   map((value:HttpResponse<any>) => value),
+    //   // catchError((err:HttpErrorResponse) => { throw err;})
+    // )
   }
 
   /**
    * get a vector providor by provider_vector_id
    * @param id number 
-   * @returns Observable<VectorProvider>
+   * @returns Observable<VectorProvider|HttpErrorResponse>
    */
   getVectorProvider(id:number):Observable<VectorProvider|HttpErrorResponse>{
 
-    return from(this.getRequest('/api/provider/vector/'+id)).pipe(
+    return this.http.get(this.url_prefix +'/api/provider/vector/'+id,{ headers: this.get_header() }).pipe(
       map((value: VectorProvider):VectorProvider => { return value }),
       catchError((err:HttpErrorResponse) => of(err) )
-      // catchError((err:HttpErrorResponse) => { 
-      //   this.notifier.notify("error", "An error occured while loading vector provider");
-      //   console.log(err); 
-      //   // return 
-      //   of(undefined)
-      //   // throw new Error('err'); 
-
-      // }),
     )
-  
   }
 
 

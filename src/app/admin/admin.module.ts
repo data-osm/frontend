@@ -29,9 +29,10 @@ import { _VIEW_REPEATER_STRATEGY, _DisposeViewRepeaterStrategy } from '@angular/
 import { MatTable } from '@angular/material/table';
 import { DetailsVectorProviderComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/details-vector-provider.component';
 import { OsmQuerryComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/osm-querry/osm-querry.component';
+import { TableVectorProviderComponent } from './administration/content/provider/list-vector-provider/table-vector-provider/table-vector-provider.component';
 
 @NgModule({
-  declarations: [AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent],
+  declarations: [AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent],
   imports: [
     CommonModule,
     AdminRoutingModule,

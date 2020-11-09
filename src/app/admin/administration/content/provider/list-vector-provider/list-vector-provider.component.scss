@@ -29,75 +29,10 @@
 
 .list-vp{
     border-radius: 10px;
-    margin-top: 48px;
-    .mat-column-state {
-        width: 350px;
-    }
-
-    td.mat-column-detail{
-        transition: background .25s;
-        border-left: 1px solid #e7ebed;
-    }
-
-    td.mat-column-detail:hover{
-        background: $accent_color;
-        svg{
-            path{
-                fill: white;
-            }
-        }
-    }
-
-    .mat-column-detail {
-        width: 47px;
-        padding-right: 7px;
-        text-align: center;
-        padding-top: 5px;
-        svg{
-            height: 25px;
-            width: 25px;
-            path{
-                transition: fill .25s;
-                fill: $accent_color;
-            }
-        }
-    }
-    table{
-        width: 100%;
-
-        th{
-            font-weight: bold;
-            color: black;
-            font-size: 14px;
-          }
-          tr{
-              height: 54px !important;
-          }
-
-        .state-badje{
-            padding: .3em .6em .35em;
-            border-radius: 3px;
-            white-space: nowrap;
-            border: 1px solid;
-            font-size: 12px;
-        }
-        
-        .state-badje-good{
-            color: #0a0;
-        }
-
-        .state-badje-not_working{
-            color: rgb(170, 0, 28);
-        }
-
-        .state-badje-action_require{
-            color:  #f90;;
-        }
-
-        .state-badje-unknow,.state-badje-null{
-            color: rgb(213, 221, 226);
-        }
-    }
+    margin-top: 20px;
+    padding-bottom: 30px;
+    
+   
     
 }
 
