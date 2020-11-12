@@ -50,11 +50,9 @@ export class VectorProviderService {
    * @param group 
    * @returns Observable<HttpResponse<any>>
    */
-  addVectorProvider(vectorProvicer: VectorProvider) {
+  addVectorProvider(vectorProvicer: VectorProvider):Observable<HttpResponse<any>> {
 
-    return this.http.post(this.url_prefix + '/api/provider/vector', vectorProvicer, {headers: this.get_header(), reportProgress: true,}).pipe(
-      map((value:HttpResponse<any>) => value),
-    )
+    return this.http.post<HttpResponse<any>>(this.url_prefix + '/api/provider/vector', vectorProvicer, {headers: this.get_header(), reportProgress: true,})
   }
 
   /**
