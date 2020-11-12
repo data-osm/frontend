@@ -4,9 +4,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NotifierService } from 'angular-notifier';
 import { VectorProviderService } from '../../../../service/vector-provider.service'
 import { manageCompHelper } from '../../../../../../../helper/manage-comp.helper'
-import { map, switchMap } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { VectorProvider } from '../../../../../../type/type';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable, ReplaySubject, Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
@@ -15,10 +15,11 @@ import { HttpErrorResponse } from '@angular/common/http';
   styleUrls: ['./details-vector-provider.component.scss']
 })
 export class DetailsVectorProviderComponent implements OnInit {
-
+  
+  onInitInstance: () => void;
   private readonly notifier: NotifierService;
 
-  vectorProvider:VectorProvider
+  vectorProvider:Observable<VectorProvider>
 
   constructor(
     public VectorProviderService:VectorProviderService,
@@ -29,29 +30,29 @@ export class DetailsVectorProviderComponent implements OnInit {
     private router: Router
   ) { 
     this.notifier = notifierService;
+
+    const onInit: Subject<void> = new ReplaySubject<void>(1);
+    this.onInitInstance = () => {
+      onInit.next();
+      onInit.complete();
+    }
+
+    this.vectorProvider = onInit.pipe(
+      switchMap(()=>{
+        return  this.VectorProviderService.getVectorProvider(Number(this.route.snapshot.paramMap.get('id') )).pipe(
+          catchError(()=>{
+            this.router.navigate(['/admin/vector-provider']);
+            return EMPTY
+          }),
+        )
+      }),
+      shareReplay(1)
+    )
+   
   }
 
   ngOnInit(): void {
-    // console.log(this.route.snapshot.paramMap.get('id') )
-    // this.vectorProvider.pipe().subscribe((val)=>{console.log(val)})
-
-     this.VectorProviderService.getVectorProvider(Number(this.route.snapshot.paramMap.get('id') )).pipe(
-      map((value)=> value)
-    ).subscribe(
-      (val)=>{
-        if ( val instanceof HttpErrorResponse ) {
-          if (val.status == 404) {
-            this.notifier.notify("error", " Cannot find vector provider");
-          }else{
-            this.notifier.notify("error", "An error occured while loading vector provider");
-          }
-          this.router.navigate(['/admin/vector-provider']);
-        }else{
-          this.vectorProvider =val
-        }
-      
-      }
-    );
+    this.onInitInstance()
   }
 
 }

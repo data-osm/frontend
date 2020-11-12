@@ -55,14 +55,9 @@ export class OsmQuerryService {
    * @param id number 
    * @returns Observable<OsmQuerry|HttpErrorResponse>
    */
-  getOsmQuerry(id:number):Observable<OsmQuerry|HttpErrorResponse>{
-
-    return from(this.getRequest('/api/datasource/osm/'+id)).pipe(
-      map((value: OsmQuerry):OsmQuerry => { return value }),
-      catchError((err:HttpErrorResponse) => of(err) )
-
-    )
-  
+  getOsmQuerry(id:number):Observable<OsmQuerry>{
+ 
+    return this.http.get<OsmQuerry>(this.url_prefix +'/api/datasource/osm/'+id,{ headers: this.get_header() })
   }
 
   /**

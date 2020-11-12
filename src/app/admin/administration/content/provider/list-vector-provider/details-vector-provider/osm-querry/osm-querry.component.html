@@ -1,7 +1,7 @@
-<h2> {{ 'admin.osm_querry.where' | translate }} </h2>
+<!-- <h2> {{ 'admin.osm_querry.where' | translate }} </h2> -->
 
 <div class="card-querry">
-    <pre *ngIf="!osmQuerryState.where.activated">{{osmQuerry.where}}</pre>
+    <pre *ngIf="!osmQuerryState.where.activated">{{(osmQuerry | async)?.where}}</pre>
     <form [formGroup]="osmFormWhere"  *ngIf="osmQuerryState.where.activated" >
         <mat-form-field appearance="outline" style="width: 100%;" *ngIf="osmFormWhere.get('where')" >
             <textarea matInput formControlName="where" style="height: 100px;" ></textarea>
@@ -25,13 +25,13 @@
         <svg height="25" width="25" viewBox="0 0 50 37.072" ><path d="M50 2.46L47.485-.058 15.443 31.986 2.515 19.058 0 21.573l15.443 15.443"></path></svg>    </button>
 
 </div>
-<mat-divider style="    margin-top: 52px;margin-bottom: 35px;"></mat-divider>
+<mat-divider style="margin-top: 35px;margin-bottom: 35px;"></mat-divider>
 
-<div *ngIf="osmQuerry.where" >
-    <h2  > {{ 'admin.osm_querry.select' | translate }} </h2>
+<div *ngIf="(osmQuerry | async)?.where" >
+    <!-- <h2  > {{ 'admin.osm_querry.select' | translate }} </h2> -->
 
     <div class="card-querry">
-        <pre *ngIf="!osmQuerryState.select.activated">{{osmQuerry.select}}</pre>
+        <pre *ngIf="!osmQuerryState.select.activated">{{(osmQuerry | async)?.select}}</pre>
         <form [formGroup]="osmFormSelect"  *ngIf="osmQuerryState.select.activated" >
             <mat-form-field appearance="outline" style="width: 100%;" *ngIf="osmFormSelect.get('select')" >
                 <textarea matInput formControlName="select" style="height: 100px;" ></textarea>

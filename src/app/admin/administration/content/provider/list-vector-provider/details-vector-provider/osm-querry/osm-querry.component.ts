@@ -1,9 +1,10 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { ReadPropExpr } from '@angular/compiler';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NotifierService } from 'angular-notifier';
-import { from, of, pipe } from 'rxjs';
-import { catchError, finalize, map } from 'rxjs/operators';
+import { EMPTY, from, merge, Observable, of, pipe, ReplaySubject, Subject } from 'rxjs';
+import { catchError, filter, finalize, isEmpty, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { OsmQuerry } from '../../../../../../../type/type';
 import { OsmQuerryService } from '../../../../../service/osm-querry.service'
 
@@ -17,11 +18,20 @@ import { OsmQuerryService } from '../../../../../service/osm-querry.service'
  */
 export class OsmQuerryComponent implements OnInit {
 
+  onInitInstance:()=>void
+  onUpdateInstance:()=>void
+  onAddInstance:()=>void
+
+  /**
+   * is a osm querry exist for this vector provider ?
+   */
+  osmQuerryExist:boolean = false
+
   @Input()provider_vector_id:number
 
   private readonly notifier: NotifierService;
 
-  osmQuerry:OsmQuerry = {} as OsmQuerry
+  osmQuerry:Observable<OsmQuerry>
 
   /**
    * form for the where querry
@@ -50,41 +60,123 @@ export class OsmQuerryComponent implements OnInit {
     public fb: FormBuilder,
   ) { 
     this.notifier = notifierService;
+
+    const onInit:Subject<any> = new ReplaySubject<any>()
+    this.onInitInstance = ()=>{
+      onInit.next()
+      onInit.complete()
+    }
+
+    const onAdd:Subject<any> = new Subject<any>()
+    this.onAddInstance = ()=>{
+      onAdd.next()
+    }
+
+    const onUpdate:Subject<any> = new Subject<any>()
+    this.onUpdateInstance = ()=>{
+      onUpdate.next()
+    }
+
+    this.osmQuerry = merge(
+      onInit.pipe(
+        switchMap(()=>{
+          return this.OsmQuerryService.getOsmQuerry(this.provider_vector_id).pipe(
+            catchError((value:HttpErrorResponse)=>{
+              if (value.status != 404) {
+                this.notifier.notify("error", "An error occured while loading osm querry")
+              }
+              this.initialiseFormQuerry({} as OsmQuerry)
+              return EMPTY
+            }),
+            tap((osmQuerry:OsmQuerry)=>{
+              this.osmQuerryExist = true
+              this.initialiseFormQuerry(osmQuerry)
+            })
+          )
+        })
+      ),
+      onAdd.pipe(
+        filter(()=> this.osmFormWhere.valid),
+        tap(()=>{
+          this.osmFormSelect.disable()
+          this.osmFormWhere.disable()
+        }),
+        switchMap(()=>{
+          let data = {
+            where:this.osmFormWhere.get('where').value,
+            select:this.osmFormSelect.get('select').value,
+            provider_vector_id:this.provider_vector_id
+          }
+          return this.OsmQuerryService.addOsmQuerry(data).pipe(
+            catchError( (err:HttpErrorResponse)=> {
+              this.osmFormSelect.enable()
+              this.osmFormWhere.enable()
+               this.handleErrorOnSavingQuerry(err);
+              return EMPTY
+              } ),
+            switchMap(()=>{
+              this.osmFormSelect.enable()
+              this.osmFormWhere.enable()
+              return this.OsmQuerryService.getOsmQuerry(this.provider_vector_id).pipe(
+                catchError((value:HttpErrorResponse)=>{
+                  if (value.status != 404) {
+                    this.notifier.notify("error", "An error occured while loading osm querry")
+                  }
+                  return EMPTY
+                }),
+                tap((osmQuerry)=>{this.osmQuerryExist = true;this.handleSucessOnSavingQuerry(osmQuerry)})
+              )
+            })
+          )
+        })
+      ),
+      onUpdate.pipe(
+        tap(()=>{
+          this.osmFormSelect.disable()
+          this.osmFormWhere.disable()
+        }),
+        switchMap(()=>{
+          let data = {
+            where:this.osmFormWhere.get('where').value,
+            select:this.osmFormSelect.get('select').value,
+            provider_vector_id:this.provider_vector_id
+          }
+          return this.OsmQuerryService.updateOsmQuerry(data).pipe(
+            catchError( (err:HttpErrorResponse)=> {
+              this.osmFormSelect.enable()
+              this.osmFormWhere.enable()
+              this.handleErrorOnSavingQuerry(err); 
+              return EMPTY
+            }),
+            switchMap(()=>{
+              this.osmFormSelect.enable()
+              this.osmFormWhere.enable()
+              return this.OsmQuerryService.getOsmQuerry(this.provider_vector_id).pipe(
+                catchError((value:HttpErrorResponse)=>{
+                  if (value.status != 404) {
+                    this.notifier.notify("error", "An error occured while loading osm querry")
+                  }
+                  return EMPTY
+                }),
+                tap((osmQuerry)=>{this.osmQuerryExist = true;this.handleSucessOnSavingQuerry(osmQuerry)})
+              )
+            })
+          )
+        })
+      )
+    ).pipe(
+      shareReplay(1),
+    )
+
   }
 
    ngOnInit() {
-    
-    this.OsmQuerryService.getOsmQuerry(this.provider_vector_id)
-    .subscribe(
-      (val)=>{
-        if ( val instanceof HttpErrorResponse ) {
-          if (val.status == 404) {
-            
-          }else{
-            this.notifier.notify("error", "An error occured while loading vector provider");
-          }
-          
-        }else{
-          this.osmQuerry =val
-        }
-        this.initialiseFormQuerry()
-      }
-    );
+    this.onInitInstance()
   }
 
 
-
   /**
-   * initialise osm querry form
-   */
-  initialiseFormQuerry(){
-  
-    this.osmFormWhere.addControl('where',new FormControl( this.osmQuerry.where?this.osmQuerry.where:null, [Validators.required]))
-    this.osmFormSelect.addControl('select',new FormControl(this.osmQuerry.select?this.osmQuerry.select:null))
-  }
-
-  /**
-   * Activate or desactivate an osm Form
+   * Activate or desactivate an osm Form 
    * @param querryType 
    */
   toggleStateOSMQuerry(querryType:'where'|'select'){
@@ -92,72 +184,19 @@ export class OsmQuerryComponent implements OnInit {
   }
 
   submitForms(){
-    if (this.osmQuerry.provider_vector_id) {
-      this.updateOsmQuerry()
+    if (this.osmQuerryExist) {
+     this.onUpdateInstance()
     }else{
-      this.addOsmQuerry()
+      this.onAddInstance()
     }
   }
 
-  addOsmQuerry(){
-    if (this.osmFormWhere.valid) {
-
-      this.osmFormSelect.disable()
-      this.osmFormWhere.disable()
-      let data = {
-        where:this.osmFormWhere.get('where').value,
-        select:this.osmFormSelect.get('select').value,
-        provider_vector_id:this.provider_vector_id
-      }
-
-      this.OsmQuerryService.addOsmQuerry(data).pipe(
-        map((value: OsmQuerry):OsmQuerry => { return value }),
-        catchError( (err:HttpErrorResponse)=> of(err)),
-      ).subscribe(
-        (response)=>{
-          if (response instanceof HttpErrorResponse) {
-            this.handleErrorOnSavingQuerry(response)
-          } else {
-            this.handleSucessOnSavingQuerry(response)
-          }
-          this.osmFormSelect.enable()
-          this.osmFormWhere.enable()
-        },
-        (err)=>{},
-        ()=>{
-          
-        },
-      )
-      
-    }
-    
-  }
-
-  updateOsmQuerry(){
-    let data = {
-      where:this.osmFormWhere.get('where').value,
-      select:this.osmFormSelect.get('select').value,
-      provider_vector_id:this.provider_vector_id
-    }
-    this.OsmQuerryService.updateOsmQuerry(data).pipe(
-      catchError( (err:HttpErrorResponse)=> of(err)),
-    ).subscribe(
-      (response:OsmQuerry)=>{
-        if (response instanceof HttpErrorResponse) {
-          this.handleErrorOnSavingQuerry(response)
-        } else {
-          this.handleSucessOnSavingQuerry(response)
-        }
-        this.osmFormSelect.enable()
-        this.osmFormWhere.enable()
-      },
-      (err)=>{
-        
-      },
-      ()=>{
-        
-      },
-    )
+    /**
+   * initialise osm querry form
+   */
+  initialiseFormQuerry(osmQuerry:OsmQuerry){
+    this.osmFormWhere.addControl('where',new FormControl( osmQuerry.where?osmQuerry.where:null, [Validators.required]))
+    this.osmFormSelect.addControl('select',new FormControl(osmQuerry.select?osmQuerry.select:null))
   }
 
   /**
@@ -165,13 +204,11 @@ export class OsmQuerryComponent implements OnInit {
    * @param err HttpErrorResponse
    */
   handleErrorOnSavingQuerry(err:HttpErrorResponse){
+    this.notifier.notify("error", "An unexpected error occured when saving the osm querry");
     if (err.status == 400 && err.error.error ) {
-      this.notifier.notify("error", err.error.msg);
       setTimeout(() => {
-        alert(err.error.description)
+        alert(err.error.msg)
       }, 500);
-    }else{
-      this.notifier.notify("error", "An unexpected error occured when saving the osm querry");
     }
   }
 
@@ -179,14 +216,14 @@ export class OsmQuerryComponent implements OnInit {
    * When saving or updating and osm querry succed
    */
   handleSucessOnSavingQuerry(osmQuerry:OsmQuerry){
-    this.osmQuerry = osmQuerry
+  
     this.osmQuerryState = {
       where:{activated:false},
       select:{activated:false}
     }
     this.clearFormGroup(this.osmFormWhere)
     this.clearFormGroup(this.osmFormSelect)
-    this.initialiseFormQuerry()
+    this.initialiseFormQuerry(osmQuerry)
   }
 
   /**

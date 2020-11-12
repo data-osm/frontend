@@ -1,3 +1,10 @@
+.details-vp-title{
+    margin-bottom: 24px;
+    span{
+    vertical-align: top;
+    margin-left: 10px;
+    }
+}
 :host ::ng-deep mat-tab-header {
     background-color: #fff;
     .mat-tab-label .mat-tab-label-content{
@@ -5,6 +12,6 @@
     }
 }
 
-:host ::ng-deep .mat-tab-body-content{
+:host ::ng-deep .mat-tab-body{
     padding-top: 24px;
 }

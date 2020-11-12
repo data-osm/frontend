@@ -8,8 +8,17 @@
     .sidenav-admin-content{
         padding: 24px;
         height: 100%;
+        padding-top: 74px;
     }
     .mat-sidenav-content{
         background-color: #e7ebed;
+    }
+    .sidenav-admin-nav-bar{
+        position: fixed;
+        left: 0px;
+        right: 0px;
+        margin-left:256px;
+        z-index: 2;
+        background: #fff;
     }
 }

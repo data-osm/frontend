@@ -90,12 +90,8 @@ export class VectorProviderService {
    * @param id number 
    * @returns Observable<VectorProvider|HttpErrorResponse>
    */
-  getVectorProvider(id:number):Observable<VectorProvider|HttpErrorResponse>{
-
-    return this.http.get(this.url_prefix +'/api/provider/vector/'+id,{ headers: this.get_header() }).pipe(
-      map((value: VectorProvider):VectorProvider => { return value }),
-      catchError((err:HttpErrorResponse) => of(err) )
-    )
+  getVectorProvider(id:number):Observable<VectorProvider>{
+    return this.http.get<VectorProvider>(this.url_prefix +'/api/provider/vector/'+id,{ headers: this.get_header() })
   }
 
 
