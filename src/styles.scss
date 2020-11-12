@@ -139,3 +139,26 @@ mat-dialog-container::-webkit-scrollbar-thumb
 
 }
 
+.state-badje{
+	padding: .3em .6em .35em;
+	border-radius: 3px;
+	white-space: nowrap;
+	border: 1px solid;
+	font-size: 12px;
+}
+
+.state-badje-good{
+	color: #0a0;
+}
+
+.state-badje-not_working{
+	color: rgb(170, 0, 28);
+}
+
+.state-badje-action_require{
+	color:  #f90;;
+}
+
+.state-badje-unknow,.state-badje-null{
+	color: rgb(213, 221, 226);
+}
