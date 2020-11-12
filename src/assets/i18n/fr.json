@@ -272,7 +272,12 @@
         "datasource_tab": "Source de données",
         "style_tab": "Styles",
         "general_tab": "General"
-      }
+      },
+      "delete_vector_provider": "Supprimer les providers sélectionnés",
+      "select_vector_provider": "Selectionnez des provideurs",
+      "delete_confirmation_title": "Supprimer des provideurs vecteurs",
+      "delete_confirmation_explanation": "Confirmer la suppression de ",
+      "delete_confirmation_explanation2": "provider(s) vecteur(s)"
     },
     "lef_sidenav": {
       "icons": "Icones",
@@ -302,5 +307,6 @@
     "geometry_type_point": "Point et centroid des polygonnes",
     "geometry_type_polygon": "Polygon uniquement",
     "geometry_type_lineString": "Lignes uniquement"
-  }
+  },
+  "delete": "Supprimer"
 }

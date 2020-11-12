@@ -12,7 +12,9 @@ import { SidenaveLeftSecondaireComponent } from 'src/app/map/sidenav-left/sidena
 import { groupCarteInterface, groupThematiqueInterface } from '../app/type/type';
 import { AddIconComponent } from '../app/admin/administration/content/icons/add-icon/add-icon.component';
 import { AddVectorProviderComponent } from '../app/admin/administration/content/provider/add-vector-provider/add-vector-provider.component';
-
+import {ConfirmationDialogComponent, ConfirmationDialogData} from '../app/modal/confirmation-dialog/confirmation-dialog.component'
+import { map } from 'rxjs/internal/operators/map';
+import { Observable } from 'rxjs';
 /**
  * Open some componenents like social share, loading,modal etc...
  * Dynamically add component in html
@@ -292,6 +294,29 @@ export class manageCompHelper {
     modal.afterClosed().subscribe((result: boolean) => {
       callBack(result)
     })
+  }
+
+  /**
+   * Open confirmation dialog
+   */
+  openConfirmationDialog(size: Array<string> | [], confirmationDialogData:ConfirmationDialogData):Observable<boolean>{
+
+    let proprietes = {
+      minWidth:400,
+      disableClose:true,
+      data:confirmationDialogData
+    }
+    
+    if (size.length > 0) {
+      proprietes['width'] = size[0]
+      proprietes['height'] = size[1]
+    }
+    
+    const modal = this.dialog.open(ConfirmationDialogComponent, proprietes);
+  
+    return modal.afterClosed().pipe(
+      map((value:boolean)=>value)
+    )
   }
 
 

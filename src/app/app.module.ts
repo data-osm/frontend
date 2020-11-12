@@ -66,6 +66,7 @@ import { ContextMenuComponent } from './map/context-menu/context-menu.component'
 import { AddGeosignetComponent } from './map/context-menu/add-geosignet/add-geosignet.component';
 import { ListGeosignetComponent } from './map/context-menu/list-geosignet/list-geosignet.component';
 import { AuthGuard } from './auth/guard/auth.guard';
+import { ConfirmationDialogComponent } from './modal/confirmation-dialog/confirmation-dialog.component';
 
 
 @NgModule({
@@ -103,7 +104,8 @@ import { AuthGuard } from './auth/guard/auth.guard';
     InfoComponent,
     ContextMenuComponent,
     AddGeosignetComponent,
-    ListGeosignetComponent
+    ListGeosignetComponent,
+    ConfirmationDialogComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({

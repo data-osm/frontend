@@ -62,7 +62,6 @@ export class AddVectorProviderComponent implements OnInit {
     ).subscribe(
       (response:VectorProvider)=>{
         this.notifier.notify("success", "Vector provider upload successfully")
-        this.VectorProviderService.fetchAndStoreListVectorProvider()
         this.dialogRef.close(true);
       }
     )

@@ -1,15 +1,19 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { NotifierService } from 'angular-notifier';
-import { Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, EMPTY, merge, Observable, of, ReplaySubject, Subject, throwError } from 'rxjs';
 import { catchError } from 'rxjs/internal/operators/catchError';
-import { filter, finalize, switchMap } from 'rxjs/operators';
+import { filter, finalize, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../../../../environments/environment';
 import { manageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { VectorProvider } from '../../../../../type/type';
 import { VectorProviderService } from '../../../service/vector-provider.service'
 import {MatPaginator} from '@angular/material/paginator';
 import {MatTableDataSource} from '@angular/material/table';
+import { map } from '../../../../../map/map.component';
+import { HttpResponse } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-list-vector-provider',
@@ -22,15 +26,25 @@ import {MatTableDataSource} from '@angular/material/table';
 export class ListVectorProviderComponent implements OnInit {
 
   private readonly notifier: NotifierService;
-  /**
-   * list of the table colum that can be displayed
-   */
-  displayedColumns: string[] = ['name','state','detail'];
+
+  onInitInstance: () => void;
+  onAddInstance: () => void;
+  deleteVectorInstance:(ids:number[]) => void;
+
   /**
    * the datasource of the table that list vector provider
    */
-  dataSource: MatTableDataSource<VectorProvider> = new MatTableDataSource<VectorProvider>([]);
+  data:Observable<VectorProvider[]>
+  // dataSource: Observable<MatTableDataSource<VectorProvider>> = of(new MatTableDataSource<VectorProvider>([]));
 
+  /**
+   * is comp interacting with backend ?
+   */
+  loading:boolean=true
+
+  /**
+   * paginator of the table of vector providor
+   */
   @ViewChild(MatPaginator) paginator: MatPaginator;
  
   searchtVectorProviderForm:FormGroup = this.fb.group({})
@@ -41,30 +55,22 @@ export class ListVectorProviderComponent implements OnInit {
     public manageCompHelper:manageCompHelper,
     notifierService: NotifierService,
     public fb: FormBuilder,
+    public translate: TranslateService,
+
   ) { 
     this.notifier = notifierService;
-  }
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-  }
+    const onInit: Subject<void> = new ReplaySubject<void>(1);
+    this.onInitInstance = () => {
+      onInit.next();
+      onInit.complete();
+    }
 
-  ngOnInit(): void {
-    this.VectorProviderService.vectorProviderList.pipe()
-    .subscribe(
-      (response:VectorProvider[])=>{
-        if (response) {
-          // console.log(response)
-          // this.dataSource = new MatTableDataSource(response)
-          this.dataSource.data = response
-          this.dataSource.paginator = this.paginator;
-        }
-      }
-    )
-    this.initilialiseSearchIcon()
-  }
+    const onAdd:Subject<void> = new Subject<void>()
+    this.onAddInstance = () =>{
+      onAdd.next();
+    }
 
-  initilialiseSearchIcon() {
     let searchControl = new FormControl(null, Validators.min(3))
 
     this.searchResultVectorProvider = searchControl.valueChanges.pipe(
@@ -77,14 +83,78 @@ export class ListVectorProviderComponent implements OnInit {
      
     this.searchtVectorProviderForm.addControl('search_word', searchControl)
 
+    const onDelete :Subject<number[]> = new Subject<number[]>();
+    this.deleteVectorInstance = (ids:number[])=>{
+      onDelete.next(ids)
+    }  
+
+    this.data = merge(
+      onInit.pipe(
+        switchMap(() => {
+          return this.VectorProviderService.fetchAndStoreListVectorProvider().pipe(
+            tap(() => this.loading = false),
+            catchError(()=>{this.notifier.notify("error", "An error occured while loading vector provider");return EMPTY})
+          );
+        })
+      ),
+      onDelete.pipe(
+        switchMap((ids: number[]) => {
+          return  this.manageCompHelper.openConfirmationDialog([],{
+            confirmationTitle: this.translate.instant('admin.vector_provider.delete_confirmation_title'),
+            confirmationExplanation: this.translate.instant('admin.vector_provider.delete_confirmation_explanation')+ ids.length +' ' +this.translate.instant('admin.vector_provider.delete_confirmation_explanation2') +' ?',
+            cancelText: this.translate.instant('cancel'),
+            confirmText: this.translate.instant('delete'),
+          }).pipe(
+            filter(resultConfirmation => resultConfirmation),
+            switchMap(() => {
+              return this.VectorProviderService.deleteVectorProvider(ids).pipe(
+                catchError(() => {
+                  this.notifier.notify("error", "An error occured while deleting vector provider");
+                  this.loading = false;
+                  return EMPTY;
+              }),
+                switchMap(() => {
+                  return this.VectorProviderService.fetchAndStoreListVectorProvider().pipe(
+                    tap(() => this.loading = false),
+                    catchError(()=>{this.notifier.notify("error", "An error occured while loading vector provider");return EMPTY})
+
+                  )
+                })
+              )
+            })
+            )
+        })
+      ),
+      onAdd.pipe(
+        tap(() => this.loading = true),
+        switchMap(() => {
+          return this.VectorProviderService.fetchAndStoreListVectorProvider().pipe(
+            tap(() => this.loading = false),
+            catchError(()=>{this.notifier.notify("error", "An error occured while loading vector provider");return EMPTY})
+          );
+        })
+      ),
+    ).pipe(
+     shareReplay(1)
+    );
+
+
   }
 
-  displaySelectedIcon(vectorProvider:VectorProvider):string{
+  ngAfterViewInit() {
+    //this.dataSource.paginator = this.paginator;
+  }
+
+  ngOnInit(): void {
+    this.onInitInstance();
+  }
+
+  
+  displaySelectedVectorProvider(vectorProvider:VectorProvider):string{
     if (vectorProvider) {
       return vectorProvider.name
     }
   }
-
 
 
   /**
@@ -92,8 +162,17 @@ export class ListVectorProviderComponent implements OnInit {
    */
   openModalToAddVectorProvider(){
     this.manageCompHelper.openModalAddVectorProvider([],(response:boolean)=>{
-
+      if (response) {
+        this.onAddInstance()
+      }
     })
+  }
+
+  /**
+   * delete vector providers
+   */
+  deleteVectorProvider(ids:number[]){
+    this.deleteVectorInstance(ids)
   }
 
 }
