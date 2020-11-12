@@ -1,6 +1,6 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ReadPropExpr } from '@angular/compiler';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, from, merge, Observable, of, pipe, ReplaySubject, Subject } from 'rxjs';
@@ -19,7 +19,13 @@ import { OsmQuerryService } from '../../../../../service/osm-querry.service'
 export class OsmQuerryComponent implements OnInit {
 
   onInitInstance:()=>void
+  /**
+   * update an osm querry
+   */
   onUpdateInstance:()=>void
+  /**
+   * add an osm querry
+   */
   onAddInstance:()=>void
 
   /**
@@ -28,9 +34,16 @@ export class OsmQuerryComponent implements OnInit {
   osmQuerryExist:boolean = false
 
   @Input()provider_vector_id:number
+  /**
+   * reload vector provider
+   */
+  @Output()reloadVectorProvider:EventEmitter<any> = new EventEmitter<any>()
 
   private readonly notifier: NotifierService;
 
+  /**
+   * current osm querry
+   */
   osmQuerry:Observable<OsmQuerry>
 
   /**
@@ -124,7 +137,11 @@ export class OsmQuerryComponent implements OnInit {
                   }
                   return EMPTY
                 }),
-                tap((osmQuerry)=>{this.osmQuerryExist = true;this.handleSucessOnSavingQuerry(osmQuerry)})
+                tap((osmQuerry)=>{
+                  this.osmQuerryExist = true;
+                  this.reloadVectorProvider.emit()
+                  this.handleSucessOnSavingQuerry(osmQuerry)
+                })
               )
             })
           )
@@ -158,7 +175,7 @@ export class OsmQuerryComponent implements OnInit {
                   }
                   return EMPTY
                 }),
-                tap((osmQuerry)=>{this.osmQuerryExist = true;this.handleSucessOnSavingQuerry(osmQuerry)})
+                tap((osmQuerry)=>{this.osmQuerryExist = true;this.reloadVectorProvider.emit();this.handleSucessOnSavingQuerry(osmQuerry)})
               )
             })
           )

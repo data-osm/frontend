@@ -34,7 +34,6 @@ export class DetailsVectorProviderComponent implements OnInit {
     const onInit: Subject<void> = new ReplaySubject<void>(1);
     this.onInitInstance = () => {
       onInit.next();
-      onInit.complete();
     }
 
     this.vectorProvider = onInit.pipe(
@@ -52,6 +51,13 @@ export class DetailsVectorProviderComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.onInitInstance()
+  }
+
+  /**
+   * reload vector provider
+   */
+  reloadVectorProvider(){
     this.onInitInstance()
   }
 

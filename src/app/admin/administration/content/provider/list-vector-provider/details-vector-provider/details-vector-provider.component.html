@@ -1,9 +1,15 @@
 <div class="details-vp-title">
   <h1>
     {{(vectorProvider| async)?.name}}
-    <!-- <span class="state-badje state-badje-{{(vectorProvider| async)?.state}}">
+
+    <span class="state-badje state-badje-geometry ">
+      {{(vectorProvider| async)?.geometry_type}}
+    </span>
+
+    <span class="state-badje state-badje-{{(vectorProvider| async)?.state}}">
       {{ 'admin.vector_provider.table.header.state_type.' + (vectorProvider| async)?.state | translate }}
-    </span> -->
+    </span>
+
   </h1>
 
 </div>
@@ -11,7 +17,7 @@
 <mat-tab-group>
   <mat-tab label=" {{ 'admin.vector_provider.details.datasource_tab' | translate }}">
     <ng-template matTabContent>
-      <app-osm-querry *ngIf="vectorProvider|async" [provider_vector_id]="(vectorProvider| async)?.provider_vector_id">
+      <app-osm-querry (reloadVectorProvider)="reloadVectorProvider()" *ngIf="vectorProvider|async" [provider_vector_id]="(vectorProvider| async)?.provider_vector_id">
       </app-osm-querry>
     </ng-template>
   </mat-tab>
