@@ -23,6 +23,7 @@
   </mat-tab>
   <mat-tab label="{{ 'admin.vector_provider.details.style_tab' | translate }}">
     <ng-template matTabContent>
+      <app-list-style [provider_vector_id]="(vectorProvider| async)?.provider_vector_id" > </app-list-style>
     </ng-template>
   </mat-tab>
   <mat-tab label="{{ 'admin.vector_provider.details.general_tab' | translate }}">

@@ -308,5 +308,8 @@
     "geometry_type_polygon": "Polygon uniquement",
     "geometry_type_lineString": "Lignes uniquement"
   },
-  "delete": "Supprimer"
+  "delete": "Supprimer",
+  "list-style": {
+    "add_style": "Ajouter un style"
+  }
 }

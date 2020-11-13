@@ -1,0 +1,15 @@
+@import '../../../../../../../theme.scss';
+
+.style-item{
+    background-color: #fff;
+    color: #000;
+    transition: background-color .5s, color .5s;
+}
+
+.style-item:hover{
+    background-color: $accent_color;
+    div{
+        color: #fff;
+    }
+    
+}

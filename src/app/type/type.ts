@@ -535,3 +535,13 @@ export interface OsmQuerry{
   sql?:string
   provider_vector_id:number
 }
+
+/**
+ * interface of a style
+ */
+export interface Style{
+  name:string
+  provider_style_id:string
+  provider_vector_id:number
+  custom_style_id:number
+}
