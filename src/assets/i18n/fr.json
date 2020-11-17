@@ -311,5 +311,10 @@
   "delete": "Supprimer",
   "list-style": {
     "add_style": "Ajouter un style"
+  },
+  "add_style": {
+    "title": "Ajouter un style",
+    "name": "Nom du style",
+    "qml_error": "Ajouter un fichier QML"
   }
 }

@@ -3,15 +3,16 @@ import { SocialShareComponent } from '../app/social-share/social-share.component
 import { Injectable, ComponentFactoryResolver, ApplicationRef, Injector, EmbeddedViewRef, ComponentRef } from '@angular/core';
 import { ListDownloadLayersComponent, downloadDataModelInterface } from '../app/map/sidenav-right/download/list-download-layers/list-download-layers.component'
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { modelDescriptiveSheet, DescriptiveSheetComponent } from 'src/app/map/descriptive-sheet/descriptive-sheet.component';
+import { modelDescriptiveSheet, DescriptiveSheetComponent } from '../app/map/descriptive-sheet/descriptive-sheet.component';
 import { layersInMap, cartoHelper } from './carto.helper';
-import { LayerGroup } from 'src/app/ol-module';
-import { InfoComponent } from 'src/app/modal/info/info.component'
-import { AddGeosignetComponent } from 'src/app/map/context-menu/add-geosignet/add-geosignet.component'
-import { SidenaveLeftSecondaireComponent } from 'src/app/map/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component'
+import { LayerGroup } from '../app/ol-module';
+import { InfoComponent } from '../app/modal/info/info.component'
+import { AddGeosignetComponent } from '../app/map/context-menu/add-geosignet/add-geosignet.component'
+import { SidenaveLeftSecondaireComponent } from '../app/map/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component'
 import { groupCarteInterface, groupThematiqueInterface } from '../app/type/type';
 import { AddIconComponent } from '../app/admin/administration/content/icons/add-icon/add-icon.component';
 import { AddVectorProviderComponent } from '../app/admin/administration/content/provider/add-vector-provider/add-vector-provider.component';
+import { AddStyleComponent } from '../app/admin/administration/content/provider/list-vector-provider/details-vector-provider/list-style/add-style/add-style.component';
 import {ConfirmationDialogComponent, ConfirmationDialogData} from '../app/modal/confirmation-dialog/confirmation-dialog.component'
 import { map } from 'rxjs/internal/operators/map';
 import { Observable } from 'rxjs';
@@ -313,6 +314,29 @@ export class manageCompHelper {
     }
     
     const modal = this.dialog.open(ConfirmationDialogComponent, proprietes);
+  
+    return modal.afterClosed().pipe(
+      map((value:boolean)=>value)
+    )
+  }
+
+  /**
+   * Open confirmation dialog
+   */
+  openAddStyleDialog(size: Array<string> | [], provider_vector_id:number):Observable<boolean>{
+
+    let proprietes = {
+      minWidth:400,
+      disableClose:true,
+      data:provider_vector_id
+    }
+    
+    if (size.length > 0) {
+      proprietes['width'] = size[0]
+      proprietes['height'] = size[1]
+    }
+    
+    const modal = this.dialog.open(AddStyleComponent, proprietes);
   
     return modal.afterClosed().pipe(
       map((value:boolean)=>value)

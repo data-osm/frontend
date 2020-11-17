@@ -53,7 +53,7 @@ export class StyleService {
    * @returns Observable<Style>
    */
   addStyle(style:FormData):Observable<Style>{
-    return this.http.post<Style>(this.url_prefix+'/api/provider/style/'+style.get('provider_style_id'),style,{ headers: this.get_header() })
+    return this.http.post<Style>(this.url_prefix+'/api/provider/style/'+style.get('provider_vector_id'),style,{ headers: this.get_header() })
   }
 
 }

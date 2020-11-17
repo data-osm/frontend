@@ -31,9 +31,10 @@ import { DetailsVectorProviderComponent } from './administration/content/provide
 import { OsmQuerryComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/osm-querry/osm-querry.component';
 import { TableVectorProviderComponent } from './administration/content/provider/list-vector-provider/table-vector-provider/table-vector-provider.component';
 import { ListStyleComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/list-style/list-style.component';
+import { AddStyleComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/list-style/add-style/add-style.component';
 
 @NgModule({
-  declarations: [AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent],
+  declarations: [AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent, AddStyleComponent],
   imports: [
     CommonModule,
     AdminRoutingModule,

@@ -2,9 +2,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, merge, Observable, ReplaySubject, Subject } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { catchError, filter, switchMap } from 'rxjs/operators';
 import { Style } from '../../../../../../../type/type';
 import { StyleService } from '../../../../../service/style.service'
+import { manageCompHelper } from '../../../../../../../../helper/manage-comp.helper'
+
 @Component({
   selector: 'app-list-style',
   templateUrl: './list-style.component.html',
@@ -23,7 +25,7 @@ export class ListStyleComponent implements OnInit {
   /**
    * add an style
    */
-  onAddInstance:()=>void
+  onAddInstance:(provider_vector_id:number)=>void
 
   /**
    * the vector provider id
@@ -39,6 +41,7 @@ export class ListStyleComponent implements OnInit {
   constructor(
     public StyleService:StyleService,
     notifierService: NotifierService,
+    public manageCompHelper:manageCompHelper
   ) {
 
     this.notifier = notifierService;
@@ -48,7 +51,13 @@ export class ListStyleComponent implements OnInit {
       onInit.next()
       onInit.complete()
     }
+
+    const onAdd:Subject<number>=new Subject<number>()
     
+    this.onAddInstance = (provider_vector_id:number)=>{
+      onAdd.next(provider_vector_id)
+    }
+
     this.listStyles = merge(
       onInit.pipe(
         switchMap(()=>{
@@ -61,6 +70,25 @@ export class ListStyleComponent implements OnInit {
                       return EMPTY
                     })
                   )
+        })
+      ),
+      onAdd.pipe(
+        switchMap((provider_vector_id)=>{
+          return this.manageCompHelper.openAddStyleDialog([],provider_vector_id)
+            .pipe(
+              filter(response => response),
+              switchMap(()=>{
+                return this.StyleService.getAllStylesOfVectorProvider(provider_vector_id)
+                  .pipe(
+                    catchError((value:HttpErrorResponse)=>{
+                      if (value.status != 404) {
+                        this.notifier.notify("error", "An error occured while loading osm querry")
+                      }
+                      return EMPTY
+                    })
+                  )
+              })
+            )
         })
       )
     )
