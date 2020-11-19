@@ -6,7 +6,9 @@ import {
   Map,
   View,
   Attribution,
-  LayerGroup
+  LayerGroup,
+  Feature,
+  Transform
 } from '../ol-module';
 import { StorageServiceService } from '../services/storage-service/storage-service.service'
 import { ShareServiceService } from 'src/app/services/share-service/share-service.service'
@@ -213,15 +215,21 @@ export class MapComponent implements OnInit {
    */
   handleMapParamsUrl() {
     this.activatedRoute.queryParams.subscribe(params => {
-      // console.log(params)
       /** share of layers */
       if (params['layers']) {
+        // verify if params pos is present in url param et zoomer dessus
         var layers = params['layers'].split(';')
         this.ShareServiceService.addLayersFromUrl(layers)
+
       }
       if (params['feature']) {
         var parametersShared = params['feature'].split(';')
         this.ShareServiceService.displayFeatureShared(parametersShared)
+      }
+
+      if(params['pos']){
+        var positionData = params['pos'].split(',')
+        this.ShareServiceService.zoomToSharePos(parseFloat(positionData[0]), parseFloat(positionData[1]), parseFloat(positionData[2]))
       }
     })
   }
