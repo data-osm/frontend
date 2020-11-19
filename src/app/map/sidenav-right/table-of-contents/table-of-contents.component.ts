@@ -236,8 +236,7 @@ export class TableOfContentsComponent implements OnInit {
     var lat = lonlat[1];
     var zoom = this.map.getView().getZoom()
 
-    //var coordinateSharedLink = 'lon=' + lon + ',' + 'lat=' + lat + ',' + 'z=' + zoom
-    var coordinateSharedLink = 'pos=' + lon.toFixed(4) + ',' + lat.toFixed(4) + ',' + zoom.toFixed(4)
+    var coordinateSharedLink = 'pos=' + lon.toFixed(4) + ',' + lat.toFixed(4) + ',' + Math.floor(zoom)
 
     var params = this.ShareServiceService.shareLayers(pteToGetParams)
 

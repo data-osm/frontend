@@ -3,8 +3,8 @@ import { GeosmLayersServiceService } from '../geosm-layers-service/geosm-layers-
 import { StorageServiceService } from '../storage-service/storage-service.service'
 import { BackendApiService } from '../backend-api/backend-api.service'
 import { manageCompHelper } from 'src/helper/manage-comp.helper'
-import { cartoHelper, layersInMap } from 'src/helper/carto.helper'
-import { Point, VectorLayer, Cluster, Feature, GeoJSON } from 'src/app/ol-module';
+import { cartoHelper, layersInMap } from '../../../helper/carto.helper'
+import { Point, VectorLayer, Cluster, Feature, GeoJSON, Transform } from '../../../app/ol-module';
 import { parse } from '@fortawesome/fontawesome-svg-core';
 import { coucheInterface } from 'src/app/type/type';
 import * as $ from 'jquery'
@@ -162,6 +162,23 @@ export class ShareServiceService {
       parameters.push(layers[index].typeLayer + ',' + layers[index].id_layer + ',' + layers[index].group_id)
     }
     return 'layers=' + parameters.join(';')
+  }
+
+  /**
+   * check if pos params exist in share url
+   * @params {
+   * lon: longitude,
+   * lat: latitude,
+   * z: zoom
+   * }
+   */
+  zoomToSharePos(lon: Number, lat: Number, z:Number) {
+
+    var shareCenter = [lon, lat]
+    var geom = new Point(Transform(shareCenter, 'EPSG:4326', 'EPSG:3857'))
+    setTimeout(() => {
+      new cartoHelper().fit_view(geom, z)
+    }, 1000);
   }
 
   /**
