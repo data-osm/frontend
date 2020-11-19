@@ -165,12 +165,10 @@ export class ShareServiceService {
   }
 
   /**
-   * check if pos params exist in share url
-   * @params {
-   * lon: longitude,
-   * lat: latitude,
-   * z: zoom
-   * }
+   * Zoom to the position in URL
+   * @param number lon
+   * @param number lat
+   * @param number z the zoom
    */
   zoomToSharePos(lon: Number, lat: Number, z:Number) {
 
@@ -178,7 +176,7 @@ export class ShareServiceService {
     var geom = new Point(Transform(shareCenter, 'EPSG:4326', 'EPSG:3857'))
     setTimeout(() => {
       new cartoHelper().fit_view(geom, z)
-    }, 1000);
+    }, 2000);
   }
 
   /**
