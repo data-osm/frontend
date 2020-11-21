@@ -288,6 +288,10 @@
       "edit_where_querry": "Editer la clause where de la requete",
       "edit_select_querry": "Editer la clause select de la requete",
       "select": "Clause select de la requete"
+    },
+    "list-style": {
+      "delete_confirmation_title": "Supprimer un style",
+      "delete_confirmation_explanation": "Confirmer la suppression du style "
     }
   },
   "add_icon": {

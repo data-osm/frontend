@@ -1,11 +1,21 @@
-<div fxLayout fxLayoutAlign="end">
+<div fxLayout fxLayoutAlign="end" style="margin-bottom: 24px;" >
     <button fxFlex="200px" mat-flat-button color="accent" class="white" (click)="onAddInstance(provider_vector_id)" > {{ 'list-style.add_style' | translate }} </button>
 </div>
 
-<mat-list>
+<div fxLayout="row wrap" *ngFor="let style of listStyles | async" class="style-item pointer">
+    <div fxFlex="calc(100% - 160px)" class="style-item-title">{{style.name}}</div>
+    <div fxFlex="160px" class="style-item-delete" (click)="onDeleteInstance(style)" > 
+        <span class="style-item-delete-text" >Supprimer</span>
+        <svg height="25" width="25" viewBox="0 0 49.501 50" class="" ><path  d="M17.865 0v5.938H0V9.43h4.543L8.393 50h32.77l3.8-40.57h4.54V5.94H31.635V0zm3.493 3.493h6.786v2.445h-6.786zM8.052 9.43h33.4L37.98 46.508H11.57zm9.71 7.632l-3.487.208 1.497 25.1 3.487-.208zm14.477 0l-1.5 25.1 3.487.207 1.496-25.1zm-8.988.104v25.1h3.493v-25.1z"></path></svg>
+    </div>
+    <mat-divider fxFlex="100%" ></mat-divider>
+</div>
+
+<!-- <mat-list>
     <mat-list-item *ngFor="let style of listStyles | async" class="style-item pointer" >
         <div mat-line > 
-            {{style.name}}
+            
+            
         </div>
     </mat-list-item>
-</mat-list>
+</mat-list> -->

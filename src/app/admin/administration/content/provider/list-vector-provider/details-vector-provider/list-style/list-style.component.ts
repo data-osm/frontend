@@ -6,6 +6,7 @@ import { catchError, filter, switchMap } from 'rxjs/operators';
 import { Style } from '../../../../../../../type/type';
 import { StyleService } from '../../../../../service/style.service'
 import { manageCompHelper } from '../../../../../../../../helper/manage-comp.helper'
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-list-style',
@@ -19,13 +20,18 @@ export class ListStyleComponent implements OnInit {
 
   onInitInstance:()=>void
   /**
-   * update an style
+   * update a style
    */
   onUpdateInstance:()=>void
   /**
-   * add an style
+   * add a style
    */
   onAddInstance:(provider_vector_id:number)=>void
+
+  /**
+   * delete a style
+   */
+  onDeleteInstance:(style:Style)=>void
 
   /**
    * the vector provider id
@@ -41,7 +47,8 @@ export class ListStyleComponent implements OnInit {
   constructor(
     public StyleService:StyleService,
     notifierService: NotifierService,
-    public manageCompHelper:manageCompHelper
+    public manageCompHelper:manageCompHelper,
+    public translate: TranslateService,
   ) {
 
     this.notifier = notifierService;
@@ -53,9 +60,13 @@ export class ListStyleComponent implements OnInit {
     }
 
     const onAdd:Subject<number>=new Subject<number>()
-    
     this.onAddInstance = (provider_vector_id:number)=>{
       onAdd.next(provider_vector_id)
+    }
+
+    const onDelete:Subject<Style>= new Subject<Style>()
+    this.onDeleteInstance = (style:Style)=>{
+      onDelete.next(style)
     }
 
     this.listStyles = merge(
@@ -89,6 +100,38 @@ export class ListStyleComponent implements OnInit {
                   )
               })
             )
+        })
+      ),
+      onDelete.pipe(
+        switchMap((style:Style)=>{
+          return  this.manageCompHelper.openConfirmationDialog([],{
+            confirmationTitle: this.translate.instant('admin.list-style.delete_confirmation_title'),
+            confirmationExplanation: this.translate.instant('admin.list-style.delete_confirmation_explanation') + style.name+' ?',
+            cancelText: this.translate.instant('cancel'),
+            confirmText: this.translate.instant('delete'),
+          }).pipe(
+            filter(resultConfirmation => resultConfirmation),
+            switchMap(()=>{
+              return this.StyleService.deleteStyle(style.provider_style_id).pipe(
+                catchError(() => {
+                  this.notifier.notify("error", "An error occured while deleting style");
+                  // this.loading = false;
+                  return EMPTY;
+                }),
+                switchMap(()=>{
+                  return this.StyleService.getAllStylesOfVectorProvider(this.provider_vector_id)
+                  .pipe(
+                    catchError((value:HttpErrorResponse)=>{
+                      if (value.status != 404) {
+                        this.notifier.notify("error", "An error occured while loading osm querry")
+                      }
+                      return EMPTY
+                    })
+                  ) 
+                })
+              )
+            })
+          )
         })
       )
     )
