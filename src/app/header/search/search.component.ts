@@ -2,19 +2,19 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { debounceTime, filter, startWith, tap, map, skip, catchError, take, switchMap } from 'rxjs/operators';
 import { from, Observable, fromEvent, merge as observerMerge, of } from 'rxjs';
-import { BackendApiService } from 'src/app/services/backend-api/backend-api.service'
-import { StorageServiceService } from 'src/app/services/storage-service/storage-service.service'
-import { configProjetInterface } from 'src/app/type/type';
+import { BackendApiService } from '../../..//app/services/backend-api/backend-api.service'
+import { StorageServiceService } from '../../..//app/services/storage-service/storage-service.service'
+import { configProjetInterface } from '../../..//app/type/type';
 import { responseOfSearchPhotonInterface, responseOfSerachLimitInterface } from './interface-search'
 import { handleEmpriseSearch } from './handle-emprise-search'
 import { handlePhotonSearch } from './handle-photon-search'
 import { handleAdresseFrSearch } from './handle-adresseFr-search'
 import { handleLayerSearch } from './handle-layer-search'
-import { VectorLayer, VectorSource, Style, Fill, Stroke, CircleStyle, Icon, Text } from 'src/app/ol-module';
-import { manageDataHelper } from 'src/helper/manage-data.helper';
-import { cartoHelper } from 'src/helper/carto.helper';
+import { VectorLayer, VectorSource, Style, Fill, Stroke, CircleStyle, Icon, Text } from '../../..//app/ol-module';
+import { manageDataHelper } from '../../..//helper/manage-data.helper';
+import { cartoHelper } from '../../..//helper/carto.helper';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../../environments/environment';
 
 export interface filterOptionInterface {
   name: string
@@ -161,7 +161,7 @@ export class SearchComponent implements OnInit {
 
       var bboxPhoton = this.StorageServiceService.getExtentOfProject().join(",")
       querryObs.push(
-        from(this.BackendApiService.getRequestFromOtherHost('http://photon.komoot.de/api/?&limit=7&q=' + value.toString() + "&lang=fr" + "&bbox=" + bboxPhoton)).pipe(
+        from(this.BackendApiService.getRequestFromOtherHost('https://photon.komoot.de/api/?&limit=7&q=' + value.toString() + "&lang=fr" + "&bbox=" + bboxPhoton)).pipe(
           map((val: { type: String, value: any }) => { return { type: 'photon', value: val, error:false } }),
           catchError((_err) => of({  error:true,type: 'photon', value: { features: [] } }))
         )
