@@ -1,13 +1,13 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../../../environments/environment';
 import { StorageServiceService } from '../../../services/storage-service/storage-service.service'
 import {
   Map
 } from '../../../ol-module';
-import { groupCarteInterface, carteInterface, groupThematiqueInterface, groupInterface } from 'src/app/type/type';
+import { groupCarteInterface, carteInterface, groupThematiqueInterface, groupInterface } from '../../../../app/type/type';
 import * as $ from 'jquery'
-import { cartoHelper } from 'src/helper/carto.helper'
-import { manageCompHelper } from 'src/helper/manage-comp.helper'
+import { cartoHelper } from '../../../../helper/carto.helper'
+import { manageCompHelper } from '../../../../helper/manage-comp.helper'
 
 /**
  * first composant of the left sidenav

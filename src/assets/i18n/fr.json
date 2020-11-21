@@ -288,6 +288,10 @@
       "edit_where_querry": "Editer la clause where de la requete",
       "edit_select_querry": "Editer la clause select de la requete",
       "select": "Clause select de la requete"
+    },
+    "list-style": {
+      "delete_confirmation_title": "Supprimer un style",
+      "delete_confirmation_explanation": "Confirmer la suppression du style "
     }
   },
   "add_icon": {
@@ -308,5 +312,16 @@
     "geometry_type_polygon": "Polygon uniquement",
     "geometry_type_lineString": "Lignes uniquement"
   },
-  "delete": "Supprimer"
+  "delete": "Supprimer",
+  "list-style": {
+    "add_style": "Ajouter un style"
+  },
+  "add_style": {
+    "title": "Ajouter un style",
+    "name": "Nom du style",
+    "qml_error": "Ajouter un fichier QML"
+  },
+  "edit_style": {
+    "title": "Modifier un style"
+  }
 }
