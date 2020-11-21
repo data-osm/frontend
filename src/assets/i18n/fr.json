@@ -320,5 +320,8 @@
     "title": "Ajouter un style",
     "name": "Nom du style",
     "qml_error": "Ajouter un fichier QML"
+  },
+  "edit_style": {
+    "title": "Modifier un style"
   }
 }

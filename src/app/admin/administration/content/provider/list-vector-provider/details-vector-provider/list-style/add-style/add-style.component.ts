@@ -62,7 +62,6 @@ export class AddStyleComponent implements OnInit, OnDestroy {
         filter(()=>this.formAddStyle.valid ),
         tap(()=>{this.loading=true;this.formAddStyle.disable()}),
         switchMap(()=>{
-          console.log(this.formAddStyle.get('qml_file').value)
           let style = toFormData({
             'qml_file':this.formAddStyle.get('qml_file').value[0],
             'name':this.formAddStyle.get('name').value,

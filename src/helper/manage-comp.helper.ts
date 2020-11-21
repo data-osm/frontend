@@ -9,13 +9,14 @@ import { LayerGroup } from '../app/ol-module';
 import { InfoComponent } from '../app/modal/info/info.component'
 import { AddGeosignetComponent } from '../app/map/context-menu/add-geosignet/add-geosignet.component'
 import { SidenaveLeftSecondaireComponent } from '../app/map/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component'
-import { groupCarteInterface, groupThematiqueInterface } from '../app/type/type';
+import { groupCarteInterface, groupThematiqueInterface, Style } from '../app/type/type';
 import { AddIconComponent } from '../app/admin/administration/content/icons/add-icon/add-icon.component';
 import { AddVectorProviderComponent } from '../app/admin/administration/content/provider/add-vector-provider/add-vector-provider.component';
 import { AddStyleComponent } from '../app/admin/administration/content/provider/list-vector-provider/details-vector-provider/list-style/add-style/add-style.component';
 import {ConfirmationDialogComponent, ConfirmationDialogData} from '../app/modal/confirmation-dialog/confirmation-dialog.component'
 import { map } from 'rxjs/internal/operators/map';
 import { Observable } from 'rxjs';
+import { EditStyleComponent } from '../app/admin/administration/content/provider/list-vector-provider/details-vector-provider/list-style/edit-style/edit-style.component';
 /**
  * Open some componenents like social share, loading,modal etc...
  * Dynamically add component in html
@@ -299,6 +300,7 @@ export class manageCompHelper {
 
   /**
    * Open confirmation dialog
+   * @return Observable<boolean>
    */
   openConfirmationDialog(size: Array<string> | [], confirmationDialogData:ConfirmationDialogData):Observable<boolean>{
 
@@ -321,7 +323,8 @@ export class manageCompHelper {
   }
 
   /**
-   * Open confirmation dialog
+   * Open add style dialog
+   * @return Observable<boolean>
    */
   openAddStyleDialog(size: Array<string> | [], provider_vector_id:number):Observable<boolean>{
 
@@ -343,6 +346,28 @@ export class manageCompHelper {
     )
   }
 
+  /**
+   * open edit style dialog 
+   * @return Observable<boolean>
+   */
+  openUpdateStyleDialog(size:Array<string> | [], style:Style):Observable<boolean>{
+    let proprietes = {
+      minWidth:400,
+      disableClose:true,
+      data:style
+    }
+    
+    if (size.length > 0) {
+      proprietes['width'] = size[0]
+      proprietes['height'] = size[1]
+    }
+    
+    const modal = this.dialog.open(EditStyleComponent, proprietes);
+  
+    return modal.afterClosed().pipe(
+      map((value:boolean)=>value)
+    )
+  }
 
 
 }

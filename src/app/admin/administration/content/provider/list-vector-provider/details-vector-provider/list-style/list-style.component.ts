@@ -7,6 +7,7 @@ import { Style } from '../../../../../../../type/type';
 import { StyleService } from '../../../../../service/style.service'
 import { manageCompHelper } from '../../../../../../../../helper/manage-comp.helper'
 import { TranslateService } from '@ngx-translate/core';
+import { style } from '@angular/animations';
 
 @Component({
   selector: 'app-list-style',
@@ -22,7 +23,7 @@ export class ListStyleComponent implements OnInit {
   /**
    * update a style
    */
-  onUpdateInstance:()=>void
+  onUpdateInstance:(style:Style)=>void
   /**
    * add a style
    */
@@ -69,6 +70,11 @@ export class ListStyleComponent implements OnInit {
       onDelete.next(style)
     }
 
+    const onUpdate:Subject<Style> = new Subject<Style>()
+    this.onUpdateInstance = (style:Style)=>{
+      onUpdate.next(style)
+    }
+
     this.listStyles = merge(
       onInit.pipe(
         switchMap(()=>{
@@ -76,7 +82,7 @@ export class ListStyleComponent implements OnInit {
                   .pipe(
                     catchError((value:HttpErrorResponse)=>{
                       if (value.status != 404) {
-                        this.notifier.notify("error", "An error occured while loading osm querry")
+                        this.notifier.notify("error", "An error occured while loading styles")
                       }
                       return EMPTY
                     })
@@ -93,7 +99,7 @@ export class ListStyleComponent implements OnInit {
                   .pipe(
                     catchError((value:HttpErrorResponse)=>{
                       if (value.status != 404) {
-                        this.notifier.notify("error", "An error occured while loading osm querry")
+                        this.notifier.notify("error", "An error occured while loading styles")
                       }
                       return EMPTY
                     })
@@ -123,13 +129,31 @@ export class ListStyleComponent implements OnInit {
                   .pipe(
                     catchError((value:HttpErrorResponse)=>{
                       if (value.status != 404) {
-                        this.notifier.notify("error", "An error occured while loading osm querry")
+                        this.notifier.notify("error", "An error occured while loading styles")
                       }
                       return EMPTY
                     })
                   ) 
                 })
               )
+            })
+          )
+        })
+      ),
+      onUpdate.pipe(
+        switchMap((style:Style)=>{
+          return this.manageCompHelper.openUpdateStyleDialog([],style).pipe(
+            filter(resultConfirmation => resultConfirmation),
+            switchMap(()=>{
+              return this.StyleService.getAllStylesOfVectorProvider(this.provider_vector_id)
+              .pipe(
+                catchError((value:HttpErrorResponse)=>{
+                  if (value.status != 404) {
+                    this.notifier.notify("error", "An error occured while loading styles")
+                  }
+                  return EMPTY
+                })
+              ) 
             })
           )
         })
