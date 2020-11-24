@@ -69,6 +69,7 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatSelectModule} from '@angular/material/select';
 import {MatBottomSheetModule} from '@angular/material/bottom-sheet'
 import {MatPaginatorModule} from '@angular/material/paginator'
+import {MatRadioModule} from '@angular/material/radio';
 @NgModule({
   exports: [
     A11yModule,
@@ -101,7 +102,8 @@ import {MatPaginatorModule} from '@angular/material/paginator'
     MatProgressBarModule,
     MatBottomSheetModule,
     MatPaginatorModule,
-    MatTableModule
+    MatTableModule,
+    MatRadioModule
   ]
 })
 export class ComponentMaterialModule { }

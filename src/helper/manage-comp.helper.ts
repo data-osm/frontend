@@ -9,7 +9,7 @@ import { LayerGroup } from '../app/ol-module';
 import { InfoComponent } from '../app/modal/info/info.component'
 import { AddGeosignetComponent } from '../app/map/context-menu/add-geosignet/add-geosignet.component'
 import { SidenaveLeftSecondaireComponent } from '../app/map/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component'
-import { groupCarteInterface, groupThematiqueInterface, Style } from '../app/type/type';
+import { DataForPreview, groupCarteInterface, groupThematiqueInterface, Style } from '../app/type/type';
 import { AddIconComponent } from '../app/admin/administration/content/icons/add-icon/add-icon.component';
 import { AddVectorProviderComponent } from '../app/admin/administration/content/provider/add-vector-provider/add-vector-provider.component';
 import { AddStyleComponent } from '../app/admin/administration/content/provider/list-vector-provider/details-vector-provider/list-style/add-style/add-style.component';
@@ -17,6 +17,8 @@ import {ConfirmationDialogComponent, ConfirmationDialogData} from '../app/modal/
 import { map } from 'rxjs/internal/operators/map';
 import { Observable } from 'rxjs';
 import { EditStyleComponent } from '../app/admin/administration/content/provider/list-vector-provider/details-vector-provider/list-style/edit-style/edit-style.component';
+import { PreviewDataComponent } from '../app/admin/administration/modal/preview-data/preview-data.component';
+import * as $ from 'jquery'
 /**
  * Open some componenents like social share, loading,modal etc...
  * Dynamically add component in html
@@ -348,6 +350,7 @@ export class manageCompHelper {
 
   /**
    * open edit style dialog 
+   * @param Style style
    * @return Observable<boolean>
    */
   openUpdateStyleDialog(size:Array<string> | [], style:Style):Observable<boolean>{
@@ -367,6 +370,30 @@ export class manageCompHelper {
     return modal.afterClosed().pipe(
       map((value:boolean)=>value)
     )
+  }
+
+  /**
+   * Open preview data dialog
+   * @param Array<DataForPreview> data 
+   */
+  openDataPreviewDialog(size:Array<string> | [], data:Array<DataForPreview>){
+    let proprietes:MatDialogConfig= {
+      minWidth:400,
+      disableClose:false,
+      width:($( window ).width()-200)+'px',
+      maxWidth:($( window ).width()-200)+'px',
+      height:($( window ).height() -150)+'px',
+      maxHeight:($( window ).height() -150)+'px',
+      data:data
+    }
+    
+    if (size.length > 0) {
+      proprietes['width'] = size[0]
+      proprietes['height'] = size[1]
+    }
+
+    const modal = this.dialog.open(PreviewDataComponent, proprietes);
+
   }
 
 

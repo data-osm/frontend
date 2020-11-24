@@ -33,9 +33,10 @@ import { TableVectorProviderComponent } from './administration/content/provider/
 import { ListStyleComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/list-style/list-style.component';
 import { AddStyleComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/list-style/add-style/add-style.component';
 import { EditStyleComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/list-style/edit-style/edit-style.component';
+import { PreviewDataComponent } from './administration/modal/preview-data/preview-data.component';
 
 @NgModule({
-  declarations: [AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent, AddStyleComponent, EditStyleComponent],
+  declarations: [AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent, AddStyleComponent, EditStyleComponent, PreviewDataComponent],
   imports: [
     CommonModule,
     AdminRoutingModule,

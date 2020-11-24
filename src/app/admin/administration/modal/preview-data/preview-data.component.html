@@ -1,0 +1,34 @@
+<h1 mat-dialog-title>
+
+
+    <span class="bold primaryColor " style="font-size: 17px;">{{ 'admin.preview-data.title' | translate }}
+    </span>
+
+    <i (click)="close()" class="fa fa-times primaryColor pointer close"></i>
+</h1>
+<mat-dialog-content>
+    <mat-sidenav-container #previewSidenav style="width: 100%;height: 100%;">
+        <mat-sidenav opened mode="side" position="start" class="preview-sidenav-left">
+            <mat-accordion>
+                <mat-expansion-panel *ngFor="let layer of layersForPreview" hideToggle [expanded]="true">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            {{layer.name}}
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <div>
+                       <mat-radio-group [value]="layer.style[0]" (change)="ChangeStyle($event, layer)" class="list-styles" >
+                           <mat-radio-button *ngFor="let style of layer.style" [value]="style" class="style" >
+                                {{style}}
+                           </mat-radio-button>
+                       </mat-radio-group>
+                    </div>
+                </mat-expansion-panel>
+            </mat-accordion>
+
+        </mat-sidenav>
+        <mat-sidenav-content class="preview-sidenav-content">
+            <div id="map"></div>
+        </mat-sidenav-content>
+    </mat-sidenav-container>
+</mat-dialog-content>
