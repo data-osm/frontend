@@ -16,6 +16,7 @@ import { bbox as bboxStrategy } from 'ol/loadingstrategy.js';
 import { Cluster, ImageStatic } from 'ol/source.js';
 import VectorSource from 'ol/source/Vector.js';
 import VectorSourceEvent from 'ol/source/Vector.js';
+import OSM from 'ol/source/OSM';
 import {
   Circle as CircleStyle, Fill, Stroke, Text, RegularShape, Icon
 } from 'ol/style.js';
@@ -107,5 +108,6 @@ export {
   Polyline,
   ScaleLine,
   MousePosition,
-  createStringXY
+  createStringXY,
+  OSM
 };

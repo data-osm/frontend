@@ -271,7 +271,8 @@
       "details": {
         "datasource_tab": "Source de données",
         "style_tab": "Styles",
-        "general_tab": "General"
+        "general_tab": "General",
+        "preview_provider": "Visualiser"
       },
       "delete_vector_provider": "Supprimer les providers sélectionnés",
       "select_vector_provider": "Selectionnez des provideurs",
@@ -292,6 +293,9 @@
     "list-style": {
       "delete_confirmation_title": "Supprimer un style",
       "delete_confirmation_explanation": "Confirmer la suppression du style "
+    },
+    "preview-data": {
+      "title": "Visualiser"
     }
   },
   "add_icon": {

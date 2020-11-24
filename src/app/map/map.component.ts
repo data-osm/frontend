@@ -11,12 +11,12 @@ import {
   Transform
 } from '../ol-module';
 import { StorageServiceService } from '../services/storage-service/storage-service.service'
-import { ShareServiceService } from 'src/app/services/share-service/share-service.service'
+import { ShareServiceService } from '../services/share-service/share-service.service'
 import { TranslateService } from '@ngx-translate/core';
 import { SidenaveLeftSecondaireComponent } from './sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component';
 import * as $ from 'jquery'
 import { layersInMap, cartoHelper, dataFromClickOnMapInterface } from '../../helper/carto.helper';
-import { manageCompHelper } from 'src/helper/manage-comp.helper'
+import { manageCompHelper } from '../../helper/manage-comp.helper'
 import { ContextMenuComponent } from '../map/context-menu/context-menu.component'
 
 var attribution = new Attribution({
