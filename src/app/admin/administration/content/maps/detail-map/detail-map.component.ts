@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, merge, Observable, ReplaySubject, Subject } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { catchError, filter, switchMap } from 'rxjs/operators';
 import { Group } from '../../../../../type/type';
 import {MapsService} from '../../../service/maps.service'
+import { AddGroupComponent } from './group/add-group/add-group.component';
 @Component({
   selector: 'app-detail-map',
   templateUrl: './detail-map.component.html',
@@ -13,7 +15,7 @@ import {MapsService} from '../../../service/maps.service'
 export class DetailMapComponent implements OnInit {
 
   onInitInstance: ()=>void
-  onAddInstance: (group:Group)=>void
+  onAddInstance: ()=>void
   onUpdateInstance: (group:Group)=>void
   onDeleteInstance: (group:Group)=>void
 
@@ -28,6 +30,7 @@ export class DetailMapComponent implements OnInit {
     public MapsService:MapsService,
     public route: ActivatedRoute,
     notifierService: NotifierService,
+    public dialog: MatDialog,
   ) { 
 
     this.notifier = notifierService;
@@ -54,6 +57,14 @@ export class DetailMapComponent implements OnInit {
         switchMap(()=>{
           return this.MapsService.getAllGroupOfMap(Number(this.route.snapshot.paramMap.get('id'))).pipe(
             catchError(() => { this.notifier.notify("error", "An error occured while loading groups"); return EMPTY })
+          )
+        })
+      ),
+      onAdd.pipe(
+        filter(()=>this.route.snapshot.paramMap.get('id') != undefined),
+        switchMap(()=>{
+          return this.dialog.open(AddGroupComponent,{ disableClose: false, minWidth: 400, data: Number(this.route.snapshot.paramMap.get('id')) }).afterClosed().pipe(
+
           )
         })
       )

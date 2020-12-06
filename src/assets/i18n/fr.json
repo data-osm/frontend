@@ -311,6 +311,11 @@
     },
     "detail_map": {
       "group": "Les groupes"
+    },
+    "add_group": {
+      "title": "Ajouter un groupe",
+      "group_name": "Nom du groupe",
+      "color": "Couleur du groupe"
     }
   },
   "add_icon": {

@@ -1,6 +1,9 @@
 <mat-drawer-container class="detail-map" autosize>
     <mat-drawer #drawer class="detail-map-sidenav-start" position="start" opened mode="side">
-        <h2> {{ 'admin.detail_map.group' | translate }} </h2>
+        <h2> 
+            {{ 'admin.detail_map.group' | translate }} 
+            <svg height="17" width="17" (click)="onAddInstance()" mat-list-icon viewBox="0 0 50 50" aria-hidden="true" focusable="false"><path d="M50 26.72v-3.535l-23.283.05V.003h-3.535l.05 23.232L0 23.185v3.535h23.232l-.05 23.283h3.535V26.72"></path></svg>
+        </h2>
         <mat-list class="tab" >
             <mat-list-item *ngFor="let group of groups |async" >
                 <div mat-line> {{group.name}}  </div>

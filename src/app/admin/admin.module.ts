@@ -37,9 +37,12 @@ import { PreviewDataComponent } from './administration/modal/preview-data/previe
 import { DetailMapComponent } from './administration/content/maps/detail-map/detail-map.component';
 import { AddMapComponent } from './administration/content/maps/add-map/add-map.component';
 import { EditMapComponent } from './administration/content/maps/edit-map/edit-map.component';
+import { AddGroupComponent } from './administration/content/maps/detail-map/group/add-group/add-group.component';
+import { ColorPickerModule } from 'ngx-color-picker';
+import { SafeStylePipe } from '../pipe/safe-style.pipe';
 
 @NgModule({
-  declarations: [AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent, AddStyleComponent, EditStyleComponent, PreviewDataComponent, DetailMapComponent, AddMapComponent, EditMapComponent],
+  declarations: [SafeStylePipe, AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent, AddStyleComponent, EditStyleComponent, PreviewDataComponent, DetailMapComponent, AddMapComponent, EditMapComponent, AddGroupComponent],
   imports: [
     CommonModule,
     AdminRoutingModule,
@@ -48,6 +51,7 @@ import { EditMapComponent } from './administration/content/maps/edit-map/edit-ma
     HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
+    ColorPickerModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
