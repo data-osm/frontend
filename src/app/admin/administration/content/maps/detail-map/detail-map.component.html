@@ -1,1 +1,15 @@
-<p>detail-map works!</p>
+<mat-drawer-container class="detail-map" autosize>
+    <mat-drawer #drawer class="detail-map-sidenav-start" position="start" opened mode="side">
+        <h2> {{ 'admin.detail_map.group' | translate }} </h2>
+        <mat-list class="tab" >
+            <mat-list-item *ngFor="let group of groups |async" >
+                <div mat-line> {{group.name}}  </div>
+            </mat-list-item>
+        </mat-list>
+    </mat-drawer>
+  
+    <div class="detail-map-sidenav-content">
+      
+    </div>
+  
+</mat-drawer-container>

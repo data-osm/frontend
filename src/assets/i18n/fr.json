@@ -308,6 +308,9 @@
     "map": {
       "delete_confirmation_title": "Supprimer une carte",
       "delete_confirmation_explanation": "Confirmer la suppresion de la carte "
+    },
+    "detail_map": {
+      "group": "Les groupes"
     }
   },
   "add_icon": {

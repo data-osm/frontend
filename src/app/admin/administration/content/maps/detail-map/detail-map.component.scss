@@ -1,0 +1,21 @@
+.detail-map {
+  width: 100%;
+  height: 100%;
+
+  .detail-map-sidenav-start {
+    width: 206px;
+    border: none;
+    h2{
+        padding-left: 10px;
+    }
+  }
+
+  .detail-map-sidenav-content {
+    background-color: #e7ebed;
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+
+}
