@@ -1,0 +1,25 @@
+<h1 mat-dialog-title>
+    <span class="bold primaryColor " style="font-size: 17px;">{{ 'admin.edi_map.title' | translate }}
+    </span>
+    <i (click)="close()" class="fa fa-times primaryColor pointer close"></i>
+</h1>
+
+<mat-dialog-content>
+    <form [formGroup]="form" >
+        <mat-form-field appearance="outline" *ngIf="form.get('name')" style="width: 100%;">
+            <mat-label> {{ 'admin.add_map.map_name' | translate }} </mat-label>
+            <input matInput formControlName="name">
+            <mat-error> {{ 'add_vector_provider.name_error' | translate }} </mat-error>
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <div fxLayout fxLayoutGap="15px" fxLayoutAlign="end">
+        <mat-progress-bar fxFlex="100%" mode="indeterminate" *ngIf="form.disabled"></mat-progress-bar>
+        <button fxFlex="150px" mat-stroked-button color="primary" [disabled]="form.disabled"
+            (click)="close()">{{ 'cancel' | translate }}</button>
+        <button fxFlex="150px" mat-flat-button color="accent" class="white" (click)="onUpdateInstance()"
+            [disabled]="!form.valid || form.disabled"> {{ 'save' | translate }} </button>
+    </div>
+</mat-dialog-actions>

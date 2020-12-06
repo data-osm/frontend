@@ -297,6 +297,17 @@
     },
     "preview-data": {
       "title": "Visualiser"
+    },
+    "add_map": {
+      "title": "Ajouter une carte",
+      "map_name": "Nom de la carte"
+    },
+    "edi_map": {
+      "title": "Modifier une carte"
+    },
+    "map": {
+      "delete_confirmation_title": "Supprimer une carte",
+      "delete_confirmation_explanation": "Confirmer la suppresion de la carte "
     }
   },
   "add_icon": {
