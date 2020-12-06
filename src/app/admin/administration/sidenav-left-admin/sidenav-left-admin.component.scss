@@ -1,12 +1,56 @@
 @import '../../../theme.scss';
 
 .sidenav-left-admin{
-    mat-list-item{
-        background: hsla(0,0%,100%,.05);
-        cursor: pointer;
-        transition: background .25s,color .25s;
+    mat-expansion-panel{
+        background: transparent;
+        box-shadow: none;
+
+        mat-expansion-panel-header:hover{
+            background: hsla(0,0%,100%,.05) !important;
+        }
+        mat-expansion-panel-header{
+            background: hsla(0,0%,100%,.05);
+            padding-left: 0px !important;
+            padding-right: 0px !important;
+            
+            mat-panel-description{
+                justify-content: space-between;
+                align-items: center;
+
+                i{
+                    color: white;
+                    font-size: 19px;
+                }
+            }
+        }
+
+        ::ng-deep  .mat-expansion-panel-body{
+            padding-right: 0px;
+            padding-bottom: 0px;
+        }
+        
+        mat-panel-title{
+            color: white;
+        }
+        .list-map{
+            padding-top:0px;
+            .mat-list-item{
+                // padding-left: 24px;
+                color: white;
+            }
+        }
     }
-    mat-list-item:hover{
-        background-color: $accent_color;
+
+    .tab,.list-map{
+        padding-top:0px;
+        mat-list-item{
+            background: hsla(0,0%,100%,.05);
+            cursor: pointer;
+            transition: background .25s,color .25s;
+        }
+        mat-list-item:hover{
+            background-color: $accent_color;
+        }
     }
+    
 }

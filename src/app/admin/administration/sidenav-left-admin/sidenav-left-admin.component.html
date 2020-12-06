@@ -1,16 +1,38 @@
-<div class="sidenav-left-admin" >
+<div class="sidenav-left-admin">
     <div class="text-center accentColorBG " style="height: 50px;">
         <!-- <img src="assets/icones/data-osm.png" style="height: 48px;width: 225px;"> -->
     </div>
-    <mat-list >
+    <mat-expansion-panel hideToggle expanded >
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+            <mat-list>
+                <mat-list-item class="white" >
+                    <i class="fa fa-globe" mat-list-icon> </i>
+                    <div mat-line> {{ 'admin.lef_sidenav.maps' | translate }}  </div>
+                </mat-list-item>
+            </mat-list>
+               
+            </mat-panel-title>
+            <mat-panel-description>
+                <i class="fa fa-plus"> </i>
+            </mat-panel-description>
+        </mat-expansion-panel-header>
+        <mat-list class="list-map">
+            <mat-list-item *ngFor="let map of maps|async" routerLink="map/{{map.map_id}}" >
+                {{map.name}}
+            </mat-list-item>
+        </mat-list>
+    </mat-expansion-panel>
+
+    <mat-list class="tab" >
         <mat-list-item class="white" routerLink="icon">
             <i class="fa fa-globe" mat-list-icon> </i>
-            <div mat-line > {{ 'admin.lef_sidenav.icons' | translate }}   </div>
+            <div mat-line> {{ 'admin.lef_sidenav.icons' | translate }} </div>
         </mat-list-item>
         <mat-list-item class="white" routerLink="vector-provider">
             <i class="fa fa-th-large" mat-list-icon></i>
-            <div mat-line > {{ 'admin.lef_sidenav.vector_provider' | translate }}   </div>
+            <div mat-line> {{ 'admin.lef_sidenav.vector_provider' | translate }} </div>
         </mat-list-item>
     </mat-list>
-    
+
 </div>

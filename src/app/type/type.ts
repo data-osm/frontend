@@ -565,3 +565,44 @@ export interface DataForPreview{
   extent:[number,number,number,number]
   style:Array<string>
 }
+
+/**
+ * interface of a map or profil
+ */
+export interface Map{
+  map_id:number
+  name:string
+}
+
+
+export interface Group{
+  group_id: number
+  name:string
+  color:string
+  icon:number
+  type_group:string
+  map_id:number[]
+}
+
+export interface SubGroup{
+  group_sub_id:number
+  name:string
+  group_id:number
+}
+
+export interface Layer{
+  layer_id:number
+  name:string
+  protocol_carto: 'wms'|'wfs'|'wmts'
+  color:string
+  icon:string
+  cercle_icon :string
+  square_icon :string
+  description :string
+  opacity :boolean
+  metadata :boolean
+  share :boolean
+  vector_prov :number
+  external_prov :number
+  sub :number
+}

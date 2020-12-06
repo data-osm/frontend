@@ -282,7 +282,8 @@
     },
     "lef_sidenav": {
       "icons": "Icones",
-      "vector_provider": "Provider vecteur"
+      "vector_provider": "Provider vecteur",
+      "maps": "Les cartes"
     },
     "osm_querry": {
       "where": "Clause where de la requete",
