@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, merge, Observable, ReplaySubject, Subject } from 'rxjs';
-import { catchError, filter, switchMap } from 'rxjs/operators';
+import { catchError, filter, switchMap, tap } from 'rxjs/operators';
 import { Group } from '../../../../../type/type';
 import {MapsService} from '../../../service/maps.service'
 import { AddGroupComponent } from './group/add-group/add-group.component';
@@ -14,7 +14,6 @@ import { AddGroupComponent } from './group/add-group/add-group.component';
 })
 export class DetailMapComponent implements OnInit {
 
-  onInitInstance: ()=>void
   onAddInstance: ()=>void
   onUpdateInstance: (group:Group)=>void
   onDeleteInstance: (group:Group)=>void
@@ -35,13 +34,6 @@ export class DetailMapComponent implements OnInit {
 
     this.notifier = notifierService;
 
-    
-    const onInit:ReplaySubject<void> = new ReplaySubject<void>()
-    this.onInitInstance = ()=>{
-      onInit.next()
-      onInit.complete()
-    }
-
     const onAdd: Subject<void> = new Subject<void>()
     this.onAddInstance = () => {
       onAdd.next();
@@ -53,8 +45,9 @@ export class DetailMapComponent implements OnInit {
     }
 
     this.groups = merge(
-      onInit.pipe(
-        switchMap(()=>{
+      this.route.params.pipe(
+        filter(()=>this.route.snapshot.paramMap.get('id') != undefined),
+        switchMap((value:Object)=>{
           return this.MapsService.getAllGroupOfMap(Number(this.route.snapshot.paramMap.get('id'))).pipe(
             catchError(() => { this.notifier.notify("error", "An error occured while loading groups"); return EMPTY })
           )
@@ -64,7 +57,7 @@ export class DetailMapComponent implements OnInit {
         filter(()=>this.route.snapshot.paramMap.get('id') != undefined),
         switchMap(()=>{
           return this.dialog.open(AddGroupComponent,{ disableClose: false, minWidth: 400, data: Number(this.route.snapshot.paramMap.get('id')) }).afterClosed().pipe(
-
+            filter((response)=>response),
           )
         })
       )
@@ -73,7 +66,7 @@ export class DetailMapComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.onInitInstance()
+
   }
 
 }
