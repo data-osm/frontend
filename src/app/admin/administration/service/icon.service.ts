@@ -62,12 +62,12 @@ export class IconService {
   /**
    * get list of all icons
    */
-  getAllIconsFromCategory(category:string):Array<Icon>{
-    let allIcons:Array<Icon>= []
+  getAllIconsFromCategory(category: string): Array<Icon> {
+    let allIcons: Array<Icon> = []
 
-    if (this.iconList.getValue() != undefined){
+    if (this.iconList.getValue() != undefined) {
       for (const key in this.iconList.getValue()) {
-        if (this.iconList.getValue().hasOwnProperty.call(this.iconList.getValue(), key) && key==category) {
+        if (this.iconList.getValue().hasOwnProperty.call(this.iconList.getValue(), key) && key == category) {
           allIcons = this.iconList.getValue()[key]
         }
       }
@@ -77,11 +77,11 @@ export class IconService {
 
   }
 
-    /**
-   * get list of all icons
-   */
-  getCategoryIcons():Array<string>{
-    let allIcons:Array<string>= []
+  /**
+ * get list of all icons
+ */
+  getCategoryIcons(): Array<string> {
+    let allIcons: Array<string> = []
 
     if (this.iconList.getValue() != undefined) {
       for (const key in this.iconList.getValue()) {
@@ -131,7 +131,7 @@ export class IconService {
    */
   uploadIcon(icon: any) {
     return from(this.http.post(this.url_prefix + '/api/group/icons/add', icon, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
-      map((value: HttpResponse<any>):Icon => { return value.body })
+      map((value: HttpResponse<any>): Icon => { return value.body })
     ))
     // return from(this.post_requete('api/group/icons/add',icon))
   }
@@ -140,9 +140,9 @@ export class IconService {
    * Search an icon
    * @param search_word string
    */
-  searchIcon(search_word:string):Observable<Icon[]>{
-    return from(this.http.post(this.url_prefix + '/api/group/icons/search', {'search_word':search_word}, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
-      map((value: HttpResponse<any>):Icon[] => { return value.body })
+  searchIcon(search_word: string): Observable<Icon[]> {
+    return from(this.http.post(this.url_prefix + '/api/group/icons/search', { 'search_word': search_word }, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
+      map((value: HttpResponse<any>): Icon[] => { return value.body })
     ))
   }
 
@@ -191,6 +191,18 @@ export class IconService {
           }
         );
     });
+  }
+
+  /**
+   * load svg content
+   * @param svgPath string
+   */
+  loadSvgContent(svgPath: string): Observable<string> {
+    return this.http.get(
+      this.url_prefix + svgPath, {
+      responseType: 'text'
+    }
+    )
   }
 
 }

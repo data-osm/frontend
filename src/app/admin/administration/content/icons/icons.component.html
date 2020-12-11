@@ -34,8 +34,8 @@
         <div class="one-group-icon" *ngFor="let group of IconService.getCategoryIcons()" > 
             <h2 class="one-group-icon-title" > {{group}} </h2>
             <div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="center">
-                <div fxFlex="108px" class="one-icon" *ngFor="let icon of IconService.getAllIconsFromCategory(group)" [matTooltip]="icon.name" >
-                    <i class="fa fa-trash red"></i>
+                <div fxFlex="108px" class="one-icon" (click)="onIconSelect.next(icon)" *ngFor="let icon of IconService.getAllIconsFromCategory(group)" [matTooltip]="icon.name" >
+                    <!-- <i class="fa fa-trash red"></i> -->
                     <img src="{{url_prefix+icon.path}}" alt="" srcset="">
                 </div>
             </div>

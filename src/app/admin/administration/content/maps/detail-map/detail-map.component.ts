@@ -56,7 +56,7 @@ export class DetailMapComponent implements OnInit {
       onAdd.pipe(
         filter(()=>this.route.snapshot.paramMap.get('id') != undefined),
         switchMap(()=>{
-          return this.dialog.open(AddGroupComponent,{ disableClose: false, minWidth: 400, data: Number(this.route.snapshot.paramMap.get('id')) }).afterClosed().pipe(
+          return this.dialog.open(AddGroupComponent,{ disableClose: false, width:'90%', maxWidth: '90%', maxHeight:'90%', data: Number(this.route.snapshot.paramMap.get('id')) }).afterClosed().pipe(
             filter((response)=>response),
           )
         })
