@@ -16,6 +16,8 @@
             <mat-label> {{ 'admin.add_group.color' | translate }} </mat-label>
             <input 
             class="input-style"
+            [cpPositionOffset]="'50%'"
+            [cpPosition]="'bottom-left'"
             [cpAlphaChannel]="'always'"
             [cpOutputFormat]="'rgba'"
             [cpPresetColors]="presetValues"
@@ -32,19 +34,7 @@
 
     </form>
 
-    <div fxLayout class="generate-icon" >
-        <div fxFlex="70%" style="overflow-y: scroll;">
-            <app-icons> </app-icons>
-        </div>
-        <div fxFlex="30%" style="text-align: center;" >
-            <div #iconOrigin >
-                
-            </div>
-            <div #circleSvg >
-                
-            </div>
-        </div>
-    </div>
+    <app-generate-icon class="generate-icon" [backgroundColor]="form.get('color').valueChanges" [circleSvgAsText]="form.get('svgAsText')" ></app-generate-icon>
     
 </mat-dialog-content>
 
