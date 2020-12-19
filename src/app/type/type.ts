@@ -486,7 +486,8 @@ export interface Icon {
   category: string
   icon?: File
   tags: string[]
-  attribution: string
+  attribution: string,
+  svgContent?:string
 }
 /**
  * interface of a vector provider
@@ -579,7 +580,8 @@ export interface Group{
   group_id: number
   name:string
   color:string
-  icon:number
+  icon_path:string
+  icon:Icon
   type_group:string
   map_id:number[]
 }

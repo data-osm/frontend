@@ -3,10 +3,26 @@
   height: 100%;
 
   .detail-map-sidenav-start {
-    width: 206px;
+    width: 80px;
+    text-align: center;
     border: none;
-    h2{
-        padding-left: 10px;
+    .add-group{
+      height: 50px;
+      width: 50px;
+      margin-top: 10px;
+    }
+    .group{
+      div{
+        text-align: center;
+      }
+      img{
+        width: 35px;
+      }
+      .group-name{
+        color: #5e6367;
+      }
+      cursor: pointer;
+      padding: 20px 5px;
     }
   }
 

@@ -198,6 +198,7 @@ export class IconService {
    * @param svgPath string
    */
   loadSvgContent(svgPath: string): Observable<string> {
+    svgPath = svgPath.replace(this.url_prefix,'')
     return this.http.get(
       this.url_prefix + svgPath, {
       responseType: 'text'

@@ -1,14 +1,18 @@
 <mat-drawer-container class="detail-map" autosize>
     <mat-drawer #drawer class="detail-map-sidenav-start" position="start" opened mode="side">
-        <h2> 
-            {{ 'admin.detail_map.group' | translate }} 
-            <svg height="17" width="17" (click)="onAddInstance()" mat-list-icon viewBox="0 0 50 50" aria-hidden="true" focusable="false"><path d="M50 26.72v-3.535l-23.283.05V.003h-3.535l.05 23.232L0 23.185v3.535h23.232l-.05 23.283h3.535V26.72"></path></svg>
-        </h2>
-        <mat-list class="tab" >
-            <mat-list-item *ngFor="let group of groups |async" >
-                <div mat-line> {{group.name}}  </div>
-            </mat-list-item>
-        </mat-list>
+            <!-- {{ 'admin.detail_map.group' | translate }}  -->
+        <button mat-mini-fab (click)="onAddInstance()" color="accent" class="add-group" >
+            <svg width="17" viewBox="0 0 50 50" aria-hidden="true" focusable="false"><path fill="#fff" d="M50 26.72v-3.535l-23.283.05V.003h-3.535l.05 23.232L0 23.185v3.535h23.232l-.05 23.283h3.535V26.72"></path></svg>
+        </button>
+
+        <div class="group" *ngFor="let group of groups |async" (click)="onGroupSelect.next(group)" >
+            <svg-icon *ngIf="(onGroupSelect |async)?.group_id!=group.group_id"  [icon]="group.icon" [color]="'#5e6367'" [size]="25" > </svg-icon>
+
+            <div *ngIf="(onGroupSelect |async)?.group_id==group.group_id" >
+                <img [src]="group.icon_path" >
+            </div>
+            <div class="group-name" [ngStyle]="(onGroupSelect |async)?.group_id==group.group_id && {'color': group.color, 'font-weight':'bold'}"  > {{group.name}} </div>
+        </div>
     </mat-drawer>
   
     <div class="detail-map-sidenav-content">
