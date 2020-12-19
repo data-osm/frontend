@@ -41,9 +41,10 @@ import { AddGroupComponent } from './administration/content/maps/detail-map/grou
 import { ColorPickerModule } from 'ngx-color-picker';
 import { SafeStylePipe } from '../pipe/safe-style.pipe';
 import { GenerateIconComponent } from './administration/generate-icon/generate-icon.component';
+import { EditGroupComponent } from './administration/content/maps/detail-map/group/edit-group/edit-group.component';
 
 @NgModule({
-  declarations: [SvgIcon, SafeStylePipe, AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent, AddStyleComponent, EditStyleComponent, PreviewDataComponent, DetailMapComponent, AddMapComponent, EditMapComponent, AddGroupComponent, GenerateIconComponent],
+  declarations: [SvgIcon, SafeStylePipe, AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent, AddStyleComponent, EditStyleComponent, PreviewDataComponent, DetailMapComponent, AddMapComponent, EditMapComponent, AddGroupComponent, GenerateIconComponent, EditGroupComponent],
   imports: [
     CommonModule,
     AdminRoutingModule,

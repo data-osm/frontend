@@ -91,7 +91,7 @@ export class MapsService {
    * @param group Group
    */
   updateGroup(group:Group):Observable<Group>{
-    return this.http.post<Group>(this.url_prefix + '/api/group/group/'+group.group_id,group, { headers: this.get_header() })
+    return this.http.put<Group>(this.url_prefix + '/api/group/group/'+group.group_id,group, { headers: this.get_header() })
   }
 
   /**
@@ -115,7 +115,7 @@ export class MapsService {
    * @param subGroup SubGroup
    */
   updateSubGroup(subGroup:SubGroup):Observable<SubGroup>{
-    return this.http.post<SubGroup>(this.url_prefix + '/api/group/sub/'+subGroup.group_sub_id,subGroup, { headers: this.get_header() })
+    return this.http.put<SubGroup>(this.url_prefix + '/api/group/sub/'+subGroup.group_sub_id,subGroup, { headers: this.get_header() })
   }
 
   /**

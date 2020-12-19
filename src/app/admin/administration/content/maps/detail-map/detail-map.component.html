@@ -8,7 +8,7 @@
         <div class="group" *ngFor="let group of groups |async" (click)="onGroupSelect.next(group)" >
             <svg class="group-more" [matMenuTriggerFor]="menu" viewBox="0 0 8.701 50" ><path d="M0 0v8.7h8.7V0zm0 20.651v8.7h8.7v-8.7zm0 20.648v8.7h8.7v-8.7z"></path></svg>
             <mat-menu #menu="matMenu">
-                <button mat-menu-item>{{ 'edit' | translate }} </button>
+                <button mat-menu-item (click)="onUpdateInstance(group)" >{{ 'edit' | translate }} </button>
                 <button mat-menu-item (click)="onDeleteInstance(group)" class="red" > {{ 'supprimer' | translate }}</button>
               </mat-menu>
 

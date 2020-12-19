@@ -1,5 +1,5 @@
 <h1 mat-dialog-title>
-    <span class="bold primaryColor " style="font-size: 17px;">{{ 'admin.add_group.title' | translate }}
+    <span class="bold primaryColor " style="font-size: 17px;">{{ 'admin.edit_group.title' | translate }}
     </span>
     <i (click)="close()" class="fa fa-times primaryColor pointer close"></i>
 </h1>
@@ -34,7 +34,7 @@
 
     </form>
 
-    <app-generate-icon class="generate-icon" [backgroundColor]="form.get('color')" [circleSvgAsText]="form.get('svg_as_text')" [icon_id]="form.get('icon_id')" ></app-generate-icon>
+    <app-generate-icon class="generate-icon" [backgroundColor]="form.get('color')" [circleSvgAsText]="form.get('svg_as_text')" [icon]="group.icon" [icon_id]="form.get('icon_id')" ></app-generate-icon>
     
 </mat-dialog-content>
 
@@ -43,7 +43,7 @@
         <mat-progress-bar fxFlex="100%" mode="indeterminate" *ngIf="form.disabled"></mat-progress-bar>
         <button fxFlex="150px" mat-stroked-button color="primary" [disabled]="form.disabled"
             (click)="close()">{{ 'cancel' | translate }}</button>
-        <button fxFlex="150px" mat-flat-button color="accent" class="white" (click)="onAddInstance()"
+        <button fxFlex="150px" mat-flat-button color="accent" class="white" (click)="onUpdateInstance()"
             [disabled]="!form.valid || form.disabled"> {{ 'save' | translate }} </button>
     </div>
 </mat-dialog-actions>

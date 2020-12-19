@@ -318,6 +318,9 @@
       "title": "Ajouter un groupe",
       "group_name": "Nom du groupe",
       "color": "Couleur du groupe"
+    },
+    "edit_group": {
+      "title": "Modifier le groupe "
     }
   },
   "add_icon": {

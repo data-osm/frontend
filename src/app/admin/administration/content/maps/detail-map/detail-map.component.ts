@@ -13,6 +13,8 @@ import { MapsService } from '../../../service/maps.service'
 import { AddGroupComponent } from './group/add-group/add-group.component';
 import {manageCompHelper} from '../../../../../../helper/manage-comp.helper'
 import { TranslateService } from '@ngx-translate/core';
+import { EditMapComponent } from '../edit-map/edit-map.component';
+import { EditGroupComponent } from './group/edit-group/edit-group.component';
 
 @Directive({ selector: 'svg-icon' })
 export class SvgIcon {
@@ -121,6 +123,18 @@ export class DetailMapComponent implements OnInit {
         filter(() => this.route.snapshot.paramMap.get('id') != undefined),
         switchMap(() => {
           return this.dialog.open(AddGroupComponent, { disableClose: false, width: '90%', maxWidth: '90%', maxHeight: '90%', data: Number(this.route.snapshot.paramMap.get('id')) }).afterClosed().pipe(
+            filter((response) => response),
+            switchMap((value: Object) => {
+              return this.MapsService.getAllGroupOfMap(Number(this.route.snapshot.paramMap.get('id'))).pipe(
+                catchError(() => { this.notifier.notify("error", "An error occured while loading groups"); return EMPTY })
+              )
+            })
+          )
+        })
+      ),
+      onUpdate.pipe(
+        switchMap((group:Group) => {
+          return this.dialog.open(EditGroupComponent, { disableClose: false, width: '90%', maxWidth: '90%', maxHeight: '90%', data: group }).afterClosed().pipe(
             filter((response) => response),
             switchMap((value: Object) => {
               return this.MapsService.getAllGroupOfMap(Number(this.route.snapshot.paramMap.get('id'))).pipe(

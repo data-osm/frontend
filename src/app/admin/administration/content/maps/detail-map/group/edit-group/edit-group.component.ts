@@ -1,29 +1,23 @@
-import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators,ValidationErrors, ValidatorFn } from '@angular/forms';
+import { Component, Inject, OnInit } from '@angular/core';
+import { FormGroup, FormBuilder, ValidationErrors, ValidatorFn, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NotifierService } from 'angular-notifier';
+import { EMPTY, ReplaySubject, Subject } from 'rxjs';
 import { EditMapComponent } from '../../../edit-map/edit-map.component';
 import {MapsService} from '../../../../../service/maps.service'
 import {IconService} from '../../../../../service/icon.service'
-import { combineLatest, EMPTY, Observable, ReplaySubject, Subject } from 'rxjs';
-import { IconsComponent } from '../../../../icons/icons.component';
-import { catchError, filter, map, startWith, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
-import { Icon } from '../../../../../../../type/type';
-import { Svg, SVG } from '@svgdotjs/svg.js'
-import { environment } from '../../../../../../../../environments/environment';
+import { Group } from '../../../../../../../type/type';
+import { takeUntil, switchMap, catchError, tap } from 'rxjs/operators';
 
-export interface IconWithSVGContent extends Icon{
-  svgContent:string
-}
 @Component({
-  selector: 'app-add-group',
-  templateUrl: './add-group.component.html',
-  styleUrls: ['./add-group.component.scss']
+  selector: 'app-edit-group',
+  templateUrl: './edit-group.component.html',
+  styleUrls: ['./edit-group.component.scss']
 })
-export class AddGroupComponent implements OnInit, OnDestroy {
+export class EditGroupComponent implements OnInit {
 
-  onAddInstance:()=>void
-
+  onUpdateInstance: ()=>void
+  
   public colorList = [
     { key: 'red', value: '#FF3A33' },
     { key: 'terracotta', value: '#E68673' },
@@ -60,31 +54,32 @@ export class AddGroupComponent implements OnInit, OnDestroy {
     notifierService: NotifierService,
     public MapsService:MapsService,
     public IconService:IconService,
-    @Inject(MAT_DIALOG_DATA) public map_id: number,
+    @Inject(MAT_DIALOG_DATA) public group: Group,
   ) { 
     this.notifier = notifierService;
     this.presetValues = this.getColorValues();
-
-    this.form.addControl('name',new FormControl(null, [Validators.required]))
-    this.form.addControl('color',new FormControl("#02aca7", [Validators.required]))
-    this.form.addControl('icon_id',new FormControl(null))
+    
+    this.form.addControl('name',new FormControl(this.group.name, [Validators.required]))
+    this.form.addControl('color',new FormControl(this.group.color, [Validators.required]))
+    this.form.addControl('icon_id',new FormControl(this.group.icon.icon_id))
     this.form.addControl('svg_as_text',new FormControl(null))
     this.form.addControl('icon_path',new FormControl(null))
     
-    this.form.addControl('type_group',new FormControl('thematiques', [Validators.required]))
-    this.form.addControl('map_id',new FormControl(this.map_id, [Validators.required]))
+    this.form.addControl('type_group',new FormControl(this.group.type_group, [Validators.required]))
+    // this.form.addControl('map_id',new FormControl(this.group.map_id, [Validators.required]))
+    this.form.addControl('group_id',new FormControl(this.group.group_id, [Validators.required]))
 
     this.form.setValidators(atLeastOne(Validators.required, ['icon_path','svg_as_text']))
 
-    const onAdd:Subject<void> = new Subject<void>()
-    this.onAddInstance = ()=>{
-      onAdd.next()
+    const onUpdate:Subject<void> = new Subject<void>()
+    this.onUpdateInstance = ()=>{
+      onUpdate.next()
     }
-    onAdd.pipe(
+    onUpdate.pipe(
       takeUntil(this.destroyed$),
       switchMap(()=>{
-        return this.MapsService.addGroup(this.form.value).pipe(
-          catchError(() => { this.notifier.notify("error", "An error occured while adding group"); return EMPTY }),
+        return this.MapsService.updateGroup(this.form.value).pipe(
+          catchError(() => { this.notifier.notify("error", "An error occured while updating group"); return EMPTY }),
           tap(_=>{this.dialogRef.close(true);})
         )
       })

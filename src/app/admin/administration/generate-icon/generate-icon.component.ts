@@ -4,6 +4,7 @@ import { SVG } from '@svgdotjs/svg.js';
 import { NotifierService } from 'angular-notifier';
 import { combineLatest, EMPTY, Observable, ReplaySubject } from 'rxjs';
 import { filter, switchMap, map, catchError, startWith, tap, takeUntil } from 'rxjs/operators';
+import { Icon } from '../../../type/type';
 import { IconsComponent } from '../content/icons/icons.component';
 import { IconWithSVGContent } from '../content/maps/detail-map/group/add-group/add-group.component';
 import {IconService} from '../service/icon.service'
@@ -15,13 +16,18 @@ import {IconService} from '../service/icon.service'
 })
 export class GenerateIconComponent implements OnInit {
   /**
+   * @optional
+   * use this icon to start an icon
+   */
+  @Input() icon:Icon
+  /**
    * The icon id use to generate the icon 
    */
-  @Input() icon:FormControl
+  @Input() icon_id:FormControl
   /**
    * The background color of the icon
    */
-  @Input() backgroundColor:Observable<string>
+  @Input() backgroundColor:FormControl
   /**
    * the circle svg icon as text
    */
@@ -60,7 +66,7 @@ export class GenerateIconComponent implements OnInit {
       })
     )
 
-    combineLatest(this.iconSelected, this.backgroundColor.pipe(startWith('#02aca7'))).pipe(
+    combineLatest(this.iconSelected.pipe(startWith(this.icon)), this.backgroundColor.valueChanges.pipe(startWith(this.backgroundColor.value))).pipe(
       filter( (value:[IconWithSVGContent,string]) => value[0] && value[0].svgContent != undefined),
       tap((value:[IconWithSVGContent,string])=>{
         let icon = value[0]
@@ -82,7 +88,7 @@ export class GenerateIconComponent implements OnInit {
             .addTo(circle)
             
           this.circleSvgAsText.setValue(this.circleSvg.nativeElement.innerHTML)  
-          this.icon.setValue(value[0].icon_id)
+          this.icon_id.setValue(value[0].icon_id)
 
         } catch (error) {
           this.notifier.notify("error", "Sorry, can not to load this icon ! due to "+error.toString());
