@@ -58,6 +58,11 @@ export class DetailMapComponent implements OnInit {
         switchMap(()=>{
           return this.dialog.open(AddGroupComponent,{ disableClose: false, width:'90%', maxWidth: '90%', maxHeight:'90%', data: Number(this.route.snapshot.paramMap.get('id')) }).afterClosed().pipe(
             filter((response)=>response),
+            switchMap((value:Object)=>{
+              return this.MapsService.getAllGroupOfMap(Number(this.route.snapshot.paramMap.get('id'))).pipe(
+                catchError(() => { this.notifier.notify("error", "An error occured while loading groups"); return EMPTY })
+              )
+            })
           )
         })
       )

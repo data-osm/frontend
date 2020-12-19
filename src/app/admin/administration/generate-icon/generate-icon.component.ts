@@ -15,6 +15,10 @@ import {IconService} from '../service/icon.service'
 })
 export class GenerateIconComponent implements OnInit {
   /**
+   * The icon id use to generate the icon 
+   */
+  @Input() icon:FormControl
+  /**
    * The background color of the icon
    */
   @Input() backgroundColor:Observable<string>
@@ -78,6 +82,7 @@ export class GenerateIconComponent implements OnInit {
             .addTo(circle)
             
           this.circleSvgAsText.setValue(this.circleSvg.nativeElement.innerHTML)  
+          this.icon.setValue(value[0].icon_id)
 
         } catch (error) {
           this.notifier.notify("error", "Sorry, can not to load this icon ! due to "+error.toString());

@@ -5,7 +5,7 @@ import { NotifierService } from 'angular-notifier';
 import { EditMapComponent } from '../../../edit-map/edit-map.component';
 import {MapsService} from '../../../../../service/maps.service'
 import {IconService} from '../../../../../service/icon.service'
-import { combineLatest, EMPTY, Observable, ReplaySubject } from 'rxjs';
+import { combineLatest, EMPTY, Observable, ReplaySubject, Subject } from 'rxjs';
 import { IconsComponent } from '../../../../icons/icons.component';
 import { catchError, filter, map, startWith, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { Icon } from '../../../../../../../type/type';
@@ -68,12 +68,27 @@ export class AddGroupComponent implements OnInit, OnDestroy {
     this.form.addControl('name',new FormControl(null, [Validators.required]))
     this.form.addControl('color',new FormControl("#02aca7", [Validators.required]))
     this.form.addControl('icon',new FormControl(null))
-    this.form.addControl('svgAsText',new FormControl(null))
+    this.form.addControl('svg_as_text',new FormControl(null))
+    this.form.addControl('icon_path',new FormControl(null))
     
     this.form.addControl('type_group',new FormControl('thematiques', [Validators.required]))
-    this.form.addControl('map',new FormControl(this.map_id, [Validators.required]))
-    
-    this.form.setValidators(atLeastOne(Validators.required, ['icon','svgAsText']))
+    this.form.addControl('map_id',new FormControl(this.map_id, [Validators.required]))
+
+    this.form.setValidators(atLeastOne(Validators.required, ['icon_path','svg_as_text']))
+
+    const onAdd:Subject<void> = new Subject<void>()
+    this.onAddInstance = ()=>{
+      onAdd.next()
+    }
+    onAdd.pipe(
+      takeUntil(this.destroyed$),
+      switchMap(()=>{
+        return this.MapsService.addGroup(this.form.value).pipe(
+          catchError(() => { this.notifier.notify("error", "An error occured while adding group"); return EMPTY }),
+          tap(_=>{this.dialogRef.close(true);})
+        )
+      })
+    ).subscribe()
   }
 
   customValidationFunction(formGroup): any {
