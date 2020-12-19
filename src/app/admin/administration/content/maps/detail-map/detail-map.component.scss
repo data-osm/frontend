@@ -21,8 +21,25 @@
       .group-name{
         color: #5e6367;
       }
+      .group-more{
+        position: absolute;
+        top: 15px;
+        right: 5px;
+        display: none;
+        height: 25px;
+        width: 10px;
+        path{
+          fill: #5e6367;
+        }
+      }
+      position: relative;
       cursor: pointer;
       padding: 20px 5px;
+    }
+    .group:hover{
+      .group-more{
+        display: block;
+      }
     }
   }
 

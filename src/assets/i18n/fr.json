@@ -310,7 +310,9 @@
       "delete_confirmation_explanation": "Confirmer la suppresion de la carte "
     },
     "detail_map": {
-      "group": "Les groupes"
+      "group": {
+        "delete": "Supprimer un groupe"
+      }
     },
     "add_group": {
       "title": "Ajouter un groupe",
@@ -347,5 +349,7 @@
   },
   "edit_style": {
     "title": "Modifier un style"
-  }
+  },
+  "edit": "modifier",
+  "supprimer": "supprimer"
 }

@@ -67,7 +67,7 @@ export class AddGroupComponent implements OnInit, OnDestroy {
 
     this.form.addControl('name',new FormControl(null, [Validators.required]))
     this.form.addControl('color',new FormControl("#02aca7", [Validators.required]))
-    this.form.addControl('icon',new FormControl(null))
+    this.form.addControl('icon_id',new FormControl(null))
     this.form.addControl('svg_as_text',new FormControl(null))
     this.form.addControl('icon_path',new FormControl(null))
     

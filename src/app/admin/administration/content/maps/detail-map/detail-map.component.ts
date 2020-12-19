@@ -11,6 +11,8 @@ import { Group, Icon } from '../../../../../type/type';
 import { IconService } from '../../../service/icon.service';
 import { MapsService } from '../../../service/maps.service'
 import { AddGroupComponent } from './group/add-group/add-group.component';
+import {manageCompHelper} from '../../../../../../helper/manage-comp.helper'
+import { TranslateService } from '@ngx-translate/core';
 
 @Directive({ selector: 'svg-icon' })
 export class SvgIcon {
@@ -85,6 +87,8 @@ export class DetailMapComponent implements OnInit {
     public route: ActivatedRoute,
     notifierService: NotifierService,
     public dialog: MatDialog,
+    public manageCompHelper:manageCompHelper,
+    public translate: TranslateService,
   ) {
 
     this.notifier = notifierService;
@@ -97,6 +101,11 @@ export class DetailMapComponent implements OnInit {
     const onUpdate: Subject<Group> = new Subject<Group>()
     this.onUpdateInstance = (group: Group) => {
       onUpdate.next(group);
+    }
+
+    const onDelete: Subject<Group> = new Subject<Group>()
+    this.onDeleteInstance = (group: Group) => {
+      onDelete.next(group);
     }
 
     this.groups = merge(
@@ -120,6 +129,29 @@ export class DetailMapComponent implements OnInit {
             })
           )
         })
+      ),
+      onDelete.pipe(
+        switchMap((group: Group) => {
+          return  this.manageCompHelper.openConfirmationDialog([],{
+            confirmationTitle: this.translate.instant('admin.detail_map.group.delete'),
+            confirmationExplanation: this.translate.instant('admin.vector_provider.delete_confirmation_explanation')+ group.name +' ?',
+            cancelText: this.translate.instant('cancel'),
+            confirmText: this.translate.instant('delete'),
+          }).pipe(
+            filter(resultConfirmation => resultConfirmation),
+            switchMap(()=>{
+              return this.MapsService.deleteGroup(group).pipe(
+                catchError(() => { this.notifier.notify("error", "An error occured while deleting groups"); return EMPTY }),
+                switchMap(()=>{
+                  return this.MapsService.getAllGroupOfMap(Number(this.route.snapshot.paramMap.get('id'))).pipe(
+                    catchError(() => { this.notifier.notify("error", "An error occured while loading groups"); return EMPTY })
+                  ) 
+                })
+              )
+            })
+          )
+        })
+
       )
     )
 
