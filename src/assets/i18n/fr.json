@@ -321,6 +321,10 @@
     },
     "edit_group": {
       "title": "Modifier le groupe "
+    },
+    "add_sub_group": {
+      "title": "Ajouter un sous groupe",
+      "group_name": "Nom du sous groupe"
     }
   },
   "add_icon": {

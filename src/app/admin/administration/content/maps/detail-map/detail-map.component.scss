@@ -47,8 +47,11 @@
     background-color: #e7ebed;
     display: flex;
     height: 100%;
-    align-items: center;
-    justify-content: center;
+
+    app-list-sub-group{
+      width: 100%;
+      padding: 10px;
+    }
   }
 
 }

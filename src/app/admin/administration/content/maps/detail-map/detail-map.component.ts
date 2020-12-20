@@ -1,11 +1,11 @@
 import { ElementRef, QueryList, SimpleChanges, ViewChildren } from '@angular/core';
 import { Component, OnInit, Directive, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router , Params} from '@angular/router';
 import { SVG } from '@svgdotjs/svg.js';
 import { NotifierService } from 'angular-notifier';
-import { combineLatest, EMPTY, merge, Observable, ReplaySubject, Subject } from 'rxjs';
-import { catchError, filter, map, switchMap, take, tap } from 'rxjs/operators';
+import { combineLatest, EMPTY, merge, Observable, of, ReplaySubject, Subject, iif, BehaviorSubject } from 'rxjs';
+import { catchError, filter, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { environment } from '../../../../../../environments/environment';
 import { Group, Icon } from '../../../../../type/type';
 import { IconService } from '../../../service/icon.service';
@@ -71,10 +71,14 @@ export class DetailMapComponent implements OnInit {
   onAddInstance: () => void
   onUpdateInstance: (group: Group) => void
   onDeleteInstance: (group: Group) => void
+  onSelectGroup:(group:Group) => void
+
+  getGroupSelected:() => Subject<Group>
+  
   environment = environment
-  onGroupSelect: Subject<Group> = new Subject<Group>()
 
   private readonly notifier: NotifierService;
+  private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   /**
    * group list of a map
@@ -91,6 +95,7 @@ export class DetailMapComponent implements OnInit {
     public dialog: MatDialog,
     public manageCompHelper:manageCompHelper,
     public translate: TranslateService,
+    public router:Router,
   ) {
 
     this.notifier = notifierService;
@@ -110,23 +115,39 @@ export class DetailMapComponent implements OnInit {
       onDelete.next(group);
     }
 
+    const onGroupSelect: Subject<Group> = new ReplaySubject<Group>(1)
+    onGroupSelect.pipe(takeUntil(this.destroyed$))
+    this.onSelectGroup = (group:Group)=>{
+      onGroupSelect.next(group)
+    }
+
+    this.getGroupSelected = ()=>{
+      return onGroupSelect
+    }
+    const isGroupLoading:BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
     this.groups = merge(
       this.route.params.pipe(
         filter(() => this.route.snapshot.paramMap.get('id') != undefined),
-        switchMap((value: Object) => {
+        switchMap(() => {
+          isGroupLoading.next(true)
           return this.MapsService.getAllGroupOfMap(Number(this.route.snapshot.paramMap.get('id'))).pipe(
-            catchError(() => { this.notifier.notify("error", "An error occured while loading groups"); return EMPTY })
+            catchError(() => { this.notifier.notify("error", "An error occured while loading groups"); return EMPTY }),
+            tap(()=>{isGroupLoading.next(false)})
           )
         })
       ),
       onAdd.pipe(
         filter(() => this.route.snapshot.paramMap.get('id') != undefined),
         switchMap(() => {
+          this.dialog.closeAll()
           return this.dialog.open(AddGroupComponent, { disableClose: false, width: '90%', maxWidth: '90%', maxHeight: '90%', data: Number(this.route.snapshot.paramMap.get('id')) }).afterClosed().pipe(
             filter((response) => response),
             switchMap((value: Object) => {
               return this.MapsService.getAllGroupOfMap(Number(this.route.snapshot.paramMap.get('id'))).pipe(
-                catchError(() => { this.notifier.notify("error", "An error occured while loading groups"); return EMPTY })
+                catchError(() => { this.notifier.notify("error", "An error occured while loading groups"); return EMPTY }),
+                tap((groups)=>{
+                  this.navigateToGroup([true,groups])
+                })
               )
             })
           )
@@ -169,10 +190,46 @@ export class DetailMapComponent implements OnInit {
       )
     )
 
+    combineLatest(this.router.events.pipe(startWith(of(undefined))),this.groups).pipe(
+      filter(e => e[0] instanceof NavigationEnd || e[0] == undefined),
+      filter(e => !isGroupLoading.getValue()),
+      mergeMap(e => 
+        iif(()=>
+          this.route.children.length>0 ,
+          this.route.firstChild?.params,
+          of<true>(true) 
+        ) 
+      ),
+      withLatestFrom(this.groups),
+      tap( (parameters) =>{
+        this.navigateToGroup(parameters)
+      }),
+      takeUntil(this.destroyed$)
+    ).subscribe()
+
+
   }
 
   ngOnInit(): void {
 
+  }
+
+  navigateToGroup(parameters:[Params|true, Group[]]):void{
+    if (typeof parameters[0] === 'boolean' && parameters[1].length>0) {
+      this.router.navigate([parameters[1][0].group_id], { relativeTo: this.route })
+    }else if(parameters[0]['id-group'] != undefined ){
+      parameters[1]
+      .map((group:Group)=>{
+        if (group.group_id == Number(parameters[0]['id-group'])) {
+          this.onSelectGroup(group)
+        }
+      })
+    }
+  }
+
+  ngOnDestroy():void{
+    this.destroyed$.next(true);
+    this.destroyed$.complete();
   }
 
 }

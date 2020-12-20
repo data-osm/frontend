@@ -1,0 +1,11 @@
+<mat-tab-group class="list-sub-group" color="accent" >
+    <mat-tab *ngFor="let sub of subGroupList|async" [label]="sub.name"> </mat-tab>
+    <mat-tab disabled  *ngIf="group_id|async" >
+        <ng-template mat-tab-label>
+            <button mat-flat-button class="add-sub" (click)="onAddInstance()" >
+                Ajouter 
+                <svg width="17" viewBox="0 0 50 50" aria-hidden="true" focusable="false"><path d="M50 26.72v-3.535l-23.283.05V.003h-3.535l.05 23.232L0 23.185v3.535h23.232l-.05 23.283h3.535V26.72"></path></svg>
+            </button>
+        </ng-template>
+    </mat-tab>
+</mat-tab-group>

@@ -10,6 +10,7 @@ import { MapsService } from '../service/maps.service'
 import { MatDialog } from '@angular/material/dialog';
 import { AddMapComponent } from '../content/maps/add-map/add-map.component';
 import { EditMapComponent } from '../content/maps/edit-map/edit-map.component';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-sidenav-left-admin',
   templateUrl: './sidenav-left-admin.component.html',
@@ -43,6 +44,7 @@ export class SidenavLeftAdminComponent implements OnInit {
     public fb: FormBuilder,
     public translate: TranslateService,
     public dialog: MatDialog,
+    public router:Router
   ) {
     this.notifier = notifierService;
 
@@ -131,6 +133,10 @@ export class SidenavLeftAdminComponent implements OnInit {
 
   ngOnInit(): void {
     this.onInitInstance();
+  }
+
+  navigateToMap(map:Map){
+    this.router.navigate(['/admin','map',map.map_id])
   }
 
 }
