@@ -328,6 +328,9 @@
     },
     "edit_sub_group": {
       "title": "Modifier un sous groupe"
+    },
+    "sub_group": {
+      "delete": "Supprimer un sous groupe"
     }
   },
   "add_icon": {

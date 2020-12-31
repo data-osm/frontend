@@ -20,8 +20,9 @@ import { EditSubGroupComponent } from '../edit-sub-group/edit-sub-group.componen
  * list all sub group of a group
  */
 export class ListSubGroupComponent implements OnInit {
-  onAddInstance:()=>void
+  onAddInstance:()=>void 
   onUpdateInstance:(subGroup:SubGroup)=>void
+  onDeleteInstance:(subGroup:SubGroup)=>void
   subGroupList:Observable<SubGroup[]>
 
   group_id:ReplaySubject<number>= new ReplaySubject(1)
@@ -46,6 +47,11 @@ export class ListSubGroupComponent implements OnInit {
     const onUpdate:Subject<SubGroup> = new Subject<SubGroup>()
     this.onUpdateInstance = (subGroup:SubGroup)=>{
       onUpdate.next(subGroup)
+    }
+
+    const onDelete: Subject<SubGroup> = new Subject<SubGroup>()
+    this.onDeleteInstance = (subGroup: SubGroup) => {
+      onDelete.next(subGroup);
     }
 
     this.subGroupList = merge(
@@ -91,6 +97,31 @@ export class ListSubGroupComponent implements OnInit {
             switchMap((parameters) => {
               return this.MapsService.getAllSubGroupOfGroup(parameters[1]).pipe(
                 catchError(() => { this.notifier.notify("error", "An error occured while loading sub groups"); return EMPTY })
+              )
+            })
+          )
+        })
+      ),
+      onDelete.pipe(
+        switchMap((subGroup:SubGroup)=>{
+          return this.manageCompHelper.openConfirmationDialog([],
+            {
+              confirmationTitle: this.translate.instant('admin.sub_group.delete'),
+              confirmationExplanation: this.translate.instant('admin.vector_provider.delete_confirmation_explanation')+ subGroup.name +' ?',
+              cancelText: this.translate.instant('cancel'),
+              confirmText: this.translate.instant('delete'),
+            }
+          ).pipe(
+            filter(resultConfirmation => resultConfirmation),
+            switchMap(()=>{
+              return this.MapsService.deleteSubGroup(subGroup).pipe(
+                catchError(() => { this.notifier.notify("error", "An error occured while deleting sub group"); return EMPTY }),
+                withLatestFrom(this.group_id),
+                switchMap((parameters) => {
+                  return this.MapsService.getAllSubGroupOfGroup(parameters[1]).pipe(
+                    catchError(() => { this.notifier.notify("error", "An error occured while loading sub groups"); return EMPTY })
+                  )
+                })
               )
             })
           )

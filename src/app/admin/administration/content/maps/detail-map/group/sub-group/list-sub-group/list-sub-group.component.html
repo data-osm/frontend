@@ -5,7 +5,7 @@
             <svg class="sub-more" [matMenuTriggerFor]="menu" viewBox="0 0 8.701 50" ><path d="M0 0v8.7h8.7V0zm0 20.651v8.7h8.7v-8.7zm0 20.648v8.7h8.7v-8.7z"></path></svg>
             <mat-menu #menu="matMenu">
                 <button mat-menu-item (click)="onUpdateInstance(sub)" >{{ 'edit' | translate }} </button>
-                <button mat-menu-item  class="red" > {{ 'supprimer' | translate }}</button>
+                <button mat-menu-item  class="red" (click)="onDeleteInstance(sub)" > {{ 'supprimer' | translate }}</button>
             </mat-menu>
         </ng-template>
         
