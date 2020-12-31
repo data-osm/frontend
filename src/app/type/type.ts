@@ -589,7 +589,7 @@ export interface Group{
 export interface SubGroup{
   group_sub_id:number
   name:string
-  group_id:number
+  group:number
 }
 
 export interface Layer{

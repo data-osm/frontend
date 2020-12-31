@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NotifierService } from 'angular-notifier';
@@ -15,7 +15,7 @@ import {MapsService} from '../../../../../../service/maps.service'
 /**
  * Add sub group
  */
-export class AddSubGroupComponent implements OnInit {
+export class AddSubGroupComponent implements OnInit, OnDestroy {
 
   public onAddInstance:()=>void
 

@@ -9,6 +9,7 @@ import { EMPTY, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { SubGroup } from '../../../../../../../../type/type';
 import { filter, switchMap, catchError, tap, startWith, withLatestFrom, map } from 'rxjs/operators';
 import { AddSubGroupComponent } from '../add-sub-group/add-sub-group.component';
+import { EditSubGroupComponent } from '../edit-sub-group/edit-sub-group.component';
 
 @Component({
   selector: 'app-list-sub-group',
@@ -20,6 +21,7 @@ import { AddSubGroupComponent } from '../add-sub-group/add-sub-group.component';
  */
 export class ListSubGroupComponent implements OnInit {
   onAddInstance:()=>void
+  onUpdateInstance:(subGroup:SubGroup)=>void
   subGroupList:Observable<SubGroup[]>
 
   group_id:ReplaySubject<number>= new ReplaySubject(1)
@@ -40,7 +42,12 @@ export class ListSubGroupComponent implements OnInit {
     this.onAddInstance = ()=>{
       onAdd.next()
     }
-    
+
+    const onUpdate:Subject<SubGroup> = new Subject<SubGroup>()
+    this.onUpdateInstance = (subGroup:SubGroup)=>{
+      onUpdate.next(subGroup)
+    }
+
     this.subGroupList = merge(
       this.router.events.pipe(
         startWith(undefined),
@@ -75,6 +82,19 @@ export class ListSubGroupComponent implements OnInit {
           )
         })
         
+      ),
+      onUpdate.pipe(
+        switchMap((subGroup:SubGroup)=>{
+          return this.dialog.open(EditSubGroupComponent,{data:subGroup}).afterClosed().pipe(
+            filter((response) => response),
+            withLatestFrom(this.group_id),
+            switchMap((parameters) => {
+              return this.MapsService.getAllSubGroupOfGroup(parameters[1]).pipe(
+                catchError(() => { this.notifier.notify("error", "An error occured while loading sub groups"); return EMPTY })
+              )
+            })
+          )
+        })
       )
     )
   }

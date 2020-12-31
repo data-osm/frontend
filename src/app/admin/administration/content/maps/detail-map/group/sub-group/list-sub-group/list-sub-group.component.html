@@ -1,5 +1,15 @@
 <mat-tab-group class="list-sub-group" color="accent" >
-    <mat-tab *ngFor="let sub of subGroupList|async" [label]="sub.name"> </mat-tab>
+    <mat-tab *ngFor="let sub of subGroupList|async" class="sub-tab"  > 
+        <ng-template mat-tab-label>
+            {{sub.name}}
+            <svg class="sub-more" [matMenuTriggerFor]="menu" viewBox="0 0 8.701 50" ><path d="M0 0v8.7h8.7V0zm0 20.651v8.7h8.7v-8.7zm0 20.648v8.7h8.7v-8.7z"></path></svg>
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="onUpdateInstance(sub)" >{{ 'edit' | translate }} </button>
+                <button mat-menu-item  class="red" > {{ 'supprimer' | translate }}</button>
+            </mat-menu>
+        </ng-template>
+        
+    </mat-tab>
     <mat-tab disabled  *ngIf="group_id|async" >
         <ng-template mat-tab-label>
             <button mat-flat-button class="add-sub" (click)="onAddInstance()" >

@@ -1,3 +1,21 @@
 .add-sub{
     background-color: transparent;
 }
+.sub-more{
+    // display: none;
+    height: 25px;
+    width: 10px;
+    path{
+      fill: transparent;
+      transition: 0.5s;
+    }
+}
+
+::ng-deep .mat-tab-label:hover{
+    .sub-more{
+        path{
+            fill: #5e6367;
+            transition: 0.5s;
+        }
+    }
+}
