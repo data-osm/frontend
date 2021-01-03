@@ -1,14 +1,17 @@
-<mat-tab-group class="list-sub-group" color="accent" >
-    <mat-tab *ngFor="let sub of subGroupList|async" class="sub-tab"  > 
-        <ng-template mat-tab-label>
-            {{sub.name}}
-            <svg class="sub-more" [matMenuTriggerFor]="menu" viewBox="0 0 8.701 50" ><path d="M0 0v8.7h8.7V0zm0 20.651v8.7h8.7v-8.7zm0 20.648v8.7h8.7v-8.7z"></path></svg>
-            <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="onUpdateInstance(sub)" >{{ 'edit' | translate }} </button>
-                <button mat-menu-item  class="red" (click)="onDeleteInstance(sub)" > {{ 'supprimer' | translate }}</button>
-            </mat-menu>
+<mat-tab-group class="list-sub-group" color="accent"  >
+    <!-- findIndexOfSubGroup((getSubGroupSelected() | async), subGroupList|async )[$event.index] -->
+    <mat-tab *ngFor="let sub of subGroupList|async ; let index = index" class="sub-tab" > 
+        <ng-template mat-tab-label >
+            <button mat-flat-button class="add-sub" (click)="goToSubGroup(sub)" >
+                <span [routerLink]="sub.group_sub_id" >   {{sub.name}}  </span>
+                <svg class="sub-more" [matMenuTriggerFor]="menu" viewBox="0 0 8.701 50" ><path d="M0 0v8.7h8.7V0zm0 20.651v8.7h8.7v-8.7zm0 20.648v8.7h8.7v-8.7z"></path></svg>
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="onUpdateInstance(sub)" >{{ 'edit' | translate }} </button>
+                    <button mat-menu-item  class="red" (click)="onDeleteInstance(sub)" > {{ 'supprimer' | translate }}</button>
+                </mat-menu>
+            </button>
         </ng-template>
-        
+        <app-list-layer></app-list-layer>
     </mat-tab>
     <mat-tab disabled  *ngIf="group_id|async" >
         <ng-template mat-tab-label>

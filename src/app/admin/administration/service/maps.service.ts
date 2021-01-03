@@ -4,7 +4,7 @@ import { Observable, throwError, BehaviorSubject, from, of } from 'rxjs';
 import { catchError, finalize, retry, tap } from 'rxjs/operators';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
-import { Group, Map, SubGroup } from '../../../type/type';
+import { Group, Layer, Map, SubGroup } from '../../../type/type';
 import { NotifierService } from 'angular-notifier';
 
 @Injectable({
@@ -132,6 +132,14 @@ export class MapsService {
    */
   addSubGroup(subGroup:SubGroup):Observable<SubGroup>{
     return this.http.post<SubGroup>(this.url_prefix + '/api/group/sub',subGroup, { headers: this.get_header() })
+  }
+
+  /**
+   * Get all layers of a sub group
+   * @param group_sub_id number
+   */
+  getAllLayersFromSubGroup(group_sub_id:number):Observable<Layer[]>{
+    return this.http.get<Layer[]>(this.url_prefix + '/api/group/layer?sub_id='+group_sub_id, { headers: this.get_header() })
   }
 
 }

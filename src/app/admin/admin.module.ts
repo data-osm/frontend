@@ -46,9 +46,10 @@ import { ListSubGroupComponent } from './administration/content/maps/detail-map/
 import { AddSubGroupComponent } from './administration/content/maps/detail-map/group/sub-group/add-sub-group/add-sub-group.component';
 import { UpdateSubGroupComponent } from './administration/content/maps/detail-map/group/sub-group/update-sub-group/update-sub-group.component';
 import { EditSubGroupComponent } from './administration/content/maps/detail-map/group/sub-group/edit-sub-group/edit-sub-group.component';
+import { ListLayerComponent } from './administration/content/maps/detail-map/group/sub-group/list-sub-group/layer/list-layer/list-layer.component';
 
 @NgModule({
-  declarations: [SvgIcon, SafeStylePipe, AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent, AddStyleComponent, EditStyleComponent, PreviewDataComponent, DetailMapComponent, AddMapComponent, EditMapComponent, AddGroupComponent, GenerateIconComponent, EditGroupComponent, ListSubGroupComponent, AddSubGroupComponent, UpdateSubGroupComponent, EditSubGroupComponent],
+  declarations: [SvgIcon, SafeStylePipe, AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent, AddStyleComponent, EditStyleComponent, PreviewDataComponent, DetailMapComponent, AddMapComponent, EditMapComponent, AddGroupComponent, GenerateIconComponent, EditGroupComponent, ListSubGroupComponent, AddSubGroupComponent, UpdateSubGroupComponent, EditSubGroupComponent, ListLayerComponent],
   imports: [
     CommonModule,
     AdminRoutingModule,
