@@ -8,6 +8,7 @@ import {manageCompHelper} from '../../../../../../../../../../../helper/manage-c
 import { Layer } from '../../../../../../../../../../type/type';
 import { EMPTY, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { filter, switchMap, catchError, tap, startWith, withLatestFrom, map, takeUntil, take } from 'rxjs/operators';
+import { AddLayerComponent } from '../add-layer/add-layer.component';
 @Component({
   selector: 'app-list-layer',
   templateUrl: './list-layer.component.html',
@@ -17,6 +18,8 @@ import { filter, switchMap, catchError, tap, startWith, withLatestFrom, map, tak
  * list all layers of a sub group
  */
 export class ListLayerComponent implements OnInit {
+  
+  onAddInstance:()=>void
 
   layerList:Observable<Layer[]>
 
@@ -34,7 +37,10 @@ export class ListLayerComponent implements OnInit {
   ) {
 
     this.notifier = notifierService;
-
+    const onAdd:Subject<void> = new Subject<void>()
+    this.onAddInstance = ()=>{
+      onAdd.next()
+    }
     this.layerList = merge(
       this.router.events.pipe(
         startWith(undefined),
@@ -56,6 +62,21 @@ export class ListLayerComponent implements OnInit {
             tap(()=>{this.sub_id.complete()})
           )
         }),
+      ),
+      onAdd.pipe(
+        withLatestFrom(this.sub_id),
+        switchMap((parameters:[void,number])=>{
+          return this.dialog.open(AddLayerComponent,{data:parameters[1],width: '90%', maxWidth: '90%', maxHeight: '90%',}).afterClosed().pipe(
+            filter(response=>response),
+            switchMap(()=>{
+              return this.MapsService.getAllLayersFromSubGroup(parameters[1]).pipe(
+                catchError(() => { this.notifier.notify("error", "An error occured while loading layers "); return EMPTY }),
+                tap(()=>{this.sub_id.complete()})
+              )
+            })
+          )
+        })
+        
       )
     )
   }

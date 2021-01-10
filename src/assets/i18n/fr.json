@@ -331,6 +331,11 @@
     },
     "sub_group": {
       "delete": "Supprimer un sous groupe"
+    },
+    "add_layer": {
+      "title": "Ajouter une couche",
+      "name": "Nom de la couche",
+      "color": "Couleur"
     }
   },
   "add_icon": {

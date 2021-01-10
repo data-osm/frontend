@@ -139,7 +139,15 @@ export class MapsService {
    * @param group_sub_id number
    */
   getAllLayersFromSubGroup(group_sub_id:number):Observable<Layer[]>{
-    return this.http.get<Layer[]>(this.url_prefix + '/api/group/layer?sub_id='+group_sub_id, { headers: this.get_header() })
+    return this.http.get<Layer[]>(this.url_prefix + '/api/group/layer?sub='+group_sub_id, { headers: this.get_header() })
+  }
+
+   /**
+   * Add a layer
+   * @param layer Layer
+   */
+  addLayer(layer:Layer):Observable<Layer>{
+    return this.http.post<Layer>(this.url_prefix + '/api/group/layer',layer, { headers: this.get_header() })
   }
 
 }

@@ -33,12 +33,17 @@ export class GenerateIconComponent implements OnInit {
    */
   @Input() circleSvgAsText: FormControl
   /**
+   * the circle svg icon as text
+   */
+  @Input() squareSvgAsText?: FormControl
+  /**
    * Icon selected in data osm gallery
    */
   iconSelected:Observable<IconWithSVGContent> 
   @ViewChild(IconsComponent) iconComponent: IconsComponent;
   @ViewChild('iconOrigin') iconOrigin: ElementRef<HTMLElement>;
   @ViewChild('circleSvg') circleSvg: ElementRef<HTMLElement>;
+  @ViewChild('squareSvg') squareSvg: ElementRef<HTMLElement>;
   
   private readonly notifier: NotifierService;
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
@@ -74,26 +79,44 @@ export class GenerateIconComponent implements OnInit {
 
         Array.from(this.iconOrigin.nativeElement.children).map(child=> this.iconOrigin.nativeElement.removeChild(child))
         Array.from(this.circleSvg.nativeElement.children).map(child=> this.circleSvg.nativeElement.removeChild(child))
+        Array.from(this.squareSvg.nativeElement.children).map(child=> this.squareSvg.nativeElement.removeChild(child))
 
         try {
           this.iconOrigin.nativeElement.appendChild(new DOMParser().parseFromString(icon.svgContent,'text/xml').firstChild )
 
           let circle = SVG().addTo(this.circleSvg.nativeElement).size(100, 100)
           circle.circle(100).attr({ fill: value[1]})
-      
-          SVG(this.iconOrigin.nativeElement.firstChild).size(60, 60).each(function (i, children) {
+          
+          let icone = SVG(this.iconOrigin.nativeElement.firstChild).size(60, 60)
+          let icone_clone = icone.clone()
+          icone.each(function (i, children) {
             this.fill({ color: '#fff' })
           },true)
             .move(20, 16)
             .addTo(circle)
             
           this.circleSvgAsText.setValue(this.circleSvg.nativeElement.innerHTML)  
+
+          if (this.squareSvgAsText) {
+            let square = SVG().addTo(this.squareSvg.nativeElement).size(100, 100)
+            square.rect(100, 100).radius(10).attr({ fill: value[1]})
+            icone_clone.each(function (i, children) {
+              this.fill({ color: '#fff' })
+            },true)
+              .move(20, 16)
+              .addTo(square)
+
+
+            this.squareSvgAsText.setValue(this.squareSvg.nativeElement.innerHTML)  
+          }
+          
           this.icon_id.setValue(value[0].icon_id)
 
         } catch (error) {
           this.notifier.notify("error", "Sorry, can not to load this icon ! due to "+error.toString());
           Array.from(this.iconOrigin.nativeElement.children).map(child=> this.iconOrigin.nativeElement.removeChild(child))
           Array.from(this.circleSvg.nativeElement.children).map(child=> this.circleSvg.nativeElement.removeChild(child))
+          Array.from(this.squareSvg.nativeElement.children).map(child=> this.squareSvg.nativeElement.removeChild(child))
         }
 
       }),
