@@ -604,7 +604,15 @@ export interface Layer{
   opacity :boolean
   metadata :boolean
   share :boolean
-  vector_prov :number
-  external_prov :number
-  sub :number
+  sub :number,
+  providers:Array<LayerProviders>
 }
+
+export interface LayerProviders {
+  layer_id:number,
+  vs_id:number,
+  vp_id:number,
+  vp:VectorProvider,
+  vs:Style
+}
+

@@ -4,7 +4,7 @@ import { Observable, throwError, BehaviorSubject, from, of } from 'rxjs';
 import { catchError, finalize, retry, tap } from 'rxjs/operators';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
-import { Group, Layer, Map, SubGroup } from '../../../type/type';
+import { Group, Layer, LayerProviders, Map, SubGroup } from '../../../type/type';
 import { NotifierService } from 'angular-notifier';
 
 @Injectable({
@@ -146,8 +146,31 @@ export class MapsService {
    * Add a layer
    * @param layer Layer
    */
-  addLayer(layer:Layer):Observable<Layer>{
-    return this.http.post<Layer>(this.url_prefix + '/api/group/layer',layer, { headers: this.get_header() })
+  addLayer(layer:Layer):Observable<Layer[]>{
+    return this.http.post<Layer[]>(this.url_prefix + '/api/group/layer',layer, { headers: this.get_header() })
+  }
+
+  /**
+   * get a layer by id
+   */
+  getLayer(layer_id:number):Observable<Layer>{
+    return this.http.get<Layer>(this.url_prefix + '/api/group/layer/'+layer_id, { headers: this.get_header() }) 
+  }
+
+  /**
+   * add provider with style to a layer
+   */
+  addProviderWithStyleToLayer(parameter:{layer_id:number, vs_id:number, vp_id:number}):Observable<LayerProviders>{
+
+    return this.http.post<LayerProviders>(this.url_prefix + '/api/group/layer/provider',parameter, { headers: this.get_header() })
+
+  }
+
+  /**
+   * get all providers of a map
+   */
+  getProviderWithStyleOfLayer(layer_id:number):Observable<Array<LayerProviders>>{
+    return this.http.get<Array<LayerProviders>>(this.url_prefix + '/api/group/layer/provider/'+layer_id, { headers: this.get_header() })
   }
 
 }

@@ -48,9 +48,12 @@ import { UpdateSubGroupComponent } from './administration/content/maps/detail-ma
 import { EditSubGroupComponent } from './administration/content/maps/detail-map/group/sub-group/edit-sub-group/edit-sub-group.component';
 import { ListLayerComponent } from './administration/content/maps/detail-map/group/sub-group/list-sub-group/layer/list-layer/list-layer.component';
 import { AddLayerComponent } from './administration/content/maps/detail-map/group/sub-group/list-sub-group/layer/add-layer/add-layer.component';
+import { DetailLayerComponent } from './administration/content/maps/detail-map/group/sub-group/list-sub-group/layer/detail-layer/detail-layer.component';
+import { ProviderComponent } from './administration/content/maps/detail-map/group/sub-group/list-sub-group/layer/detail-layer/provider/provider.component';
+import { AddLayerProviderComponent } from './administration/content/maps/detail-map/group/sub-group/list-sub-group/layer/detail-layer/add-layer-provider/add-layer-provider.component';
 
 @NgModule({
-  declarations: [SvgIcon, SafeStylePipe, AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent, AddStyleComponent, EditStyleComponent, PreviewDataComponent, DetailMapComponent, AddMapComponent, EditMapComponent, AddGroupComponent, GenerateIconComponent, EditGroupComponent, ListSubGroupComponent, AddSubGroupComponent, UpdateSubGroupComponent, EditSubGroupComponent, ListLayerComponent, AddLayerComponent],
+  declarations: [SvgIcon, SafeStylePipe, AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent, AddStyleComponent, EditStyleComponent, PreviewDataComponent, DetailMapComponent, AddMapComponent, EditMapComponent, AddGroupComponent, GenerateIconComponent, EditGroupComponent, ListSubGroupComponent, AddSubGroupComponent, UpdateSubGroupComponent, EditSubGroupComponent, ListLayerComponent, AddLayerComponent, DetailLayerComponent, ProviderComponent, AddLayerProviderComponent],
   imports: [
     CommonModule,
     AdminRoutingModule,

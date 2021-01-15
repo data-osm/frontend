@@ -9,6 +9,7 @@ import { Layer } from '../../../../../../../../../../type/type';
 import { EMPTY, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { filter, switchMap, catchError, tap, startWith, withLatestFrom, map, takeUntil, take } from 'rxjs/operators';
 import { AddLayerComponent } from '../add-layer/add-layer.component';
+import { DetailLayerComponent } from '../detail-layer/detail-layer.component';
 @Component({
   selector: 'app-list-layer',
   templateUrl: './list-layer.component.html',
@@ -20,10 +21,14 @@ import { AddLayerComponent } from '../add-layer/add-layer.component';
 export class ListLayerComponent implements OnInit {
   
   onAddInstance:()=>void
+  onSelectInstance:(layer:Layer)=>void
 
   layerList:Observable<Layer[]>
 
   sub_id:ReplaySubject<number>= new ReplaySubject(1)
+
+  displayedColumns:Array<string> =['square_icon','name','detail']
+  
 
   private readonly notifier: NotifierService;
   constructor(
@@ -41,6 +46,9 @@ export class ListLayerComponent implements OnInit {
     this.onAddInstance = ()=>{
       onAdd.next()
     }
+
+    const onSelect:Subject<Layer>=new Subject<Layer>()
+
     this.layerList = merge(
       this.router.events.pipe(
         startWith(undefined),
@@ -79,6 +87,16 @@ export class ListLayerComponent implements OnInit {
         
       )
     )
+
+    this.onSelectInstance = (layer:Layer)=>{
+      onSelect.next(layer)
+    }
+
+    onSelect.pipe(
+      tap((layer:Layer)=>{
+        this.dialog.open(DetailLayerComponent,{data:layer.layer_id,width: '90%', maxWidth: '90%', maxHeight: '90%',})
+      })
+    ).subscribe()
   }
 
   ngOnInit(): void {
