@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NotifierService } from 'angular-notifier';
@@ -14,6 +14,7 @@ import {MapsService} from '../../../../../../../../service/maps.service'
   styleUrls: ['./detail-layer.component.scss']
 })
 export class DetailLayerComponent implements OnInit {
+  @Input()layer_id:number
   onInitInstance:()=>void
   private readonly notifier: NotifierService;
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
@@ -21,11 +22,11 @@ export class DetailLayerComponent implements OnInit {
   layer:Observable<Layer>
   
   constructor(
-    public dialogRef: MatDialogRef<DetailLayerComponent>,
+    // public dialogRef: MatDialogRef<DetailLayerComponent>,
     private formBuilder: FormBuilder,
     notifierService: NotifierService,
     public MapsService:MapsService,
-    @Inject(MAT_DIALOG_DATA) public layer_id: number,
+    // @Inject(MAT_DIALOG_DATA) public layer_id: number,
   ) { 
     this.notifier = notifierService;
     const onInit:ReplaySubject<void> = new ReplaySubject<void>(1)
@@ -55,7 +56,7 @@ export class DetailLayerComponent implements OnInit {
   }
 
   close(): void {
-    this.dialogRef.close(false);
+    // this.dialogRef.close(false);
   }
 
 }

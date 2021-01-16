@@ -378,5 +378,9 @@
     "add": "Ajouter une source",
     "provider": "Source",
     "style": "Style"
+  },
+  "list_layer": {
+    "add_layer": "Ajouter une couche",
+    "delete": "Supprimer"
   }
 }

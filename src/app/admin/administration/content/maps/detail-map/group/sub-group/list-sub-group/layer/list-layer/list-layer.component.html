@@ -1,15 +1,40 @@
-<p>
-    <button mat-flat-button (click)="onAddInstance()" > Ajouter une couche </button>
-</p>
+<button mat-flat-button style="height: 48px;
+width: 100%;
+text-align: left;
+border-radius: 4px 4px 0px 0px;
+margin: 10px 0px;
+" (click)="onAddInstance()">{{ 'list_layer.add_layer' | translate }} <svg width="17" viewBox="0 0 50 50"
+        aria-hidden="true" focusable="false">
+        <path d="M50 26.72v-3.535l-23.283.05V.003h-3.535l.05 23.232L0 23.185v3.535h23.232l-.05 23.283h3.535V26.72">
+        </path>
+    </svg>
+</button>
 
-<div fxLayout="row wrap" *ngFor="let layer of layerList | async" class="style-item pointer">
-    <div fxFlex="50px">
-        <img  src="{{layer.square_icon}}" style="height: 40px;" >
-    </div>
-    <div fxFlex="calc(100% - 210px)" class="style-item-title" (click)="onSelectInstance(layer)" >{{layer.name}}</div>
-    <div fxFlex="160px" class="style-item-delete"  > 
-        <span class="style-item-delete-text" >Supprimer</span>
-        <svg height="25" width="25" viewBox="0 0 49.501 50" class="" ><path  d="M17.865 0v5.938H0V9.43h4.543L8.393 50h32.77l3.8-40.57h4.54V5.94H31.635V0zm3.493 3.493h6.786v2.445h-6.786zM8.052 9.43h33.4L37.98 46.508H11.57zm9.71 7.632l-3.487.208 1.497 25.1 3.487-.208zm14.477 0l-1.5 25.1 3.487.207 1.496-25.1zm-8.988.104v25.1h3.493v-25.1z"></path></svg>
-    </div>
-    <mat-divider fxFlex="100%" ></mat-divider>
-</div>
+<mat-accordion>
+    <mat-expansion-panel *ngFor="let layer of layerList | async">
+        <mat-expansion-panel-header collapsedHeight="55px">
+            <mat-panel-title>
+                <div fxLayout>
+                    <div fxFlex="50px">
+                        <img src="{{layer.square_icon}}" style="height: 40px;margin-top: 3px;">
+                    </div>
+                    <div fxFlex style="padding-top: 10px;">{{layer.name}}</div>
+                </div>
+
+            </mat-panel-title>
+        </mat-expansion-panel-header>
+        <ng-container MatExpansionPanelContent>
+            <app-detail-layer [layer_id]="layer.layer_id"></app-detail-layer>
+        </ng-container>
+        <mat-action-row>
+            <button mat-button> <span class="red"> {{ 'list_layer.delete' | translate }} </span> <svg height="17"
+                    width="17" viewBox="0 0 49.501 50" class="">
+                    <path fill="red"
+                        d="M17.865 0v5.938H0V9.43h4.543L8.393 50h32.77l3.8-40.57h4.54V5.94H31.635V0zm3.493 3.493h6.786v2.445h-6.786zM8.052 9.43h33.4L37.98 46.508H11.57zm9.71 7.632l-3.487.208 1.497 25.1 3.487-.208zm14.477 0l-1.5 25.1 3.487.207 1.496-25.1zm-8.988.104v25.1h3.493v-25.1z">
+                    </path>
+                </svg>
+            </button>
+        </mat-action-row>
+    </mat-expansion-panel>
+
+</mat-accordion>
