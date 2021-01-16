@@ -17,7 +17,15 @@
 
     <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef> {{ 'admin.vector_provider.table.header.name' | translate }} </th>
-        <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+        <td mat-cell *matCellDef="let element">
+             {{element.name}}
+             <span *ngIf="element.count" > ({{element.count}}) </span>
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="type_geometrie">
+        <th mat-header-cell *matHeaderCellDef> {{ 'admin.vector_provider.table.header.type_geometrie' | translate }} </th>
+        <td mat-cell *matCellDef="let element"> {{element.geometry_type}} </td>
     </ng-container>
 
     <ng-container matColumnDef="state">

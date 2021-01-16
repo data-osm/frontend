@@ -265,7 +265,8 @@
             "action_require": "Action requise",
             "unknow": "Inconnu",
             "null": "Inconnu"
-          }
+          },
+          "type_geometrie": "Type de géometrie"
         }
       },
       "details": {
