@@ -609,6 +609,7 @@ export interface Layer{
 }
 
 export interface LayerProviders {
+  id:number
   layer_id:number,
   vs_id:number,
   vp_id:number,

@@ -378,7 +378,8 @@
   "list_provider_with_style": {
     "add": "Ajouter une source",
     "provider": "Source",
-    "style": "Style"
+    "style": "Style",
+    "delete_title": "Supprimer une souce d'une couche"
   },
   "list_layer": {
     "add_layer": "Ajouter une couche",

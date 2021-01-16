@@ -178,7 +178,15 @@ export class MapsService {
    * get all providers of a map
    */
   getProviderWithStyleOfLayer(layer_id:number):Observable<Array<LayerProviders>>{
-    return this.http.get<Array<LayerProviders>>(this.url_prefix + '/api/group/layer/provider/'+layer_id, { headers: this.get_header() })
+    return this.http.get<Array<LayerProviders>>(this.url_prefix + '/api/group/layer/provider?layer_id='+layer_id, { headers: this.get_header() })
+  }
+
+  /**
+   * dedelete a provider in a layer providers
+   * @param id number
+   */
+  deleteProviderWithStyleOfLayer(id:number){
+    return this.http.delete(this.url_prefix + '/api/group/layer/provider/'+id, { headers: this.get_header() })
   }
 
 }

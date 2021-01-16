@@ -7,6 +7,8 @@ import { catchError, filter, switchMap } from 'rxjs/operators';
 import { Layer, LayerProviders } from '../../../../../../../../../../../type/type';
 import {MapsService} from '../../../../../../../../../service/maps.service'
 import { AddLayerProviderComponent } from '../add-layer-provider/add-layer-provider.component';
+import {manageCompHelper} from '../../../../../../../../../../../../helper/manage-comp.helper'
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-provider',
@@ -16,6 +18,7 @@ import { AddLayerProviderComponent } from '../add-layer-provider/add-layer-provi
 export class ProviderComponent implements OnInit, OnChanges {
   onInitInstance:()=>void
   onAddInstance:()=>void
+  onDeleteInstance:(LayerProviders)=>void
 
   @Input()layer:Layer
   
@@ -29,6 +32,8 @@ export class ProviderComponent implements OnInit, OnChanges {
     notifierService: NotifierService,
     public MapsService:MapsService,
     public dialog: MatDialog,
+    public manageCompHelper:manageCompHelper,
+    public translate: TranslateService,
   ) { 
     this.notifier = notifierService;
 
@@ -40,6 +45,12 @@ export class ProviderComponent implements OnInit, OnChanges {
     const onAdd:Subject<void> = new Subject<void>()
     this.onAddInstance = ()=>{
       onAdd.next()
+    }
+
+    const onDelete:Subject<LayerProviders> = new Subject<LayerProviders>()
+
+    this.onDeleteInstance = (layerProviders:LayerProviders)=>{
+      onDelete.next(layerProviders)
     }
 
     this.providers = merge(
@@ -62,7 +73,33 @@ export class ProviderComponent implements OnInit, OnChanges {
             })
           )
         })
+      ),
+      onDelete.pipe(
+        switchMap((layerProviders: LayerProviders) => {
+          return this.manageCompHelper.openConfirmationDialog([],
+            {
+              confirmationTitle: this.translate.instant('list_provider_with_style.delete_title'),
+              confirmationExplanation: this.translate.instant('admin.vector_provider.delete_confirmation_explanation') + layerProviders.vp.name + ' ?',
+              cancelText: this.translate.instant('cancel'),
+              confirmText: this.translate.instant('delete'),
+            }
+          ).pipe(
+            filter(resultConfirmation => resultConfirmation),
+            switchMap(()=>{
+              return this.MapsService.deleteProviderWithStyleOfLayer(layerProviders.id).pipe(
+                catchError(() => { this.notifier.notify("error", "An error occured while deleting a provider"); return EMPTY }),
+                switchMap(()=>{
+                  return this.MapsService.getProviderWithStyleOfLayer(this.layer.layer_id).pipe(
+                    catchError(() => { this.notifier.notify("error", "An error occured while loading providers with style "); return EMPTY }),
+                  )
+                })
+              )
+            })
+          )
+        })
       )
+
+
     )
   }
 
