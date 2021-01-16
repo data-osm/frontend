@@ -381,6 +381,7 @@
   },
   "list_layer": {
     "add_layer": "Ajouter une couche",
-    "delete": "Supprimer"
+    "delete": "Supprimer",
+    "delte_layer": "Supprimer une couche"
   }
 }

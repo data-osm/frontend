@@ -158,6 +158,14 @@ export class MapsService {
   }
 
   /**
+   * delete a layer
+   * @param layer_id number
+   */
+  deleteLayer(layer_id:number){
+    return this.http.delete(this.url_prefix + '/api/group/layer/'+layer_id, { headers: this.get_header() })
+  }
+
+  /**
    * add provider with style to a layer
    */
   addProviderWithStyleToLayer(parameter:{layer_id:number, vs_id:number, vp_id:number}):Observable<LayerProviders>{

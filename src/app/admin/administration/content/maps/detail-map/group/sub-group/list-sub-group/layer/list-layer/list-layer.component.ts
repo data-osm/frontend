@@ -22,6 +22,7 @@ export class ListLayerComponent implements OnInit {
   
   onAddInstance:()=>void
   onSelectInstance:(layer:Layer)=>void
+  onDeleteInstance:(layer:Layer)=>void
 
   layerList:Observable<Layer[]>
 
@@ -47,6 +48,11 @@ export class ListLayerComponent implements OnInit {
       onAdd.next()
     }
 
+    const onDelete:Subject<Layer> = new Subject<Layer>()
+    this.onDeleteInstance = (layer:Layer)=>{
+      onDelete.next(layer)
+    }
+
     const onSelect:Subject<Layer>=new Subject<Layer>()
 
     this.layerList = merge(
@@ -67,7 +73,6 @@ export class ListLayerComponent implements OnInit {
           this.sub_id.next(Number(parameters['sub-id']))
           return this.MapsService.getAllLayersFromSubGroup(Number(parameters['sub-id'])).pipe(
             catchError(() => { this.notifier.notify("error", "An error occured while loading layers "); return EMPTY }),
-            tap(()=>{this.sub_id.complete()})
           )
         }),
       ),
@@ -79,12 +84,36 @@ export class ListLayerComponent implements OnInit {
             switchMap(()=>{
               return this.MapsService.getAllLayersFromSubGroup(parameters[1]).pipe(
                 catchError(() => { this.notifier.notify("error", "An error occured while loading layers "); return EMPTY }),
-                tap(()=>{this.sub_id.complete()})
               )
             })
           )
         })
         
+      ),
+      onDelete.pipe(
+        switchMap((layer: Layer) => {
+          return this.manageCompHelper.openConfirmationDialog([],
+            {
+              confirmationTitle: this.translate.instant('list_layer.delte_layer'),
+              confirmationExplanation: this.translate.instant('admin.vector_provider.delete_confirmation_explanation') + layer.name + ' ?',
+              cancelText: this.translate.instant('cancel'),
+              confirmText: this.translate.instant('delete'),
+            }
+          ).pipe(
+            filter(resultConfirmation => resultConfirmation),
+            switchMap(()=>{
+              return this.MapsService.deleteLayer(layer.layer_id).pipe(
+                catchError(() => { this.notifier.notify("error", "An error occured while deleting a layer "); return EMPTY }),
+                withLatestFrom(this.sub_id),
+                switchMap((parameters)=>{
+                  return this.MapsService.getAllLayersFromSubGroup(parameters[1]).pipe(
+                    catchError(() => { this.notifier.notify("error", "An error occured while loading layers "); return EMPTY }),
+                  )
+                })
+              )
+            })
+          )
+        })
       )
     )
 
