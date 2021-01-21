@@ -373,7 +373,10 @@
   "supprimer": "supprimer",
   "select_provider_with_style": {
     "title": "Ajouter des sources à la couche :",
-    "choose_style": "Selectioner un style :"
+    "choose_style": "Selectioner un style :",
+    "search_provider":"Rechercher une source",
+    "add_source":"Ajouter une source",
+    "or":"Ou"
   },
   "list_provider_with_style": {
     "add": "Ajouter une source",

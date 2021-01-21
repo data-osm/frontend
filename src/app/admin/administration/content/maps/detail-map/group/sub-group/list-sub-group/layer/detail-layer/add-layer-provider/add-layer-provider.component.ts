@@ -9,6 +9,7 @@ import { VectorProviderService } from '../../../../../../../../../service/vector
 import { StyleService } from '../../../../../../../../../service/style.service'
 import { MapsService } from '../../../../../../../../../service/maps.service'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-layer-provider',
@@ -43,6 +44,7 @@ export class AddLayerProviderComponent implements OnInit {
     public translate: TranslateService,
     public StyleService: StyleService,
     public mapsService: MapsService,
+    public router:Router,
     public dialogRef: MatDialogRef<AddLayerProviderComponent>,
     @Inject(MAT_DIALOG_DATA) public layer: Layer,
   ) {
@@ -115,6 +117,16 @@ export class AddLayerProviderComponent implements OnInit {
   ngOnDestroy(): void {
     this.destroyed$.next(true);
     this.destroyed$.complete();
+  }
+
+  addProviderInNewWindow() {
+   
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['/admin/vector-provider'])
+    );
+  
+    window.open(url, '_blank');
+    
   }
 
 }

@@ -7,10 +7,10 @@
 
 <mat-dialog-content>
     <div>
-
         <form fxFlex="100%" [formGroup]="searchtVectorProviderForm">
             <mat-form-field appearance="outline" style="width: 100%;"
                 *ngIf="searchtVectorProviderForm.get('search_word')">
+                <mat-label> {{ 'select_provider_with_style.search_provider' | translate }} </mat-label>
                 <i class="fa fa-search black " aria-hidden="true" matPrefix></i>
                 <input matInput formControlName="search_word" [matAutocomplete]="autoComplete">
                 <i class="fa fa-times-circle pointer" matSuffix
@@ -32,6 +32,11 @@
         </form>
     </div>
 
+    <div class="text-center">
+        {{ 'select_provider_with_style.or' | translate }}
+    </div>
+    <button (click)="addProviderInNewWindow()" mat-stroked-button style="width: 100%;height: 45px;margin: 20px 0px;">
+        {{ 'select_provider_with_style.add_source' | translate }} </button>
     <mat-card *ngIf="selectedProvider|async">
         <mat-card-header>
             <mat-card-title> {{(selectedProvider|async).name}} </mat-card-title>
