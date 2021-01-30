@@ -1,0 +1,35 @@
+.details-vp-title{
+    margin-bottom: 24px;
+    span{
+    vertical-align: top;
+    margin-left: 10px;
+    }
+    .state-badje-geometry{
+        color: #fff;
+        background: #093f5f;
+        border-color: #093f5f
+    }
+    .details-vp-preview{
+        color: white;
+        span{
+            font-size: 17px;
+        }
+        svg{
+            height: 20px;
+            width: 20px;
+            path{
+                fill: white;
+            }
+        }
+    }
+}
+:host ::ng-deep mat-tab-header {
+    background-color: #fff;
+    .mat-tab-label .mat-tab-label-content{
+        font-size: 15px;
+    }
+}
+
+:host ::ng-deep .mat-tab-body{
+    padding-top: 24px;
+}

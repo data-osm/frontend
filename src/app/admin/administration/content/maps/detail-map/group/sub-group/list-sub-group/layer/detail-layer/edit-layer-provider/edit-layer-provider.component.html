@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>
+    <span class="bold primaryColor " style="font-size: 17px;"> {{ 'admin.vector_provider.edit_vector_provider.title' | translate }}
+    </span>
+    <i (click)="close()" class="fa fa-times primaryColor pointer close"></i>
+</h1>
+
+<mat-dialog-content>
+
+    <app-edit-vector-provider [provider_vector_id]="provider_vector_id" ></app-edit-vector-provider>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+
+</mat-dialog-actions>

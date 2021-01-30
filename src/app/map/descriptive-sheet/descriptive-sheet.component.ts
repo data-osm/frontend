@@ -1,12 +1,12 @@
 import { Component, OnInit, Inject, SimpleChanges, OnChanges } from '@angular/core';
-import { coucheInterface, carteInterface } from 'src/app/type/type';
+import { coucheInterface, carteInterface } from '../../../app/type/type';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { StorageServiceService } from 'src/app/services/storage-service/storage-service.service'
-import { ShareServiceService } from 'src/app/services/share-service/share-service.service'
-import { layersInMap, cartoHelper } from 'src/helper/carto.helper';
-import { manageCompHelper } from 'src/helper/manage-comp.helper';
-import { environment } from 'src/environments/environment';
-import { VectorSource, VectorLayer, Style, Fill, Stroke, CircleStyle, Feature } from 'src/app/ol-module';
+import { StorageServiceService } from '../../../app/services/storage-service/storage-service.service'
+import { ShareServiceService } from '../../../app/services/share-service/share-service.service'
+import { layersInMap, cartoHelper } from '../../../helper/carto.helper';
+import { manageCompHelper } from '../../../helper/manage-comp.helper';
+import { environment } from '../../../environments/environment';
+import { VectorSource, VectorLayer, Style, Fill, Stroke, CircleStyle, Feature } from '../../../app/ol-module';
 import { constructor } from 'moment';
 
 /**

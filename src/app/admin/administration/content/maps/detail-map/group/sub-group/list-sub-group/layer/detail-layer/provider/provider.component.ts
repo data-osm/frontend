@@ -9,6 +9,7 @@ import {MapsService} from '../../../../../../../../../service/maps.service'
 import { AddLayerProviderComponent } from '../add-layer-provider/add-layer-provider.component';
 import {manageCompHelper} from '../../../../../../../../../../../../helper/manage-comp.helper'
 import { TranslateService } from '@ngx-translate/core';
+import { EditLayerProviderComponent } from '../edit-layer-provider/edit-layer-provider.component';
 
 @Component({
   selector: 'app-provider',
@@ -19,6 +20,7 @@ export class ProviderComponent implements OnInit, OnChanges {
   onInitInstance:()=>void
   onAddInstance:()=>void
   onDeleteInstance:(LayerProviders)=>void
+  onUpdateInstance:(LayerProviders)=>void
 
   @Input()layer:Layer
   
@@ -53,6 +55,12 @@ export class ProviderComponent implements OnInit, OnChanges {
       onDelete.next(layerProviders)
     }
 
+    const onUpdate:Subject<LayerProviders> = new Subject<LayerProviders>()
+
+    this.onUpdateInstance = (layerProviders:LayerProviders)=>{
+      onUpdate.next(layerProviders)
+    }
+
     this.providers = merge(
       onInit.pipe(
         filter(()=>this.layer != undefined),
@@ -73,6 +81,17 @@ export class ProviderComponent implements OnInit, OnChanges {
             })
           )
         })
+      ),
+      onUpdate.pipe(
+        switchMap((layerProviders: LayerProviders)=>{
+          return this.dialog.open(EditLayerProviderComponent,{data:layerProviders.vp_id, maxHeight:"90%",maxWidth:"90%",width:"80%",height:"80%"}).afterClosed().pipe(
+            switchMap(()=>{
+              return this.MapsService.getProviderWithStyleOfLayer(this.layer.layer_id).pipe(
+                catchError(() => { this.notifier.notify("error", "An error occured while loading providers with style "); return EMPTY }),
+              )
+            })
+          )
+        })   
       ),
       onDelete.pipe(
         switchMap((layerProviders: LayerProviders) => {

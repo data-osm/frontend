@@ -269,6 +269,9 @@
           "type_geometrie": "Type de géometrie"
         }
       },
+      "edit_vector_provider":{
+        "title":"Modifier une source "
+      },
       "details": {
         "datasource_tab": "Source de données",
         "style_tab": "Styles",

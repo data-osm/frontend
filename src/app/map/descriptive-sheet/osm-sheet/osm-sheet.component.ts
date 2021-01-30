@@ -1,16 +1,16 @@
 import { Component, OnInit, Input, Output, EventEmitter, SimpleChanges, OnChanges } from '@angular/core';
 import { modelDescriptiveSheet } from '../descriptive-sheet.component';
-import { manageDataHelper } from 'src/helper/manage-data.helper'
-import { ImageWMS, TileWMS, GeoJSON } from 'src/app/ol-module';
-import { cartoHelper } from 'src/helper/carto.helper'
-import { BackendApiService } from 'src/app/services/backend-api/backend-api.service'
-import { StorageServiceService } from 'src/app/services/storage-service/storage-service.service'
+import { manageDataHelper } from '../../../../helper/manage-data.helper'
+import { ImageWMS, TileWMS, GeoJSON } from '../../../../app/ol-module';
+import { cartoHelper } from '../../../../helper/carto.helper'
+import { BackendApiService } from '../../../../app/services/backend-api/backend-api.service'
+import { StorageServiceService } from '../../../../app/services/storage-service/storage-service.service'
 import { NotifierService } from "angular-notifier";
 import { retryWhen, tap, delayWhen, take } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { timer } from 'rxjs';
-import { ShareServiceService } from 'src/app/services/share-service/share-service.service'
-import {measureUtil} from 'src/utils/measureUtils'
+import { ShareServiceService } from '../../../../app/services/share-service/share-service.service'
+import {measureUtil} from '../../../../utils/measureUtils'
 export interface attributeInterface {
   field: string,
   value: string,
