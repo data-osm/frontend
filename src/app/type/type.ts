@@ -614,6 +614,11 @@ export interface LayerProviders {
   vs_id:number,
   vp_id:number,
   vp:VectorProvider,
-  vs:Style
+  vs:Style,
+  ordre:number
 }
 
+export  interface ReorderProvider{
+  id:number
+  ordre:number
+}

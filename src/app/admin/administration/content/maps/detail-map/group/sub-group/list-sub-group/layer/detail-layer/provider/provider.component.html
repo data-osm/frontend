@@ -1,29 +1,18 @@
-<table mat-table [dataSource]="providers|async" class="list-provider-table">
 
+<div cdkDropList class="example-list" (cdkDropListDropped)="drop($event)">
+    <div class="example-box" *ngFor="let provider of providers|async" cdkDrag>
+      <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+      {{provider.vp.name}} <span class="accentColor"> ({{provider.vs.name}}) </span>
+      <svg class="pointer" style="float:right" [matMenuTriggerFor]="menu" viewBox="0 0 8.701 50">
+        <path class="accentColorFill" d="M0 0v8.7h8.7V0zm0 20.651v8.7h8.7v-8.7zm0 20.648v8.7h8.7v-8.7z"></path>
+    </svg>
+    <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="onUpdateInstance(provider)">{{ 'edit' | translate }} </button>
+        <button mat-menu-item class="red" (click)="onDeleteInstance(provider)">
+            {{ 'supprimer' | translate }}</button>
+    </mat-menu>
+    </div>
+</div>
 
-    <ng-container matColumnDef="provider">
-        <th mat-header-cell *matHeaderCellDef> {{ 'list_provider_with_style.provider' | translate }} </th>
-        <td mat-cell *matCellDef="let element"> {{element.vp.name}} </td>
-    </ng-container>
-
-    <ng-container matColumnDef="style">
-        <th mat-header-cell *matHeaderCellDef> {{ 'list_provider_with_style.style' | translate }} </th>
-        <td mat-cell *matCellDef="let element"> {{element.vs.name}} </td>
-    </ng-container>
-
-
-    <ng-container matColumnDef="action">
-        <th mat-header-cell *matHeaderCellDef> </th>
-        <td mat-cell *matCellDef="let element">
-            <svg class="pointer" [matMenuTriggerFor]="menu" viewBox="0 0 8.701 50" ><path class="accentColorFill" d="M0 0v8.7h8.7V0zm0 20.651v8.7h8.7v-8.7zm0 20.648v8.7h8.7v-8.7z"></path></svg>
-            <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="onUpdateInstance(element)" >{{ 'edit' | translate }} </button>
-                <button mat-menu-item  class="red" (click)="onDeleteInstance(element)" > {{ 'supprimer' | translate }}</button>
-            </mat-menu>
-        </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-</table>
-<button mat-raised-button style="margin: 10px;" (click)="onAddInstance()"> {{ 'list_provider_with_style.add' | translate }} </button>
+<button mat-raised-button style="margin: 10px;" (click)="onAddInstance()">
+    {{ 'list_provider_with_style.add' | translate }} </button>

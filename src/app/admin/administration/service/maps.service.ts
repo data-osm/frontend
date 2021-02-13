@@ -4,7 +4,7 @@ import { Observable, throwError, BehaviorSubject, from, of } from 'rxjs';
 import { catchError, finalize, retry, tap } from 'rxjs/operators';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
-import { Group, Layer, LayerProviders, Map, SubGroup } from '../../../type/type';
+import { Group, Layer, LayerProviders, Map, ReorderProvider, SubGroup } from '../../../type/type';
 import { NotifierService } from 'angular-notifier';
 
 @Injectable({
@@ -187,6 +187,14 @@ export class MapsService {
    */
   deleteProviderWithStyleOfLayer(id:number){
     return this.http.delete(this.url_prefix + '/api/group/layer/provider/'+id, { headers: this.get_header() })
+  }
+
+  /**
+   * Re order providers in a layer providers
+   * @param reorderProvider ReorderProvider
+   */
+  reorderProvidersInLayerProviders(reorderProvider:Array<ReorderProvider>){
+    return this.http.post(this.url_prefix+'/api/group/layer/provider/reorder', {reorderProviders:reorderProvider}, { headers: this.get_header() })
   }
 
 }

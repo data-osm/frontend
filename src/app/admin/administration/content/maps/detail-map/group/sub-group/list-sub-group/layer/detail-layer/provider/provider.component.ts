@@ -1,15 +1,19 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { NotifierService } from 'angular-notifier';
-import { EMPTY, merge, Observable, ReplaySubject, Subject } from 'rxjs';
-import { catchError, filter, switchMap } from 'rxjs/operators';
-import { Layer, LayerProviders } from '../../../../../../../../../../../type/type';
+import { combineLatest, EMPTY, merge, Observable, ReplaySubject, Subject } from 'rxjs';
+import { catchError, filter, map, switchMap, take, tap } from 'rxjs/operators';
+import { Layer, LayerProviders, ReorderProvider } from '../../../../../../../../../../../type/type';
 import {MapsService} from '../../../../../../../../../service/maps.service'
 import { AddLayerProviderComponent } from '../add-layer-provider/add-layer-provider.component';
 import {manageCompHelper} from '../../../../../../../../../../../../helper/manage-comp.helper'
 import { TranslateService } from '@ngx-translate/core';
 import { EditLayerProviderComponent } from '../edit-layer-provider/edit-layer-provider.component';
+import { MatTable } from '@angular/material/table';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+
+
 
 @Component({
   selector: 'app-provider',
@@ -19,13 +23,17 @@ import { EditLayerProviderComponent } from '../edit-layer-provider/edit-layer-pr
 export class ProviderComponent implements OnInit, OnChanges {
   onInitInstance:()=>void
   onAddInstance:()=>void
-  onDeleteInstance:(LayerProviders)=>void
-  onUpdateInstance:(LayerProviders)=>void
+  onDeleteInstance:(LayerProviders:LayerProviders)=>void
+  onUpdateInstance:(LayerProviders:LayerProviders)=>void
+  onReorderProvidersInstance:(reorderProviders:Array<ReorderProvider>)=>void
+
+  @ViewChild('table') table: MatTable<LayerProviders>;
+
 
   @Input()layer:Layer
   
   providers:Observable<Array<LayerProviders>>
-  displayedColumns:Array<string>=['provider','style', 'action']
+  // displayedColumns:Array<string>=['order','provider','style', 'action']
 
   private readonly notifier: NotifierService;
 
@@ -61,12 +69,23 @@ export class ProviderComponent implements OnInit, OnChanges {
       onUpdate.next(layerProviders)
     }
 
+    const onReorder:Subject<Array<ReorderProvider>> = new Subject<Array<ReorderProvider>>()
+
+    this.onReorderProvidersInstance = (reorderProviders:Array<ReorderProvider>)=>{
+      onReorder.next(reorderProviders)
+    }
+
     this.providers = merge(
       onInit.pipe(
         filter(()=>this.layer != undefined),
         switchMap(()=>{
           return this.MapsService.getProviderWithStyleOfLayer(this.layer.layer_id).pipe(
             catchError(() => { this.notifier.notify("error", "An error occured while loading providers with style "); return EMPTY }),
+            map((providers)=>{
+              return providers.sort(
+                (a, b) => a.ordre > b.ordre ? 1 : a.ordre === b.ordre ? 0 : -1
+              )
+            })
           )
         })
       ),
@@ -77,6 +96,11 @@ export class ProviderComponent implements OnInit, OnChanges {
             switchMap(()=>{
               return this.MapsService.getProviderWithStyleOfLayer(this.layer.layer_id).pipe(
                 catchError(() => { this.notifier.notify("error", "An error occured while loading providers with style "); return EMPTY }),
+                map((providers)=>{
+                  return providers.sort(
+                    (a, b) => a.ordre > b.ordre ? 1 : a.ordre === b.ordre ? 0 : -1
+                  )
+                })
               )
             })
           )
@@ -88,6 +112,11 @@ export class ProviderComponent implements OnInit, OnChanges {
             switchMap(()=>{
               return this.MapsService.getProviderWithStyleOfLayer(this.layer.layer_id).pipe(
                 catchError(() => { this.notifier.notify("error", "An error occured while loading providers with style "); return EMPTY }),
+                map((providers)=>{
+                  return providers.sort(
+                    (a, b) => a.ordre > b.ordre ? 1 : a.ordre === b.ordre ? 0 : -1
+                  )
+                })
               )
             })
           )
@@ -110,6 +139,28 @@ export class ProviderComponent implements OnInit, OnChanges {
                 switchMap(()=>{
                   return this.MapsService.getProviderWithStyleOfLayer(this.layer.layer_id).pipe(
                     catchError(() => { this.notifier.notify("error", "An error occured while loading providers with style "); return EMPTY }),
+                    map((providers)=>{
+                      return providers.sort(
+                        (a, b) => a.ordre > b.ordre ? 1 : a.ordre === b.ordre ? 0 : -1
+                      )
+                    })
+                  )
+                })
+              )
+            })
+          )
+        })
+      ),
+      onReorder.pipe(
+        switchMap((reorderProviders:Array<ReorderProvider>)=>{
+          return this.MapsService.reorderProvidersInLayerProviders(reorderProviders).pipe(
+            catchError(() => { this.notifier.notify("error", "An error occured while re order providers"); return EMPTY }),
+            switchMap(()=>{
+              return this.MapsService.getProviderWithStyleOfLayer(this.layer.layer_id).pipe(
+                catchError(() => { this.notifier.notify("error", "An error occured while loading providers with style "); return EMPTY }),
+                map((providers)=>{
+                  return providers.sort(
+                    (a, b) => a.ordre > b.ordre ? 1 : a.ordre === b.ordre ? 0 : -1
                   )
                 })
               )
@@ -118,8 +169,28 @@ export class ProviderComponent implements OnInit, OnChanges {
         })
       )
 
-
     )
+  }
+
+  drop(event: CdkDragDrop<string[]>) {
+    console.log(event)
+    combineLatest(this.providers).pipe(
+      take(1),
+      tap((providers:[Array<LayerProviders>])=>{
+        moveItemInArray(providers[0], event.previousIndex, event.currentIndex);
+        
+        let reorderProviders:Array<ReorderProvider> = providers[0].map(
+          (provider,index)=>{
+            return {
+              id:provider.id,
+              ordre:index
+            }
+          })
+        this.onReorderProvidersInstance(reorderProviders)
+
+      }),
+    ).subscribe()
+    
   }
 
   ngOnChanges(changes: SimpleChanges): void {
