@@ -9,7 +9,7 @@
 <mat-dialog-content>
     <mat-sidenav-container #previewSidenav style="width: 100%;height: 100%;">
         <mat-sidenav opened mode="side" position="start" class="preview-sidenav-left">
-            <mat-accordion>
+            <mat-accordion [multi]='true'>
                 <mat-expansion-panel *ngFor="let layer of layersForPreview" hideToggle [expanded]="true">
                     <mat-expansion-panel-header>
                         <mat-panel-title>

@@ -5,11 +5,12 @@ import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { MapsService } from '../../../../../../../../service/maps.service'
 import {manageCompHelper} from '../../../../../../../../../../../helper/manage-comp.helper'
-import { Layer } from '../../../../../../../../../../type/type';
+import { DataForPreview, Layer } from '../../../../../../../../../../type/type';
 import { EMPTY, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { filter, switchMap, catchError, tap, startWith, withLatestFrom, map, takeUntil, take } from 'rxjs/operators';
 import { AddLayerComponent } from '../add-layer/add-layer.component';
 import { DetailLayerComponent } from '../detail-layer/detail-layer.component';
+import { PreviewDataComponent } from '../../../../../../../../modal/preview-data/preview-data.component';
 @Component({
   selector: 'app-list-layer',
   templateUrl: './list-layer.component.html',
@@ -23,6 +24,7 @@ export class ListLayerComponent implements OnInit {
   onAddInstance:()=>void
   onSelectInstance:(layer:Layer)=>void
   onDeleteInstance:(layer:Layer)=>void
+  onPreviewInstance:(layer:Layer)=>void
 
   layerList:Observable<Layer[]>
 
@@ -124,6 +126,46 @@ export class ListLayerComponent implements OnInit {
     onSelect.pipe(
       tap((layer:Layer)=>{
         this.dialog.open(DetailLayerComponent,{data:layer.layer_id,width: '90%', maxWidth: '90%', maxHeight: '90%',})
+      })
+    ).subscribe()
+
+    const onPreview:Subject<Layer>=new Subject<Layer>()
+    this.onPreviewInstance = (layer:Layer) =>{
+      onPreview.next(layer)
+    }
+
+    onPreview.pipe(
+      switchMap((layer)=>{
+        return this.MapsService.getProviderWithStyleOfLayer(layer.layer_id).pipe(
+          catchError(() => { this.notifier.notify("error", "An error occured while loading providers with style "); return EMPTY }),
+          map((providers)=>{
+            return providers.sort(
+              (a, b) => a.ordre > b.ordre ? 1 : a.ordre === b.ordre ? 0 : -1
+            )
+          }),
+          tap((providers)=>{
+            let dataForPreview:Array<DataForPreview> = providers.map((provider)=>{
+              return {
+                name:provider.vp.name,
+                style:[provider.vs.name],
+                id_server:provider.vp.id_server,
+                url_server:provider.vp.url_server,
+                extent:provider.vp.extent
+              }
+            })
+           
+            this.dialog.open(PreviewDataComponent,{
+              data:dataForPreview,
+              minWidth:400,
+              disableClose:false,
+              width:( window.innerWidth-200)+'px',
+              maxWidth:( window.innerWidth-200)+'px',
+              height:( window.innerHeight -150)+'px',
+              maxHeight:( window.innerHeight -150)+'px',
+            })
+            
+          })
+        )
       })
     ).subscribe()
   }
