@@ -3,7 +3,7 @@ import { FormBuilder } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { NotifierService } from 'angular-notifier';
 import { combineLatest, EMPTY, merge, Observable, ReplaySubject, Subject } from 'rxjs';
-import { catchError, filter, map, switchMap, take, tap } from 'rxjs/operators';
+import { catchError, filter, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { Layer, LayerProviders, ReorderProvider } from '../../../../../../../../../../../type/type';
 import {MapsService} from '../../../../../../../../../service/maps.service'
 import { AddLayerProviderComponent } from '../add-layer-provider/add-layer-provider.component';
@@ -77,7 +77,7 @@ export class ProviderComponent implements OnInit, OnChanges {
 
     this.providers = merge(
       onInit.pipe(
-        filter(()=>this.layer != undefined),
+        filter(()=>this.layer != null),
         switchMap(()=>{
           return this.MapsService.getProviderWithStyleOfLayer(this.layer.layer_id).pipe(
             catchError(() => { this.notifier.notify("error", "An error occured while loading providers with style "); return EMPTY }),
@@ -167,8 +167,10 @@ export class ProviderComponent implements OnInit, OnChanges {
             })
           )
         })
-      )
+      ),
 
+    ).pipe(
+      shareReplay(1)
     )
   }
 

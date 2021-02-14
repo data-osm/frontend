@@ -4,7 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NotifierService } from 'angular-notifier';
 import { merge, Observable, ReplaySubject, Subject } from 'rxjs';
 import { EMPTY } from 'rxjs/internal/observable/empty';
-import { catchError, filter, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { catchError, filter, shareReplay, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { Layer } from '../../../../../../../../../../type/type';
 import {MapsService} from '../../../../../../../../service/maps.service'
 
@@ -43,6 +43,8 @@ export class DetailLayerComponent implements OnInit {
           )
         })
       )
+    ).pipe(
+      shareReplay(1)
     )
   }
 

@@ -622,3 +622,15 @@ export  interface ReorderProvider{
   id:number
   ordre:number
 }
+
+export interface Tag{
+  id:number,
+  name:string
+}
+
+export interface Metadata{
+  id?:number
+  tags:Array<Tag>
+  description:string
+  layer:number
+}

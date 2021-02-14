@@ -4,7 +4,7 @@ import { Observable, throwError, BehaviorSubject, from, of } from 'rxjs';
 import { catchError, finalize, retry, tap } from 'rxjs/operators';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
-import { Group, Layer, LayerProviders, Map, ReorderProvider, SubGroup } from '../../../type/type';
+import { Group, Layer, LayerProviders, Map, Metadata, ReorderProvider, SubGroup, Tag } from '../../../type/type';
 import { NotifierService } from 'angular-notifier';
 
 @Injectable({
@@ -195,6 +195,40 @@ export class MapsService {
    */
   reorderProvidersInLayerProviders(reorderProvider:Array<ReorderProvider>){
     return this.http.post(this.url_prefix+'/api/group/layer/provider/reorder', {reorderProviders:reorderProvider}, { headers: this.get_header() })
+  }
+
+  /**
+   * Search a tag
+   * @param search_word string
+   * @returns Observable<Array<Tag>>
+   */
+  searchTags(search_word:string):Observable<Array<Tag>>{
+    return this.http.post<Array<Tag>>(this.url_prefix+'/api/group/tags/search',{search_word:search_word}, { headers: this.get_header() })
+  }
+
+  /**
+   * Get Metadata of a layer
+   * @param layer_id number
+   * @returns Observable<Metadata>
+   */
+  getLayerMetadata(layer_id:number):Observable<Metadata>{
+    return this.http.get<Metadata>(this.url_prefix+'/api/group/metadata?layer='+layer_id ,{ headers: this.get_header() })
+  }
+
+  /**
+   * Add Metadata
+   * @param metadata 
+   */
+  addMetadata(metadata:Metadata){
+    return this.http.post(this.url_prefix+'/api/group/metadata',metadata, { headers: this.get_header() })
+  }
+
+  /**
+   * update Metadata
+   * @param metadata 
+   */
+  updateMetadata(metadata:Metadata){
+    return this.http.put(this.url_prefix+'/api/group/metadata/'+metadata.id,metadata, { headers: this.get_header() })
   }
 
 }
