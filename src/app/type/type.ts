@@ -597,7 +597,7 @@ export interface Layer{
   name:string
   protocol_carto: 'wms'|'wfs'|'wmts'
   color:string
-  icon:string
+  icon:number
   cercle_icon :string
   square_icon :string
   description :string

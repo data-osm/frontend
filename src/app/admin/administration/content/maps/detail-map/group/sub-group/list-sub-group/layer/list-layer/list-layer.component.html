@@ -27,6 +27,11 @@ margin: 10px 0px;
             <app-detail-layer [layer_id]="layer.layer_id"></app-detail-layer>
         </ng-container>
         <mat-action-row>
+            <button mat-stroked-button (click)="onUpdateInstance(layer)" > 
+                {{ 'list_layer.update' | translate }} 
+                <!-- <svg height="17" width="17" viewBox="0 0 50 49.543" ><path fill="black" d="M47.815 6.6l-4.47-4.42L41.208.044 39.073 2.18 2.893 38l-.66.66-.2.916-1.118 5.538-.916 4.5 4.47-.864 5.59-1.067.91-.152.66-.66L47.812 11l2.184-2.185L47.81 6.63zm-40.7 31.555L35.67 9.852l4.472 4.472-28.557 28.303-4.47-4.472zm-3.202 7.57L5.03 40.34l4.32 4.32-5.437 1.066zM42.277 12.14l-4.472-4.472 3.405-3.354 4.47 4.42-3.403 3.405z"></path></svg> -->
+        </button>
+
             <button mat-stroked-button (click)="onDeleteInstance(layer)"> <span class="red">
                     {{ 'list_layer.delete' | translate }} </span> <svg height="17" width="17" viewBox="0 0 49.501 50"
                     class="">

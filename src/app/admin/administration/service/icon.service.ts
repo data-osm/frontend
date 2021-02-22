@@ -133,7 +133,14 @@ export class IconService {
     return from(this.http.post(this.url_prefix + '/api/group/icons/add', icon, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
       map((value: HttpResponse<any>): Icon => { return value.body })
     ))
-    // return from(this.post_requete('api/group/icons/add',icon))
+  }
+
+  /**
+   * Get icon by id
+   * @param icon_id number
+   */
+  getIcon(icon_id:number):Observable<Icon>{
+    return this.http.get<Icon>(this.url_prefix+'/api/group/icon/'+icon_id, {headers: this.get_header()})
   }
 
   /**

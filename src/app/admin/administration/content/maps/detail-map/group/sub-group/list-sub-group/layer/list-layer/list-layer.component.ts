@@ -7,10 +7,11 @@ import { MapsService } from '../../../../../../../../service/maps.service'
 import {manageCompHelper} from '../../../../../../../../../../../helper/manage-comp.helper'
 import { DataForPreview, Layer } from '../../../../../../../../../../type/type';
 import { EMPTY, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { filter, switchMap, catchError, tap, startWith, withLatestFrom, map, takeUntil, take } from 'rxjs/operators';
+import { filter, switchMap, catchError, tap, startWith, withLatestFrom, map, takeUntil, take, shareReplay } from 'rxjs/operators';
 import { AddLayerComponent } from '../add-layer/add-layer.component';
 import { DetailLayerComponent } from '../detail-layer/detail-layer.component';
 import { PreviewDataComponent } from '../../../../../../../../modal/preview-data/preview-data.component';
+import { UpdateLayerComponent } from '../update-layer/update-layer.component';
 @Component({
   selector: 'app-list-layer',
   templateUrl: './list-layer.component.html',
@@ -24,6 +25,7 @@ export class ListLayerComponent implements OnInit {
   onAddInstance:()=>void
   onSelectInstance:(layer:Layer)=>void
   onDeleteInstance:(layer:Layer)=>void
+  onUpdateInstance:(layer:Layer)=>void
   onPreviewInstance:(layer:Layer)=>void
 
   layerList:Observable<Layer[]>
@@ -55,6 +57,11 @@ export class ListLayerComponent implements OnInit {
       onDelete.next(layer)
     }
 
+    const onUpdate:Subject<Layer> = new Subject<Layer>()
+    this.onUpdateInstance = (layer:Layer)=>{
+      onUpdate.next(layer)
+    }
+
     const onSelect:Subject<Layer>=new Subject<Layer>()
 
     this.layerList = merge(
@@ -63,6 +70,8 @@ export class ListLayerComponent implements OnInit {
         filter(e => e instanceof NavigationEnd || e == undefined),
         map(() => this.route.snapshot),
         map(route => {
+          console.log('iii')
+
           while (route.firstChild) {
             route = route.firstChild;
           }
@@ -71,6 +80,7 @@ export class ListLayerComponent implements OnInit {
         filter((route)=>route.component["name"]==="ListLayerComponent"),
         filter((route) =>route.params['sub-id'] != undefined),
         switchMap((route: ActivatedRouteSnapshot) => {
+          console.log('iii',2)
           let parameters = route.params
           this.sub_id.next(Number(parameters['sub-id']))
           return this.MapsService.getAllLayersFromSubGroup(Number(parameters['sub-id'])).pipe(
@@ -90,7 +100,19 @@ export class ListLayerComponent implements OnInit {
             })
           )
         })
-        
+      ),
+      onUpdate.pipe(
+        switchMap((layer: Layer) => { 
+          return this.dialog.open(UpdateLayerComponent,{data:layer,width: '90%', maxWidth: '90%', maxHeight: '90%'}).afterClosed().pipe(
+            filter(response=>response),
+            withLatestFrom(this.sub_id),
+            switchMap((parameters)=>{
+              return this.MapsService.getAllLayersFromSubGroup(parameters[1]).pipe(
+                catchError(() => { this.notifier.notify("error", "An error occured while loading layers "); return EMPTY }),
+              )
+            })
+          )
+        })
       ),
       onDelete.pipe(
         switchMap((layer: Layer) => {
@@ -117,6 +139,8 @@ export class ListLayerComponent implements OnInit {
           )
         })
       )
+    ).pipe(
+      shareReplay(1)
     )
 
     this.onSelectInstance = (layer:Layer)=>{

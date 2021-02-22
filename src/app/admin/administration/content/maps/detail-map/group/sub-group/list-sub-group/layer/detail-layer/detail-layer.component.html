@@ -1,8 +1,12 @@
-<mat-tab-group>
-    <mat-tab label="Provider">
-        <app-provider [layer]="(layer|async)"></app-provider>
-    </mat-tab>
-    <mat-tab label="Metadonnées">
-        <app-metadata style="display: block;padding: 20px 0px 0px;" [layer]="(layer|async)" ></app-metadata>
-    </mat-tab>
-</mat-tab-group>
+<ng-container *ngIf="layer|async as layer$">
+
+    <mat-tab-group>
+        <mat-tab label="Provider">
+            <app-provider [layer]="layer$"></app-provider>
+        </mat-tab>
+        <mat-tab label="Metadonnées">
+            <app-metadata style="display: block;padding: 20px 0px 0px;" [layer]="layer$"></app-metadata>
+        </mat-tab>
+    </mat-tab-group>
+
+</ng-container>

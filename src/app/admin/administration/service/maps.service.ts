@@ -158,6 +158,14 @@ export class MapsService {
   }
 
   /**
+   * update a layer
+   * @param layer_id number
+   */
+  updateLayer(layer:Layer):Observable<Layer>{
+    return this.http.put<Layer>(this.url_prefix + '/api/group/layer/'+layer.layer_id,layer, { headers: this.get_header() }) 
+  }
+
+  /**
    * delete a layer
    * @param layer_id number
    */

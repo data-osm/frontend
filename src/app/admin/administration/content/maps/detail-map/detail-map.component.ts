@@ -5,7 +5,7 @@ import { ActivatedRoute, NavigationEnd, Router , Params} from '@angular/router';
 import { SVG } from '@svgdotjs/svg.js';
 import { NotifierService } from 'angular-notifier';
 import { combineLatest, EMPTY, merge, Observable, of, ReplaySubject, Subject, iif, BehaviorSubject } from 'rxjs';
-import { catchError, filter, map, mergeMap, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, filter, map, mergeMap, shareReplay, startWith, switchMap, take, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { environment } from '../../../../../../environments/environment';
 import { Group, Icon } from '../../../../../type/type';
 import { IconService } from '../../../service/icon.service';
@@ -188,6 +188,8 @@ export class DetailMapComponent implements OnInit {
         })
 
       )
+    ).pipe(
+      shareReplay(1)
     )
 
     combineLatest(this.router.events.pipe(startWith(of(undefined))),this.groups).pipe(

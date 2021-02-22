@@ -340,6 +340,9 @@
       "title": "Ajouter une couche",
       "name": "Nom de la couche",
       "color": "Couleur"
+    },
+    "update_layer": {
+      "title": "Modifier la couche"
     }
   },
   "add_icon": {
@@ -390,6 +393,7 @@
   "list_layer": {
     "add_layer": "Ajouter une couche",
     "delete": "Supprimer",
+    "update": "Modifier",
     "delte_layer": "Supprimer une couche"
   }
 }
