@@ -9,8 +9,9 @@
 </h1>
 
 
-    <mat-dialog-content>
-<form [formGroup]="formAddStyle">
+<mat-dialog-content>
+
+    <form [formGroup]="formAddStyle">
 
         <mat-form-field appearance="outline" *ngIf="formAddStyle.get('name')" style="width: 100%;">
             <mat-label> {{ 'add_style.name' | translate }} </mat-label>
@@ -18,16 +19,31 @@
             <mat-error> {{ 'add_icon.category_error' | translate }} </mat-error>
         </mat-form-field>
 
-        <app-file-upload *ngIf="formAddStyle.get('qml_file')" formControlName="qml_file"  [multiple]="false" [accept]="'.qml'" ></app-file-upload>
-        <span *ngIf="hasError('qml_file', 'required')" > {{ 'add_style.qml_error' | translate }} </span>
+        <ng-container *ngIf="provider$|async as provider">
+            <div class="select-type-style">
+                <mat-button-toggle-group multiple="false" [value]="styleType|async"
+                    (change)="styleTypeChanged($event.value)">
+                    <mat-button-toggle [value]="'qml'"> QML</mat-button-toggle>
+                    <mat-button-toggle *ngIf="provider.geometry_type === 'Point'" [value]="'cluster'">Cluster
+                    </mat-button-toggle>
+                </mat-button-toggle-group>
+            </div>
+        </ng-container>
+
+        <app-qml [hidden]="(styleType|async) != 'qml'" [provider_vector_id]="provider_vector_id"
+            [styleName]="formAddStyle.get('name')"></app-qml>
+        <app-cluster [hidden]="(styleType|async) != 'cluster'" [provider_vector_id]="provider_vector_id"
+            [styleName]="formAddStyle.get('name')"></app-cluster>
 
     </form>
-    </mat-dialog-content>
+</mat-dialog-content>
 
 <mat-dialog-actions>
-        <div fxLayout fxLayoutGap="15px" fxLayoutAlign="end" >
-            <mat-progress-bar fxFlex="100%" mode="indeterminate" *ngIf="formAddStyle.disabled" ></mat-progress-bar>
-            <button fxFlex="150px" mat-stroked-button color="primary" [disabled]="formAddStyle.disabled" (click)="close()">{{ 'cancel' | translate }}</button>
-            <button fxFlex="150px" mat-flat-button color="accent" class="white" (click)="onAddInstance()" [disabled]="!formAddStyle.valid || formAddStyle.disabled" >   {{ 'save' | translate }} </button>
-        </div>
+    <div fxLayout fxLayoutGap="15px" fxLayoutAlign="end">
+        <mat-progress-bar fxFlex="100%" mode="indeterminate" *ngIf="formAddStyle.disabled"></mat-progress-bar>
+        <button fxFlex="150px" mat-stroked-button color="primary" [disabled]="formAddStyle.disabled"
+            (click)="close()">{{ 'cancel' | translate }}</button>
+        <button fxFlex="150px" mat-flat-button color="accent" class="white" (click)="onAddInstance()"
+            [disabled]="!formAddStyle.valid || formAddStyle.disabled"> {{ 'save' | translate }} </button>
+    </div>
 </mat-dialog-actions>

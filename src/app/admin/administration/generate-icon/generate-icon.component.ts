@@ -21,9 +21,9 @@ export class GenerateIconComponent implements OnInit {
    */
   @Input() icon:Icon
   /**
-   * The icon id use to generate the icon 
+   * The icon id used to generate the icon 
    */
-  @Input() icon_id:FormControl
+  @Input() icon_id?:FormControl
   /**
    * The background color of the icon
    */
@@ -109,8 +109,10 @@ export class GenerateIconComponent implements OnInit {
 
             this.squareSvgAsText.setValue(this.squareSvg.nativeElement.innerHTML)  
           }
-          
-          this.icon_id.setValue(value[0].icon_id)
+
+          if (this.icon_id) {
+            this.icon_id.setValue(value[0].icon_id)
+          }
 
         } catch (error) {
           this.notifier.notify("error", "Sorry, can not to load this icon ! due to "+error.toString());

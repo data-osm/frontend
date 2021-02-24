@@ -1,11 +1,15 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NotifierService } from 'angular-notifier';
-import { combineLatest, EMPTY, Subject } from 'rxjs';
+import { BehaviorSubject, combineLatest, EMPTY, Observable, ReplaySubject, Subject } from 'rxjs';
 import { catchError, filter, shareReplay, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { VectorProvider } from '../../../../../../../../type/type';
 import { StyleService } from '../../../../../../service/style.service'
+import { VectorProviderService } from '../../../../../../service/vector-provider.service'
+import { ClusterComponent } from './cluster/cluster.component';
+import { QmlComponent } from './qml/qml.component';
 
 @Component({
   selector: 'app-add-style',
@@ -21,22 +25,32 @@ export class AddStyleComponent implements OnInit, OnDestroy {
    * add the instance, if success, exit dialog 
    */
   onAddInstance:()=>void
+  onInitInstance:()=>void
 
-  onDestroyInstance:()=>void
 
   /**
    * is the comp communicating with server ?
    */
   loading:boolean
 
+  styleType:BehaviorSubject<string> = new BehaviorSubject<string>(null)
+  private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
+
+  provider$:Observable<VectorProvider>
+
   private readonly notifier: NotifierService;
   formAddStyle: FormGroup 
+
+  @ViewChild(QmlComponent) qmlComponent:QmlComponent
+  @ViewChild(ClusterComponent) clusterComponent:ClusterComponent
 
   constructor(
     public dialogRef: MatDialogRef<AddStyleComponent>,
     private formBuilder: FormBuilder,
     notifierService: NotifierService,
     public StyleService:StyleService,
+    public VectorProviderService: VectorProviderService,
+    private cdRef:ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) public provider_vector_id: number
   ) { 
     this.notifier = notifierService;
@@ -46,78 +60,75 @@ export class AddStyleComponent implements OnInit, OnDestroy {
       qml_file: new FormControl(null,[Validators.required]),
     })
 
-    const onAdd:Subject<any> = new Subject()
-    this.onAddInstance = ()=>{
-      onAdd.next()
+    const onInit:Subject<void> = new ReplaySubject<void>(1)
+    this.onInitInstance = ()=>{
+      onInit.next()
     }
 
-    const onDestroy:Subject<any> = new Subject()
-    this.onDestroyInstance = ()=>{
-      onDestroy.next()
-      onDestroy.complete()
-    }
-
-      onAdd.pipe(
-        takeUntil(onDestroy),
-        filter(()=>this.formAddStyle.valid ),
-        tap(()=>{this.loading=true;this.formAddStyle.disable()}),
-        switchMap(()=>{
-          let style = toFormData({
-            'qml_file':this.formAddStyle.get('qml_file').value[0],
-            'name':this.formAddStyle.get('name').value,
-            'provider_vector_id':provider_vector_id
-          })
-          return this.StyleService.addStyle(style)
-                .pipe(
-                  catchError((value:HttpErrorResponse)=>{
-                    this.notifier.notify("error",value.error.msg)
-                    this.loading=false;this.formAddStyle.enable()
-                    return EMPTY
-                  }),
-                  tap(()=> {this.loading=false;this.formAddStyle.enable();this.dialogRef.close(true)})
-                )
-        }),
-        tap(()=>{this.loading=false;this.formAddStyle.enable()}),
-    ).subscribe()
+    this.provider$ = onInit.pipe(
+      switchMap(()=>{
+        return this.VectorProviderService.getVectorProvider(this.provider_vector_id).pipe(
+          catchError((value:HttpErrorResponse)=>{
+            this.notifier.notify("error", "An error occured while loading the provider")
+            this.dialogRef.close(false)
+            return EMPTY
+          }),
+          tap(()=>{this.styleType.next('qml')})
+        )
+      }),
+      shareReplay(1)
+    )
+  
     
   }
 
   ngOnInit(): void {
-
+    this.onInitInstance()
   }
 
-  ngOnDestroy(){
-    this.onDestroyInstance()
+  ngAfterViewInit(){
+    this.styleType.pipe(
+     tap((type)=>{
+       if (type ==='qml') {
+         this.formAddStyle = this.qmlComponent.form
+         this.onAddInstance = ()=>{
+           this.qmlComponent.onAddInstance()
+         }
+       }else if (type==='cluster') {
+         this.formAddStyle = this.clusterComponent.form
+         this.onAddInstance = ()=>{
+           this.clusterComponent.onAddInstance()
+         }
+       }
+     
+       this.cdRef.detectChanges();
+
+     }),
+     takeUntil(this.destroyed$)
+   ).subscribe()
+
+ }
+
+
+ 
+
+  ngOnDestroy():void{
+    this.destroyed$.next(true);
+    this.destroyed$.complete();
+  }
+
+   /**
+   * Change the type of project
+   * @param type string
+   */
+  styleTypeChanged(type:string):void{
+    this.styleType.next(type)
   }
 
   close(): void {
     this.dialogRef.close(false);
   }
 
-  /**
-   * Is this form control has error ?
-   * @param field string
-   * @param error string
-   * @returns boolean
-   */
-  hasError( field: string, error: string ):boolean {
-    const control = this.formAddStyle.get(field);
-    try {
-    return control.dirty && control.hasError(error);
-      
-    } catch (error) {
-      return true
-    }
-  }
+ 
 
-}
-export function toFormData<T>( formValue: T ) {
-  const formData = new FormData();
-
-  for ( const key of Object.keys(formValue) ) {
-    const value = formValue[key];
-    formData.append(key, value);
-  }
-
-  return formData;
 }
