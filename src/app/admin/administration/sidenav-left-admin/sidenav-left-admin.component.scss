@@ -43,48 +43,58 @@
         .list-map{
             padding-top:0px;
             border-left: 5px solid $accent_color;
+
+           
+
             .mat-list-item{
                 color: white;
-                .edit-map{
-                    position: absolute;
-                    top: 15px;
-                    right: 40px;
-                }
-
-                .delete-map{
+                .group-more{
                     position: absolute;
                     top: 15px;
                     right: 15px;
-                }
-
-                svg{
-                    fill: #00ada7a1;
-                    transition: 0.5s;
-                    cursor: pointer;
-                    
-                }
-                svg:hover{
-                    fill: white;
                     width: 20px;
                     height: 20px;
+                    fill: white;
+                    display: none;
+                    transition: 0.5s;
                 }
+                
+
+                // svg{
+                //     fill: #00ada7a1;
+                //     transition: 0.5s;
+                //     cursor: pointer;
+                    
+                // }
+                // svg:hover{
+                //     fill: white;
+                //     width: 20px;
+                //     height: 20px;
+                // }
             }
         }
     }
 
     .tab,.list-map{
         padding-top:0px;
-        mat-list-item{
+        mat-list-option{
             background: hsla(0,0%,100%,.05);
             cursor: pointer;
             transition: background .25s,color .25s;
         }
-        mat-list-item:hover{
+        mat-list-option:hover{
             background-color: $accent_color;
+            opacity: 0.7 !important;
             svg{
                 fill: white !important;
+            }
+            .group-more{
+                display: block !important;
             }
         }
     }
     
+}
+.mat-list-single-selected-option{
+    background: $accent_color !important;
 }

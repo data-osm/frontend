@@ -1,16 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
-import { Observable, Subject, ReplaySubject, merge, EMPTY } from 'rxjs';
-import { switchMap, tap, catchError, filter } from 'rxjs/operators';
+import { Observable, Subject, ReplaySubject, merge, EMPTY, of } from 'rxjs';
+import { switchMap, tap, catchError, filter, takeUntil, distinct, startWith } from 'rxjs/operators';
 import { Map } from '../../../type/type';
 import { manageCompHelper } from '../../../../helper/manage-comp.helper'
 import { MapsService } from '../service/maps.service'
 import { MatDialog } from '@angular/material/dialog';
 import { AddMapComponent } from '../content/maps/add-map/add-map.component';
 import { EditMapComponent } from '../content/maps/edit-map/edit-map.component';
-import { Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import {MatSelectionList, MatSelectionListChange} from '@angular/material/list';
+
+
 @Component({
   selector: 'app-sidenav-left-admin',
   templateUrl: './sidenav-left-admin.component.html',
@@ -26,11 +29,16 @@ export class SidenavLeftAdminComponent implements OnInit {
   onAddInstance: () => void;
   onUpdateIntance: (map: Map) => void;
   onDeleteInstance: (map: Map) => void;
-
   /**
    * the datasource of the table that list vector provider
    */
   maps: Observable<Map[]>
+
+  activeMapId:Observable<number>
+
+  @ViewChild(MatSelectionList) mapSelectionList :MatSelectionList
+
+  private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   /**
    * is comp interacting with backend ?
@@ -44,7 +52,8 @@ export class SidenavLeftAdminComponent implements OnInit {
     public fb: FormBuilder,
     public translate: TranslateService,
     public dialog: MatDialog,
-    public router:Router
+    public router:Router,
+    public route:ActivatedRoute
   ) {
     this.notifier = notifierService;
 
@@ -68,6 +77,15 @@ export class SidenavLeftAdminComponent implements OnInit {
     this.onDeleteInstance = (map: Map) => {
       onDelete.next(map)
     }
+
+    this.activeMapId = this.router.events.pipe(
+      startWith(undefined),
+      filter(e => e instanceof NavigationEnd || e == undefined),
+      filter(() => this.route.children.length > 0),
+      switchMap(() => { return this.route.firstChild.params }),
+      filter(parameters => parameters['id'] != undefined ),
+      switchMap((parameters)=>{ return of(parameters['id']) })
+    )
 
     this.maps = merge(
       onInit.pipe(
@@ -135,8 +153,16 @@ export class SidenavLeftAdminComponent implements OnInit {
     this.onInitInstance();
   }
 
-  navigateToMap(map:Map){
-    this.router.navigate(['/admin','map',map.map_id])
+  ngOnDestroy():void{
+    this.destroyed$.next(true);
+    this.destroyed$.complete();
+  }
+
+  ngAfterViewInit(){
+    this.mapSelectionList.selectionChange.pipe(
+      tap((value:MatSelectionListChange)=>{ this.router.navigate(['/admin','map',value.option.value]) }),
+      takeUntil(this.destroyed$),
+    ).subscribe()
   }
 
 }

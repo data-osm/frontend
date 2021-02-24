@@ -9,10 +9,10 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { selectLayersForDownload, downloadModelInterface, ParametersGeometryDB } from './download-select-layers'
 import { GeoJSON, VectorLayer, VectorSource, Style, Stroke, Fill, Feature, Overlay, getCenter } from '../../..//ol-module';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { environment } from 'src/environments/environment';
-import { cartoHelper } from 'src/helper/carto.helper'
-import { manageDataHelper } from 'src/helper/manage-data.helper'
-import { manageCompHelper } from 'src/helper/manage-comp.helper'
+import { environment } from '../../../../environments/environment';
+import { cartoHelper } from '../../../../helper/carto.helper'
+import { manageDataHelper } from '../../../../helper/manage-data.helper'
+import { manageCompHelper } from '../../../../helper/manage-comp.helper'
 import { ChartOverlayComponent } from './chart-overlay/chart-overlay.component'
 import * as $ from 'jquery'
 import {ListDownloadLayersComponent,downloadDataModelInterface} from './list-download-layers/list-download-layers.component'

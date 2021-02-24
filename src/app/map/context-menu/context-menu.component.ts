@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { cartoHelper } from 'src/helper/carto.helper';
-import { manageCompHelper } from 'src/helper/manage-comp.helper';
+import { cartoHelper } from '../../../helper/carto.helper';
+import { manageCompHelper } from '../../../helper/manage-comp.helper';
 import { geosignetInterface, geosignets } from './geoSignets'
 import { TranslateService } from '@ngx-translate/core';
 import {ShContextMenuComponent} from 'ng2-right-click-menu'
