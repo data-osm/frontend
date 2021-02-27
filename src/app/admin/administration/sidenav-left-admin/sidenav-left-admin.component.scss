@@ -1,15 +1,20 @@
 @import '../../../theme.scss';
 
 .sidenav-left-admin{
+    mat-list-item:hover{
+        opacity: 0.7 !important;
+        cursor: pointer;
+    }
+
     mat-expansion-panel{
         background: transparent;
         box-shadow: none;
 
-        mat-expansion-panel-header:hover{
-            background: hsla(0,0%,100%,.05) !important;
-        }
+        // mat-expansion-panel-header:hover{
+        //     // background: hsla(0,0%,100%,.05) !important;
+        // }
         mat-expansion-panel-header{
-            background: hsla(0,0%,100%,.05);
+            // background: hsla(0,0%,100%,.05);
             padding-left: 0px !important;
             padding-right: 0px !important;
             
@@ -82,19 +87,30 @@
             cursor: pointer;
             transition: background .25s,color .25s;
         }
-        mat-list-option:hover{
-            background-color: $accent_color;
-            opacity: 0.7 !important;
-            svg{
-                fill: white !important;
-            }
-            .group-more{
-                display: block !important;
-            }
+        .mat-list-single-selected-option{
+            background: $accent_color !important;
         }
+       
     }
     
 }
-.mat-list-single-selected-option{
-    background: $accent_color !important;
+.list-map{
+   
+    mat-list-option:hover{
+        background-color: $accent_color;
+        opacity: 0.7 !important;
+        svg{
+            fill: white !important;
+        }
+        .group-more{
+            display: block !important;
+        }
+    }
+
+}
+.tab{
+  
+    mat-list-option:hover{
+        opacity: 0.7 !important;
+    }
 }

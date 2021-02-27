@@ -3,7 +3,7 @@ import { FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { Observable, Subject, ReplaySubject, merge, EMPTY, of } from 'rxjs';
-import { switchMap, tap, catchError, filter, takeUntil, distinct, startWith } from 'rxjs/operators';
+import { switchMap, tap, catchError, filter, takeUntil, distinct, startWith, map, shareReplay } from 'rxjs/operators';
 import { Map } from '../../../type/type';
 import { manageCompHelper } from '../../../../helper/manage-comp.helper'
 import { MapsService } from '../service/maps.service'
@@ -34,9 +34,12 @@ export class SidenavLeftAdminComponent implements OnInit {
    */
   maps: Observable<Map[]>
 
-  activeMapId:Observable<number>
+  activePte:Observable<{
+    map_id:number,
+    path:string,
+  }>
 
-  @ViewChild(MatSelectionList) mapSelectionList :MatSelectionList
+  @ViewChild('MatSelectionList') mapSelectionList :MatSelectionList
 
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
@@ -78,13 +81,29 @@ export class SidenavLeftAdminComponent implements OnInit {
       onDelete.next(map)
     }
 
-    this.activeMapId = this.router.events.pipe(
+    this.activePte = this.router.events.pipe(
       startWith(undefined),
       filter(e => e instanceof NavigationEnd || e == undefined),
       filter(() => this.route.children.length > 0),
-      switchMap(() => { return this.route.firstChild.params }),
-      filter(parameters => parameters['id'] != undefined ),
-      switchMap((parameters)=>{ return of(parameters['id']) })
+      switchMap(() => { 
+        return this.route.firstChild.params 
+      }),
+      switchMap((parameters)=>{ 
+        return this.route.firstChild.url.pipe(
+          map((url)=>{
+            let path:string;
+          
+            if (url.length > 0) {
+              path = url[0].path
+            }
+            return {
+              map_id:parameters['id'],
+              path:path
+            }
+          })
+        );
+      }),
+      shareReplay(1)
     )
 
     this.maps = merge(

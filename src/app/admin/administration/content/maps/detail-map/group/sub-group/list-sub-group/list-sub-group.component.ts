@@ -206,8 +206,12 @@ export class ListSubGroupComponent implements OnInit {
   }
 
   goToSubGroup(index:number,subGroupList:Array<SubGroup>):void{
-    let subGroup = subGroupList[index]
-    this.router.navigate([subGroup.group,subGroup.group_sub_id], { relativeTo: this.route })
+    try {
+      let subGroup = subGroupList[index]
+      this.router.navigate([subGroup.group,subGroup.group_sub_id], { relativeTo: this.route })
+    } catch (error) {
+    }
+    
   }
 
   findIndexOfSubGroup(subGroup:SubGroup, listGroup:Array<SubGroup>):number{
