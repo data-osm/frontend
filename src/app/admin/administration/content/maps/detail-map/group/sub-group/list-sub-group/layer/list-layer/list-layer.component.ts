@@ -7,7 +7,7 @@ import { MapsService } from '../../../../../../../../service/maps.service'
 import {manageCompHelper} from '../../../../../../../../../../../helper/manage-comp.helper'
 import { DataForPreview, Layer } from '../../../../../../../../../../type/type';
 import { EMPTY, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { filter, switchMap, catchError, tap, startWith, withLatestFrom, map, takeUntil, take, shareReplay } from 'rxjs/operators';
+import { filter, switchMap, catchError, tap, startWith, withLatestFrom, map, takeUntil, take, shareReplay, distinct } from 'rxjs/operators';
 import { AddLayerComponent } from '../add-layer/add-layer.component';
 import { DetailLayerComponent } from '../detail-layer/detail-layer.component';
 import { PreviewDataComponent } from '../../../../../../../../modal/preview-data/preview-data.component';
@@ -70,8 +70,6 @@ export class ListLayerComponent implements OnInit {
         filter(e => e instanceof NavigationEnd || e == undefined),
         map(() => this.route.snapshot),
         map(route => {
-          console.log('iii')
-
           while (route.firstChild) {
             route = route.firstChild;
           }
@@ -79,8 +77,8 @@ export class ListLayerComponent implements OnInit {
         }),
         filter((route)=>route.component["name"]==="ListLayerComponent"),
         filter((route) =>route.params['sub-id'] != undefined),
+        distinct((parameters)=>parameters['sub-id']),
         switchMap((route: ActivatedRouteSnapshot) => {
-          console.log('iii',2)
           let parameters = route.params
           this.sub_id.next(Number(parameters['sub-id']))
           return this.MapsService.getAllLayersFromSubGroup(Number(parameters['sub-id'])).pipe(

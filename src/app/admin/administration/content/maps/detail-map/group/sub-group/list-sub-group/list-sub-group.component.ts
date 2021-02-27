@@ -1,4 +1,5 @@
-import { Component, Input, OnInit, QueryList } from '@angular/core';
+import { Component, Input, OnInit, QueryList, ViewChild } from '@angular/core';
+import {Location} from '@angular/common'; 
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, NavigationEnd, Params, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -7,10 +8,10 @@ import { MapsService } from '../../../../../../service/maps.service'
 import { manageCompHelper } from '../../../../../../../../../helper/manage-comp.helper'
 import { combineLatest, EMPTY, iif, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { SubGroup } from '../../../../../../../../type/type';
-import { filter, switchMap, catchError, tap, startWith, withLatestFrom, map, mergeMap, takeUntil, shareReplay, debounceTime } from 'rxjs/operators';
+import { filter, switchMap, catchError, tap, startWith, withLatestFrom, map, mergeMap, takeUntil, shareReplay, debounceTime, distinct, distinctUntilKeyChanged } from 'rxjs/operators';
 import { AddSubGroupComponent } from '../add-sub-group/add-sub-group.component';
 import { EditSubGroupComponent } from '../edit-sub-group/edit-sub-group.component';
-import { MatTabGroup } from '@angular/material/tabs';
+import { MatTabChangeEvent, MatTabGroup } from '@angular/material/tabs';
 import { ViewChildren } from '@angular/core';
 
 @Component({
@@ -29,14 +30,14 @@ export class ListSubGroupComponent implements OnInit {
   getSubGroupSelected:() => Subject<SubGroup>
 
 
-  subGroupList: Observable<SubGroup[]>
+  subGroupList$: Observable<SubGroup[]>
 
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   group_id: ReplaySubject<number> = new ReplaySubject(1)
 
   private readonly notifier: NotifierService;
-  @ViewChildren(MatTabGroup) matGroup: QueryList<MatTabGroup>
+  @ViewChild(MatTabGroup) matGroup: MatTabGroup
   
   constructor(
     public MapsService: MapsService,
@@ -67,13 +68,14 @@ export class ListSubGroupComponent implements OnInit {
       onDelete.next(subGroup);
     }
 
-    this.subGroupList = merge(
+    this.subGroupList$ = merge(
       this.router.events.pipe(
         startWith(undefined),
         filter(e => e instanceof NavigationEnd || e == undefined),
         filter(() => this.route.children.length > 0),
         switchMap(() => { return this.route.firstChild.params }),
         filter((parameters) => parameters['id-group'] != undefined),
+        distinctUntilKeyChanged('id-group'),
         switchMap((parameters: Params) => {
           this.group_id.next(Number(parameters['id-group']))
           return this.MapsService.getAllSubGroupOfGroup(Number(parameters['id-group'])).pipe(
@@ -144,7 +146,7 @@ export class ListSubGroupComponent implements OnInit {
       shareReplay(1)
     )
 
-    combineLatest(this.router.events.pipe(startWith(of(undefined))), this.subGroupList).pipe(
+    combineLatest(this.router.events.pipe(startWith(of(undefined))), this.subGroupList$).pipe(
       debounceTime(250),
       filter(e => e[0] instanceof NavigationEnd || e[0] == undefined),
       map(() => this.route.snapshot),
@@ -163,14 +165,14 @@ export class ListSubGroupComponent implements OnInit {
         )
 
       ),
-      withLatestFrom(this.subGroupList),
+      withLatestFrom(this.subGroupList$),
       tap((parameters) => {
         this.navigateToSubGroup(parameters)
       }),
       takeUntil(this.destroyed$)
     ).subscribe()
 
-    combineLatest(this.router.events.pipe(startWith(of(undefined))), this.subGroupList).pipe(
+    combineLatest(this.router.events.pipe(startWith(of(undefined))), this.subGroupList$).pipe(
       debounceTime(250),
       filter(e => e[0] instanceof NavigationEnd || e[0] == undefined),
       map(() => this.route.snapshot),
@@ -181,7 +183,7 @@ export class ListSubGroupComponent implements OnInit {
         return route;
       }),
       filter((route)=> route.component["name"] != "ListLayerComponent"),
-      withLatestFrom(this.subGroupList),
+      withLatestFrom(this.subGroupList$),
       tap((parameters) => {
         this.navigateToSubGroup([true,parameters[1]])
       }),
@@ -203,7 +205,8 @@ export class ListSubGroupComponent implements OnInit {
     }
   }
 
-  goToSubGroup(subGroup:SubGroup):void{
+  goToSubGroup(index:number,subGroupList:Array<SubGroup>):void{
+    let subGroup = subGroupList[index]
     this.router.navigate([subGroup.group,subGroup.group_sub_id], { relativeTo: this.route })
   }
 
@@ -235,9 +238,9 @@ export class ListSubGroupComponent implements OnInit {
       return onSubGroupSelect
     }
 
-    combineLatest(onSubGroupSelect,this.subGroupList).pipe(
+    combineLatest(onSubGroupSelect,this.subGroupList$).pipe(
       tap((parameters:[SubGroup, SubGroup[]])=>{
-        this.matGroup.first.selectedIndex = this.findIndexOfSubGroup(parameters[0],parameters[1])
+        this.matGroup.selectedIndex = this.findIndexOfSubGroup(parameters[0],parameters[1])
       }),
       takeUntil(this.destroyed$)
     ).subscribe()

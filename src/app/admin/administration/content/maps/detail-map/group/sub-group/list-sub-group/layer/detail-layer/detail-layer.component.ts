@@ -14,51 +14,27 @@ import {MapsService} from '../../../../../../../../service/maps.service'
   styleUrls: ['./detail-layer.component.scss']
 })
 export class DetailLayerComponent implements OnInit {
-  @Input()layer_id:number
+  @Input()layer:Layer
   onInitInstance:()=>void
   private readonly notifier: NotifierService;
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
-  layer:Observable<Layer>
   
   constructor(
-    // public dialogRef: MatDialogRef<DetailLayerComponent>,
     private formBuilder: FormBuilder,
     notifierService: NotifierService,
     public MapsService:MapsService,
-    // @Inject(MAT_DIALOG_DATA) public layer_id: number,
   ) { 
     this.notifier = notifierService;
-    const onInit:ReplaySubject<void> = new ReplaySubject<void>(1)
-    this.onInitInstance = ()=>{
-      onInit.next()
-    }
-
-    this.layer = merge(
-      onInit.pipe(
-        filter(()=>this.layer_id != undefined),
-        switchMap(()=>{
-          return this.MapsService.getLayer(this.layer_id).pipe(
-            catchError(() => { this.notifier.notify("error", "An error occured while loading layer "); return EMPTY }),
-          )
-        })
-      )
-    ).pipe(
-      shareReplay(1)
-    )
+  
   }
 
   ngOnInit(): void {
-    this.onInitInstance()
   }
 
   ngOnDestroy():void{
     this.destroyed$.next(true);
     this.destroyed$.complete();
-  }
-
-  close(): void {
-    // this.dialogRef.close(false);
   }
 
 }

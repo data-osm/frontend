@@ -11,7 +11,7 @@ margin: 10px 0px;
 </button>
 
 <mat-accordion>
-    <mat-expansion-panel *ngFor="let layer of layerList | async">
+    <mat-expansion-panel *ngFor="let layer of layerList | async" #panel>
         <mat-expansion-panel-header collapsedHeight="55px">
             <mat-panel-title>
                 <div fxLayout>
@@ -23,9 +23,11 @@ margin: 10px 0px;
 
             </mat-panel-title>
         </mat-expansion-panel-header>
+
         <ng-container MatExpansionPanelContent>
-            <app-detail-layer [layer_id]="layer.layer_id"></app-detail-layer>
+            <app-detail-layer *ngIf="panel.expanded" [layer]="layer"></app-detail-layer>
         </ng-container>
+
         <mat-action-row>
             <button mat-stroked-button (click)="onUpdateInstance(layer)" > 
                 {{ 'list_layer.update' | translate }} 
