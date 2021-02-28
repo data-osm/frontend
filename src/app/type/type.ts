@@ -486,7 +486,8 @@ export interface Icon {
   category: string
   icon?: File
   tags: string[]
-  attribution: string
+  attribution: string,
+  svgContent?:string
 }
 /**
  * interface of a vector provider
@@ -564,4 +565,72 @@ export interface DataForPreview{
   id_server:string
   extent:[number,number,number,number]
   style:Array<string>
+}
+
+/**
+ * interface of a map or profil
+ */
+export interface Map{
+  map_id:number
+  name:string
+}
+
+
+export interface Group{
+  group_id: number
+  name:string
+  color:string
+  icon_path:string
+  icon:Icon
+  type_group:string
+  map_id:number[]
+}
+
+export interface SubGroup{
+  group_sub_id:number
+  name:string
+  group:number
+}
+
+export interface Layer{
+  layer_id:number
+  name:string
+  protocol_carto: 'wms'|'wfs'|'wmts'
+  color:string
+  icon:number
+  cercle_icon :string
+  square_icon :string
+  description :string
+  opacity :boolean
+  metadata :boolean
+  share :boolean
+  sub :number,
+  providers:Array<LayerProviders>
+}
+
+export interface LayerProviders {
+  id:number
+  layer_id:number,
+  vs_id:number,
+  vp_id:number,
+  vp:VectorProvider,
+  vs:Style,
+  ordre:number
+}
+
+export  interface ReorderProvider{
+  id:number
+  ordre:number
+}
+
+export interface Tag{
+  id:number,
+  name:string
+}
+
+export interface Metadata{
+  id?:number
+  tags:Array<Tag>
+  description:string
+  layer:number
 }

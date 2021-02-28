@@ -1,0 +1,38 @@
+<form [formGroup]="metadataForm" >
+
+    <mat-form-field style="width: 100%;">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" ></textarea>
+    </mat-form-field>
+
+    <mat-form-field class="example-chip-list" style="width: 100%;">
+        <mat-chip-list #chipList>
+          <mat-chip
+            *ngFor="let tagChoose of choosenTags"
+            [selectable]="selectable"
+            [removable]="removable"
+            (removed)="remove(tagChoose)">
+            {{tagChoose}}
+            <i class="fa fa-times" matChipRemove *ngIf="removable" ></i>
+          </mat-chip>
+          <input
+            placeholder="Mots clés..."
+            #tagInput
+            formControlName="tags_temp"
+            [matAutocomplete]="auto"
+            [matChipInputFor]="chipList"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            [matChipInputAddOnBlur]="addOnBlur"
+            (matChipInputTokenEnd)="add($event)">
+        </mat-chip-list>
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+          <mat-option *ngFor="let tag of filteredTags | async" [value]="tag">
+            {{tag.name}}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+</form>
+
+<button style="float: right;" color="accent" class="white"  mat-flat-button *ngIf="metadata|async" (click)="onUpdateInstance()" > Mettre à jour </button>
+
+<button style="float: right;" color="accent" class="white" mat-flat-button *ngIf="!(metadata|async)" (click)="onAddInstance()" > Sauvegarder </button>

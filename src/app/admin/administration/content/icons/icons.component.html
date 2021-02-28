@@ -10,7 +10,7 @@
             <i class="fa fa-search black " aria-hidden="true" matPrefix ></i>
             <input matInput formControlName="search_word" [matAutocomplete]="autoCompleteIcon">
             <i class="fa fa-times-circle pointer" matSuffix (click)="searchIconForm.get('search_word').setValue(null)" *ngIf="searchIconForm.get('search_word').value" ></i>
-            <mat-autocomplete autoActiveFirstOption #autoCompleteIcon="matAutocomplete" [displayWith]="displaySelectedIcon">
+            <mat-autocomplete (optionSelected)="onIconSelect.next($event.option.value)" autoActiveFirstOption #autoCompleteIcon="matAutocomplete" [displayWith]="displaySelectedIcon">
                 <mat-option *ngFor="let icon of searchResultIcon | async" [value]="icon">
                     <mat-list>
                         <mat-list-item> 
@@ -34,8 +34,8 @@
         <div class="one-group-icon" *ngFor="let group of IconService.getCategoryIcons()" > 
             <h2 class="one-group-icon-title" > {{group}} </h2>
             <div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="center">
-                <div fxFlex="108px" class="one-icon" *ngFor="let icon of IconService.getAllIconsFromCategory(group)" [matTooltip]="icon.name" >
-                    <i class="fa fa-trash red"></i>
+                <div fxFlex="108px" class="one-icon" [ngClass]="{'one-icon-selected':(onIconSelect|async)?.icon_id == icon.icon_id}" (click)="onIconSelect.next(icon)" *ngFor="let icon of IconService.getAllIconsFromCategory(group)" [matTooltip]="icon.name" >
+                    <!-- <i class="fa fa-trash red"></i> -->
                     <img src="{{url_prefix+icon.path}}" alt="" srcset="">
                 </div>
             </div>

@@ -1,0 +1,27 @@
+<mat-drawer-container class="detail-map" autosize>
+    <mat-drawer #drawer class="detail-map-sidenav-start" position="start" opened mode="side">
+            <!-- {{ 'admin.detail_map.group' | translate }}  -->
+        <button mat-mini-fab (click)="onAddInstance()" color="accent" class="add-group" >
+            <svg width="17" viewBox="0 0 50 50" aria-hidden="true" focusable="false"><path fill="#fff" d="M50 26.72v-3.535l-23.283.05V.003h-3.535l.05 23.232L0 23.185v3.535h23.232l-.05 23.283h3.535V26.72"></path></svg>
+        </button>
+
+        <div class="group" *ngFor="let group of groups |async" (click)="onSelectGroup(group)" [routerLink]="group.group_id" >
+            <svg class="group-more" [matMenuTriggerFor]="menu" viewBox="0 0 8.701 50" ><path d="M0 0v8.7h8.7V0zm0 20.651v8.7h8.7v-8.7zm0 20.648v8.7h8.7v-8.7z"></path></svg>
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="onUpdateInstance(group)" >{{ 'edit' | translate }} </button>
+                <button mat-menu-item (click)="onDeleteInstance(group)" class="red" > {{ 'supprimer' | translate }}</button>
+              </mat-menu>
+
+            <svg-icon *ngIf="(getGroupSelected() |async)?.group_id!=group.group_id"  [icon]="group.icon" [color]="'#5e6367'" [size]="25" > </svg-icon>
+            <div *ngIf="(getGroupSelected() |async)?.group_id==group.group_id" >
+                <img [src]="environment.backend+group.icon_path" >
+            </div>
+            <div class="group-name" [ngStyle]="(getGroupSelected() |async)?.group_id==group.group_id && {'color': group.color, 'font-weight':'bold'}"  > {{group.name}} </div>
+        </div>
+    </mat-drawer>
+  
+    <div class="detail-map-sidenav-content">
+        <app-list-sub-group  ></app-list-sub-group>
+    </div>
+  
+</mat-drawer-container>

@@ -7,6 +7,7 @@ import {
 Map, TileLayer, TileWMS, RasterSource, VectorSource, VectorLayer,OSM, View, ImageWMS, ImageLayer, LayerGroup, transformExtent
 }from '../../../../ol-module'
 import { MatRadioChange } from '@angular/material/radio';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-preview-data',
@@ -47,7 +48,7 @@ export class PreviewDataComponent implements OnInit {
 
         let layerTile = new TileLayer({
           source: new TileWMS({
-            url: data.url_server,
+            url: environment.url_carto+data.url_server,
             params: { 'LAYERS': data.id_server, 'TILED': true,'STYLE':data.style[0] },
             serverType: 'qgis',
             crossOrigin: 'anonymous',
@@ -63,7 +64,7 @@ export class PreviewDataComponent implements OnInit {
 
         let layerImage = new ImageLayer({
           source: new ImageWMS({
-            url: data.url_server,
+            url: environment.url_carto+data.url_server,
             params: { 'LAYERS': data.id_server, 'TILED': true,'STYLE':data.style[0] },
             serverType: 'qgis',
             crossOrigin: 'anonymous',

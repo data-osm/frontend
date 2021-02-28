@@ -8,7 +8,9 @@
   $accent: map-get($theme, accent);
   $warn: map-get($theme, warn);
   // Create theme specfic styles
-
+  .red{
+    color: red !important;
+  }
   .primaryColor {
     color: mat-color($primary) !important;
   }

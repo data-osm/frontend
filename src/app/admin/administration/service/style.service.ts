@@ -61,8 +61,14 @@ export class StyleService {
    * @param style FormData
    * @returns Observable<Style>
    */
-  addStyle(style:FormData):Observable<Style>{
-    return this.http.post<Style>(this.url_prefix+'/api/provider/style/'+style.get('provider_vector_id'),style,{ headers: this.get_header() })
+  addStyle(style:FormData|Object):Observable<Style>{
+    let provider_vector_id
+    if (style instanceof FormData ) {
+      provider_vector_id = style.get('provider_vector_id')
+    } else {
+      provider_vector_id = style['provider_vector_id']
+    }
+    return this.http.post<Style>(this.url_prefix+'/api/provider/style/'+provider_vector_id,style,{ headers: this.get_header() })
   }
 
 }

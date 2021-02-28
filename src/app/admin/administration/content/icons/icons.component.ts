@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { NotifierService } from 'angular-notifier';
-import { Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
 import { catchError } from 'rxjs/internal/operators/catchError';
 import { filter, finalize, switchMap } from 'rxjs/operators';
 import { environment } from '../../../../../environments/environment';
@@ -20,7 +20,7 @@ export class IconsComponent implements OnInit {
 
   private readonly notifier: NotifierService;
   url_prefix = environment.backend
-
+  onIconSelect:Subject<Icon> = new Subject<Icon>()
   searchResultIcon:Observable<Icon[]> 
   searchIconForm: FormGroup = this.fb.group({})
 

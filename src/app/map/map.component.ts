@@ -69,7 +69,7 @@ export class MapComponent implements OnInit {
     { name: 'download', active: false, enable: true, tooltip: 'toolpit_download_data', title: 'download_data' },
     { name: 'edition', active: false, enable: false, tooltip: 'toolpit_tools', title: 'tools' },
     { name: 'routing', active: false, enable: false, tooltip: 'toolpit_map_routing', title: 'map_routing' },
-    { name: 'legend', active: false, enable: false, tooltip: 'toolpit_legend', title: 'legend' },
+    { name: 'legend', active: false, enable: true, tooltip: 'toolpit_legend', title: 'legend' },
   ]
 
   /**

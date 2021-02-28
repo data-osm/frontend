@@ -1,0 +1,65 @@
+<button mat-flat-button style="height: 48px;
+width: 100%;
+text-align: left;
+border-radius: 4px 4px 0px 0px;
+margin: 10px 0px;
+" (click)="onAddInstance()">{{ 'list_layer.add_layer' | translate }} <svg width="17" viewBox="0 0 50 50"
+        aria-hidden="true" focusable="false">
+        <path d="M50 26.72v-3.535l-23.283.05V.003h-3.535l.05 23.232L0 23.185v3.535h23.232l-.05 23.283h3.535V26.72">
+        </path>
+    </svg>
+</button>
+
+<mat-accordion>
+    <mat-expansion-panel *ngFor="let layer of layerList | async" #panel>
+        <mat-expansion-panel-header collapsedHeight="55px">
+            <mat-panel-title>
+                <div fxLayout>
+                    <div fxFlex="50px">
+                        <img src="{{environment.backend+layer.square_icon}}" style="height: 40px;margin-top: 3px;">
+                    </div>
+                    <div fxFlex style="padding-top: 10px;">{{layer.name}}</div>
+                </div>
+
+            </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <ng-container MatExpansionPanelContent>
+            <app-detail-layer *ngIf="panel.expanded" [layer]="layer"></app-detail-layer>
+        </ng-container>
+
+        <mat-action-row>
+            <button mat-stroked-button (click)="onUpdateInstance(layer)" > 
+                {{ 'list_layer.update' | translate }} 
+                <!-- <svg height="17" width="17" viewBox="0 0 50 49.543" ><path fill="black" d="M47.815 6.6l-4.47-4.42L41.208.044 39.073 2.18 2.893 38l-.66.66-.2.916-1.118 5.538-.916 4.5 4.47-.864 5.59-1.067.91-.152.66-.66L47.812 11l2.184-2.185L47.81 6.63zm-40.7 31.555L35.67 9.852l4.472 4.472-28.557 28.303-4.47-4.472zm-3.202 7.57L5.03 40.34l4.32 4.32-5.437 1.066zM42.277 12.14l-4.472-4.472 3.405-3.354 4.47 4.42-3.403 3.405z"></path></svg> -->
+        </button>
+
+            <button mat-stroked-button (click)="onDeleteInstance(layer)"> <span class="red">
+                    {{ 'list_layer.delete' | translate }} </span> <svg height="17" width="17" viewBox="0 0 49.501 50"
+                    class="">
+                    <path fill="red"
+                        d="M17.865 0v5.938H0V9.43h4.543L8.393 50h32.77l3.8-40.57h4.54V5.94H31.635V0zm3.493 3.493h6.786v2.445h-6.786zM8.052 9.43h33.4L37.98 46.508H11.57zm9.71 7.632l-3.487.208 1.497 25.1 3.487-.208zm14.477 0l-1.5 25.1 3.487.207 1.496-25.1zm-8.988.104v25.1h3.493v-25.1z">
+                    </path>
+                </svg>
+            </button>
+
+            <button mat-stroked-button color="accent" (click)="onPreviewInstance(layer)">
+                <span> {{ 'admin.vector_provider.details.preview_provider' | translate }} </span>
+                <svg viewBox="0 0 477.874 477.874" style="height: 17px;width: 17px;">
+                    <g>
+                        <path class="accentColorFill"
+                            d="M460.812,0c-2.651-0.001-5.266,0.615-7.637,1.8L323.844,66.483L177.6,1.476c-0.239-0.102-0.512-0.12-0.768-0.222
+                  c-0.658-0.246-1.331-0.451-2.014-0.614c-0.679-0.183-1.369-0.326-2.065-0.427c-1.386-0.114-2.779-0.114-4.164,0
+                  c-0.696,0.101-1.386,0.244-2.065,0.427c-0.683,0.163-1.356,0.368-2.014,0.614c-0.256,0.102-0.529,0.119-0.768,0.222l-153.6,68.267
+                  C3.976,72.481,0.003,78.595,0.004,85.341v375.467c0.003,5.774,2.924,11.155,7.765,14.302c4.842,3.152,10.949,3.64,16.23,1.297
+                  l146.671-65.195l146.671,65.195c0.256,0.102,0.529,0,0.785,0.154c4.132,1.848,8.875,1.742,12.919-0.29
+                  c0.273-0.119,0.58,0,0.853-0.188l136.533-68.267c5.786-2.891,9.441-8.806,9.438-15.275V17.075
+                  C477.875,7.649,470.237,0.004,460.812,0z M153.604,381.448L34.137,434.542V96.435L153.604,43.34V381.448z M307.204,434.542
+                  l-119.467-53.094V43.34l119.467,53.094V434.542z M443.737,381.994l-102.4,51.2V95.888l102.4-51.2V381.994z" />
+                    </g>
+                </svg>
+            </button>
+        </mat-action-row>
+    </mat-expansion-panel>
+
+</mat-accordion>

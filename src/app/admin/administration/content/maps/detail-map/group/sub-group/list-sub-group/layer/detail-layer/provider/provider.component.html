@@ -1,0 +1,18 @@
+
+<div cdkDropList class="example-list" (cdkDropListDropped)="drop($event)">
+    <div class="example-box" *ngFor="let provider of providers|async" cdkDrag>
+      <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+      {{provider.vp.name}} <span class="accentColor"> ({{provider.vs.name}}) </span>
+      <svg class="pointer" style="float:right" [matMenuTriggerFor]="menu" viewBox="0 0 8.701 50">
+        <path class="accentColorFill" d="M0 0v8.7h8.7V0zm0 20.651v8.7h8.7v-8.7zm0 20.648v8.7h8.7v-8.7z"></path>
+    </svg>
+    <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="onUpdateInstance(provider)">{{ 'edit' | translate }} </button>
+        <button mat-menu-item class="red" (click)="onDeleteInstance(provider)">
+            {{ 'supprimer' | translate }}</button>
+    </mat-menu>
+    </div>
+</div>
+
+<button mat-flat-button style="float: right;" color="accent" class="white" (click)="onAddInstance()">
+    {{ 'list_provider_with_style.add' | translate }} </button>

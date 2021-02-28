@@ -34,9 +34,32 @@ import { ListStyleComponent } from './administration/content/provider/list-vecto
 import { AddStyleComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/list-style/add-style/add-style.component';
 import { EditStyleComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/list-style/edit-style/edit-style.component';
 import { PreviewDataComponent } from './administration/modal/preview-data/preview-data.component';
+import { DetailMapComponent, SvgIcon } from './administration/content/maps/detail-map/detail-map.component';
+import { AddMapComponent } from './administration/content/maps/add-map/add-map.component';
+import { EditMapComponent } from './administration/content/maps/edit-map/edit-map.component';
+import { AddGroupComponent } from './administration/content/maps/detail-map/group/add-group/add-group.component';
+import { ColorPickerModule } from 'ngx-color-picker';
+import { SafeStylePipe } from '../pipe/safe-style.pipe';
+import { GenerateIconComponent } from './administration/generate-icon/generate-icon.component';
+import { EditGroupComponent } from './administration/content/maps/detail-map/group/edit-group/edit-group.component';
+import { ListSubGroupComponent } from './administration/content/maps/detail-map/group/sub-group/list-sub-group/list-sub-group.component';
+import { AddSubGroupComponent } from './administration/content/maps/detail-map/group/sub-group/add-sub-group/add-sub-group.component';
+import { UpdateSubGroupComponent } from './administration/content/maps/detail-map/group/sub-group/update-sub-group/update-sub-group.component';
+import { EditSubGroupComponent } from './administration/content/maps/detail-map/group/sub-group/edit-sub-group/edit-sub-group.component';
+import { ListLayerComponent } from './administration/content/maps/detail-map/group/sub-group/list-sub-group/layer/list-layer/list-layer.component';
+import { AddLayerComponent } from './administration/content/maps/detail-map/group/sub-group/list-sub-group/layer/add-layer/add-layer.component';
+import { DetailLayerComponent } from './administration/content/maps/detail-map/group/sub-group/list-sub-group/layer/detail-layer/detail-layer.component';
+import { ProviderComponent } from './administration/content/maps/detail-map/group/sub-group/list-sub-group/layer/detail-layer/provider/provider.component';
+import { AddLayerProviderComponent } from './administration/content/maps/detail-map/group/sub-group/list-sub-group/layer/detail-layer/add-layer-provider/add-layer-provider.component';
+import { EditLayerProviderComponent } from './administration/content/maps/detail-map/group/sub-group/list-sub-group/layer/detail-layer/edit-layer-provider/edit-layer-provider.component';
+import { EditVectorProviderComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/edit-vector-provider/edit-vector-provider.component';
+import { MetadataComponent } from './administration/content/maps/detail-map/group/sub-group/list-sub-group/layer/detail-layer/metadata/metadata.component';
+import { UpdateLayerComponent } from './administration/content/maps/detail-map/group/sub-group/list-sub-group/layer/update-layer/update-layer.component';
+import { QmlComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/list-style/add-style/qml/qml.component';
+import { ClusterComponent } from './administration/content/provider/list-vector-provider/details-vector-provider/list-style/add-style/cluster/cluster.component';
 
 @NgModule({
-  declarations: [AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent, AddStyleComponent, EditStyleComponent, PreviewDataComponent],
+  declarations: [SvgIcon, SafeStylePipe, AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent, AddStyleComponent, EditStyleComponent, PreviewDataComponent, DetailMapComponent, AddMapComponent, EditMapComponent, AddGroupComponent, GenerateIconComponent, EditGroupComponent, ListSubGroupComponent, AddSubGroupComponent, UpdateSubGroupComponent, EditSubGroupComponent, ListLayerComponent, AddLayerComponent, DetailLayerComponent, ProviderComponent, AddLayerProviderComponent, EditLayerProviderComponent, EditVectorProviderComponent, MetadataComponent, UpdateLayerComponent, QmlComponent, ClusterComponent],
   imports: [
     CommonModule,
     AdminRoutingModule,
@@ -45,6 +68,7 @@ import { PreviewDataComponent } from './administration/modal/preview-data/previe
     HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
+    ColorPickerModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

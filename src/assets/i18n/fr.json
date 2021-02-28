@@ -265,8 +265,12 @@
             "action_require": "Action requise",
             "unknow": "Inconnu",
             "null": "Inconnu"
-          }
+          },
+          "type_geometrie": "Type de géometrie"
         }
+      },
+      "edit_vector_provider":{
+        "title":"Modifier une source "
       },
       "details": {
         "datasource_tab": "Source de données",
@@ -282,7 +286,8 @@
     },
     "lef_sidenav": {
       "icons": "Icones",
-      "vector_provider": "Provider vecteur"
+      "vector_provider": "Provider vecteur",
+      "maps": "Profils"
     },
     "osm_querry": {
       "where": "Clause where de la requete",
@@ -296,6 +301,48 @@
     },
     "preview-data": {
       "title": "Visualiser"
+    },
+    "add_map": {
+      "title": "Ajouter une carte",
+      "map_name": "Nom de la carte"
+    },
+    "edi_map": {
+      "title": "Modifier une carte"
+    },
+    "map": {
+      "delete_confirmation_title": "Supprimer une carte",
+      "delete_confirmation_explanation": "Confirmer la suppresion de la carte "
+    },
+    "detail_map": {
+      "group": {
+        "delete": "Supprimer un groupe"
+      }
+    },
+    "add_group": {
+      "title": "Ajouter un groupe",
+      "group_name": "Nom du groupe",
+      "color": "Couleur du groupe"
+    },
+    "edit_group": {
+      "title": "Modifier le groupe "
+    },
+    "add_sub_group": {
+      "title": "Ajouter un sous groupe",
+      "group_name": "Nom du sous groupe"
+    },
+    "edit_sub_group": {
+      "title": "Modifier un sous groupe"
+    },
+    "sub_group": {
+      "delete": "Supprimer un sous groupe"
+    },
+    "add_layer": {
+      "title": "Ajouter une couche",
+      "name": "Nom de la couche",
+      "color": "Couleur"
+    },
+    "update_layer": {
+      "title": "Modifier la couche"
     }
   },
   "add_icon": {
@@ -327,5 +374,26 @@
   },
   "edit_style": {
     "title": "Modifier un style"
+  },
+  "edit": "modifier",
+  "supprimer": "supprimer",
+  "select_provider_with_style": {
+    "title": "Ajouter des sources à la couche :",
+    "choose_style": "Selectioner un style :",
+    "search_provider":"Rechercher une source",
+    "add_source":"Ajouter une source",
+    "or":"Ou"
+  },
+  "list_provider_with_style": {
+    "add": "Ajouter une source",
+    "provider": "Source",
+    "style": "Style",
+    "delete_title": "Supprimer une souce d'une couche"
+  },
+  "list_layer": {
+    "add_layer": "Ajouter une couche",
+    "delete": "Supprimer",
+    "update": "Modifier",
+    "delte_layer": "Supprimer une couche"
   }
 }
