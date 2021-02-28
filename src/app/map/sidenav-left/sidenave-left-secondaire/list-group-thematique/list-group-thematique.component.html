@@ -6,16 +6,21 @@
       expanded="true"
     >
       <mat-expansion-panel-header
-        class="accentColorBG"
         collapsedHeight="45px"
         expandedHeight="45px"
+        style="padding: 0px 10px;border-bottom: 1px solid rgb(0 0 0 / 38%); border-radius: 0px;"
       >
         <mat-panel-title>
-          {{ sous_thematique.nom }}
+          <span class="black bold" style="font-size: 14px;" > {{ sous_thematique.nom }}  </span>
+
         </mat-panel-title>
+        <mat-panel-description style="flex-direction: row-reverse;justify-content: space-between; align-items: center;margin-right: 0px;" >
+          <mat-slide-toggle color="primary" labelPosition="before" > </mat-slide-toggle>
+        </mat-panel-description>
+
       </mat-expansion-panel-header>
       <div style="margin-top: 15px;">
-        <mat-selection-list (selectionChange)="coucheSelected($event)">
+        <mat-chip-list [selectable]="true" (change)="coucheSelected($event)">
           <!-- <mat-list-option> -->
           <app-couche-thematique
             *ngFor="let couche of sous_thematique.couches"
@@ -23,7 +28,7 @@
             [couche]="couche"
           ></app-couche-thematique>
           <!-- </mat-list-option> -->
-        </mat-selection-list>
+        </mat-chip-list>
 
         <!-- <ng-container *ngFor="let couche of sous_thematique.couches">
           <app-couche-thematique

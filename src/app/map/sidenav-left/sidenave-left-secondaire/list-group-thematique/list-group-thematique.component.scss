@@ -17,5 +17,7 @@
   ::ng-deep .mat-expansion-indicator::after{
     color: #fff !important;
   }
-
+  ::ng-deep .mat-expansion-panel-content{
+    padding: 10px !important;
+  }
 }
