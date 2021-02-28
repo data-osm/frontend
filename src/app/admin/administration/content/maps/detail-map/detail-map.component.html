@@ -14,7 +14,7 @@
 
             <svg-icon *ngIf="(getGroupSelected() |async)?.group_id!=group.group_id"  [icon]="group.icon" [color]="'#5e6367'" [size]="25" > </svg-icon>
             <div *ngIf="(getGroupSelected() |async)?.group_id==group.group_id" >
-                <img [src]="group.icon_path" >
+                <img [src]="environment.backend+group.icon_path" >
             </div>
             <div class="group-name" [ngStyle]="(getGroupSelected() |async)?.group_id==group.group_id && {'color': group.color, 'font-weight':'bold'}"  > {{group.name}} </div>
         </div>

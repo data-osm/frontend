@@ -20,7 +20,7 @@
             </mat-panel-description>
         </mat-expansion-panel-header>
         <mat-selection-list class="list-map" [multiple]="false" color="accent" #MatSelectionList >
-            <mat-list-option *ngFor="let map of maps|async" [value]="map.map_id" color="accent" [selected]="(activePte|async)?.map_id == map.map_id" >
+            <mat-list-option *ngFor="let map of maps|async" [value]="map.map_id" color="accent" [selected]="(activePte|async)?.map_id == map.map_id && (activePte|async)?.path === 'map'" >
                 {{map.name}}
 
             <svg class="group-more" [matMenuTriggerFor]="menu" viewBox="0 0 8.701 50" ><path d="M0 0v8.7h8.7V0zm0 20.651v8.7h8.7v-8.7zm0 20.648v8.7h8.7v-8.7z"></path></svg>

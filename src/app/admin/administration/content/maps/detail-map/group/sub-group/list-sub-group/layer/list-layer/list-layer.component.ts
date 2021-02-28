@@ -12,6 +12,7 @@ import { AddLayerComponent } from '../add-layer/add-layer.component';
 import { DetailLayerComponent } from '../detail-layer/detail-layer.component';
 import { PreviewDataComponent } from '../../../../../../../../modal/preview-data/preview-data.component';
 import { UpdateLayerComponent } from '../update-layer/update-layer.component';
+import { environment } from '../../../../../../../../../../../environments/environment';
 @Component({
   selector: 'app-list-layer',
   templateUrl: './list-layer.component.html',
@@ -33,7 +34,7 @@ export class ListLayerComponent implements OnInit {
   sub_id:ReplaySubject<number>= new ReplaySubject(1)
 
   displayedColumns:Array<string> =['square_icon','name','detail']
-  
+  environment = environment
 
   private readonly notifier: NotifierService;
   constructor(
@@ -75,7 +76,7 @@ export class ListLayerComponent implements OnInit {
           }
           return route;
         }),
-        filter((route)=>route.component["name"]==="ListLayerComponent"),
+        // filter((route)=>route.component["name"]==="ListLayerComponent"),
         filter((route) =>route.params['sub-id'] != undefined),
         distinct((parameters)=>parameters['sub-id']),
         switchMap((route: ActivatedRouteSnapshot) => {

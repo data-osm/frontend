@@ -27,7 +27,6 @@ export class ListSubGroupComponent implements OnInit {
   onUpdateInstance: (subGroup: SubGroup) => void
   onDeleteInstance: (subGroup: SubGroup) => void
   onSelectSubGroup:(subGroup:SubGroup) => void
-  getSubGroupSelected:() => Subject<SubGroup>
 
 
   subGroupList$: Observable<SubGroup[]>
@@ -190,6 +189,20 @@ export class ListSubGroupComponent implements OnInit {
       takeUntil(this.destroyed$)
     ).subscribe()
 
+    const onSubGroupSelect: Subject<SubGroup> = new Subject<SubGroup>()
+   
+    this.onSelectSubGroup = (subGroup:SubGroup)=>{
+      onSubGroupSelect.next(subGroup)
+    }
+
+    combineLatest(onSubGroupSelect,this.subGroupList$).pipe(
+      filter(()=> this.matGroup != undefined),
+      tap((parameters:[SubGroup, SubGroup[]])=>{
+        this.matGroup.selectedIndex = this.findIndexOfSubGroup(parameters[0],parameters[1])
+      }),
+      takeUntil(this.destroyed$)
+    ).subscribe()
+
   }
 
   navigateToSubGroup(parameters:[Params|true, SubGroup[]]):void{
@@ -231,24 +244,5 @@ export class ListSubGroupComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  ngAfterViewInit(){
-    const onSubGroupSelect: Subject<SubGroup> = new ReplaySubject<SubGroup>(1)
-   
-    this.onSelectSubGroup = (subGroup:SubGroup)=>{
-      onSubGroupSelect.next(subGroup)
-    }
-
-    this.getSubGroupSelected = ()=>{
-      return onSubGroupSelect
-    }
-
-    combineLatest(onSubGroupSelect,this.subGroupList$).pipe(
-      tap((parameters:[SubGroup, SubGroup[]])=>{
-        this.matGroup.selectedIndex = this.findIndexOfSubGroup(parameters[0],parameters[1])
-      }),
-      takeUntil(this.destroyed$)
-    ).subscribe()
-  
-  }
 
 }
