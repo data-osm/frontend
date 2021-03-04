@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { environment } from 'src/environments/environment';
-import { coucheInterface } from 'src/app/type/type';
-import {GeosmLayersServiceService} from 'src/app/services/geosm-layers-service/geosm-layers-service.service'
+import { coucheInterface } from '../../../../../type/type';
+import {GeosmLayersServiceService} from '../../../../../services/geosm-layers-service/geosm-layers-service.service'
 import * as $ from 'jquery'
+import { environment } from '../../../../../../environments/environment';
 @Component({
   selector: 'app-couche-thematique',
   templateUrl: './couche-thematique.component.html',
