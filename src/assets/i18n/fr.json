@@ -253,12 +253,12 @@
       "search_icons": "Rechercher un icone"
     },
     "vector_provider": {
-      "search_vector_provider": "Rechercher un provider vecteur",
-      "add_vector_provider": "Ajouter un provider vecteur",
+      "search_vector_provider": "Rechercher une source",
+      "add_vector_provider": "Ajouter une source",
       "table": {
         "header": {
           "name": "Nom",
-          "state": "Etat du provider",
+          "state": "Etat de la source",
           "state_type": {
             "good": "Actif",
             "not_working": "Hors service",
@@ -278,15 +278,15 @@
         "general_tab": "General",
         "preview_provider": "Visualiser"
       },
-      "delete_vector_provider": "Supprimer les providers sélectionnés",
-      "select_vector_provider": "Selectionnez des provideurs",
-      "delete_confirmation_title": "Supprimer des provideurs vecteurs",
+      "delete_vector_provider": "Supprimer les sources sélectionnés",
+      "select_vector_provider": "Selectionnez des sources",
+      "delete_confirmation_title": "Supprimer des sources vecteurs",
       "delete_confirmation_explanation": "Confirmer la suppression de ",
-      "delete_confirmation_explanation2": "provider(s) vecteur(s)"
+      "delete_confirmation_explanation2": "source(s) "
     },
     "lef_sidenav": {
       "icons": "Icones",
-      "vector_provider": "Provider vecteur",
+      "vector_provider": "Dépot de sources",
       "maps": "Profils"
     },
     "osm_querry": {
@@ -303,15 +303,15 @@
       "title": "Visualiser"
     },
     "add_map": {
-      "title": "Ajouter une carte",
-      "map_name": "Nom de la carte"
+      "title": "Ajouter un profil",
+      "map_name": "Nom du profil"
     },
     "edi_map": {
-      "title": "Modifier une carte"
+      "title": "Modifier un profil"
     },
     "map": {
-      "delete_confirmation_title": "Supprimer une carte",
-      "delete_confirmation_explanation": "Confirmer la suppresion de la carte "
+      "delete_confirmation_title": "Supprimer un profil",
+      "delete_confirmation_explanation": "Confirmer la suppresion du profil"
     },
     "detail_map": {
       "group": {
@@ -355,8 +355,8 @@
   "save": "Valider",
   "cancel": "Annuler",
   "add_vector_provider": {
-    "title": "Ajouter un provideur vecteur",
-    "name": "Le nom du provideur vecteur",
+    "title": "Ajouter une source",
+    "name": "Le nom de la  source",
     "name_error": "Champ obligatoire",
     "geometry_type": "Selectionner le type de géometrie",
     "geometry_type_point": "Point et centroid des polygonnes",
