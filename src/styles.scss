@@ -144,7 +144,7 @@ mat-dialog-container::-webkit-scrollbar-thumb
 	border-radius: 3px;
 	white-space: nowrap;
 	border: 1px solid;
-	font-size: 12px;
+	font-size: 15px;
 }
 
 .state-badje-good{
@@ -161,4 +161,8 @@ mat-dialog-container::-webkit-scrollbar-thumb
 
 .state-badje-unknow,.state-badje-null{
 	color: rgb(213, 221, 226);
+}
+
+.color-picker{
+	left: 30px !important;
 }

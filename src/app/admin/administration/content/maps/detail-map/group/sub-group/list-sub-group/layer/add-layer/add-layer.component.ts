@@ -53,6 +53,7 @@ export class AddLayerComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public sub: number,
   ) { 
     this.notifier = notifierService;
+    this.presetValues = this.getColorValues()
 
     this.form.addControl('name',new FormControl(null, [Validators.required]))
     this.form.addControl('protocol_carto',new FormControl('wms', [Validators.required]))

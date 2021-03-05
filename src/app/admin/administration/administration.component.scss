@@ -6,8 +6,7 @@
         border: none;
     }
     .sidenav-admin-content{
-        height: 100%;
-        padding-top: 50px;
+        height: calc(100% - 50px);
     }
     .mat-sidenav-content{
         background-color: #e7ebed;

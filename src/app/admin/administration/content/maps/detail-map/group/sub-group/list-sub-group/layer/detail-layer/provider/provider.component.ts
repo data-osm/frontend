@@ -175,7 +175,6 @@ export class ProviderComponent implements OnInit, OnChanges {
   }
 
   drop(event: CdkDragDrop<string[]>) {
-    console.log(event)
     combineLatest(this.providers).pipe(
       take(1),
       tap((providers:[Array<LayerProviders>])=>{

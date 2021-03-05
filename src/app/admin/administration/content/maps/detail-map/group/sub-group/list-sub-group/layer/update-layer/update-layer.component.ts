@@ -57,6 +57,8 @@ export class UpdateLayerComponent implements OnInit {
   ) {
     this.notifier = notifierService;
 
+    this.presetValues = this.getColorValues()
+
     this.form.addControl('name', new FormControl(this.layer.name, [Validators.required]))
     this.form.addControl('layer_id', new FormControl(this.layer.layer_id, [Validators.required]))
     this.form.addControl('protocol_carto', new FormControl('wms', [Validators.required]))

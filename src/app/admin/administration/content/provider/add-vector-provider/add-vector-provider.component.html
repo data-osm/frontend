@@ -18,9 +18,17 @@
         <mat-form-field appearance="outline" *ngIf="form.get('geometry_type')" style="width: 100%;">
             <mat-label> {{ 'add_vector_provider.geometry_type' | translate }} </mat-label>
             <mat-select formControlName="geometry_type">
-                <mat-option value="Point"> {{ 'add_vector_provider.geometry_type_point' | translate }} </mat-option>
-                <mat-option value="Polygon"> {{ 'add_vector_provider.geometry_type_polygon' | translate }} </mat-option>
-                <mat-option value="LineString"> {{ 'add_vector_provider.geometry_type_lineString' | translate }}
+                <mat-option value="Point">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" style="vertical-align: middle;" viewBox="0 0 20 20"><path class="blackFill" d="M10 3C6.686 3 4 5.612 4 8.833 4 12.055 10 17 10 17s6-4.945 6-8.167C16 5.612 13.314 3 10 3zm.187 3.5c1.326 0 2.4 1.045 2.4 2.333 0 1.289-1.074 2.334-2.4 2.334-1.325 0-2.4-1.045-2.4-2.334 0-1.288 1.075-2.333 2.4-2.333z" ></path></svg>
+                     {{ 'add_vector_provider.geometry_type_point' | translate }}
+                </mat-option>
+                <mat-option value="Polygon"> 
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" style="vertical-align: middle;" viewBox="0 0 20 20" ><path d="M6.5 6.5h7v7h-7v-7z" class="blackFill" fill-opacity=".253"></path><path class="blackFill" d="M5.5 3A2.5 2.5 0 003 5.5c0 .958.543 1.788 1.333 2.208v4.584A2.502 2.502 0 003 14.5 2.5 2.5 0 005.5 17c.958 0 1.788-.543 2.208-1.333h4.584c.42.79 1.25 1.333 2.208 1.333a2.5 2.5 0 002.5-2.5c0-.958-.543-1.788-1.333-2.208V7.708A2.502 2.502 0 0017 5.5 2.5 2.5 0 0014.5 3c-.969 0-1.804.558-2.219 1.365l-.062-.032H7.708A2.502 2.502 0 005.5 3zm0 1.5a1 1 0 110 2 1 1 0 010-2zm9 0a1 1 0 110 2 1 1 0 010-2zM7.708 6.667h4.584c.234.441.6.807 1.041 1.041v4.584c-.441.234-.807.6-1.041 1.041H7.708a2.523 2.523 0 00-1.041-1.041V7.708c.441-.234.807-.6 1.041-1.041zM5.5 13.5a1 1 0 110 2 1 1 0 010-2zm9 0a1 1 0 110 2 1 1 0 010-2z" ></path></svg>
+                    {{ 'add_vector_provider.geometry_type_polygon' | translate }}
+                 </mat-option>
+                <mat-option value="LineString"> 
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20px" style="vertical-align: middle;" viewBox="0 0 20 20" ><path class="blackFill" d="M14.558 3a2.442 2.442 0 00-2.442 2.442c0 .246.045.478.112.702l-6.084 6.084a2.432 2.432 0 00-.702-.112 2.442 2.442 0 102.442 2.442c0-.246-.045-.478-.112-.702l6.084-6.084c.224.067.456.112.702.112a2.442 2.442 0 000-4.884zm0 1.465a.976.976 0 11.001 1.953.976.976 0 01-.001-1.953zm-9.116 9.116a.978.978 0 11-.001 1.955.978.978 0 01.001-1.955z" ></path></svg>
+                    {{ 'add_vector_provider.geometry_type_lineString' | translate }}
                 </mat-option>
             </mat-select>
         </mat-form-field>

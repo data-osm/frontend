@@ -163,7 +163,7 @@ export class ListLayerComponent implements OnInit {
           catchError(() => { this.notifier.notify("error", "An error occured while loading providers with style "); return EMPTY }),
           map((providers)=>{
             return providers.sort(
-              (a, b) => a.ordre > b.ordre ? 1 : a.ordre === b.ordre ? 0 : -1
+              (b, a) => a.ordre > b.ordre ? 1 : a.ordre === b.ordre ? 0 : -1
             )
           }),
           tap((providers)=>{
@@ -172,7 +172,7 @@ export class ListLayerComponent implements OnInit {
                 name:provider.vp.name,
                 style:[provider.vs.name],
                 id_server:provider.vp.id_server,
-                url_server:provider.vp.url_server,
+                url_server:provider.vp.path_qgis,
                 extent:provider.vp.extent
               }
             })

@@ -60,6 +60,7 @@ export class ClusterComponent implements OnInit {
   ) {
     this.notifier = notifierService;
 
+    this.presetValues = this.getColorValues()
     this.form = this.formBuilder.group({
       name: new FormControl(null, [Validators.required]),
       color: new FormControl(null, [Validators.required]),

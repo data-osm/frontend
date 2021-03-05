@@ -25,7 +25,7 @@ export class EditVectorProviderComponent implements OnInit, OnChanges {
 
   private readonly notifier: NotifierService;
 
-  vectorProvider: Observable<VectorProvider>
+  vectorProvider$: Observable<VectorProvider>
 
   constructor(
     public VectorProviderService: VectorProviderService,
@@ -53,7 +53,7 @@ export class EditVectorProviderComponent implements OnInit, OnChanges {
       onPreview.next()
     }
 
-    this.vectorProvider = onInit.pipe(
+    this.vectorProvider$ = onInit.pipe(
       switchMap(() => {
         return this.VectorProviderService.getVectorProvider(Number(this.provider_vector_id)).pipe(
           catchError(() => {
@@ -66,7 +66,7 @@ export class EditVectorProviderComponent implements OnInit, OnChanges {
     )
 
     combineLatest(
-      this.vectorProvider,
+      this.vectorProvider$,
       onPreview
     ).pipe(
       takeUntil(onDestroy),
@@ -80,7 +80,7 @@ export class EditVectorProviderComponent implements OnInit, OnChanges {
             tap((styles) => {
               let previewData: DataForPreview = {
                 name: result[0].name,
-                url_server: result[0].url_server,
+                url_server: result[0].path_qgis,
                 id_server: result[0].id_server,
                 style: styles.map((style) => style.name),
                 extent: result[0].extent

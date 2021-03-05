@@ -502,6 +502,7 @@ export interface VectorProvider {
   geometry_type:'Polygon'|'Point'|'LineString'
   /** url of the carto server */
   url_server:string
+  path_qgis:string
   /** identifiant of this ressource in the carto server */
   id_server:string
   /**extent of this ressource  */

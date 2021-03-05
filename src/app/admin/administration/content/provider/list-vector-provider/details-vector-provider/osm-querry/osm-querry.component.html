@@ -4,6 +4,7 @@
     <pre *ngIf="!osmQuerryState.where.activated">{{(osmQuerry | async)?.where}}</pre>
     <form [formGroup]="osmFormWhere"  *ngIf="osmQuerryState.where.activated" >
         <mat-form-field appearance="outline" style="width: 100%;" *ngIf="osmFormWhere.get('where')" >
+            <mat-spinner style=" position: absolute;left: 50%;" *ngIf="osmFormWhere.get('where').disabled" ></mat-spinner>
             <textarea matInput formControlName="where" style="height: 100px;" ></textarea>
         </mat-form-field>
     </form>
@@ -34,6 +35,7 @@
         <pre *ngIf="!osmQuerryState.select.activated">{{(osmQuerry | async)?.select}}</pre>
         <form [formGroup]="osmFormSelect"  *ngIf="osmQuerryState.select.activated" >
             <mat-form-field appearance="outline" style="width: 100%;" *ngIf="osmFormSelect.get('select')" >
+                <mat-spinner style=" position: absolute;left: 50%;" *ngIf="osmFormWhere.get('select').disabled" ></mat-spinner>
                 <textarea matInput formControlName="select" style="height: 100px;" ></textarea>
             </mat-form-field>
         </form>

@@ -5,7 +5,7 @@ import { NotifierService } from 'angular-notifier';
 import { requiredFileType } from '../../../../../validators/upload-file-validators';
 import {VectorProviderService} from '../../../service/vector-provider.service'
 import { Observable, fromEvent,merge as observerMerge, forkJoin, concat, from } from 'rxjs';
-import { HttpEvent, HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpEvent, HttpResponse } from '@angular/common/http';
 import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { VectorProvider } from '../../../../../type/type';
 
@@ -55,7 +55,14 @@ export class AddVectorProviderComponent implements OnInit {
     from(this.VectorProviderService.addVectorProvider(this.form.value)).pipe(
       tap(value => this.form.disable()),
       map((value: HttpResponse<any>):VectorProvider => value.body ),
-      catchError( (err)=> { this.notifier.notify("error", "An error occured when saving vector provider");throw new Error(err); }),
+      catchError( (err:HttpErrorResponse)=> { 
+        this.notifier.notify("error", "An error occured when saving vector provider");
+
+        if (err.status === 400) {
+          alert(err.message)
+        }
+        throw new Error(err.message);
+       }),
       finalize(()=>{
         this.form.enable();
       })
