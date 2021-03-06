@@ -247,6 +247,10 @@
     "title": " Connecter vous"
   },
   "admin": {
+    "generate_icon":{
+      "background":"Activer l'arrière plan",
+      "icon_color":"Couleur de l'icone"
+    },
     "icon": {
       "add_group": "Ajouter un groupe",
       "add_icons": "Ajouter des icones",
