@@ -1,13 +1,15 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { NotifierService } from 'angular-notifier';
-import { Observable, Subject, ReplaySubject, combineLatest, EMPTY } from 'rxjs';
+import { Observable, Subject, ReplaySubject, combineLatest, EMPTY, merge } from 'rxjs';
 import { DataForPreview, VectorProvider } from '../../../../../../../type/type';
 import { VectorProviderService } from '../../../../../service/vector-provider.service'
 import { manageCompHelper } from '../../../../../../../../helper/manage-comp.helper'
 import { StyleService } from '../../../../../service/style.service';
-import { switchMap, catchError, shareReplay, takeUntil, tap } from 'rxjs/operators';
+import { switchMap, catchError, shareReplay, takeUntil, tap, filter } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { UpdateProviderComponent } from './update-provider/update-provider.component';
 
 
 @Component({
@@ -22,6 +24,7 @@ export class EditVectorProviderComponent implements OnInit, OnChanges {
   onInitInstance: () => void;
   onPreviewInstance: () => void;
   onDestroyInstance: () => void
+  onUpdateInstance:(provider:VectorProvider)=>void
 
   private readonly notifier: NotifierService;
 
@@ -33,7 +36,8 @@ export class EditVectorProviderComponent implements OnInit, OnChanges {
     public manageCompHelper: manageCompHelper,
     notifierService: NotifierService,
     public fb: FormBuilder,
-    public router:Router
+    public router:Router,
+    public dialog:MatDialog
   ) {
     this.notifier = notifierService;
 
@@ -53,15 +57,38 @@ export class EditVectorProviderComponent implements OnInit, OnChanges {
       onPreview.next()
     }
 
-    this.vectorProvider$ = onInit.pipe(
-      switchMap(() => {
-        return this.VectorProviderService.getVectorProvider(Number(this.provider_vector_id)).pipe(
-          catchError(() => {
-            this.router.navigate(['/admin/vector-provider']);
-            return EMPTY
-          }),
-        )
-      }),
+    const onUpdate:Subject<VectorProvider> = new Subject<VectorProvider>()
+    this.onUpdateInstance = (provider:VectorProvider)=>{
+      onUpdate.next(provider)
+    }
+    this.vectorProvider$ =merge(
+      onInit.pipe(
+        switchMap(() => {
+          return this.VectorProviderService.getVectorProvider(Number(this.provider_vector_id)).pipe(
+            catchError(() => {
+              this.router.navigate(['/admin/vector-provider']);
+              return EMPTY
+            }),
+          )
+        }),
+        
+      ),
+      onUpdate.pipe(
+        switchMap((provider:VectorProvider)=>{
+          return this.dialog.open(UpdateProviderComponent,{data:provider, width: '50%', maxWidth: '90%', maxHeight: '90%'}).afterClosed().pipe(
+            filter(response => response),
+            switchMap(()=>{
+              return this.VectorProviderService.getVectorProvider(Number(this.provider_vector_id)).pipe(
+                catchError(() => {
+                  this.router.navigate(['/admin/vector-provider']);
+                  return EMPTY
+                }),
+              )
+            })
+          )
+        })
+      )
+    ).pipe(
       shareReplay(1)
     )
 
