@@ -33,8 +33,8 @@
         </mat-form-field>
 
     </form>
-
-    <app-generate-icon class="generate-icon" [backgroundColor]="form.get('color')" [squareSvgAsText]="form.get('svg_as_text_square')"  [circleSvgAsText]="form.get('svg_as_text')" [icon_id]="form.get('icon')" ></app-generate-icon>
+    
+    <app-generate-icon class="generate-icon" [background]="form.get('icon_background')" [iconColorForm]="form.get('icon_color')" [backgroundColor]="form.get('color')" [squareSvgAsText]="form.get('svg_as_text_square')"  [circleSvgAsText]="form.get('svg_as_text')" [icon_id]="form.get('icon')" ></app-generate-icon>
     
 </mat-dialog-content>
 

@@ -247,6 +247,10 @@
     "title": " Connecter vous"
   },
   "admin": {
+    "generate_icon":{
+      "background":"Activer l'arrière plan",
+      "icon_color":"Couleur de l'icone"
+    },
     "icon": {
       "add_group": "Ajouter un groupe",
       "add_icons": "Ajouter des icones",
@@ -276,7 +280,10 @@
         "datasource_tab": "Source de données",
         "style_tab": "Styles",
         "general_tab": "General",
-        "preview_provider": "Visualiser"
+        "preview_provider": "Visualiser",
+        "general_tab_content":{
+          "name":"Nom de la  source"
+        }
       },
       "delete_vector_provider": "Supprimer les sources sélectionnés",
       "select_vector_provider": "Selectionnez des sources",

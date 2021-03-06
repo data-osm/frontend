@@ -79,10 +79,17 @@ export class VectorProviderService {
     };
 
     return this.http.delete<HttpResponse<any>>(this.url_prefix + '/api/provider/vector', options)
-    // .pipe(
-    //   map((value:HttpResponse<any>) => value),
-    //   // catchError((err:HttpErrorResponse) => { throw err;})
-    // )
+   
+  }
+
+
+  /**
+   * update vector providers
+   * @param provider_vector_ids Vec
+   * @returns Observable<HttpResponse<any>>
+   */
+  updateVectorProvider(provider:VectorProvider):Observable<VectorProvider>{
+    return this.http.put<VectorProvider>(this.url_prefix + '/api/provider/vector/'+provider.provider_vector_id,provider, { headers: this.get_header() })
   }
 
   /**
