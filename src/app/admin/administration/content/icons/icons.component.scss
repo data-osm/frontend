@@ -42,9 +42,18 @@
             cursor: pointer;
             .fa-trash{
                 position: absolute;
+                bottom: 10px;
+                right: 10px;
+                display: none;
+            }
+            .fa-pencil{
+                position: absolute;
                 top: 10px;
                 right: 10px;
                 display: none;
+                path{
+                    fill: #000;
+                }
             }
             img{
                 width: 63px;
@@ -54,7 +63,7 @@
         .one-icon:hover{
             background: #f3f5f6;
             border-radius: 5px;
-            .fa-trash{
+            .fa-trash, .fa-pencil{
                 display: block;
             }
         }

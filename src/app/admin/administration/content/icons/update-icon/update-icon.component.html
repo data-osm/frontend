@@ -1,0 +1,43 @@
+<h1 mat-dialog-title>
+
+
+    <!-- <i class="fa fa-plus primaryColorBorder icon_header"> </i> -->
+
+    <span class="bold primaryColor " style="font-size: 17px;">{{ 'update_icon.title' | translate }}
+    </span>
+
+    <i (click)="close()" class="fa fa-times primaryColor pointer close"></i>
+</h1>
+
+
+    <mat-dialog-content>
+<form [formGroup]="form" >
+        <div style="text-align: center;" >
+            <img [src]="url_prefix+icon.path"  style="height: 50px;width: 50px;border-radius: 0px;">
+        </div>
+
+        <mat-form-field appearance="outline" *ngIf="form.get('category')" style="width: 100%;">
+            <mat-label> {{ 'update_icon.category' | translate }} </mat-label>
+            <input matInput formControlName="category">
+            <mat-error> {{ 'update_icon.category_error' | translate }} </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" *ngIf="form.get('attribution')" style="width: 100%;">
+            <mat-label> {{ 'update_icon.attribnution' | translate }} </mat-label>
+            <input matInput formControlName="attribution">
+        </mat-form-field>
+
+        <app-update-tags [type]="'icons'" [tagsForm]="form.get('tags')" > </app-update-tags>
+
+        <!-- <app-file-upload *ngIf="form.get('path')" formControlName="path"  [multiple]="false" [accept]="'image/*'" ></app-file-upload> -->
+        <!-- <span *ngIf="hasError('path', 'required')" > {{ 'update_icon.image_error' | translate }} </span> -->
+
+    </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions>
+        <div fxLayout fxLayoutGap="15px" fxLayoutAlign="end" >
+            <mat-progress-bar fxFlex="100%" mode="indeterminate" *ngIf="form.disabled" ></mat-progress-bar>
+            <button fxFlex="150px" mat-stroked-button color="primary" [disabled]="form.disabled" (click)="close()">{{ 'cancel' | translate }}</button>
+            <button fxFlex="150px" mat-flat-button color="accent" class="white" (click)="onUpdateInstance()" [disabled]="!form.valid || form.disabled" >   {{ 'save' | translate }} </button>
+        </div>
+    </mat-dialog-actions>

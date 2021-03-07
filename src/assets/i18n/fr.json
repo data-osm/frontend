@@ -359,6 +359,13 @@
     "image_error": "Ajouter au moins une image",
     "attribnution": "Attribution des images"
   },
+  "update_icon": {
+    "title": "Modifier une icone",
+    "category": "Slectionnez la catégorie des icones",
+    "category_error": "Champ obligatoire",
+    "image_error": "Ajouter au moins une image",
+    "attribnution": "Attribution des images"
+  },
   "save": "Valider",
   "cancel": "Annuler",
   "add_vector_provider": {

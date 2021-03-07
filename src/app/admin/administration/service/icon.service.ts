@@ -4,7 +4,7 @@ import { Observable, throwError, BehaviorSubject, from, of } from 'rxjs';
 import { catchError, finalize, retry, tap } from 'rxjs/operators';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
-import { Icon } from '../../../type/type';
+import { Icon, TagsIcon } from '../../../type/type';
 import { NotifierService } from 'angular-notifier';
 @Injectable({
   providedIn: 'root'
@@ -17,14 +17,6 @@ export class IconService {
   headers: HttpHeaders = new HttpHeaders({});
   url_prefix = environment.backend
   private readonly notifier: NotifierService;
-  /**
-   * list of icons, group by category
-   */
-  public iconList: BehaviorSubject<{
-    [key: string]: Icon[];
-  }> = new BehaviorSubject(undefined)
-
-  public iconListLoadError: BehaviorSubject<boolean> = new BehaviorSubject(false)
 
   constructor(
     private http: HttpClient,
@@ -35,67 +27,7 @@ export class IconService {
     this.headers.append('Content-Type', 'application/json');
     this.notifier = notifierService;
 
-    this.fetchAndStoreListIcons()
   }
-
-  /**
-   * fecth all list icon from backend and store it in observable iconList
-   * If error emit boolean value on observable iconListLoadError
-   */
-  fetchAndStoreListIcons() {
-    this.iconList.next(undefined)
-    this.getIconsGroupByCategory().pipe(
-      catchError((err) => { this.notifier.notify("error", "An error occured while loading icons"); throw new Error(err); }),
-      // finalize(()=>{this.loading=false})
-    ).subscribe(
-      (response: {
-        [key: string]: Icon[];
-      }) => {
-        this.iconList.next(response)
-        this.iconListLoadError.next(false)
-      }, (error) => {
-        this.iconListLoadError.next(true)
-      }
-    )
-  }
-
-  /**
-   * get list of all icons
-   */
-  getAllIconsFromCategory(category: string): Array<Icon> {
-    let allIcons: Array<Icon> = []
-
-    if (this.iconList.getValue() != undefined) {
-      for (const key in this.iconList.getValue()) {
-        if (this.iconList.getValue().hasOwnProperty.call(this.iconList.getValue(), key) && key == category) {
-          allIcons = this.iconList.getValue()[key]
-        }
-      }
-
-    }
-    return allIcons
-
-  }
-
-  /**
- * get list of all icons
- */
-  getCategoryIcons(): Array<string> {
-    let allIcons: Array<string> = []
-
-    if (this.iconList.getValue() != undefined) {
-      for (const key in this.iconList.getValue()) {
-        if (this.iconList.getValue().hasOwnProperty.call(this.iconList.getValue(), key)) {
-          allIcons.push(key)
-        }
-      }
-
-    }
-
-    return allIcons
-
-  }
-
 
   /**
    * Get header
@@ -110,24 +42,14 @@ export class IconService {
    * get all icons group by category
    * @returns Observable<string[]>
    */
-  getIconsGroupByCategory(): Observable<{
-    [key: string]: Icon[]
-  }> {
-    return from(this.getRequest('/api/group/icons')).pipe(
-      map((result: {
-        [key: string]: Icon[]
-      }) => {
-        return result
-      }),
-      catchError((err) => {
-        throw new Error(err);
-      })
-    )
+  getIconsGroupByCategory(): Observable<Array<{[key: string]: Icon[]}>> {
+    return this.http.get<Array<{[key: string]: Icon[]}> >(this.url_prefix +'/api/group/icons', {headers: this.get_header()})
   }
+  
 
   /**
    * add  icon
-   * @param group 
+   * @param Icon 
    */
   uploadIcon(icon: any) {
     return from(this.http.post(this.url_prefix + '/api/group/icons/add', icon, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
@@ -135,12 +57,37 @@ export class IconService {
     ))
   }
 
+    /**
+   * update  icon
+   * @param Icon 
+   */
+  updateIcon(icon: FormData) {
+    return this.http.put(this.url_prefix + '/api/group/icons/'+icon.get('icon_id'), icon, { headers: this.get_header()})
+  }
+
+  /**
+   * delete icon by id
+   * @param icon_id number
+   */
+  deleteIcon(icon_id:number):Observable<Icon>{
+    return this.http.delete<Icon>(this.url_prefix+'/api/group/icons/'+icon_id, {headers: this.get_header()})
+  }
+
   /**
    * Get icon by id
    * @param icon_id number
    */
   getIcon(icon_id:number):Observable<Icon>{
-    return this.http.get<Icon>(this.url_prefix+'/api/group/icon/'+icon_id, {headers: this.get_header()})
+    return this.http.get<Icon>(this.url_prefix+'/api/group/icons/'+icon_id, {headers: this.get_header()})
+  }
+
+  /**
+   * Search a tag
+   * @param search_word string
+   * @returns Observable<Array<Tag>>
+   */
+  searchIconTags(search_word:string):Observable<Array<TagsIcon>>{
+    return this.http.post<Array<TagsIcon>>(this.url_prefix+'/api/group/icons/tags/search',{search_word:search_word}, { headers: this.get_header() })
   }
 
   /**
