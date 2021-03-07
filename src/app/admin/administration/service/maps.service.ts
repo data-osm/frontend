@@ -211,7 +211,7 @@ export class MapsService {
    * @returns Observable<Array<Tag>>
    */
   searchTags(search_word:string):Observable<Array<Tag>>{
-    return this.http.post<Array<Tag>>(this.url_prefix+'/api/group/tags/search',{search_word:search_word}, { headers: this.get_header() })
+    return this.http.post<Array<Tag>>(this.url_prefix+'/api/group/layer/tags/search',{search_word:search_word}, { headers: this.get_header() })
   }
 
   /**

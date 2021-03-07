@@ -4,7 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NotifierService } from 'angular-notifier';
 import { requiredFileType } from '../../../../../validators/upload-file-validators';
 import {IconService} from '../../../service/icon.service'
-import { Observable, fromEvent,merge as observerMerge, forkJoin, concat } from 'rxjs';
+import { Observable, fromEvent,merge as observerMerge, forkJoin, concat, EMPTY } from 'rxjs';
 import { HttpEvent } from '@angular/common/http';
 import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 
@@ -49,6 +49,7 @@ export class AddIconComponent implements OnInit {
 
     this.form.addControl('category',new FormControl(null, [Validators.required]))
     this.form.addControl('attribution',new FormControl(null))
+    this.form.addControl('tags',new FormControl([]))
     this.form.addControl('path',new FormControl(null,[Validators.required]))
     // this.form.addControl('path',new FormControl(null,[Validators.required, requiredFileType('svg')]))
   }
@@ -71,7 +72,8 @@ export class AddIconComponent implements OnInit {
         'path':listFIle[index],
         'name':listFIle[index].name.split('.')[0].toLowerCase(),
         'category':this.form.get('category').value,
-        'attribution':this.form.get('attribution').value
+        'attribution':this.form.get('attribution').value,
+        'tags':JSON.stringify(this.form.get('tags').value)
       })
       listRequest.push(this.IconService.uploadIcon(formIcon))
     }
@@ -87,7 +89,7 @@ export class AddIconComponent implements OnInit {
     .pipe(
       tap(value => this.form.disable() ),
       switchMap(value=> value),
-      catchError( (err)=> { this.notifier.notify("error", "An error occured when saving icons");throw new Error(err); }),
+      catchError( (err)=> { this.notifier.notify("error", "An error occured when saving icons");return EMPTY }),
       finalize(()=>{
         this.form.enable();
         this.progress = 0

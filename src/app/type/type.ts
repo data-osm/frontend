@@ -476,6 +476,11 @@ export interface ResponseOfSerachLimitInterface {
   geometry?: any
 }
 
+export interface TagsIcon{
+  id:number,
+  name:string
+}
+
 /**
  * interface of a icon
  */
@@ -485,9 +490,9 @@ export interface Icon {
   name: string
   category: string
   icon?: File
-  tags: string[]
   attribution: string,
-  svgContent?:string
+  svgContent?:string,
+  tags:Array<TagsIcon>
 }
 /**
  * interface of a vector provider

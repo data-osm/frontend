@@ -261,28 +261,6 @@ export class manageCompHelper {
 * @param size Array<string>|[]
 * @param callBack Function
 */
-  openModalAddcon(size: Array<string> | [], callBack: Function) {
-    var proprietes = {
-      disableClose: false,
-      minWidth: 400,
-    }
-
-    if (size.length > 0) {
-      proprietes['width'] = size[0]
-      proprietes['height'] = size[1]
-    }
-    const modal = this.dialog.open(AddIconComponent, proprietes);
-
-    modal.afterClosed().subscribe((result: boolean) => {
-      callBack(result)
-    })
-  }
-
-  /**
-* Open modal to add a group icon
-* @param size Array<string>|[]
-* @param callBack Function
-*/
   openModalAddVectorProvider(size: Array<string> | [], callBack: Function) {
     var proprietes = {
       disableClose: false,
