@@ -247,9 +247,9 @@
     "title": " Connecter vous"
   },
   "admin": {
-    "generate_icon":{
-      "background":"Activer l'arrière plan",
-      "icon_color":"Couleur de l'icone"
+    "generate_icon": {
+      "background": "Activer l'arrière plan",
+      "icon_color": "Couleur de l'icone"
     },
     "icon": {
       "add_group": "Ajouter un groupe",
@@ -273,16 +273,16 @@
           "type_geometrie": "Type de géometrie"
         }
       },
-      "edit_vector_provider":{
-        "title":"Modifier une source "
+      "edit_vector_provider": {
+        "title": "Modifier une source "
       },
       "details": {
         "datasource_tab": "Source de données",
         "style_tab": "Styles",
         "general_tab": "General",
         "preview_provider": "Visualiser",
-        "general_tab_content":{
-          "name":"Nom de la  source"
+        "general_tab_content": {
+          "name": "Nom de la  source"
         }
       },
       "delete_vector_provider": "Supprimer les sources sélectionnés",
@@ -294,7 +294,8 @@
     "lef_sidenav": {
       "icons": "Icones",
       "vector_provider": "Dépot de sources",
-      "maps": "Profils"
+      "maps": "Profils",
+      "base-map": "Carte de bases"
     },
     "osm_querry": {
       "where": "Clause where de la requete",
@@ -350,6 +351,18 @@
     },
     "update_layer": {
       "title": "Modifier la couche"
+    },
+    "base-map": {
+      "delete_confirmation_title": "Supprimer une carte de base",
+      "delete_confirmation_explanation": "Supprimer la carte de base : ",
+      "add": {
+        "title": "Ajouter une carte de base",
+        "name": "Nom de la carte de base",
+        "url": "Url de la carte de base",
+        "protocol_carto": "Protocol du flux de la carte de base",
+        "identifiant": "Identifiant du WMS de la carte de base",
+        "attribution": "Attribution de la carte de base"
+      }
     }
   },
   "add_icon": {
@@ -394,9 +407,9 @@
   "select_provider_with_style": {
     "title": "Ajouter des sources à la couche :",
     "choose_style": "Selectioner un style :",
-    "search_provider":"Rechercher une source",
-    "add_source":"Ajouter une source",
-    "or":"Ou"
+    "search_provider": "Rechercher une source",
+    "add_source": "Ajouter une source",
+    "or": "Ou"
   },
   "list_provider_with_style": {
     "add": "Ajouter une source",

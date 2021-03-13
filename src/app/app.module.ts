@@ -13,14 +13,14 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
   ]);
 }
 
-import {setAppInjector} from 'src/helper/app-injector.helper'
+import {setAppInjector} from '../helper/app-injector.helper'
 
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MapComponent } from './map/map.component';
-import { ComponentMaterialModule } from './material-module';
+import {SharedModule} from './shared/shared.module'
 import { HeaderComponent } from './header/header.component';
 import { VerticalToolbarComponent } from './map/vertical-toolbar/vertical-toolbar.component';
 import { TableOfContentsComponent } from './map/sidenav-right/table-of-contents/table-of-contents.component';
@@ -68,7 +68,6 @@ import { ListGeosignetComponent } from './map/context-menu/list-geosignet/list-g
 import { AuthGuard } from './auth/guard/auth.guard';
 import { ConfirmationDialogComponent } from './modal/confirmation-dialog/confirmation-dialog.component';
 
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -105,7 +104,7 @@ import { ConfirmationDialogComponent } from './modal/confirmation-dialog/confirm
     ContextMenuComponent,
     AddGeosignetComponent,
     ListGeosignetComponent,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
   ],
   imports: [
     ShareButtonsModule.withConfig({
@@ -115,7 +114,7 @@ import { ConfirmationDialogComponent } from './modal/confirmation-dialog/confirm
     ShareIconsModule,
     BrowserModule,
     AppRoutingModule,
-    ComponentMaterialModule,
+    SharedModule,
     BrowserAnimationsModule,
     HttpClientModule,
     FormsModule,
