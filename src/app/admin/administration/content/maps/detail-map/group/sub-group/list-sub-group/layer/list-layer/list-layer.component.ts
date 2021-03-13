@@ -172,8 +172,9 @@ export class ListLayerComponent implements OnInit {
                 name:provider.vp.name,
                 style:[provider.vs.name],
                 id_server:provider.vp.id_server,
-                url_server:provider.vp.path_qgis,
-                extent:provider.vp.extent
+                url_server:environment.url_carto+provider.vp.path_qgis,
+                extent:provider.vp.extent,
+                type:'wms'
               }
             })
            
