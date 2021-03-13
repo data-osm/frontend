@@ -7,7 +7,7 @@
 
     <ng-container *ngIf="listBaseMaps$ |async as listBaseMaps">
         <div fxLayout="row wrap" fxLayoutGap="15px" >
-            <app-base-map fxFlex="240px" (delete)="onDeleteInstance($event)" *ngFor="let baseMap of listBaseMaps"
+            <app-base-map fxFlex="240px" (delete)="onDeleteInstance($event)" (update)="onUpdateInstance($event)" *ngFor="let baseMap of listBaseMaps"
                 [baseMap]="baseMap"></app-base-map>
         </div>
     </ng-container>

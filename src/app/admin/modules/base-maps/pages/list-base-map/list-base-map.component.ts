@@ -9,6 +9,7 @@ import { BaseMapsService } from '../../../../../data/services/base-maps.service'
 import { manageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { MatDialog } from '@angular/material/dialog';
 import { AddBaseMapComponent } from '../add-base-map/add-base-map.component';
+import { UpdateBaseMapComponent } from '../update-base-map/update-base-map.component';
 
 @Component({
   selector: 'app-list-base-map',
@@ -20,6 +21,7 @@ export class ListBaseMapComponent implements OnInit {
   onInitInstance:()=>void
   onAddInstance:()=>void
   onDeleteInstance:(baseMap:BaseMap)=>void
+  onUpdateInstance:(baseMap:BaseMap)=>void
   
   listBaseMaps$:Observable<BaseMap[]>
   private readonly notifier: NotifierService;
@@ -48,6 +50,11 @@ export class ListBaseMapComponent implements OnInit {
       onDelete.next(baseMap)
     }
 
+    const onUpdate:Subject<BaseMap> = new Subject<BaseMap>()
+    this.onUpdateInstance = (baseMap:BaseMap)=>{
+      onUpdate.next(baseMap)
+    }
+
     this.listBaseMaps$ = merge(
       onInit.pipe(
         switchMap(()=>{
@@ -62,6 +69,21 @@ export class ListBaseMapComponent implements OnInit {
       onAdd.pipe(
         switchMap(()=>{
           return this.dialog.open(AddBaseMapComponent,{}).afterClosed().pipe(
+            filter(result => result),
+            switchMap(()=>{
+              return this.baseMapsService.getBaseMaps().pipe(
+                catchError((error:HttpErrorResponse) => { 
+                  this.notifier.notify("error", "An error occured while loading basemaps");
+                  return EMPTY 
+                }),
+              )
+            })
+          )
+        })
+      ),
+      onUpdate.pipe(
+        switchMap((basemap)=>{
+          return this.dialog.open(UpdateBaseMapComponent,{data:basemap}).afterClosed().pipe(
             filter(result => result),
             switchMap(()=>{
               return this.baseMapsService.getBaseMaps().pipe(

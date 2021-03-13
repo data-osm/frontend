@@ -55,4 +55,13 @@ export class BaseMapsService {
   deleteBaseMap(id:number):Observable<any>{
     return this.http.delete<any>(this.url_prefix+'/api/group/basemaps/'+id,{headers: this.get_header()} )
   }
+
+  /**
+   * Update a base map
+   * @param parameters FormData
+   * @returns Observable<BaseMap>
+   */
+  updateBaseMap(parameters:FormData):Observable<BaseMap>{
+    return this.http.put<BaseMap>(this.url_prefix+'/api/group/basemaps/'+parameters.get('id') ,parameters, {headers: this.get_header()} )
+  }
 }

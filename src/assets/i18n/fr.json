@@ -362,6 +362,9 @@
         "protocol_carto": "Protocol du flux de la carte de base",
         "identifiant": "Identifiant du WMS de la carte de base",
         "attribution": "Attribution de la carte de base"
+      },
+      "update": {
+        "title": "Mettre à jour une carte de base"
       }
     }
   },

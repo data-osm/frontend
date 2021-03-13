@@ -2,7 +2,7 @@
 
     <i class="fa fa-map primaryColorBorder icon_header"> </i>
 
-    <span class="bold primaryColor " style="font-size: 17px;">{{ 'admin.base-map.add.title' | translate }}
+    <span class="bold primaryColor " style="font-size: 17px;">{{ 'admin.base-map.update.title' | translate }}
     </span>
 
     <i (click)="close()" class="fa fa-times primaryColor pointer close"></i>
@@ -58,7 +58,7 @@
         <mat-progress-bar fxFlex="100%" mode="indeterminate" *ngIf="form.disabled"></mat-progress-bar>
         <button fxFlex="150px" mat-stroked-button color="primary" [disabled]="form.disabled" (click)="close()">{{
             'cancel' | translate }}</button>
-        <button fxFlex="150px" mat-flat-button color="accent" class="white" (click)="onAddInstance()"
+        <button fxFlex="150px" mat-flat-button color="accent" class="white" (click)="onUpdateInstance()"
             [disabled]="!form.valid || form.disabled"> {{ 'save' | translate }} </button>
     </div>
 </mat-dialog-actions>
