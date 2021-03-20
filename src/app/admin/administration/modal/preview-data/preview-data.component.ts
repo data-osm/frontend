@@ -8,6 +8,7 @@ Map, TileLayer, TileWMS, RasterSource, VectorSource, VectorLayer,OSM, View, Imag
 }from '../../../../ol-module'
 import { MatRadioChange } from '@angular/material/radio';
 import { environment } from '../../../../../environments/environment';
+import XYZ from 'ol/source/XYZ';
 
 @Component({
   selector: 'app-preview-data',
@@ -39,19 +40,43 @@ export class PreviewDataComponent implements OnInit {
         zoom: 2,
       }),
     });
-
-    
     this.layersForPreview
-    .filter((data)=> data.url_server && data.id_server && data.style.length>0)
+    .filter((data)=> data.url_server && data.type=='wmts')
+    .map(
+      (data:DataForPreview)=>{
+        let layer = new TileLayer({
+          source: new XYZ({
+            url:data.url_server,
+            name: data.name,
+            attributions:data.attributions
+          }),
+          
+        })
+
+        this.map.addLayer(layer)
+
+        if (data.extent) {
+          
+          this.map.getView().fit(transformExtent(data.extent,'EPSG:4326','EPSG:3857'), {
+            'size': this.map.getSize(),
+            'padding': [0, 0, 0, 0],
+            'duration': 500
+          })
+        }
+    })
+
+    this.layersForPreview
+    .filter((data)=> data.url_server && data.id_server && data.type=='wms')
     .map(
       (data:DataForPreview)=>{
 
         let layerTile = new TileLayer({
           source: new TileWMS({
-            url: environment.url_carto+data.url_server,
+            url: data.url_server,
             params: { 'LAYERS': data.id_server, 'TILED': true,'STYLE':data.style[0] },
             serverType: 'qgis',
             crossOrigin: 'anonymous',
+            attributions:data.attributions
           }),
           /**
          * so that map.forEachLayerAtPixel work as expected
@@ -64,10 +89,11 @@ export class PreviewDataComponent implements OnInit {
 
         let layerImage = new ImageLayer({
           source: new ImageWMS({
-            url: environment.url_carto+data.url_server,
-            params: { 'LAYERS': data.id_server, 'TILED': true,'STYLE':data.style[0] },
+            url: data.url_server,
+            params: { 'LAYERS': data.id_server, 'TILED': true,'STYLE':data.style.length>0?data.style[0]:'' },
             serverType: 'qgis',
             crossOrigin: 'anonymous',
+            attributions:data.attributions
           }),
           /**
          * so that map.forEachLayerAtPixel work as expected

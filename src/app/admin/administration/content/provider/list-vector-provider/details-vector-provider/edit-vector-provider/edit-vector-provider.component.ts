@@ -10,6 +10,7 @@ import { switchMap, catchError, shareReplay, takeUntil, tap, filter } from 'rxjs
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { UpdateProviderComponent } from './update-provider/update-provider.component';
+import { environment } from '../../../../../../../../environments/environment';
 
 
 @Component({
@@ -107,10 +108,11 @@ export class EditVectorProviderComponent implements OnInit, OnChanges {
             tap((styles) => {
               let previewData: DataForPreview = {
                 name: result[0].name,
-                url_server: result[0].path_qgis,
+                url_server: environment.url_carto+result[0].path_qgis,
                 id_server: result[0].id_server,
                 style: styles.map((style) => style.name),
-                extent: result[0].extent
+                extent: result[0].extent,
+                type:'wms'
               }
 
               this.manageCompHelper.openDataPreviewDialog([], [previewData])

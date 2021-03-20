@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FileUploadComponent } from './file-upload.component';
+import { UpdateBaseMapComponent } from './update-base-map.component';
 
-describe('FileUploadComponent', () => {
-  let component: FileUploadComponent;
-  let fixture: ComponentFixture<FileUploadComponent>;
+describe('UpdateBaseMapComponent', () => {
+  let component: UpdateBaseMapComponent;
+  let fixture: ComponentFixture<UpdateBaseMapComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FileUploadComponent ]
+      declarations: [ UpdateBaseMapComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FileUploadComponent);
+    fixture = TestBed.createComponent(UpdateBaseMapComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -15,13 +15,12 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
 
 import { AdminRoutingModule } from './admin-routing.module';
 import { AdministrationComponent } from './administration/administration.component';
-import {ComponentMaterialModule} from '../material-module';
+import {ComponentMaterialModule} from '../shared/material-module';
 import { SidenavLeftAdminComponent } from './administration/sidenav-left-admin/sidenav-left-admin.component';
 import { NavBarComponent } from './administration/nav-bar/nav-bar.component';
 import { IconsComponent } from './administration/content/icons/icons.component'
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { AddIconComponent } from './administration/content/icons/add-icon/add-icon.component';
-import { FileUploadComponent } from './administration/content/icons/add-icon/file-upload/file-upload.component';
 import { AddVectorProviderComponent } from './administration/content/provider/add-vector-provider/add-vector-provider.component';
 import { ListVectorProviderComponent } from './administration/content/provider/list-vector-provider/list-vector-provider.component';
 import { CdkTable, CDK_TABLE, _CoalescedStyleScheduler} from '@angular/cdk/table';
@@ -62,9 +61,12 @@ import { ColorPickerComponent } from './administration/color-picker/color-picker
 import { UpdateTagsComponent } from './administration/content/icons/add-icon/update-tags/update-tags.component';
 import { UpdateIconComponent } from './administration/content/icons/update-icon/update-icon.component';
 
+import {SharedModule} from '../shared/shared.module'
+
 @NgModule({
-  declarations: [SvgIcon, SafeStylePipe, AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent, AddStyleComponent, EditStyleComponent, PreviewDataComponent, DetailMapComponent, AddMapComponent, EditMapComponent, AddGroupComponent, GenerateIconComponent, EditGroupComponent, ListSubGroupComponent, AddSubGroupComponent, UpdateSubGroupComponent, EditSubGroupComponent, ListLayerComponent, AddLayerComponent, DetailLayerComponent, ProviderComponent, AddLayerProviderComponent, EditLayerProviderComponent, EditVectorProviderComponent, MetadataComponent, UpdateLayerComponent, QmlComponent, ClusterComponent, UpdateProviderComponent, ColorPickerComponent, UpdateTagsComponent, UpdateIconComponent],
+  declarations: [SvgIcon, SafeStylePipe, AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, AddVectorProviderComponent, ListVectorProviderComponent, DetailsVectorProviderComponent, OsmQuerryComponent, TableVectorProviderComponent, ListStyleComponent, AddStyleComponent, EditStyleComponent, PreviewDataComponent, DetailMapComponent, AddMapComponent, EditMapComponent, AddGroupComponent, GenerateIconComponent, EditGroupComponent, ListSubGroupComponent, AddSubGroupComponent, UpdateSubGroupComponent, EditSubGroupComponent, ListLayerComponent, AddLayerComponent, DetailLayerComponent, ProviderComponent, AddLayerProviderComponent, EditLayerProviderComponent, EditVectorProviderComponent, MetadataComponent, UpdateLayerComponent, QmlComponent, ClusterComponent, UpdateProviderComponent, ColorPickerComponent, UpdateTagsComponent, UpdateIconComponent],
   imports: [
+    SharedModule,
     CommonModule,
     AdminRoutingModule,
     ComponentMaterialModule,

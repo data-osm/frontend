@@ -569,8 +569,10 @@ export interface DataForPreview{
   name:string
   url_server:string
   id_server:string
-  extent:[number,number,number,number]
-  style:Array<string>
+  extent:[number,number,number,number],
+  type:'wms'|'wmts'
+  style:Array<string>,
+  attributions?:string|Array<string>
 }
 
 /**

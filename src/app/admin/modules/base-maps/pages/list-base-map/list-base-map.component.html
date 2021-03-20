@@ -1,0 +1,15 @@
+<div style="padding: 24px;">
+
+    <div style="text-align: right;">
+        <button style="margin-bottom: 10px;width: 200px;" mat-flat-button color="accent" class="white"
+            (click)="onAddInstance()"> {{ 'admin.base-map.add.title' | translate }} </button>
+    </div>
+
+    <ng-container *ngIf="listBaseMaps$ |async as listBaseMaps">
+        <div fxLayout="row wrap" fxLayoutGap="15px" >
+            <app-base-map fxFlex="240px" (delete)="onDeleteInstance($event)" (update)="onUpdateInstance($event)" *ngFor="let baseMap of listBaseMaps"
+                [baseMap]="baseMap"></app-base-map>
+        </div>
+    </ng-container>
+
+</div>
