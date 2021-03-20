@@ -34,7 +34,7 @@ export class UserService {
    * @param new_user {email:string,password:string}
    * @returns Observable<User>
    */
-  createUser(new_user:{email:string,password:string,username:string}):Observable<User> {
+  createUser(new_user:{email:string,password:string,username:string,is_superuser:boolean,last_name:string}):Observable<User> {
     return this.http.post<User>(this.url_prefix+'/auth/users/',new_user, {headers: this.get_header()})
   }
 

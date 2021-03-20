@@ -374,7 +374,8 @@
       "add_user_comp": {
         "title": "Ajouter un utilisateur",
         "email": "E-mail",
-        "psw": "Mot de passe"
+        "psw": "Mot de passe",
+        "name": "Nom"
       }
     }
   },

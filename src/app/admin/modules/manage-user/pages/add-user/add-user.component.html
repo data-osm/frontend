@@ -12,6 +12,12 @@
 <mat-dialog-content>
     <form [formGroup]="form">
 
+        <mat-form-field appearance="outline" *ngIf="form.get('last_name')" style="width: 100%;">
+            <mat-label> {{ 'admin.user.add_user_comp.name' | translate }}</mat-label>
+            <input matInput formControlName="last_name">
+            <mat-error> {{ 'add_icon.category_error' | translate }} </mat-error>
+        </mat-form-field>
+
         <mat-form-field appearance="outline" *ngIf="form.get('email')" style="width: 100%;">
             <mat-label> {{ 'admin.user.add_user_comp.email' | translate }}</mat-label>
             <input matInput type="email" formControlName="email">

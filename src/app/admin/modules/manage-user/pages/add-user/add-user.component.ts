@@ -32,6 +32,7 @@ export class AddUserComponent implements OnInit {
     this.notifier = notifierService;
 
     this.form.addControl('password',new FormControl(null, [Validators.required, Validators.minLength(5)]))
+    this.form.addControl('last_name',new FormControl(null, [Validators.required]))
     this.form.addControl('email',new FormControl(null, [Validators.required, Validators.email]))
 
     const onAdd:Subject<void> = new Subject<void>()
@@ -47,8 +48,10 @@ export class AddUserComponent implements OnInit {
         
         let parameters = {
           password:this.form.get('password').value.toString(),
+          last_name:this.form.get('last_name').value.toString(),
           email:this.form.get('email').value.toString(),
-          username:this.form.get('email').value.toString().split('@')[0].replace(/[^a-zA-Z0-9]/g,'_')
+          username:this.form.get('email').value.toString().split('@')[0].replace(/[^a-zA-Z0-9]/g,'_'),
+          is_superuser:true
         }
 
         return this.userService.createUser(parameters).pipe(
