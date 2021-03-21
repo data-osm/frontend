@@ -295,7 +295,8 @@
       "icons": "Icones",
       "vector_provider": "Dépot de sources",
       "maps": "Profils",
-      "base-map": "Carte de bases"
+      "base-map": "Carte de bases",
+      "user": "Utilisateurs"
     },
     "osm_querry": {
       "where": "Clause where de la requete",
@@ -365,6 +366,16 @@
       },
       "update": {
         "title": "Mettre à jour une carte de base"
+      }
+    },
+    "user": {
+      "list_user": "Utilisateurs",
+      "add_user": "Ajouter un utilisateur",
+      "add_user_comp": {
+        "title": "Ajouter un utilisateur",
+        "email": "E-mail",
+        "psw": "Mot de passe",
+        "name": "Nom"
       }
     }
   },

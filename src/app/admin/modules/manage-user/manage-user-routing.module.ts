@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import {ListBaseMapComponent} from './pages/list-base-map/list-base-map.component'
+import { ListUserComponent } from './pages/list-user/list-user.component';
 
 const routes: Routes = [
   {
@@ -8,7 +8,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: ListBaseMapComponent,
+        component: ListUserComponent,
       }
     ]
   }
@@ -18,4 +18,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class BaseMapsRoutingModule { }
+export class ManageUserRoutingModule { }

@@ -38,7 +38,8 @@ const routes: Routes = [
       path:'vector-provider/:id',
       component:DetailsVectorProviderComponent
     },
-    {path: 'base-maps', loadChildren: () => import('./modules/base-maps/base-maps.module').then(mod => mod.BasMapsModule)}
+    {path: 'base-maps', loadChildren: () => import('./modules/base-maps/base-maps.module').then(mod => mod.BasMapsModule)},
+    {path: 'user', loadChildren: () => import('./modules/manage-user/manage-user.module').then(mod => mod.ManageUserModule)}
 
   ]
 }
