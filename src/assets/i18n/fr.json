@@ -296,7 +296,8 @@
       "vector_provider": "Dépot de sources",
       "maps": "Profils",
       "base-map": "Carte de bases",
-      "user": "Utilisateurs"
+      "user": "Utilisateurs",
+      "parameters": "Réglages"
     },
     "osm_querry": {
       "where": "Clause where de la requete",
@@ -376,6 +377,18 @@
         "email": "E-mail",
         "psw": "Mot de passe",
         "name": "Nom"
+      }
+    },
+    "parameter": {
+      "admin_boundary": {
+        "delete_confirmation_title": "Supprimer une limite administrative",
+        "delete_confirmation_explanation": "Supprimer la limite administrative ",
+        "add": {
+          "title": "Ajouter une limite administrative",
+          "name": "Nom de la limite administrative"
+        },
+        "title": "Limites administratives",
+        "add_title": "Ajouter une limite administrative"
       }
     }
   },
