@@ -389,7 +389,17 @@
         },
         "title": "Limites administratives",
         "add_title": "Ajouter une limite administrative"
-      }
+      },
+      "parameter": {
+        "update": {
+          "title": "Mettre à jour les paramètres"
+        }
+      },
+      "title": "Paramètres",
+      "update": "Mettre à jour les paramètres",
+      "principal_profil": "Profil principal",
+      "source_extent": "Source des emprises du projet",
+      "source_principal": "Emprise princiale du projet "
     }
   },
   "add_icon": {
@@ -449,5 +459,8 @@
     "delete": "Supprimer",
     "update": "Modifier",
     "delte_layer": "Supprimer une couche"
+  },
+  "ressearch": {
+    "map": "Rechercher un profil"
   }
 }

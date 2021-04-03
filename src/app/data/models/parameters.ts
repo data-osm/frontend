@@ -6,10 +6,21 @@ export interface AdminBoundary {
     vector:VectorProvider
 }
 
+export interface AppExtent{
+    a?:number
+    b?:number
+    c?:number
+    d?:number
+    st_asgeojson:any
+    id:number
+    [key:string]:any
+}
+
 export interface Parameter{
     parameter_id:number
     map:Map,
     extent:VectorProvider
     extent_pk:number
-    adminBoundary:AdminBoundary[]
+    boundary:AdminBoundary[],
+    appExtent?:AppExtent
 }

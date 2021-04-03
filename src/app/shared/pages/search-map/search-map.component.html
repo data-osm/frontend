@@ -1,0 +1,23 @@
+<form [formGroup]="searchtMapForm">
+    <mat-form-field appearance="outline" style="width: 100%;"
+        *ngIf="searchtMapForm.get('search_word')">
+        <mat-label> {{ 'ressearch.map' | translate }} </mat-label>
+        <i class="fa fa-search black " aria-hidden="true" matPrefix></i>
+        <input matInput formControlName="search_word" [matAutocomplete]="autoComplete">
+        <i class="fa fa-times-circle pointer" matSuffix
+            (click)="searchtMapForm.get('search_word').setValue(null)"
+            *ngIf="searchtMapForm.get('search_word').value"></i>
+        <mat-autocomplete autoActiveFirstOption #autoComplete="matAutocomplete"
+            [displayWith]="displaySelectedMap"
+            (optionSelected)="selectedMap.setValue($event.option.value)">
+            <mat-option *ngFor="let Map of searchResultMap | async"
+                [value]="Map">
+                <mat-list>
+                    <mat-list-item>
+                        <div mat-line>{{Map.name}}</div>
+                    </mat-list-item>
+                </mat-list>
+            </mat-option>
+        </mat-autocomplete>
+    </mat-form-field>
+</form>

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { AdminBoundary, Parameter } from '../models/parameters';
+import { AdminBoundary, Parameter, AppExtent } from '../models/parameters';
 
 @Injectable({
   providedIn: 'root'
@@ -77,8 +77,8 @@ export class ParametersService {
    * @param parameter Parameter
    * @returns Observable<any>
    */
-  addParameter(parameter:Parameter):Observable<any>{
-    return this.http.post<any>(this.url_prefix+'/api/parameter/parameter',parameter,{headers: this.get_header()})
+  addParameter(parameter:any):Observable<any>{
+    return this.http.post<any>(this.url_prefix+'/api/parameter/parameter/add',parameter,{headers: this.get_header()})
   }
 
   /**
@@ -86,9 +86,27 @@ export class ParametersService {
    * @param parameter Parameter
    * @returns Observable<any>
    */
-   updateParameter(parameter:Parameter):Observable<any>{
-    return this.http.put<any>(this.url_prefix+'/api/parameter/admin_boundary/'+parameter.parameter_id,parameter,{headers: this.get_header()})
+   updateParameter(parameter:any):Observable<any>{
+    return this.http.put<any>(this.url_prefix+'/api/parameter/parameter/'+parameter.parameter_id,parameter,{headers: this.get_header()})
   }
   
+  /**
+   * get the app extent 
+   * @param geometry boolean
+   * @returns Observable<AppExtent>
+   */
+  getAppExtent(geometry:boolean=false):Observable<AppExtent>{
+    return this.http.get<AppExtent>(this.url_prefix+'/api/parameter/extent?geometry='+geometry,{headers: this.get_header()})
+
+  }
+
+  /**
+   * get the list of app extent
+   * @param geometry boolean
+   * @returns Observable<AppExtent[]>
+   */
+   getListAppExtent(geometry:boolean=false):Observable<AppExtent[]>{
+    return this.http.get<AppExtent[]>(this.url_prefix+'/api/parameter/extent/list?geometry='+geometry,{headers: this.get_header()})
+  }
 
 }

@@ -18,10 +18,11 @@ import {ComponentMaterialModule} from './material-module';
 import { NotifierModule } from "angular-notifier";
 import { RouterModule } from '@angular/router';
 import { SearchProviderComponent } from './pages/search-provider/search-provider.component';
+import { SearchMapComponent } from './pages/search-map/search-map.component';
 
 
 @NgModule({
-  declarations: [FileUploadComponent, SearchProviderComponent],
+  declarations: [FileUploadComponent, SearchProviderComponent, SearchMapComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -42,7 +43,8 @@ import { SearchProviderComponent } from './pages/search-provider/search-provider
     ReactiveFormsModule,
     FormsModule,
     TranslateModule,
-    SearchProviderComponent
+    SearchProviderComponent,
+    SearchMapComponent
   ]
 })
 export class SharedModule {

@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { EMPTY, Observable, of } from 'rxjs';
 import { filter, catchError, switchMap } from 'rxjs/operators';
@@ -11,7 +11,7 @@ import { VectorProvider } from '../../../type/type';
   templateUrl: './search-provider.component.html',
   styleUrls: ['./search-provider.component.scss']
 })
-export class SearchProviderComponent implements OnInit {
+export class SearchProviderComponent implements OnInit, OnChanges {
 
   searchtVectorProviderForm: FormGroup = this.fb.group({})
   searchResultVectorProvider: Observable<VectorProvider[]>
@@ -38,6 +38,14 @@ export class SearchProviderComponent implements OnInit {
 
     this.searchtVectorProviderForm.addControl('search_word', searchControl)
     
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.selectedProvider) {
+      if (changes.selectedProvider.currentValue.value) {
+        this.searchtVectorProviderForm.get('search_word').setValue(this.selectedProvider.value,{emitEvent:false})
+      }
+    }
   }
 
   ngOnInit(): void {

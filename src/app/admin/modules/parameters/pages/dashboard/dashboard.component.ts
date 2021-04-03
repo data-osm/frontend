@@ -3,12 +3,13 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
-import { EMPTY, merge, Observable, ReplaySubject, Subject } from 'rxjs';
-import { catchError, filter, switchMap } from 'rxjs/operators';
+import { EMPTY, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
+import { catchError, filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { AdminBoundary, Parameter } from '../../../../../data/models/parameters';
 import { ParametersService } from '../../../../../data/services/parameters.service';
 import { AddBoundaryComponent } from '../add-boundary/add-boundary.component';
 import { manageCompHelper } from '../../../../../../helper/manage-comp.helper'
+import { UpdateParameterComponent } from '../update-parameter/update-parameter.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -47,9 +48,14 @@ export class DashboardComponent implements OnInit {
       onDeleteAdministrative.next(adminBoundary)
     }
 
-    const onAddAdministrativeBoundary:Subject<AdminBoundary> = new Subject<AdminBoundary>()
+    const onAddAdministrativeBoundary:Subject<void> = new Subject<void>()
     this.onAddAdministrativeBoundaryInstance = ()=>{
       onAddAdministrativeBoundary.next()
+    }
+
+    const onUpdateAParameterInstance:Subject<Parameter> = new Subject<Parameter>()
+    this.onUpdateAParameterInstance = (parameter:Parameter)=>{
+      onUpdateAParameterInstance.next(parameter)
     }
 
     this.parameter$ = merge(
@@ -66,6 +72,21 @@ export class DashboardComponent implements OnInit {
       onAddAdministrativeBoundary.pipe(
         switchMap(()=>{
           return this.dialog.open(AddBoundaryComponent).afterClosed().pipe(
+            filter(validation => validation),
+            switchMap(()=>{
+              return this.parametersService.getParameters().pipe(
+                catchError((error:HttpErrorResponse) => { 
+                  this.notifier.notify("error", "An error occured while loading parameters");
+                  return EMPTY 
+                }),
+              )
+            })
+          )
+        })
+      ),
+      onUpdateAParameterInstance.pipe(
+        switchMap((parameter:Parameter)=>{
+          return this.dialog.open(UpdateParameterComponent, {data:parameter}).afterClosed().pipe(
             filter(validation => validation),
             switchMap(()=>{
               return this.parametersService.getParameters().pipe(
@@ -106,6 +127,19 @@ export class DashboardComponent implements OnInit {
           )
         })
       )
+    ).pipe(
+      shareReplay(1),
+      switchMap((parameter)=>{
+        return this.parametersService.getAppExtent(false).pipe(
+          catchError((error:HttpErrorResponse) => { 
+            this.notifier.notify("error", "An error occured while loading parameters");
+            return of(parameter) 
+          }),
+          map((appExtent)=>{
+            return Object.assign(parameter,{appExtent:appExtent})
+          })
+        )
+      })
     )
 
    }

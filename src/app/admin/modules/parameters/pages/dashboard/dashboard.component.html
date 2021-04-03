@@ -1,12 +1,32 @@
 <div style="padding: 24px;">
     <ng-container *ngIf="parameter$|async as parameter">
+        <mat-card style="margin-bottom: 24px;">
+            <mat-card-header>
+                <mat-card-title> {{'admin.parameter.title' |translate}} </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div fxLayout style="margin-top: 15px;">
+                    <span style="font-size: 12px;font-weight: 500;color: rgba(0, 0, 0, 0.54);" fxFlex="200px"> {{'admin.parameter.principal_profil' |translate}}</span>
+                    <h4 fxFlex> {{parameter?.map?.name}} </h4>
+                </div>
+                <div fxLayout style="margin-top: 15px;" >
+                    <span style="font-size: 12px;font-weight: 500;color: rgba(0, 0, 0, 0.54);" fxFlex="200px"> {{'admin.parameter.source_extent' |translate}}  </span>
+                    <h4 fxFlex> {{parameter?.extent?.name}} </h4>
+                </div>
+                <div fxLayout style="margin-top: 15px;" >
+                    <span style="font-size: 12px;font-weight: 500;color: rgba(0, 0, 0, 0.54);" fxFlex="200px"> {{'admin.parameter.source_principal' |translate}}</span>
+                    <h4 fxFlex> {{parameter?.appExtent?.name}} </h4>
+                </div>
+                <button mat-flat-button style="margin-top: 15px;" color="accent" class="white" (click)="onUpdateAParameterInstance(parameter)" > {{'admin.parameter.update' |translate}}</button>
+            </mat-card-content>
+        </mat-card>
 
         <mat-card>
             <mat-card-header>
                 <mat-card-title> {{'admin.parameter.admin_boundary.title' |translate}} </mat-card-title>
             </mat-card-header>
             <mat-card-content>
-                <table mat-table [dataSource]="parameter.adminBoundary" style="width:100%">
+                <table mat-table [dataSource]="parameter.boundary" style="width:100%">
                     <ng-container matColumnDef="name">
                         <th mat-header-cell *matHeaderCellDef> Nom </th>
                         <td mat-cell *matCellDef="let element"> {{element.name}} </td>
