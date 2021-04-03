@@ -37,6 +37,15 @@ export class MapsService {
   }
 
   /**
+   * Search map
+   * @param search_word string
+   * @returns Observable<Map[]>
+   */
+  searchMap(search_word:string):Observable<Map[]>{
+    return this.http.post<Map[]>(this.url_prefix + '/api/group/map/search', {'search_word':search_word}, { headers: this.get_header()})
+  }
+
+  /**
    * get all maps 
    * @returns Observable<Map[]>
    */

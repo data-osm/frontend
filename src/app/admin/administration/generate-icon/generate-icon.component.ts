@@ -107,11 +107,16 @@ export class GenerateIconComponent implements OnInit {
         Array.from(this.squareSvg.nativeElement.children).map(child => this.squareSvg.nativeElement.removeChild(child))
 
         try {
-          this.iconOrigin.nativeElement.appendChild(new DOMParser().parseFromString(icon.svgContent, 'text/xml').firstChild)
+          this.iconOrigin.nativeElement.appendChild(new DOMParser().parseFromString(icon.svgContent, 'text/xml').documentElement)
 
           let icone = SVG(this.iconOrigin.nativeElement.firstChild).size(60, 60)
           icone.each(function (i, children) {
-            this.fill({ color: value[2] })
+            try {
+              this.fill({ color: value[2] })
+              this.node.style.fill = value[2]
+            } catch (error) {
+              // console.log(this, children)
+            }
           }, true)
           let icone_clone = icone.clone()
 
@@ -147,6 +152,7 @@ export class GenerateIconComponent implements OnInit {
           }
 
         } catch (error) {
+          console.error(error)
           this.notifier.notify("error", "Sorry, can not to load this icon ! due to " + error.toString());
           Array.from(this.iconOrigin.nativeElement.children).map(child => this.iconOrigin.nativeElement.removeChild(child))
           Array.from(this.circleSvg.nativeElement.children).map(child => this.circleSvg.nativeElement.removeChild(child))

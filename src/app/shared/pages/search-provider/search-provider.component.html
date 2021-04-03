@@ -1,0 +1,23 @@
+<form [formGroup]="searchtVectorProviderForm">
+    <mat-form-field appearance="outline" style="width: 100%;"
+        *ngIf="searchtVectorProviderForm.get('search_word')">
+        <mat-label> {{ 'select_provider_with_style.search_provider' | translate }} </mat-label>
+        <i class="fa fa-search black " aria-hidden="true" matPrefix></i>
+        <input matInput formControlName="search_word" [matAutocomplete]="autoComplete">
+        <i class="fa fa-times-circle pointer" matSuffix
+            (click)="searchtVectorProviderForm.get('search_word').setValue(null)"
+            *ngIf="searchtVectorProviderForm.get('search_word').value"></i>
+        <mat-autocomplete autoActiveFirstOption #autoComplete="matAutocomplete"
+            [displayWith]="displaySelectedVectorProvider"
+            (optionSelected)="selectedProvider.setValue($event.option.value)">
+            <mat-option *ngFor="let vectorProvider of searchResultVectorProvider | async"
+                [value]="vectorProvider">
+                <mat-list>
+                    <mat-list-item>
+                        <div mat-line>{{vectorProvider.name}}</div>
+                    </mat-list-item>
+                </mat-list>
+            </mat-option>
+        </mat-autocomplete>
+    </mat-form-field>
+</form>

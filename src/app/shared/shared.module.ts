@@ -17,10 +17,12 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
 import {ComponentMaterialModule} from './material-module';
 import { NotifierModule } from "angular-notifier";
 import { RouterModule } from '@angular/router';
+import { SearchProviderComponent } from './pages/search-provider/search-provider.component';
+import { SearchMapComponent } from './pages/search-map/search-map.component';
 
 
 @NgModule({
-  declarations: [FileUploadComponent],
+  declarations: [FileUploadComponent, SearchProviderComponent, SearchMapComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -40,7 +42,9 @@ import { RouterModule } from '@angular/router';
     HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
-    TranslateModule
+    TranslateModule,
+    SearchProviderComponent,
+    SearchMapComponent
   ]
 })
 export class SharedModule {

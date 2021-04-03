@@ -1,8 +1,8 @@
 import { Component, OnInit ,Inject} from '@angular/core';
 import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {StorageServiceService} from 'src/app/services/storage-service/storage-service.service'
-import { coucheInterface, groupThematiqueInterface } from 'src/app/type/type';
-import { environment } from 'src/environments/environment';
+import {StorageServiceService} from '../../../../../app/services/storage-service/storage-service.service'
+import { coucheInterface, groupThematiqueInterface } from '../../../../../app/type/type';
+import { environment } from '../../../../../environments/environment';
 /**
  * Interface that descrive one layer that can be download
  */
