@@ -3,19 +3,19 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Observable, fromEvent, merge as observerMerge } from 'rxjs';
 
 import { cartoHelper, layersInMap } from '../../../../helper/carto.helper'
-import { manageCompHelper } from 'src/helper/manage-comp.helper'
+import { manageCompHelper } from '../../../../helper/manage-comp.helper'
 import {
   Map, Transform
 } from '../../../ol-module';
-import { StorageServiceService } from 'src/app/services/storage-service/storage-service.service'
-import { ShareServiceService } from 'src/app/services/share-service/share-service.service'
+import { StorageServiceService } from '../../../../app/services/storage-service/storage-service.service'
+import { ShareServiceService } from '../../../../app/services/share-service/share-service.service'
 import { MatSliderChange } from '@angular/material/slider';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { map, catchError, debounceTime } from 'rxjs/operators';
-import { coucheInterface, carteInterface } from 'src/app/type/type';
-import { environment } from 'src/environments/environment';
+import { coucheInterface, carteInterface } from '../../../../app/type/type';
+import { environment } from '../../../../environments/environment';
 import { MatDialog } from '@angular/material/dialog';
-import { MetadataComponent } from 'src/app/modal/metadata/metadata.component';
+import { MetadataLayerComponent } from '../../../modal/metadata/metadata.component';
 
 @Component({
   selector: 'app-table-of-contents',
@@ -276,7 +276,7 @@ export class TableOfContentsComponent implements OnInit {
 
     if (this.displayMetadataLink(metadata) || wms_type == "osm") {
 
-      const MetaData = this.dialog.open(MetadataComponent, {
+      const MetaData = this.dialog.open(MetadataLayerComponent, {
         minWidth: "350px",
         // height: '80%',
         data: { exist: true, metadata: metadata, nom: carte ? carte.nom : couche.nom, url_prefix: environment.url_prefix, data: carte ? carte : couche }
@@ -285,7 +285,7 @@ export class TableOfContentsComponent implements OnInit {
       MetaData.afterClosed().subscribe(result => {
       });
     } else {
-      const MetaData = this.dialog.open(MetadataComponent, {
+      const MetaData = this.dialog.open(MetadataLayerComponent, {
         minWidth: "350px",
         data: { exist: false, metadata: metadata, nom: carte ? carte.nom : couche.nom, url_prefix: environment.url_prefix, data: carte ? carte : couche }
       });

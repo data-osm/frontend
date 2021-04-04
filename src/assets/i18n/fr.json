@@ -367,7 +367,8 @@
       },
       "update": {
         "title": "Mettre à jour une carte de base"
-      }
+      },
+      "title": "Carte de bases"
     },
     "user": {
       "list_user": "Utilisateurs",

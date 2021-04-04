@@ -17,12 +17,18 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
 import {ComponentMaterialModule} from './material-module';
 import { NotifierModule } from "angular-notifier";
 import { RouterModule } from '@angular/router';
-import { SearchProviderComponent } from './pages/search-provider/search-provider.component';
+import { SvgIconDirective } from './directive/svg-icon.directive';
 import { SearchMapComponent } from './pages/search-map/search-map.component';
+import { SearchProviderComponent } from './pages/search-provider/search-provider.component';
+import { SafeStylePipe } from './pipe/safe-style.pipe';
+import { PreviewDataComponent } from './pages/preview-data/preview-data.component';
+import { _VIEW_REPEATER_STRATEGY, _DisposeViewRepeaterStrategy } from '@angular/cdk/collections';
+import { _CoalescedStyleScheduler, CdkTable, CDK_TABLE } from '@angular/cdk/table';
+import { MatTable } from '@angular/material/table';
 
 
 @NgModule({
-  declarations: [FileUploadComponent, SearchProviderComponent, SearchMapComponent],
+  declarations: [FileUploadComponent, SearchProviderComponent, SearchMapComponent, SvgIconDirective, PreviewDataComponent, SafeStylePipe],
   imports: [
     CommonModule,
     FormsModule,
@@ -31,7 +37,14 @@ import { SearchMapComponent } from './pages/search-map/search-map.component';
     ComponentMaterialModule,
     TranslateModule,
     FlexLayoutModule,
-    NotifierModule
+    NotifierModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient],
+      }
+    }),
   ],
   exports:[
     FileUploadComponent,
@@ -44,8 +57,15 @@ import { SearchMapComponent } from './pages/search-map/search-map.component';
     FormsModule,
     TranslateModule,
     SearchProviderComponent,
-    SearchMapComponent
-  ]
+    SearchMapComponent,
+    SvgIconDirective,
+    PreviewDataComponent,
+    SafeStylePipe
+  ],
+  providers:[_CoalescedStyleScheduler,
+    {provide: _VIEW_REPEATER_STRATEGY, useClass: _DisposeViewRepeaterStrategy},
+    {provide: CdkTable, useExisting: MatTable},
+    {provide: CDK_TABLE, useExisting: MatTable},]
 })
 export class SharedModule {
   constructor(private translate: TranslateService) {

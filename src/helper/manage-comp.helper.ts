@@ -10,14 +10,14 @@ import { InfoComponent } from '../app/modal/info/info.component'
 import { AddGeosignetComponent } from '../app/map/context-menu/add-geosignet/add-geosignet.component'
 import { SidenaveLeftSecondaireComponent } from '../app/map/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component'
 import { DataForPreview, groupCarteInterface, groupThematiqueInterface, Style } from '../app/type/type';
-import { AddIconComponent } from '../app/admin/administration/content/icons/add-icon/add-icon.component';
-import { AddVectorProviderComponent } from '../app/admin/administration/content/provider/add-vector-provider/add-vector-provider.component';
-import { AddStyleComponent } from '../app/admin/administration/content/provider/list-vector-provider/details-vector-provider/list-style/add-style/add-style.component';
+import { AddIconComponent } from '../app/admin/modules/icons/pages/add-icon/add-icon.component';
+import { AddVectorProviderComponent } from '../app/admin/modules/provider/pages/add-vector-provider/add-vector-provider.component';
+import { AddStyleComponent } from '../app/admin/modules/provider/pages/add-style/add-style.component';
 import {ConfirmationDialogComponent, ConfirmationDialogData} from '../app/modal/confirmation-dialog/confirmation-dialog.component'
 import { map } from 'rxjs/internal/operators/map';
 import { Observable } from 'rxjs';
-import { EditStyleComponent } from '../app/admin/administration/content/provider/list-vector-provider/details-vector-provider/list-style/edit-style/edit-style.component';
-import { PreviewDataComponent } from '../app/admin/administration/modal/preview-data/preview-data.component';
+import { EditStyleComponent } from '../app/admin/modules/provider/pages/edit-style/edit-style.component';
+import { PreviewDataComponent } from '../app/shared/pages/preview-data/preview-data.component';
 import * as $ from 'jquery'
 /**
  * Open some componenents like social share, loading,modal etc...

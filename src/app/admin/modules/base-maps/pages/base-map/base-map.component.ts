@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { environment } from '../../../../../../environments/environment';
 import { BaseMap } from '../../../../../data/models/base-maps';
 import { DataForPreview } from '../../../../../type/type';
-import { PreviewDataComponent } from '../../../../administration/modal/preview-data/preview-data.component';
+import { PreviewDataComponent } from '../../../../../shared/pages/preview-data/preview-data.component';
 
 @Component({
   selector: 'app-base-map',
