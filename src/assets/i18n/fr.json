@@ -249,7 +249,8 @@
   "admin": {
     "generate_icon": {
       "background": "Activer l'arrière plan",
-      "icon_color": "Couleur de l'icone"
+      "icon_color": "Couleur de l'icone",
+      "icon_bg_color": "Couleur de l'arière plan"
     },
     "icon": {
       "add_group": "Ajouter un groupe",

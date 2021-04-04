@@ -15,5 +15,6 @@
 
         <mat-slide-toggle [fxHide]="!displayBackground" > {{ 'admin.generate_icon.background' | translate }} </mat-slide-toggle>
         <app-color-picker style="display: block; padding: 20px;" [colorLabel]=" 'admin.generate_icon.icon_color' | translate " [colorForm]="iconColorForm" ></app-color-picker>
+        <app-color-picker style="display: block; padding: 20px;" [colorLabel]=" 'admin.generate_icon.icon_bg_color' | translate " [colorForm]="backgroundColor" ></app-color-picker>
     </div>
 </div>

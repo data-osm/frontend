@@ -9,6 +9,7 @@ import { Icon } from '../../../../../type/type';
 import { IconsComponent } from '../icons/icons.component';
 import { IconWithSVGContent } from '../../../profil/pages/add-group/add-group.component';
 import { IconService } from '../../../../administration/service/icon.service'
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-generate-icon',
@@ -28,7 +29,7 @@ export class GenerateIconComponent implements OnInit {
   /**
    * The background color of the icon
    */
-  @Input() backgroundColor: FormControl
+  @Input() backgroundColor: FormControl= new FormControl(environment.primaryColor)
   /**
    * the circle svg icon as text
    */

@@ -12,26 +12,6 @@
             <mat-error> {{ 'add_vector_provider.name_error' | translate }} </mat-error>
         </mat-form-field>
 
-        <mat-form-field *ngIf="form.get('color')" style="width: 100%;">
-            <mat-label> {{ 'admin.add_group.color' | translate }} </mat-label>
-            <input 
-            class="input-style"
-            [cpPositionOffset]="'50%'"
-            [cpPosition]="'bottom-left'"
-            [cpAlphaChannel]="'always'"
-            [cpOutputFormat]="'rgba'"
-            [cpPresetColors]="presetValues"
-            [cpSaveClickOutside]="true"
-            [(colorPicker)]="form.get('color').value" 
-            (colorPickerChange)="onColorPickerSelect($event,'color')"
-            matInput 
-            [attr.style]="('background:' + form.get('color').value + ' !important') | safeStyle"
-            formControlName="color" 
-            />
-           
-            <mat-error> {{ 'add_vector_provider.name_error' | translate }} </mat-error>
-        </mat-form-field>
-
     </form>
 
     <app-generate-icon class="generate-icon" [displayBackground]="false" [backgroundColor]="form.get('color')" [circleSvgAsText]="form.get('svg_as_text')" [icon]="group.icon" [icon_id]="form.get('icon_id')" ></app-generate-icon>

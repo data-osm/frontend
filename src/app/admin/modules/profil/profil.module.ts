@@ -6,7 +6,6 @@ import { ProfilRoutingModule } from './profil-routing.module';
 import { SharedModule } from '../../../shared/shared.module';
 import { AddGroupComponent } from './pages/add-group/add-group.component';
 import { EditGroupComponent } from './pages/edit-group/edit-group.component';
-import { ColorPickerModule } from 'ngx-color-picker';
 import { AddSubGroupComponent } from './pages/add-sub-group/add-sub-group.component';
 import { EditSubGroupComponent } from './pages/edit-sub-group/edit-sub-group.component';
 import { UpdateSubGroupComponent } from './pages/update-sub-group/update-sub-group.component';
@@ -30,7 +29,6 @@ import { ProviderModule } from '../provider/provider.module';
     ProfilRoutingModule,
     SharedModule,
     IconsModule,
-    ColorPickerModule,
     ProviderModule
   ]
 })
