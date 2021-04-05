@@ -52,7 +52,6 @@ import { ListGroupThematiqueComponent } from './map/sidenav-left/sidenave-left-s
 import { ListGroupCarteComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-carte/list-group-carte.component';
 import { CoucheThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-thematique/couche-thematique/couche-thematique.component';
 import { CarteThematiqueComponent } from './map/sidenav-left/sidenave-left-secondaire/list-group-carte/carte-thematique/carte-thematique.component';
-import { MetadataComponent } from './modal/metadata/metadata.component';
 import { ChartOverlayComponent } from './map/sidenav-right/download/chart-overlay/chart-overlay.component';
 import { ListDownloadLayersComponent } from './map/sidenav-right/download/list-download-layers/list-download-layers.component';
 import { DescriptiveSheetComponent } from './map/descriptive-sheet/descriptive-sheet.component';
@@ -67,6 +66,7 @@ import { AddGeosignetComponent } from './map/context-menu/add-geosignet/add-geos
 import { ListGeosignetComponent } from './map/context-menu/list-geosignet/list-geosignet.component';
 import { AuthGuard } from './auth/guard/auth.guard';
 import { ConfirmationDialogComponent } from './modal/confirmation-dialog/confirmation-dialog.component';
+import { MetadataLayerComponent } from './modal/metadata/metadata.component';
 
 @NgModule({
   declarations: [
@@ -93,7 +93,6 @@ import { ConfirmationDialogComponent } from './modal/confirmation-dialog/confirm
     ListGroupCarteComponent,
     CoucheThematiqueComponent,
     CarteThematiqueComponent,
-    MetadataComponent,
     ChartOverlayComponent,
     ListDownloadLayersComponent,
     DescriptiveSheetComponent,
@@ -105,6 +104,7 @@ import { ConfirmationDialogComponent } from './modal/confirmation-dialog/confirm
     AddGeosignetComponent,
     ListGeosignetComponent,
     ConfirmationDialogComponent,
+    MetadataLayerComponent
   ],
   imports: [
     ShareButtonsModule.withConfig({
@@ -133,7 +133,7 @@ import { ConfirmationDialogComponent } from './modal/confirmation-dialog/confirm
   ],
   providers: [StorageServiceService,BackendApiService,manageCompHelper, AuthGuard, AuthGuard],
   bootstrap: [AppComponent],
-  entryComponents:[MetadataComponent,ListDownloadLayersComponent,AddGeosignetComponent,ListGeosignetComponent]
+  entryComponents:[ListDownloadLayersComponent,AddGeosignetComponent,ListGeosignetComponent]
 })
 export class AppModule {
   constructor(injector: Injector) {

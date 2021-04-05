@@ -1,0 +1,14 @@
+<div style="padding: 24px;" fxLayout="row wrap">
+    <button style="margin-bottom: 10px;" mat-flat-button color="accent" class="white"
+    (click)="onAddInstance()"> {{ 'admin.add_group.title' | translate }} </button>
+</div>
+<ng-container *ngIf="groups$|async as groups" >
+    <div fxLayout="row wrap" fxLayoutGap="15px"  style="padding: 24px;" >
+        <app-group fxFlex="240px" *ngFor="let group of groups" [group]="group"
+            (update)="onUpdateInstance($event)"
+            (add)="onAddInstance($event)"
+            (delete)="onDeleteInstance($event)"
+            (open)="openGroup($event)"
+        ></app-group>
+    </div>
+</ng-container>

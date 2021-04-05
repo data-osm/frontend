@@ -18,13 +18,13 @@ export interface MetaDataInterface {
 /**
  * Metadata Modal
  */
-export class MetadataComponent implements OnInit {
+export class MetadataLayerComponent implements OnInit {
 
   url_prefix:string
   data_metadata
 
   constructor(
-    public dialogRef: MatDialogRef<MetadataComponent>,
+    public dialogRef: MatDialogRef<MetadataLayerComponent>,
     @Inject(MAT_DIALOG_DATA) public data: MetaDataInterface,
     private builder: FormBuilder,
   ) { }

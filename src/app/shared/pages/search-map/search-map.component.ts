@@ -3,7 +3,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 import { Observable, of, EMPTY } from 'rxjs';
 import { filter, catchError, switchMap } from 'rxjs/operators';
-import { MapsService } from '../../../admin/administration/service/maps.service';
+import { MapsService } from '../../../data/services/maps.service';
 import { Map } from '../../../type/type';
 
 @Component({
