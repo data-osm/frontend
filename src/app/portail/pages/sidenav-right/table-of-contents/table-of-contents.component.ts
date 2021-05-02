@@ -72,11 +72,12 @@ export class TableOfContentsComponent implements OnInit {
     
     this.layersInToc = new CartoHelper(this.map).getAllLayersInToc().
     filter((layerProp)=>layerProp.type_layer =='geosmCatalogue' )
-    .filter((value, index, self)=>{
+    .filter((layerProp, index, self)=>{
       /**
        * unique layer ^^
        */
-      return self.map((item)=>item.properties['couche_id']).indexOf(value.properties['couche_id']) === index;
+      return self.map((item)=>item.properties['couche_id']+item.properties['type']).indexOf(layerProp.properties['couche_id']+layerProp.properties['type']) === index;
+   
     })
     .map((layerProp)=>{
       if (layerProp.properties['type']=='couche') {

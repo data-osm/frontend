@@ -143,7 +143,7 @@ export class DataOsmLayersServiceService {
             type: 'wms',
             identifiant: [provider.vp.id_server],
             type_layer: 'geosmCatalogue',
-            url: provider.vp.url_server,
+            url: environment.url_carto+provider.vp.url_server,
             visible: true,
             inToc: true,
             properties: {

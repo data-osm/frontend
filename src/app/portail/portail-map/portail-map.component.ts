@@ -80,6 +80,13 @@ export class PortailMapComponent implements OnInit {
       tap(()=>{
         this.layersInToc = new CartoHelper(this.map).getAllLayersInToc().
         filter((layerProp)=>layerProp.type_layer =='geosmCatalogue' )
+        .filter((value, index, self)=>{
+          /**
+           * unique layer ^^
+           */
+           return self.map((item)=>item.properties['couche_id']+item.properties['type']).indexOf(value.properties['couche_id']+value.properties['type']) === index;
+
+        })
       }),
       takeUntil(this.destroyed$)
     ).subscribe()

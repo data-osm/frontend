@@ -137,7 +137,7 @@ export class DescriptiveSheetComponent implements OnInit {
       map(()=>{
         return this.dataOsmLAyer.layer.providers.map((provider)=>{
           return new ImageWMS({
-            url: provider.vp.url_server,
+            url: environment.url_carto+provider.vp.url_server,
             params: { 'LAYERS': provider.vp.id_server, 'TILED': true },
             serverType: 'qgis',
             crossOrigin: 'anonymous',

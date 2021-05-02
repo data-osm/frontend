@@ -8,6 +8,7 @@ import { CartoHelper, layersInMap } from '../../../../../helper/carto.helper';
 import { DataOsmLayersServiceService } from '../../../../services/data-som-layers-service/data-som-layers-service.service';
 import { fromOpenLayerEvent } from '../../../../shared/class/fromOpenLayerEvent';
 import { ObjectEvent } from 'ol/Object';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-legend',
@@ -52,7 +53,8 @@ export class LegendComponent implements OnInit {
                 /**
                  * unique layer ^^
                  */
-                return self.map((item)=>item.properties['couche_id']).indexOf(value.properties['couche_id']) === index;
+                 return self.map((item)=>item.properties['couche_id']+item.properties['type']).indexOf(value.properties['couche_id']+value.properties['type']) === index;
+
               })
               .map((layerProp) => {
                 let layer = this.dataOsmLayersServiceService.getLayerInMap(layerProp.properties['couche_id']).layer
@@ -64,7 +66,7 @@ export class LegendComponent implements OnInit {
 
                     layerProp.legendCapabilities.push(
                       {
-                        urlImg: $.trim(provider.vp.url_server + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=" + provider.vp.id_server + "&STYLE=" + provider.vs.name + "&SLD_VERSION=1.1.0&LAYERTITLE=false&RULELABEL=true")
+                        urlImg: $.trim(environment.url_carto+provider.vp.url_server + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=" + provider.vp.id_server + "&STYLE=" + provider.vs.name + "&SLD_VERSION=1.1.0&LAYERTITLE=false&RULELABEL=true")
                       }
                     )
 
