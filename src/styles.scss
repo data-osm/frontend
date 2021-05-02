@@ -37,7 +37,9 @@ input{
 	background: transparent !important;
 }
 
-
+.dialog-no-shadow, .mat-dialog-container{
+	box-shadow: none !important;
+}
 /* ///// spinner ////////////// */
 
 .lds-ripple {

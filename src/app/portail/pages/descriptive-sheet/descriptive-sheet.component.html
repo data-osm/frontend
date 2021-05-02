@@ -1,0 +1,24 @@
+<h1 mat-dialog-title class="accentColorBG white" cdkDrag cdkDragRootElement=".cdk-overlay-pane" style="position: relative;"  >
+  <div class="descriptive-sheet-header-ghost" cdkDragHandle ></div>
+  <img [src]="environment.backend + dataOsmLAyer?.layer.cercle_icon" alt="" srcset="" class="icon_header" style="margin-top: 4px;;height: 25px;">
+  <i class="fa fa-times-circle close" (click)="closeModal()"></i>
+  <i class="fa fa-arrows-alt white" style="font-size:20px" aria-hidden="true"  ></i>
+
+  {{ dataOsmLAyer?.layer.name}}
+</h1>
+<div mat-dialog-content style="padding-top: 5px;max-height: 250px !important;" class="scroll">
+  <ng-container *ngIf="features$|async as features" >
+    <app-osm-sheet *ngIf="data.type == 'osm'" [features]="features" [dataOsmLAyer]="dataOsmLAyer" [feature]="data.feature" [coord]="data.coordinates_3857" [map]="data.map" [highlightLayer]="highlightLayer" (closeDescriptiveSheet)="closeModal()"></app-osm-sheet>
+  </ng-container>
+</div>
+
+<div mat-dialog-actions class="text-center" >
+  <!-- <button mat-raised-button (click)="shareFeature()">
+    <i class="fa fa-share-alt"> </i> {{'descriptive_sheet.share' | translate}}
+  </button>-->
+
+  <button mat-raised-button [hidden]="!extent" (click)="zoomOnFeatureExtent()"  >
+    <i class="fa fa-search-plus"> </i> {{'descriptive_sheet.zoomTo' | translate}}
+  </button> 
+
+</div>

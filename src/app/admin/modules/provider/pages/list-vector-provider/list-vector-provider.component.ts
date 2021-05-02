@@ -5,7 +5,7 @@ import { BehaviorSubject, EMPTY, merge, Observable, of, ReplaySubject, Subject, 
 import { catchError } from 'rxjs/internal/operators/catchError';
 import { filter, finalize, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../../../../environments/environment';
-import { manageCompHelper } from '../../../../../../helper/manage-comp.helper'
+import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { VectorProvider } from '../../../../../type/type';
 import { VectorProviderService } from '../../../../administration/service/vector-provider.service'
 import {MatPaginator} from '@angular/material/paginator';
@@ -52,7 +52,7 @@ export class ListVectorProviderComponent implements OnInit {
 
   constructor(
     public VectorProviderService:VectorProviderService,
-    public manageCompHelper:manageCompHelper,
+    public manageCompHelper:ManageCompHelper,
     notifierService: NotifierService,
     public fb: FormBuilder,
     public translate: TranslateService,

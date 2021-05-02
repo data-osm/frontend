@@ -11,7 +11,7 @@ export interface AppExtent{
     b?:number
     c?:number
     d?:number
-    st_asgeojson:any
+    st_asgeojson:string
     id:number
     [key:string]:any
 }

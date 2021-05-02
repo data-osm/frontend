@@ -13,21 +13,17 @@ import {
 import { StorageServiceService } from '../services/storage-service/storage-service.service'
 import { ShareServiceService } from '../services/share-service/share-service.service'
 import { TranslateService } from '@ngx-translate/core';
-import { SidenaveLeftSecondaireComponent } from './sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component';
+import { SidenaveLeftSecondaireComponent } from '../portail/pages/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component';
 import * as $ from 'jquery'
-import { layersInMap, cartoHelper, dataFromClickOnMapInterface } from '../../helper/carto.helper';
-import { manageCompHelper } from '../../helper/manage-comp.helper'
-import { ContextMenuComponent } from '../map/context-menu/context-menu.component'
+import { layersInMap, dataFromClickOnMapInterface } from '../../helper/carto.helper';
+import { ManageCompHelper } from '../../helper/manage-comp.helper'
+import { ContextMenuComponent } from '../portail/pages/context-menu/context-menu.component'
 
-var attribution = new Attribution({
-  collapsible: false,
-  // target:'map-attribution'
-});
+
 
 export const map = new Map({
   layers: [
     new LayerGroup({
-      nom: 'group-layer-shadow',
     })
   ],
   view: new View({
@@ -83,7 +79,7 @@ export class MapComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     public ShareServiceService: ShareServiceService,
     private _ngZone: NgZone,
-    public manageCompHelper: manageCompHelper
+    public manageCompHelper: ManageCompHelper
   ) {
 
   }
@@ -92,7 +88,7 @@ export class MapComponent implements OnInit {
     /**
      * set componwnt to the helper
      */
-    this.manageCompHelper.setComponent('SidenaveLeftSecondaireComp', this.SidenaveLeftSecondaireComp)
+    // this.manageCompHelper.setComponent('SidenaveLeftSecondaireComp', this.SidenaveLeftSecondaireComp)
   }
 
   ngOnInit(): void {
@@ -108,42 +104,40 @@ export class MapComponent implements OnInit {
     map.setTarget('map1')
     map.setTarget('map')
     map.updateSize()
-    map.addControl(cartoHelper.scaleControl('scaleline', 'scale-map'))
-    map.addControl(cartoHelper.mousePositionControl('mouse-position-map'))
 
 
-    this.StorageServiceService.states.subscribe((value) => {
-      if (value.loadProjectData) {
-        this.handleMapParamsUrl()
-        this.mapClicked()
-        map.updateSize()
-        map.getView().fit(this.StorageServiceService.getConfigProjet().bbox, { 'size': map.getSize(), 'duration': 1000 });
-        var drawers: QueryList<MatDrawer> = this.sidenavContainer._drawers
-        drawers.forEach((drawer) => {
-          drawer.openedChange.subscribe(() => {
-            map.updateSize()
-          })
-        })
-      }
-    })
+    // this.StorageServiceService.states.subscribe((value) => {
+    //   if (value.loadProjectData) {
+    //     this.handleMapParamsUrl()
+    //     this.mapClicked()
+    //     map.updateSize()
+    //     map.getView().fit(this.StorageServiceService.getConfigProjet().bbox, { 'size': map.getSize(), 'duration': 1000 });
+    //     var drawers: QueryList<MatDrawer> = this.sidenavContainer._drawers
+    //     drawers.forEach((drawer) => {
+    //       drawer.openedChange.subscribe(() => {
+    //         map.updateSize()
+    //       })
+    //     })
+    //   }
+    // })
 
     /**
      * use for the count of layers in the TOC
      * the red badge on te button toogle the TOC
      */
-    map.getLayers().on('propertychange', (ObjectEvent) => {
-      let cartoHelperClass = new cartoHelper()
+    // map.getLayers().on('propertychange', (ObjectEvent) => {
+    //   let cartoHelperClass = new cartoHelper()
 
-      this.layersInToc = cartoHelperClass.getAllLayersInToc()
+    //   this.layersInToc = cartoHelperClass.getAllLayersInToc()
 
-      /**
-       * open right sidenav if there are 2 layers in the TOC
-       */
-      if (this.layersInToc.length == 2 && !this.getRightMenu('toc').active) {
-        this.openRightMenu('toc')
-      }
+    //   /**
+    //    * open right sidenav if there are 2 layers in the TOC
+    //    */
+    //   if (this.layersInToc.length == 2 && !this.getRightMenu('toc').active) {
+    //     this.openRightMenu('toc')
+    //   }
 
-    })
+    // })
 
   }
 
@@ -213,26 +207,26 @@ export class MapComponent implements OnInit {
   /**
    * Handle parameters of the app when opening with route /map
    */
-  handleMapParamsUrl() {
-    this.activatedRoute.queryParams.subscribe(params => {
-      /** share of layers */
-      if (params['layers']) {
-        // verify if params pos is present in url param et zoomer dessus
-        var layers = params['layers'].split(';')
-        this.ShareServiceService.addLayersFromUrl(layers)
+  // handleMapParamsUrl() {
+  //   this.activatedRoute.queryParams.subscribe(params => {
+  //     /** share of layers */
+  //     if (params['layers']) {
+  //       // verify if params pos is present in url param et zoomer dessus
+  //       var layers = params['layers'].split(';')
+  //       this.ShareServiceService.addLayersFromUrl(layers)
 
-      }
-      if (params['feature']) {
-        var parametersShared = params['feature'].split(';')
-        this.ShareServiceService.displayFeatureShared(parametersShared)
-      }
+  //     }
+  //     if (params['feature']) {
+  //       var parametersShared = params['feature'].split(';')
+  //       this.ShareServiceService.displayFeatureShared(parametersShared)
+  //     }
 
-      if(params['pos']){
-        var positionData = params['pos'].split(',')
-        this.ShareServiceService.zoomToSharePos(parseFloat(positionData[0]), parseFloat(positionData[1]), parseFloat(positionData[2]))
-      }
-    })
-  }
+  //     if(params['pos']){
+  //       var positionData = params['pos'].split(',')
+  //       this.ShareServiceService.zoomToSharePos(parseFloat(positionData[0]), parseFloat(positionData[1]), parseFloat(positionData[2]))
+  //     }
+  //   })
+  // }
 
 
   /**
@@ -253,35 +247,32 @@ export class MapComponent implements OnInit {
         return 0;
       }
 
-      this._ngZone.run(() => {
-        let cartoHelperClass = new cartoHelper()
+      // this._ngZone.run(() => {
 
-        cartoHelperClass.mapHasCliked(evt, (data: dataFromClickOnMapInterface) => {
-          if (data.type == 'raster') {
+      //   cartoHelperClass.mapHasCliked(evt, (data: dataFromClickOnMapInterface) => {
+      //     if (data.type == 'raster') {
 
-            var layers = data.data.layers.sort(compare);
-            var layerTopZindex = layers.length > 0 ? layers[0] : undefined
+      //       var layers = data.data.layers.sort(compare);
+      //       var layerTopZindex = layers.length > 0 ? layers[0] : undefined
 
-            if (layerTopZindex) {
-              var descriptionSheetCapabilities = layerTopZindex.get('descriptionSheetCapabilities')
-              this.manageCompHelper.openDescriptiveSheet(descriptionSheetCapabilities, cartoHelperClass.constructAlyerInMap(layerTopZindex), data.data.coord)
-            }
+      //       if (layerTopZindex) {
+      //         var descriptionSheetCapabilities = layerTopZindex.get('descriptionSheetCapabilities')
+      //       }
 
-            // this.featureInfoWmsClick(data) descriptionSheetCapabilities
-          } else if (data.type == 'clear') {
+      //       // this.featureInfoWmsClick(data) descriptionSheetCapabilities
+      //     } else if (data.type == 'clear') {
 
-          } else if (data.type == 'vector') {
-            var layers = data.data.layers.sort(compare);
-            var layerTopZindex = layers.length > 0 ? layers[0] : undefined
+      //     } else if (data.type == 'vector') {
+      //       var layers = data.data.layers.sort(compare);
+      //       var layerTopZindex = layers.length > 0 ? layers[0] : undefined
 
-            if (layerTopZindex) {
-              var descriptionSheetCapabilities = layerTopZindex.get('descriptionSheetCapabilities')
-              this.manageCompHelper.openDescriptiveSheet(descriptionSheetCapabilities, cartoHelperClass.constructAlyerInMap(layerTopZindex), data.data.coord, data.data.feature.getGeometry(), data.data.feature.getProperties())
-            }
-          }
-        })
+      //       if (layerTopZindex) {
+      //         var descriptionSheetCapabilities = layerTopZindex.get('descriptionSheetCapabilities')
+      //       }
+      //     }
+      //   })
 
-      })
+      // })
     })
   }
 
@@ -289,15 +280,6 @@ export class MapComponent implements OnInit {
    * Toggle geolocation
    * if the geolocation layer exist, the user is already located, if not we must geolocate him
    */
-  toggleGeolocation() {
-    let cartoHelpeClass = new cartoHelper()
 
-    if (cartoHelpeClass.getLayerByName('user_position').length == 0) {
-      cartoHelpeClass.geolocateUser()
-    } else {
-      let featurePosition = cartoHelpeClass.getLayerByName('user_position')[0].getSource().getFeatures()[0]
-      cartoHelpeClass.fit_view(featurePosition.getGeometry(), 19)
-    }
-  }
 
 }

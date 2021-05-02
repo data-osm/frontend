@@ -5,7 +5,7 @@ import { catchError, finalize, retry, tap } from 'rxjs/operators';
 import { map } from 'rxjs/operators';
 import { NotifierService } from 'angular-notifier';
 import { environment } from '../../../environments/environment';
-import { Group, SubGroup, LayerProviders, ReorderProvider, Tag, Metadata, Map, Layer } from '../../type/type';
+import { Group, SubGroup, LayerProviders, ReorderProvider, Tag, Metadata, Map, Layer, SubGroupWithLayers } from '../../type/type';
 
 @Injectable({
   providedIn: 'root'
@@ -84,7 +84,7 @@ export class MapsService {
    * @returns Observable<Group[]>
    */
   getAllGroupOfMap(map_id:number):Observable<Group[]>{
-    return this.http.get<Group[]>(this.url_prefix + '/api/group/group?map='+map_id, { headers: this.get_header() })
+    return this.http.get<Group[]>(this.url_prefix + '/api/group?map='+map_id, { headers: this.get_header() })
   }
 
   /**
@@ -126,6 +126,14 @@ export class MapsService {
   getAllSubGroupOfGroup(group_id:number):Observable<SubGroup[]>{
     return this.http.get<SubGroup[]>(this.url_prefix + '/api/group/sub?group_id='+group_id, { headers: this.get_header() })
   }
+
+   /**
+   * Get all sub group a group
+   * @param group_id number
+   */
+    getAllSubGroupWithLayersOfGroup(group_id:number):Observable<SubGroupWithLayers[]>{
+      return this.http.get<SubGroupWithLayers[]>(this.url_prefix + '/api/group/sub/layers?group_id='+group_id, { headers: this.get_header() })
+    }
 
   /**
    * Update a sub  group

@@ -5,7 +5,7 @@ import { EMPTY, merge, Observable, ReplaySubject, Subject } from 'rxjs';
 import { catchError, filter, switchMap } from 'rxjs/operators';
 import { Style } from '../../../../../type/type';
 import { StyleService } from '../../../../administration/service/style.service'
-import { manageCompHelper } from '../../../../../../helper/manage-comp.helper'
+import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { TranslateService } from '@ngx-translate/core';
 import { style } from '@angular/animations';
 
@@ -48,7 +48,7 @@ export class ListStyleComponent implements OnInit {
   constructor(
     public StyleService:StyleService,
     notifierService: NotifierService,
-    public manageCompHelper:manageCompHelper,
+    public manageCompHelper:ManageCompHelper,
     public translate: TranslateService,
   ) {
 

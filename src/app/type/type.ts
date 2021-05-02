@@ -599,6 +599,9 @@ export interface SubGroup{
   name:string
   group:number
 }
+export interface SubGroupWithLayers extends SubGroup{
+  layers:Array<Layer>
+}
 
 export interface Layer{
   layer_id:number

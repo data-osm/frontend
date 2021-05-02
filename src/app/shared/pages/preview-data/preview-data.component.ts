@@ -47,12 +47,11 @@ export class PreviewDataComponent implements OnInit {
         let layer = new TileLayer({
           source: new XYZ({
             url:data.url_server,
-            name: data.name,
             attributions:data.attributions
           }),
           
         })
-
+        layer.getSource().set('name',data.name)
         this.map.addLayer(layer)
 
         if (data.extent) {
@@ -83,9 +82,9 @@ export class PreviewDataComponent implements OnInit {
          * @see https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html#forEachLayerAtPixel
          */
           className: data.name ,
-          name: data.name,
           minResolution: this.map.getView().getResolutionForZoom(9)
         });
+        layerTile.set('name',data.name)
 
         let layerImage = new ImageLayer({
           source: new ImageWMS({
@@ -100,9 +99,10 @@ export class PreviewDataComponent implements OnInit {
          * @see https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html#forEachLayerAtPixel
          */
           className: data.name,
-          name: data.name,
           maxResolution: this.map.getView().getResolutionForZoom(9),
         });
+        layerImage.set('name',data.name)
+
 
         this.map.addLayer(
           new LayerGroup({

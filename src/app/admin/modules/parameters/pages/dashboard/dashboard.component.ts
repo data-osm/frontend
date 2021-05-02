@@ -8,7 +8,7 @@ import { catchError, filter, map, shareReplay, switchMap } from 'rxjs/operators'
 import { AdminBoundary, Parameter } from '../../../../../data/models/parameters';
 import { ParametersService } from '../../../../../data/services/parameters.service';
 import { AddBoundaryComponent } from '../add-boundary/add-boundary.component';
-import { manageCompHelper } from '../../../../../../helper/manage-comp.helper'
+import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { UpdateParameterComponent } from '../update-parameter/update-parameter.component';
 
 @Component({
@@ -34,7 +34,7 @@ export class DashboardComponent implements OnInit {
     public notifierService: NotifierService,
     public translate: TranslateService,
     public dialog: MatDialog,
-    public manageCompHelper : manageCompHelper,
+    public manageCompHelper : ManageCompHelper,
   ) {
     this.notifier = notifierService;
 

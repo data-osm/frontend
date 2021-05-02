@@ -6,7 +6,7 @@ import { NotifierService } from 'angular-notifier';
 import { EMPTY, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { filter, switchMap, catchError, tap, startWith, withLatestFrom, map, takeUntil, take, shareReplay, distinct } from 'rxjs/operators';
 import { environment } from '../../../../../../environments/environment';
-import { manageCompHelper } from '../../../../../../helper/manage-comp.helper';
+import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper';
 import { MapsService } from '../../../../../data/services/maps.service';
 import { PreviewDataComponent } from '../../../../../shared/pages/preview-data/preview-data.component';
 import { DataForPreview, Layer } from '../../../../../type/type';
@@ -45,7 +45,7 @@ export class ListLayerComponent implements OnInit {
     public router:Router,
     notifierService: NotifierService,
     public dialog: MatDialog,
-    public manageCompHelper:manageCompHelper,
+    public manageCompHelper:ManageCompHelper,
     public translate: TranslateService,
     private cdRef:ChangeDetectorRef
   ) {

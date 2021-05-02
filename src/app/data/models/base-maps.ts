@@ -8,4 +8,5 @@ export interface BaseMap {
     protocol_carto: 'wms'|'wmts',
     identifiant: string,
     attribution: string,
+    principal?:boolean
 }

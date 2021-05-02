@@ -1,0 +1,2 @@
+<app-sidenav-header [title]="'Fond de cartes'" [dialogRef]="dialogRef"  ></app-sidenav-header>
+<app-portail-base-map *ngFor="let baseMap of parameters.baseMaps" [map]="parameters.map" [baseMap]="baseMap" ></app-portail-base-map>

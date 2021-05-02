@@ -1,0 +1,10 @@
+<mat-card>
+
+    <img mat-card-image [src]="environment.backend+baseMap.pictogramme.raster_icon" alt="{{baseMap.name}}">
+
+    <mat-card-actions>
+        <mat-checkbox labelPosition="before" color="primary" [formControl]="toogleBaseMap">
+            {{baseMap.name}}
+        </mat-checkbox>
+    </mat-card-actions>
+</mat-card>

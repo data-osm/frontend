@@ -5,7 +5,7 @@ import { NotifierService } from 'angular-notifier';
 import { Observable, Subject, ReplaySubject, merge, EMPTY, of } from 'rxjs';
 import { switchMap, tap, catchError, filter, takeUntil, distinct, startWith, map, shareReplay } from 'rxjs/operators';
 import { Map } from '../../../../type/type';
-import { manageCompHelper } from '../../../../../helper/manage-comp.helper'
+import { ManageCompHelper } from '../../../../../helper/manage-comp.helper'
 import { MapsService } from '../../../../data/services/maps.service'
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -50,7 +50,7 @@ export class SidenavLeftAdminComponent implements OnInit {
 
   constructor(
     public MapsService: MapsService,
-    public manageCompHelper: manageCompHelper,
+    public manageCompHelper: ManageCompHelper,
     notifierService: NotifierService,
     public fb: FormBuilder,
     public translate: TranslateService,

@@ -7,8 +7,7 @@ import { catchError, filter, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { MapsService } from '../../../../../../data/services/maps.service';
-import { Style } from '../../../../../../ol-module';
-import { VectorProvider, Layer } from '../../../../../../type/type';
+import { VectorProvider, Layer, Style } from '../../../../../../type/type';
 import { StyleService } from '../../../../../administration/service/style.service';
 import { VectorProviderService } from '../../../../../administration/service/vector-provider.service';
 

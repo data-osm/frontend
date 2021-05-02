@@ -6,7 +6,7 @@ import { EMPTY, merge, Observable, ReplaySubject, Subject } from 'rxjs';
 import { catchError, filter, shareReplay, switchMap } from 'rxjs/operators';
 import { BaseMap } from '../../../../../data/models/base-maps';
 import { BaseMapsService } from '../../../../../data/services/base-maps.service';
-import { manageCompHelper } from '../../../../../../helper/manage-comp.helper'
+import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { MatDialog } from '@angular/material/dialog';
 import { AddBaseMapComponent } from '../add-base-map/add-base-map.component';
 import { UpdateBaseMapComponent } from '../update-base-map/update-base-map.component';
@@ -30,7 +30,7 @@ export class ListBaseMapComponent implements OnInit {
     public  baseMapsService : BaseMapsService,
     public notifierService: NotifierService,
     public translate: TranslateService,
-    public manageCompHelper : manageCompHelper,
+    public manageCompHelper : ManageCompHelper,
     public dialog: MatDialog
   ) {
     this.notifier = notifierService;

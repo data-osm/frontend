@@ -1,0 +1,23 @@
+<div
+  class="border_red menu-thematiques-child text-center"
+  [ngClass]="{ primaryColorBG: !group.color }"
+  [ngStyle]="{ 'background-color': group.color }"
+  [matTooltip]="group.name"
+>
+  <!-- <div class="menu-thematiques-child-nombre back_red white">
+  <p *ngIf="group.sous_thematiques"> {{group.sous_thematiques.length}} </p>
+  <p *ngIf="!group.sous_thematiques"> {{group.couches.length}} </p>
+</div> -->
+
+  <img
+    src="{{ environment.backend + group.icon_path }}"
+    class="img-responsive menu-thematiques-child-logo"
+  />
+</div>
+<div class="text-center menu-thematiques-child-title">
+  <mat-list-item>
+    <p class="black" mat-line>
+      {{ group.name }}
+    </p>
+  </mat-list-item>
+</div>

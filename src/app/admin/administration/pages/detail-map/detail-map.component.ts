@@ -10,7 +10,7 @@ import { environment } from '../../../../../environments/environment';
 import { Group, Icon } from '../../../../type/type';
 import { IconService } from '../../service/icon.service';
 import { AddGroupComponent } from '../../../modules/profil/pages/add-group/add-group.component';
-import {manageCompHelper} from '../../../../../helper/manage-comp.helper'
+import {ManageCompHelper} from '../../../../../helper/manage-comp.helper'
 import { TranslateService } from '@ngx-translate/core';
 
 
