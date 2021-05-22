@@ -1,5 +1,5 @@
 import { filterOptionInterface } from './search.component'
-import { configProjetInterface } from '../../../../type/type';
+import { configProjetInterface, Layer } from '../../../../type/type';
 import { StorageServiceService } from '../../../../services/storage-service/storage-service.service'
 import { AppInjector } from '../../../../../helper/app-injector.helper'
 import { ManageCompHelper } from '../../../../../helper/manage-comp.helper'
@@ -7,6 +7,9 @@ import { GeoJSON, Feature, Style, Icon, Map } from '../../../../ol-module'
 import * as $ from 'jquery'
 import { environment } from '../../../../../environments/environment';
 import { DataOsmLayersServiceService } from '../../../../services/data-som-layers-service/data-som-layers-service.service';
+import { MapsService } from '../../../../data/services/maps.service';
+import { catchError, take, tap } from 'rxjs/operators';
+import { EMPTY } from 'rxjs';
 
 /**
  * class for handle couche thematique   search:
@@ -15,58 +18,32 @@ import { DataOsmLayersServiceService } from '../../../../services/data-som-layer
  */
 export class handleLayerSearch {
 
-  StorageServiceService: StorageServiceService = AppInjector.get(StorageServiceService);
+  // StorageServiceService: StorageServiceService = AppInjector.get(StorageServiceService);
   manageCompHelper: ManageCompHelper = AppInjector.get(ManageCompHelper);
-  GeosmLayersServiceService: DataOsmLayersServiceService = AppInjector.get(DataOsmLayersServiceService);
-  configProject: configProjetInterface = this.StorageServiceService.getConfigProjet()
+  dataOsmLayersServiceService: DataOsmLayersServiceService = AppInjector.get(DataOsmLayersServiceService);
+  mapsService: MapsService = AppInjector.get(MapsService);
 
   constructor() {
-    this.configProject = this.StorageServiceService.getConfigProjet()
   }
 
   /**
    * format response from server into a list to display on ui
    * @param responseDB any
    */
-  formatDataForTheList(responseDB: any): Array<filterOptionInterface> {
-    var response: Array<filterOptionInterface> = []
-
-    for (let index = 0; index < responseDB.couches.length; index++) {
-      const element = responseDB.couches[index];
-      var couche = this.StorageServiceService.getCoucheFromKeyCouche(element.id)
-      var group = this.StorageServiceService.getGroupThematiqueFromIdCouche(element.id)
-      if (couche && group) {
-        response.push({
-          name: couche.nom,
-          nameGroup: group.nom,
-          number: couche.number,
-          id: couche.key_couche,
-          image_src: environment.url_prefix + couche.img,
-          logo_src: environment.url_prefix + couche.logo_src,
-          type: 'couche',
-          typeOption: 'layer',
+  formatDataForTheList(responseDB: Layer[]): Array<filterOptionInterface> {
+    var response: Array<filterOptionInterface> =
+      responseDB
+        .filter((layer) => layer.providers.filter((pr) => pr.vp.state === 'good').length > 0)
+        .map((layer) => {
+          return {
+            name: layer.name,
+            layer: layer,
+            number: layer.providers.map((pr) => pr.vp.count).reduce((a, b) => a + b, 0),
+            id: layer.layer_id,
+            icon: environment.backend + layer.cercle_icon,
+            typeOption: 'layer'
+          }
         })
-      }
-    }
-
-    for (let index = 0; index < responseDB.cartes.length; index++) {
-      const element = responseDB.cartes[index];
-      var carte = this.StorageServiceService.getCarteFromIdCarte(element.id)
-      var groupCarte = this.StorageServiceService.getGroupCarteFromIdCarte(element.id)
-
-      if (carte && groupCarte) {
-        response.push({
-          name: carte.nom,
-          nameGroup: groupCarte.nom,
-          id: carte.key_couche,
-          image_src: environment.url_prefix + carte.image_src,
-          type: 'carte',
-          typeOption: 'layer',
-        })
-      }
-    }
-
-
     return response
   }
 
@@ -83,32 +60,24 @@ export class handleLayerSearch {
    *  call when an option is select by the user
    * @param data searchLayerToDownlodModelInterface
    */
-  optionSelected(data: filterOptionInterface, map:Map) {
-    if (data.type == 'couche') {
-      var couche = this.StorageServiceService.getCoucheFromKeyCouche(data.id)
-      let groupThem = this.StorageServiceService.getGroupThematiqueFromIdCouche(data.id)
-      if (groupThem) {
-        // this.manageCompHelper.openGroupThematiqueSlide(groupThem)
-      }
-      if (couche) {
-        // this.GeosmLayersServiceService.addLayerCouche(couche, map)
-        setTimeout(() => {
-          try {
-            $('#couche_'+couche.key_couche)[0].scrollIntoView(false);
-          } catch (error) {
-          }
-        }, 1000);
-      }
-    }else if (data.type == 'carte'){
-      var carte = this.StorageServiceService.getCarteFromIdCarte(data.id)
-      let groupCarte = this.StorageServiceService.getGroupCarteFromIdCarte(data.id)
-      if (groupCarte) {
-        // this.manageCompHelper.openGroupCarteSlide(groupCarte)
-      }
-      if (carte) {
-        // this.GeosmLayersServiceService.addLayerCarte(carte, map)
-      }
-    }
+  optionSelected(data: filterOptionInterface, map: Map) {
+    let layer: Layer = data.layer
+    this.mapsService.getSubWithGroup(layer.sub).pipe(
+      take(1),
+      catchError(() => {
+        return EMPTY
+      }),
+      tap((subGroup) => {
+        this.dataOsmLayersServiceService.addLayer(data.layer, map, subGroup.group)
+        // setTimeout(() => {
+        //   try {
+        //     $('#couche_'+couche.key_couche)[0].scrollIntoView(false);
+        //   } catch (error) {
+        //   }
+        // }, 1000);
+      })
+    ).subscribe()
+
   }
 
 }

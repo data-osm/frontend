@@ -12,6 +12,7 @@ export class ParametersService {
 
   headers: HttpHeaders = new HttpHeaders({});
   url_prefix = environment.backend
+  parameter:Parameter
 
   constructor(
     private http: HttpClient,
@@ -38,6 +39,7 @@ export class ParametersService {
     return this.http.get<Parameter[]>(this.url_prefix+'/api/parameter/parameter',{headers: this.get_header()}).pipe(
       map((response)=>{
         if (response.length > 0 ) {
+          this.parameter = response[0]
           return response[0]
         }
         return {} as Parameter

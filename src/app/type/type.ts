@@ -602,6 +602,11 @@ export interface SubGroup{
 export interface SubGroupWithLayers extends SubGroup{
   layers:Array<Layer>
 }
+export interface SubGroupWithGroup {
+  group_sub_id:number
+  name:string
+  group:Group
+}
 
 export interface Layer{
   layer_id:number

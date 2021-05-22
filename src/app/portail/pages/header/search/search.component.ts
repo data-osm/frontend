@@ -1,7 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { debounceTime, filter, startWith, tap, map, skip, catchError, take, switchMap } from 'rxjs/operators';
-import { from, Observable, fromEvent, merge as observerMerge, of } from 'rxjs';
+import { debounceTime, filter, startWith, tap, map, skip, catchError, take, switchMap, takeUntil } from 'rxjs/operators';
+import { from, Observable, fromEvent, merge as observerMerge, of, EMPTY, Subject, ReplaySubject } from 'rxjs';
 import { BackendApiService } from '../../../../services/backend-api/backend-api.service'
 import { StorageServiceService } from '../../../../services/storage-service/storage-service.service'
 import { configProjetInterface } from '../../../../type/type';
@@ -15,6 +15,8 @@ import { manageDataHelper } from '../../../../../helper/manage-data.helper';
 import { CartoHelper } from '../../../../../helper/carto.helper';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { environment } from '../../../../../environments/environment';
+import { SearchLayerService } from '../../../../data/services/search-layer.service';
+import { ParametersService } from '../../../../data/services/parameters.service';
 
 export interface filterOptionInterface {
   name: string
@@ -35,14 +37,12 @@ export interface filterOptionInterface {
  * components for search in apps
  */
 export class SearchComponent implements OnInit {
+  public onInitInstance: () => void
 
-  @Input()map:Map
+  private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
-  /**
- * Configuration of the project
- */
-  configProject: configProjetInterface
 
+  @Input() map: Map
 
   /**
    * forms use to choose emprise to make the download
@@ -107,39 +107,71 @@ export class SearchComponent implements OnInit {
   constructor(
     public fb: FormBuilder,
     public BackendApiService: BackendApiService,
-    public StorageServiceService: StorageServiceService
+    public searchLayerService: SearchLayerService,
+    public parametersService: ParametersService
   ) {
-    this.searchResultLayer.set('type_layer','searchResultLayer')
-    this.searchResultLayer.set('nom','searchResultLayer')
-   }
+    this.searchResultLayer.set('type_layer', 'searchResultLayer')
+    this.searchResultLayer.set('nom', 'searchResultLayer')
 
-  ngOnInit(): void {
-    this.StorageServiceService.states.subscribe((value) => {
-      if (value.loadProjectData) {
-        this.configProject = this.StorageServiceService.getConfigProjet()
-        this.initialiseForm()
-        this.initialiseSearchResultLayer()
-      }
+
+    let empriseControl = new FormControl('', [Validators.minLength(2)])
+
+    this.form = this.fb.group({
+      searchWord: empriseControl
     })
+
+    empriseControl.valueChanges.pipe(
+      takeUntil(this.destroyed$),
+      filter(value => typeof value === 'string' && empriseControl.valid),
+      switchMap((querry) => {
+        return observerMerge(
+          ...this.getQuerryForSerach(querry)
+        ).pipe(
+          catchError(() => { return EMPTY })
+        )
+      }),
+      map((response) => {
+        if (response.type == 'limites') {
+          this.filterOptions['limites'] = new handleEmpriseSearch().formatDataForTheList(response.value)
+        } else if (response.type == 'photon') {
+          this.filterOptions['photon'] = new handlePhotonSearch().formatDataForTheList(response.value)
+        } else if (response.type == 'adresseFr') {
+          this.filterOptions['adresseFr'] = new handleAdresseFrSearch().formatDataForTheList(response.value)
+        } else if (response.type == 'layer') {
+          this.filterOptions['layer'] = new handleLayerSearch().formatDataForTheList(response.value)
+        }
+        this.cleanFilterOptions()
+      })
+    ).subscribe()
+
   }
 
-  /**
-   * Initialise search result layer in the map
-   */
-  initialiseSearchResultLayer() {
-    var cartoClass = new CartoHelper(this.map)
-    if (cartoClass.getLayerByName('searchResultLayer').length > 0) {
-      this.searchResultLayer = cartoClass.getLayerByName('searchResultLayer')[0]
-      this.searchResultLayer.setZIndex(1000)
-    } else {
-      this.searchResultLayer.setZIndex(1000)
-      cartoClass.map.addLayer(this.searchResultLayer)
-    }
+  ngOnInit(): void {
 
-    if (cartoClass.getLayerByName('searchResultLayer').length > 0) {
-      cartoClass.getLayerByName('searchResultLayer')[0].getSource().clear()
-    }
+  }
 
+  ngOnDestroy(){
+    this.destroyed$.next()
+    this.destroyed$.complete()
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.map) {
+      if (this.map) {
+        var cartoClass = new CartoHelper(this.map)
+        if (cartoClass.getLayerByName('searchResultLayer').length > 0) {
+          this.searchResultLayer = cartoClass.getLayerByName('searchResultLayer')[0]
+          this.searchResultLayer.setZIndex(1000)
+        } else {
+          this.searchResultLayer.setZIndex(1000)
+          cartoClass.map.addLayer(this.searchResultLayer)
+        }
+
+        if (cartoClass.getLayerByName('searchResultLayer').length > 0) {
+          cartoClass.getLayerByName('searchResultLayer')[0].getSource().clear()
+        }
+      }
+    }
   }
 
   /**
@@ -147,91 +179,55 @@ export class SearchComponent implements OnInit {
    * TO BE AMELIORATE WITH ENVIRONMENT VARIABLE
    * @param value string text to search
    */
-  getQuerryForSerach(value:string): Observable<{ type: String,error:boolean, value: { [key: string]: any } }>[] {
+  getQuerryForSerach(value: string): Observable<{ type: String, error: boolean, value: any }>[] {
 
     var querryObs = [
 
-      from(this.BackendApiService.post_requete('/searchCouche', { 'word': value.toString() })).pipe(
-        map((val: { type: String, value: any }) => { return { type: 'layer', value: val, error:false } }),
-        catchError((_err) => of({  error:true,type: 'layer', value: { features: [] } }))
+      this.searchLayerService.searchLayer(value).pipe(
+        map((layer) => { return { type: 'layer', value: layer, error: false } }),
+        catchError(() => { return EMPTY })
       )
     ]
 
 
 
     /** if we have extent of the project, search with photon in that extent */
-    if (this.StorageServiceService.getExtentOfProject()) {
+    if (this.parametersService.parameter && this.parametersService.parameter.appExtent) {
+      let appExtent = this.parametersService.parameter.appExtent
+      var bboxPhoton = appExtent.a + ',' + appExtent.b + ',' + appExtent.c + ',' + appExtent.d
 
-      var bboxPhoton = this.StorageServiceService.getExtentOfProject().join(",")
       querryObs.push(
         from(this.BackendApiService.getRequestFromOtherHost('https://photon.komoot.de/api/?&limit=7&q=' + value.toString() + "&lang=fr" + "&bbox=" + bboxPhoton)).pipe(
-          map((val: { type: String, value: any }) => { return { type: 'photon', value: val, error:false } }),
-          catchError((_err) => of({  error:true,type: 'photon', value: { features: [] } }))
-        )
+          map((val) => { return { type: 'photon', value: val, error: false } }),
+          catchError((_err) => { return EMPTY }))
       )
     }
 
     /** if administrative limits is set in the project  */
-    if (this.StorageServiceService.configProject.value.limites.length > 0) {
-      querryObs.push(
-        from(this.BackendApiService.post_requete('/searchLimite', { 'word': value.toString() })).pipe(
-          map((val: { type: String, value: any }) => { return { type: 'limites', value: val, error:false } }),
-          catchError((_err) => of({  error:true,type: 'limites', value: { features: [] }  }))
-        )
-      )
-    }
+    // if (this.StorageServiceService.configProject.value.limites.length > 0) {
+    //   querryObs.push(
+    //     from(this.BackendApiService.post_requete('/searchLimite', { 'word': value.toString() })).pipe(
+    //       map((val: { type: String, value: any }) => { return { type: 'limites', value: val, error:false } }),
+    //       catchError((_err) => of({  error:true,type: 'limites', value: { features: [] }  }))
+    //     )
+    //   )
+    // }
 
     /**
      * if project is france, we add search for adresses of France
      */
-    if (environment.pojet_nodejs =='france') {
-      querryObs.push(
-        from(this.BackendApiService.getRequestFromOtherHost('https://api-adresse.data.gouv.fr/search/?limit=5&q=' + value.toString())).pipe(
-          map((val: { type: String, value: any }) => { return { type: 'adresseFr', value: val, error:false } }),
-          catchError((_err) => of({  error:true,type: 'adresseFr', value: { features: [] } }))
-        )
+    // if (environment.pojet_nodejs =='france') {
+    querryObs.push(
+      from(this.BackendApiService.getRequestFromOtherHost('https://api-adresse.data.gouv.fr/search/?limit=5&q=' + value.toString())).pipe(
+        map((val) => { return { type: 'adresseFr', value: val, error: false } }),
+        catchError((_err) => { return EMPTY })
       )
-    }
+    )
+    // }
 
     return querryObs
   }
 
-  /**
-   * initialise form
-   */
-  initialiseForm() {
-    var empriseControl = new FormControl('', [Validators.minLength(2)])
-    empriseControl.valueChanges.pipe(
-      debounceTime(500),
-      filter(value => typeof value === 'string' && value.length > 2),
-      tap(() => { console.log('loading') }),
-      switchMap((value) => {
-        return observerMerge(
-          ...this.getQuerryForSerach(value)
-        ).pipe(
-          map(value=>value)
-        )
-      })
-    ).subscribe((value) => {
-
-        if (value.type == 'limites') {
-          this.filterOptions['limites'] = new handleEmpriseSearch().formatDataForTheList(value.value)
-        } else if (value.type == 'photon') {
-          this.filterOptions['photon'] = new handlePhotonSearch().formatDataForTheList(value.value)
-        } else if (value.type == 'adresseFr') {
-          this.filterOptions['adresseFr'] = new handleAdresseFrSearch().formatDataForTheList(value.value)
-        } else if (value.type == 'layer') {
-          this.filterOptions['layer'] = new handleLayerSearch().formatDataForTheList(value.value)
-        }
-
-        this.cleanFilterOptions()
-
-    })
-
-    this.form = this.fb.group({
-      searchWord: empriseControl
-    })
-  }
 
   /**
    * Funtion use to display information of a selected option

@@ -240,6 +240,11 @@ export class PortailMapComponent implements OnInit {
 
   }
 
+  ngOnDestroy(){
+    this.destroyed$.next()
+    this.destroyed$.complete()
+  }
+
   /**
    * Get a menu from right menu
    * @param name string name of the menu

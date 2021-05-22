@@ -5,7 +5,7 @@ import { catchError, finalize, retry, tap } from 'rxjs/operators';
 import { map } from 'rxjs/operators';
 import { NotifierService } from 'angular-notifier';
 import { environment } from '../../../environments/environment';
-import { Group, SubGroup, LayerProviders, ReorderProvider, Tag, Metadata, Map, Layer, SubGroupWithLayers } from '../../type/type';
+import { Group, SubGroup, LayerProviders, ReorderProvider, Tag, Metadata, Map, Layer, SubGroupWithLayers, SubGroupWithGroup } from '../../type/type';
 
 @Injectable({
   providedIn: 'root'
@@ -141,6 +141,14 @@ export class MapsService {
    */
   updateSubGroup(subGroup:SubGroup):Observable<SubGroup>{
     return this.http.put<SubGroup>(this.url_prefix + '/api/group/sub/'+subGroup.group_sub_id,subGroup, { headers: this.get_header() })
+  }
+  /**
+   * get sub with his group
+   * @param sub_id number
+   * @returns 
+   */
+  getSubWithGroup(group_sub_id:number):Observable<SubGroupWithGroup>{
+    return this.http.get<SubGroupWithGroup>(this.url_prefix + '/api/group/sub/group/'+group_sub_id, { headers: this.get_header() })
   }
 
   /**
