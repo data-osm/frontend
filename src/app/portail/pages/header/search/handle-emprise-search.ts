@@ -6,6 +6,10 @@ import { AppInjector } from '../../../../../helper/app-injector.helper'
 import {BackendApiService} from '../../../../services/backend-api/backend-api.service'
 import { GeoJSON, Feature, Map, getArea } from '../../../../ol-module'
 import { CartoHelper } from '../../../../../helper/carto.helper';
+import { AdminBoundaryRespone } from '../../../../data/models/parameters';
+import { ParametersService } from '../../../../data/services/parameters.service';
+import { catchError, take, tap } from 'rxjs/operators';
+import { EMPTY } from 'rxjs';
 
 /**
  * class for handle administrative response search:
@@ -14,57 +18,29 @@ import { CartoHelper } from '../../../../../helper/carto.helper';
  */
 export class handleEmpriseSearch {
 
-  StorageServiceService: StorageServiceService = AppInjector.get(StorageServiceService);
+  parametersService: ParametersService = AppInjector.get(ParametersService);
   BackendApiService: BackendApiService = AppInjector.get(BackendApiService);
-  configProject: configProjetInterface = this.StorageServiceService.getConfigProjet()
 
   constructor() {
-    this.configProject = this.StorageServiceService.getConfigProjet()
   }
 
   /**
    * format response from server into a list to display on ui
    * @param responseDB any
    */
-  formatDataForTheList(responseDB: any): Array<filterOptionInterface> {
-    if (responseDB.error) {
-      return []
-    }
-    var response: Array<filterOptionInterface> = []
-    for (const key in responseDB) {
-      if (responseDB.hasOwnProperty(key) && key != 'status') {
-        const element = responseDB[key];
-        for (let index = 0; index < element.length; index++) {
-          const responseI = element[index];
-          if (this._getLimitName(key)) {
-            response.push({
-              ref: responseI['ref'],
-              name: responseI['name'],
-              id: responseI['id'],
-              table: key,
-              limitName: this._getLimitName(key),
-              typeOption: 'limites'
-            })
-          }
-        }
+  formatDataForTheList(responseDB: AdminBoundaryRespone[]): Array<filterOptionInterface> {
+   
+    let response: Array<filterOptionInterface> = 
+    responseDB.map((item)=>{
+      return {
+        name:item.feature.name,
+        id:item.feature.table_id,
+        table_id:item.feature.table_id,
+        vector_id:item.adminBoundary.vector,
+        adminBoundary_name:item.adminBoundary.name,
+        typeOption: 'limites'
       }
-    }
-    return response
-  }
-
-  /**
- * get name of a limit by the name of it table
- * @param tableName string name of the table
- * @retun string
- */
-  _getLimitName(tableName: string): string {
-    var response;
-    for (let index = 0; index < this.configProject.limites.length; index++) {
-      const element = this.configProject.limites[index];
-      if (element.nom_table == tableName) {
-        response = element.nom
-      }
-    }
+    })
     return response
   }
 
@@ -90,64 +66,32 @@ export class handleEmpriseSearch {
    * @param emprise searchLayerToDownlodModelInterface
    */
   optionSelected(emprise: filterOptionInterface,  map:Map) {
-    if (!emprise.geometry) {
-      this._getGeometryOfEmprise({
-        table:emprise.table,
-        id:emprise.id
-      }).then(
-        (geometry)=>{
-          if (geometry) {
-            emprise.geometry = geometry
-            this._addGeometryAndZoomTO(emprise, map)
-            this.StorageServiceService.adminstrativeLimitLoad.next({
-              'table':emprise.table,
-              'id':emprise.id,
-              'ref':emprise.ref,
-              'limitName':emprise.limitName,
-              'name':emprise.name,
-              'geometry':geometry
-            })
-          }
-        }
-      )
-    } else {
-      this._addGeometryAndZoomTO(emprise, map)
-    }
+    this.parametersService.getAdminBoundaryFeature(emprise.vector_id, emprise.table_id).pipe(
+      take(1),
+      catchError(() => {
+        return EMPTY
+      }),
+      tap((response)=>{
+        console.log(response)
+        this._addGeometryAndZoomTO({
+          geometry:JSON.parse(response.geometry),
+          name:response.name
+        }, map)
+      })
+    ).subscribe()
   }
 
-   /**
-   * get ol geometry of an emprise
-   * @param params {table:string,id:number}
-   * @return Promise<any>
-   */
-  _getGeometryOfEmprise(params: { table: string, id: number }):Promise<any> {
-    return this.BackendApiService.post_requete('/getLimitById', params).then(
-      (response) => {
-        var geojson = JSON.parse(response["geometry"])
-        var feature = new GeoJSON().readFeature(
-          geojson,
-          {
-            dataProjection: "EPSG:4326",
-            featureProjection: "EPSG:3857",
-          }
-        );
-        return feature.getGeometry()
-      },
-      (err) => {
-        return
-      }
-    )
-  }
+ 
 
   /**
    * add geometry to searchResultLayer and zoom to the geometry
    * @param emprise: filterOptionInterface
    */
-  _addGeometryAndZoomTO(emprise: filterOptionInterface, map:Map) {
+  _addGeometryAndZoomTO(emprise:{geometry:any, ref?:string, name:string} , map:Map) {
 
-    var formatArea = function (polygon) {
-      var area = getArea(polygon);
-      var output;
+    let formatArea = function (polygon) {
+      let area = getArea(polygon);
+      let output;
       if (area > 10000) {
         output = Math.round((area / 1000000) * 100) / 100 + " " + "km²";
       } else {
@@ -158,21 +102,32 @@ export class handleEmpriseSearch {
     };
 
     if (emprise.geometry) {
-      var cartoClass = new CartoHelper(map)
+      let cartoClass = new CartoHelper(map)
       if (cartoClass.getLayerByName('searchResultLayer').length > 0) {
-        var searchResultLayer = cartoClass.getLayerByName('searchResultLayer')[0]
+        let searchResultLayer = cartoClass.getLayerByName('searchResultLayer')[0]
 
-        var feature = new Feature()
-        var textLabel = emprise.name+'('+emprise.ref +") \n" +formatArea(emprise.geometry)
+        let feature = new GeoJSON().readFeature(
+          emprise.geometry,
+          {
+            dataProjection: "EPSG:3857",
+            featureProjection: "EPSG:3857",
+          }
+        );
+
+        let textLabel:string
+        if (emprise.ref) {
+          textLabel = emprise.name+'('+emprise.ref +") \n" +formatArea(feature.getGeometry())
+        }else{
+          textLabel = emprise.name+" \n" +formatArea(feature.getGeometry())
+        }
 
         feature.set('textLabel',textLabel)
-        feature.setGeometry(emprise.geometry)
 
         searchResultLayer.getSource().clear()
 
         searchResultLayer.getSource().addFeature(feature)
 
-        var extent = emprise.geometry.getExtent()
+        let extent = feature.getGeometry().getExtent()
 
         cartoClass.fit_view(extent, 16)
 

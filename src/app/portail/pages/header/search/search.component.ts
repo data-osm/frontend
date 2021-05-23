@@ -150,7 +150,7 @@ export class SearchComponent implements OnInit {
 
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.destroyed$.next()
     this.destroyed$.complete()
   }
@@ -181,7 +181,7 @@ export class SearchComponent implements OnInit {
    */
   getQuerryForSerach(value: string): Observable<{ type: String, error: boolean, value: any }>[] {
 
-    var querryObs = [
+    var querryObs:Observable<{ type: String, error: boolean, value: any }>[] = [
 
       this.searchLayerService.searchLayer(value).pipe(
         map((layer) => { return { type: 'layer', value: layer, error: false } }),
@@ -203,15 +203,13 @@ export class SearchComponent implements OnInit {
       )
     }
 
-    /** if administrative limits is set in the project  */
-    // if (this.StorageServiceService.configProject.value.limites.length > 0) {
-    //   querryObs.push(
-    //     from(this.BackendApiService.post_requete('/searchLimite', { 'word': value.toString() })).pipe(
-    //       map((val: { type: String, value: any }) => { return { type: 'limites', value: val, error:false } }),
-    //       catchError((_err) => of({  error:true,type: 'limites', value: { features: [] }  }))
-    //     )
-    //   )
-    // }
+
+    querryObs.push(
+      this.parametersService.searchAdminBoundary(value.toString()).pipe(
+        map((val) => { return { type: 'limites', value: val, error: false } }),
+        catchError((_err) => { return EMPTY }))
+    )
+
 
     /**
      * if project is france, we add search for adresses of France

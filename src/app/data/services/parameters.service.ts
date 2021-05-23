@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { AdminBoundary, Parameter, AppExtent } from '../models/parameters';
+import { AdminBoundary, Parameter, AppExtent, AdminBoundaryRespone, AdminBoundaryFeature } from '../models/parameters';
 
 @Injectable({
   providedIn: 'root'
@@ -109,6 +109,25 @@ export class ParametersService {
    */
    getListAppExtent(geometry:boolean=false):Observable<AppExtent[]>{
     return this.http.get<AppExtent[]>(this.url_prefix+'/api/parameter/extent/list?geometry='+geometry,{headers: this.get_header()})
+  }
+
+  /**
+   * Search admin boundary
+   * @param querry string
+   * @returns Observable<AdminBoundaryRespone[]>
+   */
+  searchAdminBoundary(querry:string):Observable<AdminBoundaryRespone[]>{
+    return this.http.post<AdminBoundaryRespone[]>(this.url_prefix+"/api/parameter/admin_boundary/search", {search_word:querry}, {headers: this.get_header()})
+  }
+
+  /**
+   * Get a admin boundary feature with his geometry
+   * @param vector_id number
+   * @param table_id number
+   * @returns Observable<AdminBoundaryFeature>
+   */
+  getAdminBoundaryFeature(vector_id:number, table_id:number):Observable<AdminBoundaryFeature>{
+    return this.http.post<AdminBoundaryFeature>(this.url_prefix+"/api/parameter/admin_boundary/feature", {vector_id:vector_id, table_id:table_id}, {headers: this.get_header()})
   }
 
 }
