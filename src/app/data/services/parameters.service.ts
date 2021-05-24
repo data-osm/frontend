@@ -103,6 +103,14 @@ export class ParametersService {
   }
 
   /**
+   * get one app extent by id with his extent
+   * @returns Observable<AppExtent>
+   */
+   getAppExtentById(id:number):Observable<AppExtent>{
+    return this.http.post<AppExtent>(this.url_prefix+'/api/parameter/extent/get',{id:id},{headers: this.get_header()})
+
+  }
+  /**
    * get the list of app extent
    * @param geometry boolean
    * @returns Observable<AppExtent[]>
