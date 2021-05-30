@@ -21,9 +21,9 @@
           <i class="fa fa-info-circle pointer primaryColor" *ngIf="layer.tocCapabilities.metadata"
             matTooltip="{{ 'couche_en_cours.information_couche' | translate }}"
             style="margin-right: 10px;font-size: 17px;" (click)="openMetadata(layer)" ></i>
-          <!-- <i class="fa fa-share-alt pointer primaryColor" *ngIf="layer.tocCapabilities.share" (click)="shareLayer(layer)"
+         <i class="fa fa-share-alt pointer primaryColor" *ngIf="layer.tocCapabilities.share" (click)="shareLayer(layer)"
             matTooltip="{{ 'couche_en_cours.partager_couche' | translate }}"
-            style="margin-right: 10px;font-size: 15px;"></i> -->
+            style="margin-right: 10px;font-size: 15px;"></i> 
           <i class="fa fa-trash pointer " (click)="removeLayer(layer)" matTooltip="{{ 'couche_en_cours.supprimer_couche' | translate }}"
             style="font-size: 15px;color: rgb(242, 79, 79);"></i>
         </p>

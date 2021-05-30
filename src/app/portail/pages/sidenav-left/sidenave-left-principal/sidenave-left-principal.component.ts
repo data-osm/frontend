@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, SimpleChange, ViewChild, ElementRef, SimpleChanges } from '@angular/core';
 import { environment } from '../../../../../environments/environment';
-import { StorageServiceService } from '../../../../services/storage-service/storage-service.service'
 import {
   Map, OSM, TileLayer
 } from '../../../../ol-module';

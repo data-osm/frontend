@@ -10,7 +10,6 @@ import { VectorProvider } from '../../../../../type/type';
 import { VectorProviderService } from '../../../../administration/service/vector-provider.service'
 import {MatPaginator} from '@angular/material/paginator';
 import {MatTableDataSource} from '@angular/material/table';
-import { map } from '../../../../../map/map.component';
 import { HttpResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';

@@ -16,7 +16,6 @@ import { GroupThematiqueComponent } from './pages/sidenav-left/sidenave-left-pri
 import { SidenaveLeftPrincipalComponent } from './pages/sidenav-left/sidenave-left-principal/sidenave-left-principal.component';
 import { CoucheThematiqueComponent } from './pages/sidenav-left/sidenave-left-secondaire/list-group-thematique/couche-thematique/couche-thematique.component';
 import { ListGroupThematiqueComponent } from './pages/sidenav-left/sidenave-left-secondaire/list-group-thematique/list-group-thematique.component';
-import { SidenaveLeftSecondaireComponent } from './pages/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component';
 import { ChartOverlayComponent } from './pages/sidenav-right/download/chart-overlay/chart-overlay.component';
 import { DownloadComponent } from './pages/sidenav-right/download/download.component';
 import { ListDownloadLayersComponent } from './pages/sidenav-right/download/list-download-layers/list-download-layers.component';
@@ -56,7 +55,6 @@ import { SidenavHeaderComponent } from './pages/sidenav-left/sidenave-left-secon
     PrintComponent,
     GroupCarteComponent,
     GroupThematiqueComponent,
-    SidenaveLeftSecondaireComponent,
     ListGroupThematiqueComponent,
     CoucheThematiqueComponent,
     ChartOverlayComponent,

@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { environment } from 'src/environments/environment';
-import { groupCarteInterface } from 'src/app/type/type';
+import { environment } from '../../../../../../environments/environment';
+import { groupCarteInterface } from '../../../../../type/type';
 
 @Component({
   selector: 'app-group-carte',
@@ -20,7 +20,7 @@ export class GroupCarteComponent implements OnInit {
   /**
    * Url of the backend
    */
-  url_prefix:string = environment.url_prefix
+  url_prefix:string = environment.backend
 
   constructor() { }
 

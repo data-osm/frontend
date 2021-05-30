@@ -690,28 +690,28 @@ export class DrawComponent implements OnInit {
           geometry:feature.getGeometry().getCoordinates()
         })
       }
-      $('.accordion-draw-loading').show()
-      this.backendApiService.post_requete('/geoportail/saveDraw/',{'donnes':dataToSendInDB}).then(
-        (response)=>{
-          $('.accordion-draw-loading').hide()
-          if (response['status'] == 'ok') {
-            var url_share = environment.url_frontend + '/map?share=draw&id=' + response['code_dessin']
-            this.manageCompHelper.openSocialShare(url_share,7)
+      // $('.accordion-draw-loading').show()
+      // this.backendApiService.post_requete('/geoportail/saveDraw/',{'donnes':dataToSendInDB}).then(
+      //   (response)=>{
+      //     $('.accordion-draw-loading').hide()
+      //     if (response['status'] == 'ok') {
+      //       var url_share = environment.url_frontend + '/map?share=draw&id=' + response['code_dessin']
+      //       this.manageCompHelper.openSocialShare(url_share,7)
 
-          }else{
-            this.translate.get('backend_error').subscribe((res: any) => {
-              this.notifier.notify("error", res);
-            });
-          }
+      //     }else{
+      //       this.translate.get('backend_error').subscribe((res: any) => {
+      //         this.notifier.notify("error", res);
+      //       });
+      //     }
 
-        },
-        (error)=>{
-          $('.accordion-draw-loading').hide()
-          this.translate.get('backend_error').subscribe((res: any) => {
-            this.notifier.notify("error", res);
-          });
-        }
-      )
+      //   },
+      //   (error)=>{
+      //     $('.accordion-draw-loading').hide()
+      //     this.translate.get('backend_error').subscribe((res: any) => {
+      //       this.notifier.notify("error", res);
+      //     });
+      //   }
+      // )
 
     }else{
 

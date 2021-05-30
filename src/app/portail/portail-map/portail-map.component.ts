@@ -2,11 +2,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, NgZone, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenavContainer } from '@angular/material/sidenav';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { ObjectEvent } from 'ol/Object';
-import { EMPTY, merge, Observable, ReplaySubject, Subject, Subscriber } from 'rxjs';
-import { catchError, debounceTime, map, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { combineLatest, concat, EMPTY, forkJoin, merge, Observable, ReplaySubject, Subject, Subscriber } from 'rxjs';
+import { catchError, debounceTime, map, startWith, switchMap, take, takeUntil, tap, toArray } from 'rxjs/operators';
 import { CartoHelper, dataFromClickOnMapInterface, layersInMap } from '../../../helper/carto.helper';
 import { ManageCompHelper } from '../../../helper/manage-comp.helper';
 import { BaseMap } from '../../data/models/base-maps';
@@ -24,13 +25,15 @@ import {
   OverlayPositioning,
   FeatureLike,
   unByKey,
+  Coordinate,
+  Point,
 } from '../../ol-module';
+import { DataOsmLayersServiceService } from '../../services/data-som-layers-service/data-som-layers-service.service';
 import { fromOpenLayerEvent } from '../../shared/class/fromOpenLayerEvent';
 
 import { Group, rightMenuInterface } from '../../type/type';
 import { ContextMenuComponent } from '../pages/context-menu/context-menu.component';
-import { DescriptiveSheetComponent, DescriptiveSheetData } from '../pages/descriptive-sheet/descriptive-sheet.component';
-import { SidenaveLeftSecondaireComponent } from '../pages/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component';
+import {  DescriptiveSheetData } from '../pages/descriptive-sheet/descriptive-sheet.component';
 
 
 
@@ -75,29 +78,25 @@ export class PortailMapComponent implements OnInit {
     this.map.addControl(CartoHelper.scaleControl('scaleline', 'scale-map'))
     this.map.addControl(CartoHelper.mousePositionControl('mouse-position-map'))
 
-    fromOpenLayerEvent<ObjectEvent>(this.map.getLayers(),'propertychange').pipe(
+    fromOpenLayerEvent<ObjectEvent>(this.map.getLayers(), 'propertychange').pipe(
       startWith(undefined),
-      tap(()=>{
+      tap(() => {
         this.layersInToc = new CartoHelper(this.map).getAllLayersInToc().
-        filter((layerProp)=>layerProp.type_layer =='geosmCatalogue' )
-        .filter((value, index, self)=>{
-          /**
-           * unique layer ^^
-           */
-           return self.map((item)=>item.properties['couche_id']+item.properties['type']).indexOf(value.properties['couche_id']+value.properties['type']) === index;
+          filter((layerProp) => layerProp.type_layer == 'geosmCatalogue')
+          .filter((value, index, self) => {
+            /**
+             * unique layer ^^
+             */
+            return self.map((item) => item.properties['couche_id'] + item.properties['type']).indexOf(value.properties['couche_id'] + value.properties['type']) === index;
 
-        })
+          })
       }),
       takeUntil(this.destroyed$)
     ).subscribe()
 
   }
 
-  /**
-   * Second component of the left sidenav On top of the first one:
-   * It is use to show details of a group thematique or a group carte
-   */
-  @ViewChild(SidenaveLeftSecondaireComponent, { static: true }) SidenaveLeftSecondaireComp: SidenaveLeftSecondaireComponent
+
 
   /**
    * All menu of the rith sidenav
@@ -115,44 +114,46 @@ export class PortailMapComponent implements OnInit {
    */
   layersInToc: Array<layersInMap> = []
 
-  groups$:Observable<Array<Group>>
+  groups$: Observable<Array<Group>>
 
   private readonly notifier: NotifierService;
 
   constructor(
     public ngZone: NgZone,
-    public parametersService:ParametersService,
-    public mapsService:MapsService,
+    public parametersService: ParametersService,
+    public mapsService: MapsService,
     public notifierService: NotifierService,
     public translate: TranslateService,
-    public dialog:MatDialog,
-    public manageCompHelper:ManageCompHelper
+    public dialog: MatDialog,
+    public manageCompHelper: ManageCompHelper,
+    public activatedRoute: ActivatedRoute,
+    public dataOsmLayersServiceService: DataOsmLayersServiceService
   ) {
     this.notifier = notifierService;
 
 
-    const onInit:Subject<void> = new ReplaySubject<void>(1)
-    this.onInitInstance = ()=>{
+    const onInit: Subject<void> = new ReplaySubject<void>(1)
+    this.onInitInstance = () => {
       onInit.next()
     }
 
     onInit.pipe(
       take(1),
-      switchMap(()=>{
+      switchMap(() => {
         return this.parametersService.getAppExtent(true).pipe(
           catchError((error: HttpErrorResponse) => {
-            this.notifier.notify("error", this.translate.instant('portail.error_loading.extent') ) ;
+            this.notifier.notify("error", this.translate.instant('portail.error_loading.extent'));
             return EMPTY
           }),
-          tap((value)=>{
-            
+          tap((value) => {
+
             let shadowMap = new CartoHelper(this.map).constructShadowLayer(value.st_asgeojson)
             shadowMap.setZIndex(1000)
             this.map.addLayer(shadowMap)
 
             setTimeout(() => {
               this.map.getView().fit(
-                [value.a,value.b,value.c,value.d],
+                [value.a, value.b, value.c, value.d],
                 { 'size': this.map.getSize(), 'duration': 1000 }
               );
             }, 500);
@@ -164,16 +165,16 @@ export class PortailMapComponent implements OnInit {
 
     this.groups$ = merge(
       onInit.pipe(
-        switchMap(()=>{
+        switchMap(() => {
           return this.parametersService.getParameters().pipe(
             catchError((error: HttpErrorResponse) => {
-              this.notifier.notify("error", this.translate.instant('portail.error_loading.parameter') ) ;
+              this.notifier.notify("error", this.translate.instant('portail.error_loading.parameter'));
               return EMPTY
             }),
-            switchMap((parameter)=>{
+            switchMap((parameter) => {
               return this.mapsService.getAllGroupOfMap(parameter.map.map_id).pipe(
                 catchError((error: HttpErrorResponse) => {
-                  this.notifier.notify("error", this.translate.instant('portail.error_loading.parameter') ) ;
+                  this.notifier.notify("error", this.translate.instant('portail.error_loading.parameter'));
                   return EMPTY
                 }),
               )
@@ -183,9 +184,61 @@ export class PortailMapComponent implements OnInit {
       )
     )
 
+    /**
+    * Handle share parameters
+    */
+    combineLatest(this.activatedRoute.queryParams, this.groups$).pipe(
+      takeUntil(this.destroyed$),
+      switchMap((parameters) => {
+        let params = parameters[0]
+        let groups = parameters[1]
+        if (params['pos']) {
+          try {
+            let positionData = params['pos'].split(',').map((u) => parseFloat(u))
+            let shareCenter: Coordinate = [positionData[0], positionData[1]]
+
+            var geom = new Point(Transform(shareCenter, 'EPSG:4326', 'EPSG:3857'))
+            setTimeout(() => {
+              new CartoHelper(this.map).fit_view(geom, parseFloat(positionData[2]))
+            }, 2000);
+          } catch (error) {
+
+          }
+
+        }
+        if (params['layers']) {
+          let shareParameters: Array<[number, number]> = params['layers'].split(';').map((item) => item.split(',').map((u) => parseInt(u)))
+          let getLayers$ = shareParameters
+            .filter((shareParam) => groups.find((group) => group.group_id === shareParam[1]) != undefined)
+            .map((shareParam) => {
+              let group = groups.find((group) => group.group_id === shareParam[1])
+              return this.mapsService.getLayer(shareParam[0]).pipe(
+                catchError((error: HttpErrorResponse) => {
+                  return EMPTY
+                }),
+                map((layer) => {
+                  return {
+                    layer: layer,
+                    group: group
+                  }
+                })
+              )
+            })
+
+          return concat(...getLayers$).pipe(toArray())
+        }
+        return EMPTY
+      }),
+      tap((layers_groups) => {
+        layers_groups.map((layer_group) => {
+          this.dataOsmLayersServiceService.addLayer(layer_group.layer, this.map, layer_group.group)
+        })
+      })
+    ).subscribe()
+
     fromOpenLayerEvent<MapBrowserEvent>(this.map, 'singleclick').pipe(
       takeUntil(this.destroyed$),
-      tap((e)=>{
+      tap((e) => {
         function compare(a, b) {
           if (a.getZIndex() < b.getZIndex()) {
             return 1;
@@ -196,34 +249,34 @@ export class PortailMapComponent implements OnInit {
           return 0;
         }
         new CartoHelper(this.map).mapHasCliked(e, (data: dataFromClickOnMapInterface) => {
-            if (data.type == 'raster') {
-              var layers = data.data.layers.sort(compare);
-              var layerTopZindex = layers.length > 0 ? layers[0] : undefined
+          if (data.type == 'raster') {
+            var layers = data.data.layers.sort(compare);
+            var layerTopZindex = layers.length > 0 ? layers[0] : undefined
 
-              if (layerTopZindex) {
-                let sheetData:DescriptiveSheetData ={
-                  type:layerTopZindex.get('descriptionSheetCapabilities'),
-                  coordinates_3857: data.data.coord,
-                  layer_id:layerTopZindex.get('properties').couche_id,
-                  map:this.map,
-                  feature:data.data.feature,
-                  layer:layerTopZindex
-                }
-               this.manageCompHelper.openDescriptiveSheetModal(sheetData,[])
+            if (layerTopZindex) {
+              let sheetData: DescriptiveSheetData = {
+                type: layerTopZindex.get('descriptionSheetCapabilities'),
+                coordinates_3857: data.data.coord,
+                layer_id: layerTopZindex.get('properties').couche_id,
+                map: this.map,
+                feature: data.data.feature,
+                layer: layerTopZindex
               }
-
-            } else if (data.type == 'clear') {
-
-            } else if (data.type == 'vector') {
-              var layers = data.data.layers.sort(compare);
-              var layerTopZindex = layers.length > 0 ? layers[0] : undefined
-
-              if (layerTopZindex) {
-                // var descriptionSheetCapabilities = layerTopZindex.get('descriptionSheetCapabilities')
-                // this.manageCompHelper.openDescriptiveSheet(descriptionSheetCapabilities, cartoHelperClass.constructAlyerInMap(layerTopZindex), data.data.coord, data.data.feature.getGeometry(), data.data.feature.getProperties())
-              }
+              this.manageCompHelper.openDescriptiveSheetModal(sheetData, [])
             }
-          })
+
+          } else if (data.type == 'clear') {
+
+          } else if (data.type == 'vector') {
+            var layers = data.data.layers.sort(compare);
+            var layerTopZindex = layers.length > 0 ? layers[0] : undefined
+
+            if (layerTopZindex) {
+              // var descriptionSheetCapabilities = layerTopZindex.get('descriptionSheetCapabilities')
+              // this.manageCompHelper.openDescriptiveSheet(descriptionSheetCapabilities, cartoHelperClass.constructAlyerInMap(layerTopZindex), data.data.coord, data.data.feature.getGeometry(), data.data.feature.getProperties())
+            }
+          }
+        })
 
       })
     ).subscribe()
@@ -240,7 +293,7 @@ export class PortailMapComponent implements OnInit {
 
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.destroyed$.next()
     this.destroyed$.complete()
   }
@@ -283,7 +336,7 @@ export class PortailMapComponent implements OnInit {
    * Toggle geolocation
    * if the geolocation layer exist, the user is already located, if not we must geolocate him
    */
-   toggleGeolocation() {
+  toggleGeolocation() {
     let cartoHelpeClass = new CartoHelper(this.map)
 
     if (cartoHelpeClass.getLayerByName('user_position').length == 0) {
@@ -293,29 +346,5 @@ export class PortailMapComponent implements OnInit {
       cartoHelpeClass.fit_view(featurePosition.getGeometry(), 19)
     }
   }
-
-  /**
-   * Handle parameters of the app when opening with route /map
-   */
-  //  handleMapParamsUrl() {
-  //   this.activatedRoute.queryParams.subscribe(params => {
-  //     /** share of layers */
-  //     if (params['layers']) {
-  //       // verify if params pos is present in url param et zoomer dessus
-  //       var layers = params['layers'].split(';')
-  //       this.ShareServiceService.addLayersFromUrl(layers)
-
-  //     }
-  //     if (params['feature']) {
-  //       var parametersShared = params['feature'].split(';')
-  //       this.ShareServiceService.displayFeatureShared(parametersShared)
-  //     }
-
-  //     if(params['pos']){
-  //       var positionData = params['pos'].split(',')
-  //       this.ShareServiceService.zoomToSharePos(parseFloat(positionData[0]), parseFloat(positionData[1]), parseFloat(positionData[2]))
-  //     }
-  //   })
-  // }
 
 }

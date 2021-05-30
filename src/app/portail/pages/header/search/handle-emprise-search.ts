@@ -1,7 +1,6 @@
 import { filterOptionInterface } from './search.component'
 import { responseOfSerachLimitInterface } from './interface-search'
 import { configProjetInterface } from '../../../../type/type';
-import { StorageServiceService } from '../../../../services/storage-service/storage-service.service'
 import { AppInjector } from '../../../../../helper/app-injector.helper'
 import {BackendApiService} from '../../../../services/backend-api/backend-api.service'
 import { GeoJSON, Feature, Map, getArea } from '../../../../ol-module'

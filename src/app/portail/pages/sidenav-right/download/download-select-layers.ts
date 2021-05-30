@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { coucheInterface, carteInterface } from '../../../../type/type';
 import { FormGroup, FormArray, FormBuilder, FormControl, AbstractControl } from '@angular/forms';
-import { StorageServiceService } from '../../../../services/storage-service/storage-service.service'
 import { startWith, map, filter } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
@@ -82,7 +81,6 @@ export class selectLayersForDownload {
   layersDownlodable: Array<searchLayerToDownlodModelInterface> = []
 
   constructor(
-    public StorageServiceService: StorageServiceService,
     public fb: FormBuilder,
   ) { 
     
@@ -205,7 +203,7 @@ export class selectLayersForDownload {
       if (layersInForm.source == 'geosmCatalogue') {
         try {
           this.downloadModel.layers.push(
-            this.StorageServiceService.getCouche(this.StorageServiceService.getGroupThematiqueFromIdCouche(layersInForm.id).id_thematique, layersInForm.id)
+            // this.StorageServiceService.getCouche(this.StorageServiceService.getGroupThematiqueFromIdCouche(layersInForm.id).id_thematique, layersInForm.id)
           )
         } catch (error) {
 
@@ -226,39 +224,39 @@ export class selectLayersForDownload {
   getAllLayersDownlodable(): Array<searchLayerToDownlodModelInterface> {
     var response: searchLayerToDownlodModelInterface[] = []
 
-    for (let iThematique = 0; iThematique < this.StorageServiceService.getAllGroupThematiques().length; iThematique++) {
-      const groupThematique = this.StorageServiceService.getAllGroupThematiques()[iThematique];
+    // for (let iThematique = 0; iThematique < this.StorageServiceService.getAllGroupThematiques().length; iThematique++) {
+    //   const groupThematique = this.StorageServiceService.getAllGroupThematiques()[iThematique];
 
-      if (groupThematique.sous_thematiques) {
-        for (let index = 0; index < groupThematique.sous_thematiques.length; index++) {
-          const sous_thematique = groupThematique.sous_thematiques[index];
-          for (let jndex = 0; jndex < sous_thematique.couches.length; jndex++) {
-            const couche = sous_thematique.couches[jndex];
-            if (true) {
-              response.push({
-                name: couche.nom,
-                description: groupThematique.nom + ' / ' + sous_thematique.nom,
-                id: couche.key_couche,
-                source: 'geosmCatalogue'
-              })
-            }
+    //   if (groupThematique.sous_thematiques) {
+    //     for (let index = 0; index < groupThematique.sous_thematiques.length; index++) {
+    //       const sous_thematique = groupThematique.sous_thematiques[index];
+    //       for (let jndex = 0; jndex < sous_thematique.couches.length; jndex++) {
+    //         const couche = sous_thematique.couches[jndex];
+    //         if (true) {
+    //           response.push({
+    //             name: couche.nom,
+    //             description: groupThematique.nom + ' / ' + sous_thematique.nom,
+    //             id: couche.key_couche,
+    //             source: 'geosmCatalogue'
+    //           })
+    //         }
 
-          }
-        }
-      } else {
-        for (let jndex = 0; jndex < groupThematique.couches.length; jndex++) {
-          const couche = groupThematique.couches[jndex];
-          if (true) {
-            response.push({
-              name: couche.nom,
-              description: groupThematique.nom,
-              id: couche.key_couche,
-              source: 'geosmCatalogue'
-            })
-          }
-        }
-      }
-    }
+    //       }
+    //     }
+    //   } else {
+    //     for (let jndex = 0; jndex < groupThematique.couches.length; jndex++) {
+    //       const couche = groupThematique.couches[jndex];
+    //       if (true) {
+    //         response.push({
+    //           name: couche.nom,
+    //           description: groupThematique.nom,
+    //           id: couche.key_couche,
+    //           source: 'geosmCatalogue'
+    //         })
+    //       }
+    //     }
+    //   }
+    // }
 
     return response
   }
@@ -272,21 +270,21 @@ export class selectLayersForDownload {
     var response: searchLayerToDownlodModelInterface[] = []
 
     let reponseLayers: Array<layersInMap> = cartoHelperClass.getAllLayersInToc()
-    for (let index = 0; index < reponseLayers.length; index++) {
-      const layerProp = reponseLayers[index];
-      if (layerProp['type_layer'] == 'geosmCatalogue') {
-        if (layerProp['properties']['type'] == 'couche') {
-          let groupThematique = this.StorageServiceService.getGroupThematiqueById(layerProp['properties']['group_id'])
-          layerProp['data'] = this.StorageServiceService.getCouche(layerProp['properties']['group_id'], layerProp['properties']['couche_id'])
-          response.push({
-            name: layerProp['data'].nom,
-            description: groupThematique.nom,
-            id: layerProp['data'].key_couche,
-            source: 'geosmCatalogue'
-          })
-        }
-      }
-    }
+    // for (let index = 0; index < reponseLayers.length; index++) {
+    //   const layerProp = reponseLayers[index];
+    //   if (layerProp['type_layer'] == 'geosmCatalogue') {
+    //     if (layerProp['properties']['type'] == 'couche') {
+    //       let groupThematique = this.StorageServiceService.getGroupThematiqueById(layerProp['properties']['group_id'])
+    //       layerProp['data'] = this.StorageServiceService.getCouche(layerProp['properties']['group_id'], layerProp['properties']['couche_id'])
+    //       response.push({
+    //         name: layerProp['data'].nom,
+    //         description: groupThematique.nom,
+    //         id: layerProp['data'].key_couche,
+    //         source: 'geosmCatalogue'
+    //       })
+    //     }
+    //   }
+    // }
 
     return response
   }

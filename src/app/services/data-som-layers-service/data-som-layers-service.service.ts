@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { StorageServiceService } from '../storage-service/storage-service.service'
 import { NotifierService } from 'angular-notifier';
 import { CartoHelper, DataOSMLayer } from '../../../helper/carto.helper';
 import { Map } from 'ol';

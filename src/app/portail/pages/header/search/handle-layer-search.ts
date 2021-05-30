@@ -1,6 +1,5 @@
 import { filterOptionInterface } from './search.component'
 import { configProjetInterface, Layer } from '../../../../type/type';
-import { StorageServiceService } from '../../../../services/storage-service/storage-service.service'
 import { AppInjector } from '../../../../../helper/app-injector.helper'
 import { ManageCompHelper } from '../../../../../helper/manage-comp.helper'
 import { GeoJSON, Feature, Style, Icon, Map } from '../../../../ol-module'
@@ -18,7 +17,6 @@ import { EMPTY } from 'rxjs';
  */
 export class handleLayerSearch {
 
-  // StorageServiceService: StorageServiceService = AppInjector.get(StorageServiceService);
   manageCompHelper: ManageCompHelper = AppInjector.get(ManageCompHelper);
   dataOsmLayersServiceService: DataOsmLayersServiceService = AppInjector.get(DataOsmLayersServiceService);
   mapsService: MapsService = AppInjector.get(MapsService);

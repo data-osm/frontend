@@ -1,4 +1,3 @@
-import { StorageServiceService } from '../services/storage-service/storage-service.service'
 /**
  * Properties of a right menu
  */

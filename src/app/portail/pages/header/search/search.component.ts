@@ -3,7 +3,6 @@ import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms'
 import { debounceTime, filter, startWith, tap, map, skip, catchError, take, switchMap, takeUntil } from 'rxjs/operators';
 import { from, Observable, fromEvent, merge as observerMerge, of, EMPTY, Subject, ReplaySubject } from 'rxjs';
 import { BackendApiService } from '../../../../services/backend-api/backend-api.service'
-import { StorageServiceService } from '../../../../services/storage-service/storage-service.service'
 import { configProjetInterface } from '../../../../type/type';
 import { responseOfSearchPhotonInterface, responseOfSerachLimitInterface } from './interface-search'
 import { handleEmpriseSearch } from './handle-emprise-search'

@@ -191,7 +191,8 @@ export class TableOfContentsComponent implements OnInit {
    * @param layer
    */
   shareLayer(layer: layersInMap) {
-    var params = this.ShareServiceService.shareLayer(layer.properties['type'], layer.properties['couche_id'], layer.properties['group_id'])
+    let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(layer.properties['couche_id'])
+    var params = this.ShareServiceService.shareLayer(layer.properties['couche_id'], groupLayer.group.group_id)
     var url_share = environment.url_frontend + '/map?' + params
     this.manageCompHelper.openSocialShare(url_share, 7)
 
@@ -201,19 +202,13 @@ export class TableOfContentsComponent implements OnInit {
    * Share all layers in the toc
    */
   shareAllLayersInToc() {
-    var pteToGetParams = []
-    for (let index = 0; index < this.layersInToc.length; index++) {
-      const layer = this.layersInToc[index];
-      if (layer.tocCapabilities.share) {
-        pteToGetParams.push({
-          typeLayer: layer.properties['type'],
-          id_layer: layer.properties['couche_id'],
-          group_id: layer.properties['group_id']
-        })
+    let pteToGetParams =  this.layersInToc.filter((item)=>item.tocCapabilities.share).map((item)=>{
+        let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(item.properties['couche_id'])
+      return {
+        id_layer:parseInt(item.properties['couche_id']),
+        group_id:groupLayer.group.group_id
       }
-
-    }
-
+    })
     //Retrieve center's coordinates
     var center = this.map.getView().getCenter();
     var lonlat = Transform(center, 'EPSG:3857', 'EPSG:4326');

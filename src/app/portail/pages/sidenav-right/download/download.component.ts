@@ -1,10 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef, Renderer2, EventEmitter, Input } from '@angular/core';
 import { coucheInterface, carteInterface, configProjetInterface } from '../../../../type/type';
 import { FormGroup, FormArray, FormBuilder, FormControl, AbstractControl, Validators } from '@angular/forms';
-import { StorageServiceService } from '../../../../services/storage-service/storage-service.service'
 import { BackendApiService } from '../../../../services/backend-api/backend-api.service'
 import { startWith, map, filter, debounceTime, tap } from 'rxjs/operators';
-import { from, Observable } from 'rxjs';
+import { EMPTY, from, Observable } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { selectLayersForDownload, downloadModelInterface, ParametersGeometryDB } from './download-select-layers'
 import { GeoJSON, VectorLayer, VectorSource, Style, Stroke, Fill, Feature, Overlay, getCenter, Map, OverlayPositioning } from '../../../../ol-module';
@@ -73,57 +72,56 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
   constructor(
     private renderer: Renderer2,
     public BackendApiService: BackendApiService,
-    public StorageServiceService: StorageServiceService,
     public fb: FormBuilder,
     public manageCompHelper: ManageCompHelper
   ) {
-    super(StorageServiceService, fb)
+    super(fb)
   }
 
   ngOnInit(): void {
-    this.StorageServiceService.states.subscribe((value) => {
-      if (value.loadProjectData) {
-        this.configProejct = this.StorageServiceService.getConfigProjet()
-        this.layersDownlodable = this.getAllLayersDownlodable()
-        this.initialiseFormsLayers(true, this.map)
+    // this.StorageServiceService.states.subscribe((value) => {
+    //   if (value.loadProjectData) {
+    //     this.configProejct = this.StorageServiceService.getConfigProjet()
+    //     this.layersDownlodable = this.getAllLayersDownlodable()
+    //     this.initialiseFormsLayers(true, this.map)
 
-        if (this.configProejct.limites.length > 0) {
-          this.downloadModel.roiType = 'emprise'
-          this.initialiseFormsEmprise()
-        } else {
-          this.setRoiTypeToAll()
-        }
+    //     if (this.configProejct.limites.length > 0) {
+    //       this.downloadModel.roiType = 'emprise'
+    //       this.initialiseFormsEmprise()
+    //     } else {
+    //       this.setRoiTypeToAll()
+    //     }
 
-        this.userClosedOverlay.subscribe((idOverlay) => {
-          this.closeChart(idOverlay)
-        })
+    //     this.userClosedOverlay.subscribe((idOverlay) => {
+    //       this.closeChart(idOverlay)
+    //     })
 
-        this.userListFilesToDownload.subscribe((idOverlay) => {
-          this.openModalListDonwnloadLayers(idOverlay)
-        })
+    //     this.userListFilesToDownload.subscribe((idOverlay) => {
+    //       this.openModalListDonwnloadLayers(idOverlay)
+    //     })
 
-        if (this.formsEmprise.get('emprise')) {
-          this.StorageServiceService.adminstrativeLimitLoad.pipe().subscribe(
-            (limit:ResponseOfSerachLimitInterface)=>{
-              if (limit ) {
-                this.formsEmprise.get('emprise').setValue(limit)
-                this.setParametersGeometryBd({
-                  table: limit.table,
-                  id: limit.id,
-                  name: limit.name
-                })
-                if (limit.geometry) {
-                  this.downloadModel.roiGeometry = limit.geometry
-                }else{
-                  this.getGeometryOfEmprise({ table: limit.table, id: limit.id })
-                }
-              }
-            }
-          )
-        }
+    //     if (this.formsEmprise.get('emprise')) {
+    //       this.StorageServiceService.adminstrativeLimitLoad.pipe().subscribe(
+    //         (limit:ResponseOfSerachLimitInterface)=>{
+    //           if (limit ) {
+    //             this.formsEmprise.get('emprise').setValue(limit)
+    //             this.setParametersGeometryBd({
+    //               table: limit.table,
+    //               id: limit.id,
+    //               name: limit.name
+    //             })
+    //             if (limit.geometry) {
+    //               this.downloadModel.roiGeometry = limit.geometry
+    //             }else{
+    //               this.getGeometryOfEmprise({ table: limit.table, id: limit.id })
+    //             }
+    //           }
+    //         }
+    //       )
+    //     }
 
-      }
-    })
+    //   }
+    // })
 
     
   }
@@ -173,7 +171,8 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
       startWith(''),
       tap(() => { console.log('loading') }),
       map((value) => {
-        return from(this.BackendApiService.post_requete('/searchLimite', { 'word': value.toString() }))
+        return EMPTY
+        // return from(this.BackendApiService.post_requete('/searchLimite', { 'word': value.toString() }))
       })
     ).subscribe((value: Observable<any>) => {
 
@@ -257,22 +256,22 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
    * @param params {table:string,id:number}
    */
   getGeometryOfEmprise(params: { table: string, id: number }) {
-    this.BackendApiService.post_requete('/getLimitById', params).then(
-      (response) => {
-        var geojson = JSON.parse(response["geometry"])
-        var feature = new GeoJSON().readFeature(
-          geojson,
-          {
-            dataProjection: "EPSG:4326",
-            featureProjection: "EPSG:3857",
-          }
-        );
-        this.downloadModel.roiGeometry = feature.getGeometry()
-      },
-      (err) => {
+    // this.BackendApiService.post_requete('/getLimitById', params).then(
+    //   (response) => {
+    //     var geojson = JSON.parse(response["geometry"])
+    //     var feature = new GeoJSON().readFeature(
+    //       geojson,
+    //       {
+    //         dataProjection: "EPSG:4326",
+    //         featureProjection: "EPSG:3857",
+    //       }
+    //     );
+    //     this.downloadModel.roiGeometry = feature.getGeometry()
+    //   },
+    //   (err) => {
 
-      }
-    )
+    //   }
+    // )
   }
 
   /**
@@ -351,12 +350,12 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
 
       for (let index = 0; index < this.downloadModel.layers.length; index++) {
         const layer = this.downloadModel.layers[index];
-        var nom_shp = environment.url_service + '/' + environment.path_qgis + '/' + environment.pojet_nodejs + '/gpkg/' + layer.params_files.nom_cat.replace(/[^a-zA-Z0-9]/g, '_') + '_' + layer.params_files.sous_thematiques + '_' + layer.params_files.key_couche + '_' + layer.params_files.id_cat + '.gpkg'
+        // var nom_shp = environment.url_service + '/' + environment.path_qgis + '/' + environment.pojet_nodejs + '/gpkg/' + layer.params_files.nom_cat.replace(/[^a-zA-Z0-9]/g, '_') + '_' + layer.params_files.sous_thematiques + '_' + layer.params_files.key_couche + '_' + layer.params_files.id_cat + '.gpkg'
         layers.push({
           'index': index,
           'nom': layer.nom,
           'number': layer.number,
-          'nom_file': nom_shp,
+          'nom_file': 'nom_shp',
           'id': layer.key_couche,
         })
       }
@@ -379,7 +378,7 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
         'id_cat': layer.params_files.id_cat,
         'type': layer.type_couche,
         'identifiant': layer.identifiant,
-        'id_them': this.StorageServiceService.getGroupThematiqueFromIdCouche(layer.key_couche).id_thematique,
+        // 'id_them': this.StorageServiceService.getGroupThematiqueFromIdCouche(layer.key_couche).id_thematique,
         'key_couche': layer.key_couche,
       })
     }
@@ -389,26 +388,26 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
       'id_lim': this.downloadModel.parametersGeometryDB.id,
     }
     $('.export-data-loading').show()
-    this.BackendApiService.post_requete('/thematique/donwload', parameters).then(
-      (response: Array<{
-        index: number
-        nom: string
-        nom_file: string
-        number: number,
-        id:number
-      }>) => {
-        $('.export-data-loading').hide()
-        for (let i = 0; i < response.length; i++) {
-          response[i].id = listLayer[response[i].index].key_couche
-          response[i].nom_file = environment.url_prefix+response[i].nom_file
-        }
+    // this.BackendApiService.post_requete('/thematique/donwload', parameters).then(
+    //   (response: Array<{
+    //     index: number
+    //     nom: string
+    //     nom_file: string
+    //     number: number,
+    //     id:number
+    //   }>) => {
+    //     $('.export-data-loading').hide()
+    //     for (let i = 0; i < response.length; i++) {
+    //       response[i].id = listLayer[response[i].index].key_couche
+    //       response[i].nom_file = environment.url_prefix+response[i].nom_file
+    //     }
 
-        this.displayResultExport(response, this.downloadModel.roiGeometry, this.downloadModel.parametersGeometryDB.name)
-      },
-      (error) => {
-        $('.export-data-loading').hide()
-      }
-    )
+    //     this.displayResultExport(response, this.downloadModel.roiGeometry, this.downloadModel.parametersGeometryDB.name)
+    //   },
+    //   (error) => {
+    //     $('.export-data-loading').hide()
+    //   }
+    // )
   }
 
   /**

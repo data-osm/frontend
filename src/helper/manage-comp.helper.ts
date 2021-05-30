@@ -4,7 +4,6 @@ import { Injectable, ComponentFactoryResolver, ApplicationRef, Injector, Embedde
 import { ListDownloadLayersComponent, downloadDataModelInterface } from '../app/portail/pages/sidenav-right/download/list-download-layers/list-download-layers.component'
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { AddGeosignetComponent } from '../app/portail/pages/context-menu/add-geosignet/add-geosignet.component'
-import { SidenaveLeftSecondaireComponent } from '../app/portail/pages/sidenav-left/sidenave-left-secondaire/sidenave-left-secondaire.component'
 import { DataForPreview, groupCarteInterface, groupThematiqueInterface, Style } from '../app/type/type';
 import { AddVectorProviderComponent } from '../app/admin/modules/provider/pages/add-vector-provider/add-vector-provider.component';
 import { AddStyleComponent } from '../app/admin/modules/provider/pages/add-style/add-style.component';
@@ -27,7 +26,6 @@ import { DescriptiveSheetComponent, DescriptiveSheetData } from '../app/portail/
 })
 export class ManageCompHelper {
 
-  SidenaveLeftSecondaireComp: SidenaveLeftSecondaireComponent
 
   constructor(
     private _snackBar: MatSnackBar,

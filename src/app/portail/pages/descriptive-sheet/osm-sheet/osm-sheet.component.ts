@@ -3,7 +3,6 @@ import { manageDataHelper } from '../../../../../helper/manage-data.helper'
 import { ImageWMS, TileWMS, GeoJSON, VectorLayer, Map, Coordinate } from '../../../../ol-module';
 import { CartoHelper } from '../../../../../helper/carto.helper'
 import { BackendApiService } from '../../../../services/backend-api/backend-api.service'
-import { StorageServiceService } from '../../../../services/storage-service/storage-service.service'
 import { NotifierService } from "angular-notifier";
 import { retryWhen, tap, delayWhen, take, switchMap, map, toArray, shareReplay, debounceTime, filter, startWith } from 'rxjs/operators';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
@@ -106,7 +105,6 @@ export class OsmSheetComponent implements OnInit, OnChanges {
 
   constructor(
     public BackendApiService: BackendApiService,
-    public StorageServiceService: StorageServiceService,
     notifierService: NotifierService,
     private http: HttpClient,
     private cdRef: ChangeDetectorRef

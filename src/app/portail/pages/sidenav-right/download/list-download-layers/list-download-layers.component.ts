@@ -1,6 +1,5 @@
 import { Component, OnInit ,Inject} from '@angular/core';
 import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {StorageServiceService} from '../../../../../services/storage-service/storage-service.service'
 import { coucheInterface, groupThematiqueInterface } from '../../../../../type/type';
 import { environment } from '../../../../../../environments/environment';
 /**
@@ -43,7 +42,6 @@ export class ListDownloadLayersComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public listLayers: downloadDataModelInterface[],
     public dialogRef: MatDialogRef<ListDownloadLayersComponent>,
-    public StorageServiceService:StorageServiceService
   ) { }
 
   ngOnInit(): void {
@@ -62,8 +60,8 @@ export class ListDownloadLayersComponent implements OnInit {
    */
   formatLayers(){
     for (let index = 0; index < this.listLayers.length; index++) {
-       this.listLayers[index].layer = this.StorageServiceService.getCoucheFromKeyCouche(this.listLayers[index].id)
-       this.listLayers[index].groupThematique = this.StorageServiceService.getGroupThematiqueFromIdCouche(this.listLayers[index].id)
+      //  this.listLayers[index].layer = this.StorageServiceService.getCoucheFromKeyCouche(this.listLayers[index].id)
+      //  this.listLayers[index].groupThematique = this.StorageServiceService.getGroupThematiqueFromIdCouche(this.listLayers[index].id)
     }
     console.log(this.listLayers)
   }

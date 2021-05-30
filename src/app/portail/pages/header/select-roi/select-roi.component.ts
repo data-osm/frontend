@@ -4,7 +4,6 @@ import { GeoJSON, Map } from '../../../../ol-module';
 import { catchError, filter, sampleTime, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { geosignetsProjectInterface } from '../../../../type/type';
 import { CartoHelper } from '../../../../../helper/carto.helper';
-import { StorageServiceService } from '../../../../services/storage-service/storage-service.service';
 import { ParametersService } from '../../../../data/services/parameters.service';
 import { EMPTY, Observable, ReplaySubject, Subject } from 'rxjs';
 import { AppExtent } from '../../../../data/models/parameters';
@@ -49,7 +48,6 @@ export class SelectRoiComponent implements OnInit {
         )
       }),
       tap((listAppExten) => {
-        console.log(listAppExten.find((appExtent)=>appExtent.id ==this.parameterService.parameter.extent_pk))
         if (this.parameterService.parameter && this.parameterService.parameter.extent_pk) {
           this.controlSelectRoi.setValue(listAppExten.find((appExtent)=>appExtent.id ==this.parameterService.parameter.extent_pk), {emitEvent:true})
         }

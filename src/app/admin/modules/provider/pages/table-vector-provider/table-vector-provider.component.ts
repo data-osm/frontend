@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { MatTableDataSource } from '@angular/material/table';
 import { Observable, of, ReplaySubject, Subject, combineLatest, BehaviorSubject } from 'rxjs';
 import { switchMap, takeUntil, tap , } from 'rxjs/operators';
-import { map } from '../../../../../map/map.component';
 import { VectorProvider } from '../../../../../type/type';
 
 @Component({

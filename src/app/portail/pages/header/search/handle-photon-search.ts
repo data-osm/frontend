@@ -1,7 +1,6 @@
 import { filterOptionInterface } from './search.component'
 import { responseOfSerachLimitInterface } from './interface-search'
 import { configProjetInterface } from '../../../../type/type';
-import { StorageServiceService } from '../../../../services/storage-service/storage-service.service'
 import { AppInjector } from '../../../../../helper/app-injector.helper'
 import { GeoJSON, Feature, Map } from '../../../../ol-module'
 import { CartoHelper } from '../../../../../helper/carto.helper';
@@ -12,11 +11,8 @@ import { CartoHelper } from '../../../../../helper/carto.helper';
  */
 export class handlePhotonSearch {
 
-  StorageServiceService: StorageServiceService = AppInjector.get(StorageServiceService);
-  configProject: configProjetInterface = this.StorageServiceService.getConfigProjet()
 
   constructor() {
-    this.configProject = this.StorageServiceService.getConfigProjet()
   }
 
   /**

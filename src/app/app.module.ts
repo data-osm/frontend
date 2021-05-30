@@ -17,9 +17,7 @@ import {setAppInjector} from '../helper/app-injector.helper'
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MapComponent } from './map/map.component';
 import {SharedModule} from './shared/shared.module'
-import { StorageServiceService } from './services/storage-service/storage-service.service';
 import { BackendApiService } from './services/backend-api/backend-api.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ColorPickerModule } from 'ngx-color-picker';
@@ -43,8 +41,6 @@ import { MetadataLayerComponent } from './modal/metadata/metadata.component';
 @NgModule({
   declarations: [
     AppComponent,
-    MapComponent,
-    
     SocialShareComponent,
     
     InfoComponent,
@@ -77,7 +73,7 @@ import { MetadataLayerComponent } from './modal/metadata/metadata.component';
     }),
     
   ],
-  providers: [StorageServiceService,BackendApiService, ManageCompHelper, AuthGuard, AuthGuard],
+  providers: [BackendApiService, ManageCompHelper, AuthGuard, AuthGuard],
   bootstrap: [AppComponent],
 })
 export class AppModule {
