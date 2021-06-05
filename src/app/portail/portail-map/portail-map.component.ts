@@ -179,7 +179,15 @@ export class PortailMapComponent implements OnInit {
                 return parameter.map.map_id
               })
             ),
-            of(parseInt(params['profil']))
+            this.parametersService.getParameters().pipe(
+              catchError((error: HttpErrorResponse) => {
+                this.notifier.notify("error", this.translate.instant('portail.error_loading.parameter'));
+                return EMPTY
+              }),
+              map((parameter) => {
+                return parseInt(params['profil'])
+              })
+            )
           )
         ),
         switchMap((map_id) => {
