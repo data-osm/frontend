@@ -84,7 +84,13 @@
               whiteBG: ritghtMenu_i.active
             }"
           >
-            <svg
+
+          <mat-icon *ngIf="ritghtMenu_i.name == 'toc'" [ngClass]="{
+            white: !ritghtMenu_i.active,
+            primaryColor: ritghtMenu_i.active
+          }" >layers</mat-icon>
+
+            <!-- <svg
               x="0px"
               y="0px"
               viewBox="0 0 23.4 24.8"
@@ -99,7 +105,7 @@
   l11.7-9.1l-2.1-1.7L11.7,21.5z"
                 fill="#fff"
               />
-            </svg>
+            </svg> -->
   
             <svg
               x="0px"
@@ -149,14 +155,19 @@
               }"
             ></i>
   
-            <i
+            <mat-icon *ngIf="ritghtMenu_i.name == 'download'"
+            [ngClass]="{
+              white: !ritghtMenu_i.active,
+              primaryColor: ritghtMenu_i.active
+            }" >file_download</mat-icon>
+            <!-- <i
               class="fas fa-download fa-lg"
               *ngIf="ritghtMenu_i.name == 'download'"
               [ngClass]="{
                 white: !ritghtMenu_i.active,
                 primaryColor: ritghtMenu_i.active
               }"
-            ></i>
+            ></i> -->
           </button>
         </ng-container>
       </div>

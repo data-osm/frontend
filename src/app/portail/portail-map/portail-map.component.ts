@@ -2,12 +2,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, NgZone, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenavContainer } from '@angular/material/sidenav';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { ObjectEvent } from 'ol/Object';
-import { combineLatest, concat, EMPTY, forkJoin, merge, Observable, ReplaySubject, Subject, Subscriber } from 'rxjs';
-import { catchError, debounceTime, map, startWith, switchMap, take, takeUntil, tap, toArray } from 'rxjs/operators';
+import { combineLatest, concat, EMPTY, forkJoin, iif, merge, Observable, of, ReplaySubject, Subject, Subscriber } from 'rxjs';
+import { catchError, debounceTime, map, mergeMap, startWith, switchMap, take, takeUntil, tap, toArray } from 'rxjs/operators';
 import { CartoHelper, dataFromClickOnMapInterface, layersInMap } from '../../../helper/carto.helper';
 import { ManageCompHelper } from '../../../helper/manage-comp.helper';
 import { BaseMap } from '../../data/models/base-maps';
@@ -33,7 +33,7 @@ import { fromOpenLayerEvent } from '../../shared/class/fromOpenLayerEvent';
 
 import { Group, rightMenuInterface } from '../../type/type';
 import { ContextMenuComponent } from '../pages/context-menu/context-menu.component';
-import {  DescriptiveSheetData } from '../pages/descriptive-sheet/descriptive-sheet.component';
+import { DescriptiveSheetData } from '../pages/descriptive-sheet/descriptive-sheet.component';
 
 
 
@@ -127,7 +127,8 @@ export class PortailMapComponent implements OnInit {
     public dialog: MatDialog,
     public manageCompHelper: ManageCompHelper,
     public activatedRoute: ActivatedRoute,
-    public dataOsmLayersServiceService: DataOsmLayersServiceService
+    public dataOsmLayersServiceService: DataOsmLayersServiceService,
+    public router:Router
   ) {
     this.notifier = notifierService;
 
@@ -164,20 +165,39 @@ export class PortailMapComponent implements OnInit {
     ).subscribe()
 
     this.groups$ = merge(
-      onInit.pipe(
-        switchMap(() => {
-          return this.parametersService.getParameters().pipe(
+      combineLatest(this.activatedRoute.queryParams, onInit).pipe(
+        map(([params, a]) => params),
+        mergeMap(params =>
+          iif(
+            () => params['profil'] == undefined,
+            this.parametersService.getParameters().pipe(
+              catchError((error: HttpErrorResponse) => {
+                this.notifier.notify("error", this.translate.instant('portail.error_loading.parameter'));
+                return EMPTY
+              }),
+              map((parameter) => {
+                return parameter.map.map_id
+              })
+            ),
+            of(parseInt(params['profil']))
+          )
+        ),
+        switchMap((map_id) => {
+          this.parametersService.map_id = map_id
+          return this.mapsService.getAllGroupOfMap(map_id).pipe(
             catchError((error: HttpErrorResponse) => {
               this.notifier.notify("error", this.translate.instant('portail.error_loading.parameter'));
+              this.router.navigateByUrl('/map').then(()=>{
+                window.location.reload();
+              })
               return EMPTY
             }),
-            switchMap((parameter) => {
-              return this.mapsService.getAllGroupOfMap(parameter.map.map_id).pipe(
-                catchError((error: HttpErrorResponse) => {
-                  this.notifier.notify("error", this.translate.instant('portail.error_loading.parameter'));
-                  return EMPTY
-                }),
-              )
+            tap((groups)=>{
+              if (groups.length ==0) {
+                this.router.navigateByUrl('/map').then(()=>{
+                  window.location.reload();
+                })
+              }
             })
           )
         })

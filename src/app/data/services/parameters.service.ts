@@ -13,6 +13,10 @@ export class ParametersService {
   headers: HttpHeaders = new HttpHeaders({});
   url_prefix = environment.backend
   parameter:Parameter
+  /**
+   * Actif profil id
+   */
+  map_id:number
 
   constructor(
     private http: HttpClient,

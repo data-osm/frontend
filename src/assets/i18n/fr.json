@@ -59,7 +59,8 @@
     "save": "SAUVEGARDER"
   },
   "header": {
-    "toolpit_info": "Data OSM ?"
+    "toolpit_info": "Data OSM ?",
+    "toolpit_profil": "Les profils"
   },
   "layer_properties": {
     "click_url_text": "Cliquer ici",

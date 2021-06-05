@@ -1,0 +1,23 @@
+<h1 mat-dialog-title>
+    <span class="bold primaryColor " style="font-size: 17px;"> Changer de profil </span>
+    <i (click)="close()" class="fa fa-times primaryColor pointer close" style="opacity: 1;
+      font-size: 18px;;margin-right: 10px;margin-top: 6px;"></i>
+</h1>
+
+<mat-dialog-content>
+    <ng-container *ngIf="profils$|async as profils">
+        <div fxLayout="row wrap" fxLayoutGap="20px" >
+            <mat-card fxFlex="250px" class="pointer" *ngFor="let profil of profils" (click)="changeProfil(profil.map_id)" > 
+                <span style="text-transform: uppercase;">  {{profil.name}}  </span>
+               
+                <mat-chip-list *ngIf="map_id === profil.map_id">
+                    <mat-chip color="primary" class="white"  selected> ACTIF </mat-chip>
+                </mat-chip-list>
+            </mat-card>
+        </div>
+    </ng-container>
+</mat-dialog-content>
+
+<div mat-dialog-actions>
+   
+</div>

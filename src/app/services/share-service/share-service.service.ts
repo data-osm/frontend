@@ -144,7 +144,7 @@ export class ShareServiceService {
    */
   shareLayer(id_layer: number, group_id:number): string {
     
-    return 'profil='+this.parametersService.parameter.map.map_id+'&layers='+ id_layer+ ',' + group_id
+    return 'profil='+this.parametersService.map_id+'&layers='+ id_layer+ ',' + group_id
   }
 
   /**
@@ -157,7 +157,7 @@ export class ShareServiceService {
    * @return string
    */
   shareLayers(layers: Array<{id_layer: number, group_id:number}>): string {
-    return 'profil='+this.parametersService.parameter.map.map_id+'&layers=' + layers.map((item)=>item.id_layer+','+item.group_id).join(';')
+    return 'profil='+this.parametersService.map_id+'&layers=' + layers.map((item)=>item.id_layer+','+item.group_id).join(';')
   }
 
 

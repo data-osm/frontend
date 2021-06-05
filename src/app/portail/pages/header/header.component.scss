@@ -2,11 +2,19 @@
   height: 60px;
   position: relative;
 }
-app-select-roi {
+.header-button{
   position: absolute;
-  top: 2px;
-  right: 100px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    display: flex;
+    align-items: center;
 }
-app-search {
-  margin: auto;
-}
+// app-select-roi {
+//   position: absolute;
+//   top: 2px;
+//   right: 100px;
+// }
+// app-search {
+//   margin: auto;
+// }

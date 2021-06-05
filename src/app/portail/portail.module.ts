@@ -34,6 +34,7 @@ import { ShContextMenuModule } from 'ng2-right-click-menu';
 import { ListBaseMapComponent } from './pages/sidenav-left/sidenave-left-secondaire/list-base-map/list-base-map.component';
 import { PortailBaseMapComponent } from './pages/sidenav-left/sidenave-left-secondaire/list-base-map/portail-base-map/portail-base-map.component';
 import { SidenavHeaderComponent } from './pages/sidenav-left/sidenave-left-secondaire/sidenav-header/sidenav-header.component';
+import { ChangeProfilComponent } from './pages/change-profil/change-profil.component';
 
 
 
@@ -69,6 +70,7 @@ import { SidenavHeaderComponent } from './pages/sidenav-left/sidenave-left-secon
     ListBaseMapComponent,
     PortailBaseMapComponent,
     SidenavHeaderComponent,
+    ChangeProfilComponent,
   ],
   imports: [
     CommonModule,
