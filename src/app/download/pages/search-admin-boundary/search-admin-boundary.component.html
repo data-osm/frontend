@@ -1,0 +1,8 @@
+<form  [formGroup]="formSearch" >
+    <mat-form-field appearance="outline" style="width: 100%;" >
+        <input type="text" matInput formControlName="searchWord" [matAutocomplete]="auto" >
+      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayAutocompleFn" (optionSelected)="optionAutocomplteSelected($event)" >
+          <mat-option [value]="adminBoundary" *ngFor="let adminBoundary of resultSearchAdminBoundary$ | async " > {{adminBoundary.feature.name}} ({{adminBoundary.adminBoundary.name}}) </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+</form>

@@ -5,7 +5,7 @@
       <i class="fa fa-times-circle white chart-overlay-close pointer" (click)="closeChart()" ></i>
   </p>
 
-  <canvas id="{{idChart}}" style="width: 400px;" ></canvas>
+  <canvas #canvasChart style="width: 400px;" ></canvas>
 
   <a id="chart-export-download-img" download="statistique.png"  href="" [matTooltip]="'dowload_data.toolTipDownloadImage' | translate ">
     <button mat-stroked-button style="width: 80%; margin-top: 15px;margin-left: 10%;margin-bottom: 15px;" class=" whiteBG "  >

@@ -2,15 +2,19 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Layer } from '../../type/type';
+import { VectorProvider } from '../../type/type';
+import { CountFeature } from '../models/download';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SearchLayerService {
+export class DownloadService {
 
   headers: HttpHeaders = new HttpHeaders({});
   url_prefix = environment.backend
+  /**
+   * Actif profil id
+   */
 
   constructor(
     private http: HttpClient,
@@ -29,7 +33,17 @@ export class SearchLayerService {
     return this.headers
   }
 
-  searchLayer(querry:string):Observable<Layer[]>{
-    return this.http.post<Layer[]>(this.url_prefix+'/api/group/layer/search',{search_word:querry},{headers: this.get_header()})
+  /**
+   * count layers in one adminBoundary
+   * @param adminBoundary AdminBoundary
+   * @returns Observable<any>
+   */
+   countFeaturesInAdminBoundary(layer_ids:Array<number>, admin_boundary_id:number, table_id:number):Observable<CountFeature[]>{
+    return this.http.post<CountFeature[]>(this.url_prefix+'/api/group/count',{
+      layer_ids:layer_ids,
+      provider_vector_id:admin_boundary_id,
+      table_id:table_id
+    },{headers: this.get_header()})
   }
+
 }

@@ -36,6 +36,8 @@
     "tout_supprimer": "Tout supprimer"
   },
   "dowload_data": {
+    "error_count":"Une érreur est survenu lors du calcul d'entités",
+    "error_fetching_adminboundary":"Une érreur est survenu lors du chargement de la géométrie ",
     "all": "tout",
     "by": "Par",
     "calculate": "Calculer",

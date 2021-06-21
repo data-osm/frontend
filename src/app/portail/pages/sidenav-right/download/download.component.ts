@@ -517,20 +517,20 @@ export class DownloadComponent extends selectLayersForDownload implements OnInit
 
     }
 
-    var elementChart = this.manageCompHelper.createComponent(ChartOverlayComponent, { 'chartConnfiguration': chartConfig, 'idChart': idOverlay, 'close': this.userClosedOverlay,'listFiles': this.userListFilesToDownload })
+    // var elementChart = this.manageCompHelper.createComponent(ChartOverlayComponent, { 'chartConnfiguration': chartConfig, 'idChart': idOverlay, 'close': this.userClosedOverlay,'listFiles': this.userListFilesToDownload })
 
-    this.manageCompHelper.appendComponent(elementChart, this.downlodListOverlays.nativeElement)
+    // this.manageCompHelper.appendComponent(elementChart, this.downlodListOverlays.nativeElement)
 
-    var overlayExport = new Overlay({
-      position: centerOfRoi,
-      positioning: OverlayPositioning.CENTER_CENTER,
-      element: elementChart.location.nativeElement,
-      id: idOverlay
-    });
+    // var overlayExport = new Overlay({
+    //   position: centerOfRoi,
+    //   positioning: OverlayPositioning.CENTER_CENTER,
+    //   element: elementChart.location.nativeElement,
+    //   id: idOverlay
+    // });
 
-    cartoClass.map.addOverlay(overlayExport);
+    // cartoClass.map.addOverlay(overlayExport);
 
-    this.listOfChartsInMap[idOverlay] = listData
+    // this.listOfChartsInMap[idOverlay] = listData
 
   }
 

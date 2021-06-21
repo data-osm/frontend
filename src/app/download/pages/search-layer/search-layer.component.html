@@ -1,0 +1,8 @@
+<form  [formGroup]="formSearch" >
+    <mat-form-field appearance="outline" style="width: 100%;" >
+        <input type="text" matInput formControlName="searchWord" [matAutocomplete]="auto" >
+      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayAutocompleFn" (optionSelected)="optionAutocomplteSelected($event)" >
+          <mat-option [value]="layer" *ngFor="let layer of resultSearchLayer$ | async " > {{layer.name}} </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+</form>

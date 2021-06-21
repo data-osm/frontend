@@ -17,8 +17,8 @@ import { SidenaveLeftPrincipalComponent } from './pages/sidenav-left/sidenave-le
 import { CoucheThematiqueComponent } from './pages/sidenav-left/sidenave-left-secondaire/list-group-thematique/couche-thematique/couche-thematique.component';
 import { ListGroupThematiqueComponent } from './pages/sidenav-left/sidenave-left-secondaire/list-group-thematique/list-group-thematique.component';
 import { ChartOverlayComponent } from './pages/sidenav-right/download/chart-overlay/chart-overlay.component';
-import { DownloadComponent } from './pages/sidenav-right/download/download.component';
-import { ListDownloadLayersComponent } from './pages/sidenav-right/download/list-download-layers/list-download-layers.component';
+// import { DownloadComponent } from './pages/sidenav-right/download/download.component';
+// import { ListDownloadLayersComponent } from './pages/sidenav-right/download/list-download-layers/list-download-layers.component';
 import { LegendComponent } from './pages/sidenav-right/legend/legend.component';
 import { AltimetryComponent } from './pages/sidenav-right/map-tools/altimetry/altimetry.component';
 import { CommentComponent } from './pages/sidenav-right/map-tools/comment/comment.component';
@@ -35,6 +35,7 @@ import { ListBaseMapComponent } from './pages/sidenav-left/sidenave-left-seconda
 import { PortailBaseMapComponent } from './pages/sidenav-left/sidenave-left-secondaire/list-base-map/portail-base-map/portail-base-map.component';
 import { SidenavHeaderComponent } from './pages/sidenav-left/sidenave-left-secondaire/sidenav-header/sidenav-header.component';
 import { ChangeProfilComponent } from './pages/change-profil/change-profil.component';
+import { DownloadModule } from '../download/download.module';
 
 
 
@@ -47,7 +48,6 @@ import { ChangeProfilComponent } from './pages/change-profil/change-profil.compo
     MapToolsComponent,
     RoutingComponent,
     LegendComponent,
-    DownloadComponent,
     SidenaveLeftPrincipalComponent,
     DrawComponent,
     MeasureComponent,
@@ -59,7 +59,6 @@ import { ChangeProfilComponent } from './pages/change-profil/change-profil.compo
     ListGroupThematiqueComponent,
     CoucheThematiqueComponent,
     ChartOverlayComponent,
-    ListDownloadLayersComponent,
     DescriptiveSheetComponent,
     OsmSheetComponent,
     SearchComponent,
@@ -76,7 +75,8 @@ import { ChangeProfilComponent } from './pages/change-profil/change-profil.compo
     CommonModule,
     SharedModule,
     PortailRoutingModule,
-    ShContextMenuModule
+    ShContextMenuModule,
+    DownloadModule
   ],
 })
 export class PortailModule { }

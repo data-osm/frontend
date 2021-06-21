@@ -1,6 +1,7 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { Chart } from "chart.js";
 import * as $ from 'jquery'
+import { CountFeature } from '../../../../../data/models/download';
 
 @Component({
   selector: 'app-chart-overlay',
@@ -11,22 +12,16 @@ export class ChartOverlayComponent implements OnInit {
 
   /** configuration of th chart */
   @Input() chartConnfiguration:any
-  /**
-   * id of the chart
-   */
-  @Input() idChart:any
+ 
 
+  @Input()countFeatures:CountFeature[]
   /**
    * Close chart
    */
-  @Output() close = new EventEmitter<any>()
+  @Input() close:()=>void
 
-  /**
-   * list all files to download
-   */
-  @Output() listFiles= new EventEmitter<any>()
+  @ViewChild('canvasChart') canvasChart: ElementRef<HTMLElement>;
 
-  myChart
 
   constructor() { }
 
@@ -37,8 +32,7 @@ export class ChartOverlayComponent implements OnInit {
   ngAfterViewInit(): void {
     //Called after ngAfterContentInit when the component's view has been initialized. Applies to components only.
     //Add 'implements AfterViewInit' to the class.
-    console.log(this.idChart,this.chartConnfiguration,'ChartOverlayComponent')
-    if(this.idChart && this.chartConnfiguration){
+    if(this.chartConnfiguration){
         this.initialiseChart()
     }
   }
@@ -47,18 +41,18 @@ export class ChartOverlayComponent implements OnInit {
    * Initialise th chart
    */
   initialiseChart(){
-    this.myChart = new Chart(this.idChart,this.chartConnfiguration)
+    let myChart = new Chart(this.canvasChart.nativeElement,this.chartConnfiguration)
     setTimeout(() => {
-      document.getElementById("chart-export-download-img")['href'] = this.myChart.toBase64Image()
+      document.getElementById("chart-export-download-img")['href'] = myChart.toBase64Image()
     }, 1500);
   }
 
   closeChart(){
-    this.close.emit(this.idChart)
+    this.close()
   }
 
   listFilesToDownload(){
-    this.listFiles.emit(this.idChart)
+    // this.listFiles.emit(this.idChart)
   }
 
 
