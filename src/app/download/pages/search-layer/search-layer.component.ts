@@ -1,6 +1,6 @@
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { EMPTY, Observable } from 'rxjs';
 import { catchError, debounceTime, filter, map, switchMap } from 'rxjs/operators';
 import { SearchLayerService } from '../../../data/services/search-layer.service';
@@ -45,7 +45,7 @@ export class SearchLayerComponent implements OnInit {
   ngOnChanges(changes:SimpleChanges){
     if (changes.selected) {
       if (this.selected.valid && this.selected.value) {
-        this.selected.setValue(this.selected.value)
+        this.formSearch.get('searchWord').setValue(this.selected.value,{emitEvent:false} )
       }
     }
   }

@@ -4,17 +4,21 @@ import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@ang
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { Map, Overlay } from 'ol';
+import { ObjectEvent } from 'ol/Object';
 import { Style, Stroke, Fill } from 'ol/style';
-import { EMPTY } from 'rxjs';
-import { catchError, filter, map, switchMap, take, tap } from 'rxjs/operators';
+import { EMPTY, ReplaySubject } from 'rxjs';
+import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { CartoHelper } from '../../helper/carto.helper';
+import { FeatureToDownload } from '../data/models/download';
 import { AdminBoundaryRespone } from '../data/models/parameters';
 import { DownloadService } from '../data/services/download.service';
 import { ParametersService } from '../data/services/parameters.service';
 import { VectorLayer, VectorSource, GeoJSON, getCenter, OverlayPositioning } from '../ol-module';
-import { ChartOverlayComponent } from '../portail/pages/sidenav-right/download/chart-overlay/chart-overlay.component';
 import { DataOsmLayersServiceService } from '../services/data-som-layers-service/data-som-layers-service.service';
+import { fromOpenLayerEvent } from '../shared/class/fromOpenLayerEvent';
+import { Layer } from '../type/type';
+import { ChartOverlayComponent } from './pages/chart-overlay/chart-overlay.component';
 
 @Component({
   selector: 'app-download',
@@ -27,6 +31,7 @@ export class DownloadComponent implements OnInit {
 
   @Input() map: Map
   @ViewChild('downlod_list_overlays') downlodListOverlays: ElementRef;
+  private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   layersArrayControl: FormArray = this.formBuilder.array([], [Validators.required])
   fromDownload: FormGroup = this.formBuilder.group({
@@ -41,10 +46,12 @@ export class DownloadComponent implements OnInit {
     public downloadService: DownloadService,
     public notifier: NotifierService,
     public translate: TranslateService,
-    public manipulateComponent:ManipulateComponent
+    public manipulateComponent:ManipulateComponent,
+    private elementRef: ElementRef
   ) {
 
     this.onInitInstance = () => {
+      this.layersArrayControl.clear()
       new CartoHelper(this.map).getAllLayersInToc()
         .filter((layerProp) => layerProp.type_layer == 'geosmCatalogue' && layerProp.properties['type'] == 'couche')
         .filter((value, index, self) => {
@@ -120,7 +127,7 @@ export class DownloadComponent implements OnInit {
             }),
             tap((center) => {
               let numbers = countFeatures.map((countFeature)=>countFeature.count)
-              let labels = countFeatures.map((countFeature)=>countFeature.vector.name + " (" + countFeature.count + ") ")
+              let labels = countFeatures.map((countFeature)=> countFeature.layer_name+': '+countFeature.vector.name + " (" + countFeature.count + ") ")
             
               var dynamicColors = function () {
                 var r = Math.floor(Math.random() * 255);
@@ -178,14 +185,11 @@ export class DownloadComponent implements OnInit {
                       },
                     ],
                   },
-
-                  // onClick: (event) => {
-                  //   console.log(event);
-                  //   var name_analyse = event.target.id;
-                  // }
                 }
 
               }
+
+              console.log(this.layersArrayControl.controls)
               let idOverlay = makeid()
               let elementChart = this.manipulateComponent.createComponent(ChartOverlayComponent, { 'chartConnfiguration': chartConfig, 'close': function () {
                 var cartoClass = new CartoHelper(this.map)
@@ -194,7 +198,7 @@ export class DownloadComponent implements OnInit {
 
                 cartoClass.getLayerByName('exportData').slice().map((element)=>{cartoClass.map.removeLayer(element)})
 
-              }.bind(this) ,'countFeatures': countFeatures })
+              }.bind(this) ,'adminBoundarySelected':adminBoundarySelected,'countFeatures': countFeatures.map((feature)=>{ return Object.assign(feature,{layer: this.layersArrayControl.controls.find((control) => control.value.layer_id === feature.layer_id).value as Layer } )  }) })
 
               this.manipulateComponent.appendComponent(elementChart, this.downlodListOverlays.nativeElement)
 
@@ -222,9 +226,21 @@ export class DownloadComponent implements OnInit {
   ngOnChanges(changes: SimpleChanges) {
     if (changes.map) {
       if (this.map) {
-        this.onInitInstance()
+        fromOpenLayerEvent<ObjectEvent>(this.map.getLayers(), 'propertychange').pipe(
+          takeUntil(this.destroyed$),
+          filter(()=>this.elementRef.nativeElement.offsetParent === null ),
+          tap(()=>{
+            this.onInitInstance()
+          })
+        ).subscribe()
+        
       }
     }
+  }
+
+  ngOnDestroy(){
+    this.destroyed$.next()
+    this.destroyed$.complete()
   }
 
 }
