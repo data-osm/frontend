@@ -6,8 +6,8 @@ import { NotifierService } from 'angular-notifier';
 import { Map, Overlay } from 'ol';
 import { ObjectEvent } from 'ol/Object';
 import { Style, Stroke, Fill } from 'ol/style';
-import { EMPTY, ReplaySubject } from 'rxjs';
-import { catchError, filter, map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { EMPTY, iif, ReplaySubject, Subject } from 'rxjs';
+import { catchError, filter, map, mergeMap, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { CartoHelper } from '../../helper/carto.helper';
 import { FeatureToDownload } from '../data/models/download';
@@ -46,7 +46,7 @@ export class DownloadComponent implements OnInit {
     public downloadService: DownloadService,
     public notifier: NotifierService,
     public translate: TranslateService,
-    public manipulateComponent:ManipulateComponent,
+    public manipulateComponent: ManipulateComponent,
     private elementRef: ElementRef
   ) {
 
@@ -72,150 +72,327 @@ export class DownloadComponent implements OnInit {
       }
 
     }
+    const onCountFeature: Subject<void> = new Subject<void>()
 
     this.onCountFeatureInstance = () => {
-      let adminBoundarySelected: AdminBoundaryRespone = this.fromDownload.get('adminBoundary').value
+      onCountFeature.next()
+      // this.downloadService.countFeaturesInAdminBoundary(this.layersArrayControl.controls.map((control) => control.value.layer_id), adminBoundarySelected.adminBoundary.admin_boundary_id, adminBoundarySelected.feature.table_id).pipe(
+      //   take(1),
+      //   filter(() => this.fromDownload.valid),
+      //   catchError((error: HttpErrorResponse) => {
+      //     this.notifier.notify("error", this.translate.instant('dowload_data.error_count'));
+      //     return EMPTY
+      //   }),
+      //   switchMap((countFeatures) => {
+      //     return this.parameterService.getAdminBoundaryFeature(adminBoundarySelected.adminBoundary.admin_boundary_id, adminBoundarySelected.feature.table_id).pipe(
+      //       catchError((error: HttpErrorResponse) => {
+      //         this.notifier.notify("error", this.translate.instant('dowload_data.error_fetching_adminboundary'));
+      //         return EMPTY
+      //       }),
+      //       map((adminBoundaryFeature) => {
+      //         let layerExport = new VectorLayer({
+      //           source: new VectorSource(),
+      //           style: new Style({
+      //             stroke: new Stroke({
+      //               color: "#000",
+      //               width: 2,
+      //             }),
+      //             fill: new Fill({
+      //               color: environment.primaryColor,
+      //             }),
+      //           }),
+      //           updateWhileAnimating: true,
+      //         })
+      //         layerExport.set('tocCapabilities', {
+      //           opacity: false,
+      //           metadata: false,
+      //           share: false
+      //         })
+      //         layerExport.set('nom', 'exportData')
+      //         layerExport.set('type_layer', 'exportData')
+      //         layerExport.set('inToc', false)
+      //         layerExport.setZIndex(1000)
 
-      this.downloadService.countFeaturesInAdminBoundary(this.layersArrayControl.controls.map((control) => control.value.layer_id), adminBoundarySelected.adminBoundary.admin_boundary_id, adminBoundarySelected.feature.table_id).pipe(
-        take(1),
-        filter(() => this.fromDownload.valid),
-        catchError((error: HttpErrorResponse) => {
-          this.notifier.notify("error", this.translate.instant('dowload_data.error_count'));
-          return EMPTY
-        }),
-        switchMap((countFeatures) => {
-          return this.parameterService.getAdminBoundaryFeature(adminBoundarySelected.adminBoundary.admin_boundary_id, adminBoundarySelected.feature.table_id).pipe(
-            catchError((error: HttpErrorResponse) => {
-              this.notifier.notify("error", this.translate.instant('dowload_data.error_fetching_adminboundary'));
-              return EMPTY
-            }),
-            map((adminBoundaryFeature) => {
-              let layerExport = new VectorLayer({
-                source: new VectorSource(),
-                style: new Style({
-                  stroke: new Stroke({
-                    color: "#000",
-                    width: 2,
-                  }),
-                  fill: new Fill({
-                    color: environment.primaryColor,
-                  }),
-                }),
-                updateWhileAnimating: true,
-              })
-              layerExport.set('tocCapabilities', {
-                opacity: false,
-                metadata: false,
-                share: false
-              })
-              layerExport.set('nom', 'exportData')
-              layerExport.set('type_layer', 'exportData')
-              layerExport.set('inToc', false)
-              layerExport.setZIndex(1000)
+      //         let feature = new GeoJSON().readFeature(adminBoundaryFeature.geometry);
+      //         layerExport.getSource().addFeature(feature)
 
-              let feature = new GeoJSON().readFeature(adminBoundaryFeature.geometry);
-              layerExport.getSource().addFeature(feature)
-
-              let cartoClass = new CartoHelper(this.map)
-              cartoClass.addLayerToMap(layerExport)
+      //         let cartoClass = new CartoHelper(this.map)
+      //         cartoClass.addLayerToMap(layerExport)
 
 
-              cartoClass.map.getView().fit(layerExport.getSource().getExtent(), { size: cartoClass.map.getSize(), duration: 1000 })
+      //         cartoClass.map.getView().fit(layerExport.getSource().getExtent(), { size: cartoClass.map.getSize(), duration: 1000 })
 
-              /** construct and add overlay with the diagram on the map */
-              return getCenter(layerExport.getSource().getExtent());
-            }),
-            tap((center) => {
-              let numbers = countFeatures.map((countFeature)=>countFeature.count)
-              let labels = countFeatures.map((countFeature)=> countFeature.layer_name+': '+countFeature.vector.name + " (" + countFeature.count + ") ")
-            
-              var dynamicColors = function () {
-                var r = Math.floor(Math.random() * 255);
-                var g = Math.floor(Math.random() * 255);
-                var b = Math.floor(Math.random() * 255);
-                return "rgb(" + r + "," + g + "," + b + ")";
-              };
-              var coloR = [];
-              for (var i in numbers) {
-                coloR.push(dynamicColors());
-              }
+      //         /** construct and add overlay with the diagram on the map */
+      //         return getCenter(layerExport.getSource().getExtent());
+      //       }),
+      //       tap((center) => {
+      //         let numbers = countFeatures.map((countFeature) => countFeature.count)
+      //         let labels = countFeatures.map((countFeature) => countFeature.layer_name + ': ' + countFeature.vector.name + " (" + countFeature.count + ") ")
 
-              let chartConfig =
-              {
-                type: "pie",
-                scaleFontColor: "red",
-                data: {
-                  labels: labels,
-                  datasets: [
-                    {
-                      data: numbers,
-                      backgroundColor: coloR,
-                      borderColor: "rgba(200, 200, 200, 0.75)",
-                      hoverBorderColor: "rgba(200, 200, 200, 1)",
-                    },
-                  ],
-                },
-                options: {
-                  title: {
-                    display: true,
-                    text: adminBoundarySelected.feature.name,
-                    fontColor: "#fff",
-                    fontSize: 16,
-                    position: "top",
-                  },
-                  legend: {
-                    display: true,
-                    labels: {
-                      fontColor: "#fff",
-                      fontSize: 14,
-                    },
-                  },
-                  scales: {
-                    xAxes: [
-                      {
-                        display: false,
-                        ticks: {
-                          fontColor: "Black",
-                        },
-                      },
-                    ],
-                    yAxes: [
-                      {
-                        display: false,
-                      },
-                    ],
-                  },
-                }
+      //         var dynamicColors = function () {
+      //           var r = Math.floor(Math.random() * 255);
+      //           var g = Math.floor(Math.random() * 255);
+      //           var b = Math.floor(Math.random() * 255);
+      //           return "rgb(" + r + "," + g + "," + b + ")";
+      //         };
+      //         var coloR = [];
+      //         for (var i in numbers) {
+      //           coloR.push(dynamicColors());
+      //         }
 
-              }
+      //         let chartConfig =
+      //         {
+      //           type: "pie",
+      //           scaleFontColor: "red",
+      //           data: {
+      //             labels: labels,
+      //             datasets: [
+      //               {
+      //                 data: numbers,
+      //                 backgroundColor: coloR,
+      //                 borderColor: "rgba(200, 200, 200, 0.75)",
+      //                 hoverBorderColor: "rgba(200, 200, 200, 1)",
+      //               },
+      //             ],
+      //           },
+      //           options: {
+      //             title: {
+      //               display: true,
+      //               text: adminBoundarySelected.feature.name,
+      //               fontColor: "#fff",
+      //               fontSize: 16,
+      //               position: "top",
+      //             },
+      //             legend: {
+      //               display: true,
+      //               labels: {
+      //                 fontColor: "#fff",
+      //                 fontSize: 14,
+      //               },
+      //             },
+      //             scales: {
+      //               xAxes: [
+      //                 {
+      //                   display: false,
+      //                   ticks: {
+      //                     fontColor: "Black",
+      //                   },
+      //                 },
+      //               ],
+      //               yAxes: [
+      //                 {
+      //                   display: false,
+      //                 },
+      //               ],
+      //             },
+      //           }
 
-              console.log(this.layersArrayControl.controls)
-              let idOverlay = makeid()
-              let elementChart = this.manipulateComponent.createComponent(ChartOverlayComponent, { 'chartConnfiguration': chartConfig, 'close': function () {
-                var cartoClass = new CartoHelper(this.map)
-                var overlay = cartoClass.map.getOverlayById(idOverlay)
-                cartoClass.map.removeOverlay(overlay)
+      //         }
 
-                cartoClass.getLayerByName('exportData').slice().map((element)=>{cartoClass.map.removeLayer(element)})
+      //         console.log(this.layersArrayControl.controls)
+      //         let idOverlay = makeid()
+      //         let elementChart = this.manipulateComponent.createComponent(ChartOverlayComponent, {
+      //           'chartConnfiguration': chartConfig, 'close': function () {
+      //             var cartoClass = new CartoHelper(this.map)
+      //             var overlay = cartoClass.map.getOverlayById(idOverlay)
+      //             cartoClass.map.removeOverlay(overlay)
 
-              }.bind(this) ,'adminBoundarySelected':adminBoundarySelected,'countFeatures': countFeatures.map((feature)=>{ return Object.assign(feature,{layer: this.layersArrayControl.controls.find((control) => control.value.layer_id === feature.layer_id).value as Layer } )  }) })
+      //             cartoClass.getLayerByName('exportData').slice().map((element) => { cartoClass.map.removeLayer(element) })
 
-              this.manipulateComponent.appendComponent(elementChart, this.downlodListOverlays.nativeElement)
+      //           }.bind(this), 'adminBoundarySelected': adminBoundarySelected, 'countFeatures': countFeatures.map((feature) => { return Object.assign(feature, { layer: this.layersArrayControl.controls.find((control) => control.value.layer_id === feature.layer_id).value as Layer }) })
+      //         })
 
-              let overlayExport = new Overlay({
-                position: center,
-                positioning: OverlayPositioning.CENTER_CENTER,
-                element: elementChart.location.nativeElement,
-                id: idOverlay
-              });
+      //         this.manipulateComponent.appendComponent(elementChart, this.downlodListOverlays.nativeElement)
 
-              this.map.addOverlay(overlayExport);
+      //         let overlayExport = new Overlay({
+      //           position: center,
+      //           positioning: OverlayPositioning.CENTER_CENTER,
+      //           element: elementChart.location.nativeElement,
+      //           id: idOverlay
+      //         });
 
-            })
-          )
-        })
-      ).subscribe()
+      //         this.map.addOverlay(overlayExport);
+
+      //       })
+      //     )
+      //   })
+      // ).subscribe()
     }
+
+    onCountFeature.pipe(
+      // filter(() => this.fromDownload.valid),
+      mergeMap(() => {
+        this.parameterService.parameter.extent
+        let adminBoundarySelected: AdminBoundaryRespone = this.fromDownload.get('adminBoundary').value;
+        let admin_boundary_id:number = undefined
+        let table_id:number = undefined
+        try {
+          admin_boundary_id = adminBoundarySelected.adminBoundary.admin_boundary_id
+          table_id = adminBoundarySelected.feature.table_id
+        } catch (error) {
+          
+        }
+        return iif(
+          ()=>this.fromDownload.get('exportAll').value === false,
+          this.downloadService.countFeaturesInAdminBoundary(this.layersArrayControl.controls.map((control) => control.value.layer_id), admin_boundary_id, table_id).
+          pipe(
+            switchMap((countFeatures)=>{
+              return this.parameterService.getAdminBoundaryFeature(admin_boundary_id, table_id).pipe(
+                catchError((error: HttpErrorResponse) => {
+                  this.notifier.notify("error", this.translate.instant('dowload_data.error_fetching_adminboundary'));
+                  return EMPTY
+                }),
+                map((adminBoundaryFeature)=>{
+                  let feature = new GeoJSON().readFeature(adminBoundaryFeature.geometry);
+                  return {countFeatures:countFeatures,feature:feature, admin_boundary_id:admin_boundary_id, table_id:table_id, name:adminBoundarySelected.feature.name}
+                })
+              )
+            })
+          ),
+          this.downloadService.countFeaturesInAdminBoundary(this.layersArrayControl.controls.map((control) => control.value.layer_id)).pipe(
+            map((countFeatures)=>{
+              return {countFeatures:countFeatures,feature:this.parameterService.projectPolygon, admin_boundary_id:undefined, table_id:undefined,name:"Export total"}
+            })
+          ),
+        )
+      }),
+      catchError((error: HttpErrorResponse) => {
+        this.notifier.notify("error", this.translate.instant('dowload_data.error_count'));
+        return EMPTY
+      }),
+      map((parameters)=>{
+        let countFeatures = parameters.countFeatures
+        let feature = parameters.feature
+        let layerExport = new VectorLayer({
+          source: new VectorSource(),
+          style: new Style({
+            stroke: new Stroke({
+              color: "#000",
+              width: 2,
+            }),
+            fill: new Fill({
+              color: environment.primaryColor,
+            }),
+          }),
+          updateWhileAnimating: true,
+        })
+        layerExport.set('tocCapabilities', {
+          opacity: false,
+          metadata: false,
+          share: false
+        })
+        layerExport.set('nom', 'exportData')
+        layerExport.set('type_layer', 'exportData')
+        layerExport.set('inToc', false)
+        layerExport.setZIndex(1000)
+
+        layerExport.getSource().addFeature(feature)
+
+        let cartoClass = new CartoHelper(this.map)
+        cartoClass.addLayerToMap(layerExport)
+
+
+        cartoClass.map.getView().fit(layerExport.getSource().getExtent(), { size: cartoClass.map.getSize(), duration: 1000 })
+
+        /** construct and add overlay with the diagram on the map */
+        return Object.assign(parameters,{center:getCenter(layerExport.getSource().getExtent())}) ;
+      }),
+      tap((parameters) => {
+        let countFeatures = parameters.countFeatures
+        let feature = parameters.feature
+        let center = parameters.center
+
+        let numbers = countFeatures.map((countFeature) => countFeature.count)
+        let labels = countFeatures.map((countFeature) => countFeature.layer_name + ': ' + countFeature.vector.name + " (" + countFeature.count + ") ")
+
+        var dynamicColors = function () {
+          var r = Math.floor(Math.random() * 255);
+          var g = Math.floor(Math.random() * 255);
+          var b = Math.floor(Math.random() * 255);
+          return "rgb(" + r + "," + g + "," + b + ")";
+        };
+        var coloR = [];
+        for (var i in numbers) {
+          coloR.push(dynamicColors());
+        }
+
+        let chartConfig =
+        {
+          type: "pie",
+          scaleFontColor: "red",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                data: numbers,
+                backgroundColor: coloR,
+                borderColor: "rgba(200, 200, 200, 0.75)",
+                hoverBorderColor: "rgba(200, 200, 200, 1)",
+              },
+            ],
+          },
+          options: {
+            title: {
+              display: true,
+              text: parameters.name,
+              fontColor: "#fff",
+              fontSize: 16,
+              position: "top",
+            },
+            legend: {
+              display: true,
+              labels: {
+                fontColor: "#fff",
+                fontSize: 14,
+              },
+            },
+            scales: {
+              xAxes: [
+                {
+                  display: false,
+                  ticks: {
+                    fontColor: "Black",
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  display: false,
+                },
+              ],
+            },
+          }
+
+        }
+
+        console.log(this.layersArrayControl.controls)
+        let idOverlay = makeid()
+        let elementChart = this.manipulateComponent.createComponent(ChartOverlayComponent, {
+          'chartConnfiguration': chartConfig, 'close': function () {
+            var cartoClass = new CartoHelper(this.map)
+            var overlay = cartoClass.map.getOverlayById(idOverlay)
+            cartoClass.map.removeOverlay(overlay)
+
+            cartoClass.getLayerByName('exportData').slice().map((element) => { cartoClass.map.removeLayer(element) })
+
+          }.bind(this), 'admin_boundary_id': parameters.admin_boundary_id,'name': parameters.name, 'table_id': parameters.table_id, 'countFeatures': countFeatures.map((feature) => { return Object.assign(feature, { layer: this.layersArrayControl.controls.find((control) => control.value.layer_id === feature.layer_id).value as Layer }) })
+        })
+
+        this.manipulateComponent.appendComponent(elementChart, this.downlodListOverlays.nativeElement)
+
+        let overlayExport = new Overlay({
+          position: center,
+          positioning: OverlayPositioning.CENTER_CENTER,
+          element: elementChart.location.nativeElement,
+          id: idOverlay
+        });
+
+        this.map.addOverlay(overlayExport);
+
+      })
+
+    ).subscribe()
+
 
 
   }
@@ -228,17 +405,17 @@ export class DownloadComponent implements OnInit {
       if (this.map) {
         fromOpenLayerEvent<ObjectEvent>(this.map.getLayers(), 'propertychange').pipe(
           takeUntil(this.destroyed$),
-          filter(()=>this.elementRef.nativeElement.offsetParent === null ),
-          tap(()=>{
+          filter(() => this.elementRef.nativeElement.offsetParent === null),
+          tap(() => {
             this.onInitInstance()
           })
         ).subscribe()
-        
+
       }
     }
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.destroyed$.next()
     this.destroyed$.complete()
   }
@@ -249,10 +426,10 @@ export class DownloadComponent implements OnInit {
 })
 export class ManipulateComponent {
   constructor(
-    public componentFactoryResolver:ComponentFactoryResolver,
+    public componentFactoryResolver: ComponentFactoryResolver,
     private injector: Injector,
     private appRef: ApplicationRef,
-  ){
+  ) {
 
   }
 
@@ -263,50 +440,50 @@ export class ManipulateComponent {
 * @param componentProps object
 */
   createComponent(component: any, componentProps?: object) {
-  // 1. Create a component reference from the component
-  const componentRef = this.componentFactoryResolver
-    .resolveComponentFactory(component)
-    .create(this.injector);
- 
-  if (componentProps && typeof componentRef.instance === 'object') {
-    Object.assign(componentRef.instance as object, componentProps);
-  }
-  return componentRef;
- }
+    // 1. Create a component reference from the component
+    const componentRef = this.componentFactoryResolver
+      .resolveComponentFactory(component)
+      .create(this.injector);
 
- /**
-* append a component create dynnamically to an Element
-* @see https://gist.github.com/reed-lawrence/1f6b7c328ad3886e60dc2b0adcf75a97
-* @param componentRef ComponentRef<unknown>
-* @param appendTo Element
-*/
- appendComponent(componentRef: ComponentRef<unknown>, appendTo: Element) {
-  // 2. Attach component to the appRef so that it's inside the ng component tree
-  this.appRef.attachView(componentRef.hostView);
- 
-  // 3. Get DOM element from component
-  const domElem = (componentRef.hostView as EmbeddedViewRef<any>)
-    .rootNodes[0] as HTMLElement;
- 
-  // 4. Append DOM element to the body
-  appendTo.appendChild(domElem);
- 
-  return;
- }
+    if (componentProps && typeof componentRef.instance === 'object') {
+      Object.assign(componentRef.instance as object, componentProps);
+    }
+    return componentRef;
+  }
+
+  /**
+ * append a component create dynnamically to an Element
+ * @see https://gist.github.com/reed-lawrence/1f6b7c328ad3886e60dc2b0adcf75a97
+ * @param componentRef ComponentRef<unknown>
+ * @param appendTo Element
+ */
+  appendComponent(componentRef: ComponentRef<unknown>, appendTo: Element) {
+    // 2. Attach component to the appRef so that it's inside the ng component tree
+    this.appRef.attachView(componentRef.hostView);
+
+    // 3. Get DOM element from component
+    const domElem = (componentRef.hostView as EmbeddedViewRef<any>)
+      .rootNodes[0] as HTMLElement;
+
+    // 4. Append DOM element to the body
+    appendTo.appendChild(domElem);
+
+    return;
+  }
 
 }
 
 
- /**
-   * generate random id
-   * @return string
-   */
-  export function makeid(): string {
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+/**
+  * generate random id
+  * @return string
+  */
+export function makeid(): string {
+  var text = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    for (var i = 0; i < 5; i++)
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
+  for (var i = 0; i < 5; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
 
-    return text;
-  }
+  return text;
+}

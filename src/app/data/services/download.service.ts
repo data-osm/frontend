@@ -38,7 +38,7 @@ export class DownloadService {
    * @param adminBoundary AdminBoundary
    * @returns Observable<any>
    */
-   countFeaturesInAdminBoundary(layer_ids:Array<number>, admin_boundary_id:number, table_id:number):Observable<CountFeature[]>{
+   countFeaturesInAdminBoundary(layer_ids:Array<number>, admin_boundary_id?:number, table_id?:number):Observable<CountFeature[]>{
     return this.http.post<CountFeature[]>(this.url_prefix+'/api/group/count',{
       layer_ids:layer_ids,
       provider_vector_id:admin_boundary_id,

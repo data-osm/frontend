@@ -24,7 +24,7 @@ import {
   Pixel,
   OverlayPositioning,
   FeatureLike,
-  unByKey,
+  GeoJSON,
   Coordinate,
   Point,
 } from '../../ol-module';
@@ -149,6 +149,12 @@ export class PortailMapComponent implements OnInit {
           tap((value) => {
 
             let shadowMap = new CartoHelper(this.map).constructShadowLayer(value.st_asgeojson)
+            
+            this.parametersService.projectPolygon = new GeoJSON().readFeature(value.st_asgeojson, {
+              dataProjection: 'EPSG:4326',
+              featureProjection: 'EPSG:3857'
+            });
+            
             shadowMap.setZIndex(1000)
             this.map.addLayer(shadowMap)
 

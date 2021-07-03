@@ -16,7 +16,9 @@ export class ChartOverlayComponent implements OnInit {
   /** configuration of th chart */
   @Input() chartConnfiguration:any
  
-  @Input()adminBoundarySelected:AdminBoundaryRespone
+  @Input()admin_boundary_id:number
+  @Input()table_id:number
+  @Input()name:string
   @Input()countFeatures:FeatureToDownload[]
   /**
    * Close chart
@@ -59,7 +61,9 @@ export class ChartOverlayComponent implements OnInit {
   listFilesToDownload(){
     this.dialog.open(ListDownloadLayersComponent,{
       data:{
-        adminBoundarySelected:this.adminBoundarySelected,
+        admin_boundary_id:this.admin_boundary_id,
+        table_id:this.table_id,
+        name:this.name,
         countFeatures:this.countFeatures
       }
     })

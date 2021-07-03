@@ -20,7 +20,7 @@ export class ListDownloadLayersComponent implements OnInit {
   objectKeys = Object
   
   constructor(
-    @Inject(MAT_DIALOG_DATA) public parameter : {countFeatures: FeatureToDownload[], adminBoundarySelected:AdminBoundaryRespone},
+    @Inject(MAT_DIALOG_DATA) public parameter : {countFeatures: FeatureToDownload[], admin_boundary_id:number, table_id:number, name:string},
     public dialogRef: MatDialogRef<ListDownloadLayersComponent>,
   ) {
       this.data = this.parameter.countFeatures.reduce(function (r, a) {
