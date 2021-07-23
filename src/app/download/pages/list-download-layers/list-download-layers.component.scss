@@ -1,1 +1,16 @@
 @import '../../../modal-style.scss';
+.card-layer{
+    background: transparent;
+    border: 3px solid #e0e0e0;
+    box-shadow: none !important;
+    margin-top: 15px;
+
+    .card-provider{
+        margin-top: 15px;
+        box-shadow: none;
+        .mat-card-title{
+            font-size: 17px !important;
+            font-weight: normal !important;
+        }
+    }
+} 

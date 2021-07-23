@@ -49,8 +49,9 @@ export class DownloadComponent implements OnInit {
     public manipulateComponent: ManipulateComponent,
     private elementRef: ElementRef
   ) {
-
+    const onInit: Subject<void> = new ReplaySubject<void>(1)
     this.onInitInstance = () => {
+      console.log(new CartoHelper(this.map).getAllLayersInToc(), 'onInitInstance DownloadComponent')
       this.layersArrayControl.clear()
       new CartoHelper(this.map).getAllLayersInToc()
         .filter((layerProp) => layerProp.type_layer == 'geosmCatalogue' && layerProp.properties['type'] == 'couche')
@@ -72,151 +73,12 @@ export class DownloadComponent implements OnInit {
       }
 
     }
+
+  
     const onCountFeature: Subject<void> = new Subject<void>()
 
     this.onCountFeatureInstance = () => {
       onCountFeature.next()
-      // this.downloadService.countFeaturesInAdminBoundary(this.layersArrayControl.controls.map((control) => control.value.layer_id), adminBoundarySelected.adminBoundary.admin_boundary_id, adminBoundarySelected.feature.table_id).pipe(
-      //   take(1),
-      //   filter(() => this.fromDownload.valid),
-      //   catchError((error: HttpErrorResponse) => {
-      //     this.notifier.notify("error", this.translate.instant('dowload_data.error_count'));
-      //     return EMPTY
-      //   }),
-      //   switchMap((countFeatures) => {
-      //     return this.parameterService.getAdminBoundaryFeature(adminBoundarySelected.adminBoundary.admin_boundary_id, adminBoundarySelected.feature.table_id).pipe(
-      //       catchError((error: HttpErrorResponse) => {
-      //         this.notifier.notify("error", this.translate.instant('dowload_data.error_fetching_adminboundary'));
-      //         return EMPTY
-      //       }),
-      //       map((adminBoundaryFeature) => {
-      //         let layerExport = new VectorLayer({
-      //           source: new VectorSource(),
-      //           style: new Style({
-      //             stroke: new Stroke({
-      //               color: "#000",
-      //               width: 2,
-      //             }),
-      //             fill: new Fill({
-      //               color: environment.primaryColor,
-      //             }),
-      //           }),
-      //           updateWhileAnimating: true,
-      //         })
-      //         layerExport.set('tocCapabilities', {
-      //           opacity: false,
-      //           metadata: false,
-      //           share: false
-      //         })
-      //         layerExport.set('nom', 'exportData')
-      //         layerExport.set('type_layer', 'exportData')
-      //         layerExport.set('inToc', false)
-      //         layerExport.setZIndex(1000)
-
-      //         let feature = new GeoJSON().readFeature(adminBoundaryFeature.geometry);
-      //         layerExport.getSource().addFeature(feature)
-
-      //         let cartoClass = new CartoHelper(this.map)
-      //         cartoClass.addLayerToMap(layerExport)
-
-
-      //         cartoClass.map.getView().fit(layerExport.getSource().getExtent(), { size: cartoClass.map.getSize(), duration: 1000 })
-
-      //         /** construct and add overlay with the diagram on the map */
-      //         return getCenter(layerExport.getSource().getExtent());
-      //       }),
-      //       tap((center) => {
-      //         let numbers = countFeatures.map((countFeature) => countFeature.count)
-      //         let labels = countFeatures.map((countFeature) => countFeature.layer_name + ': ' + countFeature.vector.name + " (" + countFeature.count + ") ")
-
-      //         var dynamicColors = function () {
-      //           var r = Math.floor(Math.random() * 255);
-      //           var g = Math.floor(Math.random() * 255);
-      //           var b = Math.floor(Math.random() * 255);
-      //           return "rgb(" + r + "," + g + "," + b + ")";
-      //         };
-      //         var coloR = [];
-      //         for (var i in numbers) {
-      //           coloR.push(dynamicColors());
-      //         }
-
-      //         let chartConfig =
-      //         {
-      //           type: "pie",
-      //           scaleFontColor: "red",
-      //           data: {
-      //             labels: labels,
-      //             datasets: [
-      //               {
-      //                 data: numbers,
-      //                 backgroundColor: coloR,
-      //                 borderColor: "rgba(200, 200, 200, 0.75)",
-      //                 hoverBorderColor: "rgba(200, 200, 200, 1)",
-      //               },
-      //             ],
-      //           },
-      //           options: {
-      //             title: {
-      //               display: true,
-      //               text: adminBoundarySelected.feature.name,
-      //               fontColor: "#fff",
-      //               fontSize: 16,
-      //               position: "top",
-      //             },
-      //             legend: {
-      //               display: true,
-      //               labels: {
-      //                 fontColor: "#fff",
-      //                 fontSize: 14,
-      //               },
-      //             },
-      //             scales: {
-      //               xAxes: [
-      //                 {
-      //                   display: false,
-      //                   ticks: {
-      //                     fontColor: "Black",
-      //                   },
-      //                 },
-      //               ],
-      //               yAxes: [
-      //                 {
-      //                   display: false,
-      //                 },
-      //               ],
-      //             },
-      //           }
-
-      //         }
-
-      //         console.log(this.layersArrayControl.controls)
-      //         let idOverlay = makeid()
-      //         let elementChart = this.manipulateComponent.createComponent(ChartOverlayComponent, {
-      //           'chartConnfiguration': chartConfig, 'close': function () {
-      //             var cartoClass = new CartoHelper(this.map)
-      //             var overlay = cartoClass.map.getOverlayById(idOverlay)
-      //             cartoClass.map.removeOverlay(overlay)
-
-      //             cartoClass.getLayerByName('exportData').slice().map((element) => { cartoClass.map.removeLayer(element) })
-
-      //           }.bind(this), 'adminBoundarySelected': adminBoundarySelected, 'countFeatures': countFeatures.map((feature) => { return Object.assign(feature, { layer: this.layersArrayControl.controls.find((control) => control.value.layer_id === feature.layer_id).value as Layer }) })
-      //         })
-
-      //         this.manipulateComponent.appendComponent(elementChart, this.downlodListOverlays.nativeElement)
-
-      //         let overlayExport = new Overlay({
-      //           position: center,
-      //           positioning: OverlayPositioning.CENTER_CENTER,
-      //           element: elementChart.location.nativeElement,
-      //           id: idOverlay
-      //         });
-
-      //         this.map.addOverlay(overlayExport);
-
-      //       })
-      //     )
-      //   })
-      // ).subscribe()
     }
 
     onCountFeature.pipe(
@@ -405,7 +267,7 @@ export class DownloadComponent implements OnInit {
       if (this.map) {
         fromOpenLayerEvent<ObjectEvent>(this.map.getLayers(), 'propertychange').pipe(
           takeUntil(this.destroyed$),
-          filter(() => this.elementRef.nativeElement.offsetParent === null),
+          // filter(() => this.elementRef.nativeElement.offsetParent === null),
           tap(() => {
             this.onInitInstance()
           })

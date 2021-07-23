@@ -1,35 +1,42 @@
 <h1 mat-dialog-title class="primaryColorBG white">
-  <i class="fa fa-download white icon_header" aria-hidden="true"></i>
+  <mat-icon class="icon_header" style="font-size: 23px;" >download</mat-icon>
   <i class="fa fa-times-circle close" (click)="closeModal()"></i>
   {{ 'dowloadLayers.title' | translate }}
 </h1>
 
-<div mat-dialog-content style="background: #eeeeee;">
+<div mat-dialog-content style="background: #eeeeee;align-items: stretch;" fxLayout="row wrap" fxLayoutGap="15px" >
 
-  <mat-card *ngFor="let layer_name of objectKeys.keys(data)"  style="box-shadow: none;margin-top: 15px;">
+  <mat-card *ngFor="let layer_name of objectKeys.keys(data)" fxFlex class="card-layer" >
   
   <mat-card-header>
     <img mat-card-avatar [src]="  environment.backend + data[layer_name][0].layer.square_icon " alt="{{layer_name}}">
-    <mat-card-title>{{layer_name}}</mat-card-title>
+    <mat-card-title  >{{layer_name}}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <mat-card *ngFor="let provider of data[layer_name]" style="margin-top: 15px;background: transparent;border: 2px solid #e0e0e0;">
+    <mat-card *ngFor="let provider of data[layer_name]" class="card-provider" >
       <mat-card-header>
-        <mat-card-title style="font-size: 17px;"> {{provider.count}} {{provider.vector.name}}</mat-card-title>
+        <mat-card-title > {{provider.count}} 
+          <span *ngIf="data[layer_name].length > 1" > {{provider.vector.name}} </span>
+          <span *ngIf="data[layer_name].length == 1" >{{layer_name}} </span>
+        </mat-card-title>
       </mat-card-header>
   
       <mat-card-actions style="text-align: right;" >
-        <mat-form-field appearance="outline"  style="width: 100%;">
-          <!-- <mat-label>{{ 'dowloadLayers.download' | translate }}</mat-label> -->
-          <mat-select>
-            <mat-option value="option"><a [href]="environment.backend+'/api/group/download/?provider_vector_id='+parameter.admin_boundary_id+'&table_id='+parameter.table_id+'&provider_vector_id_target='+provider.vector.provider_vector_id+'&driver=shp'" target="_blanck"> ShapeFile </a> </mat-option>
-            <mat-option value="option"><a [href]="environment.backend+'/api/group/download/?provider_vector_id='+parameter.admin_boundary_id+'&table_id='+parameter.table_id+'&provider_vector_id_target='+provider.vector.provider_vector_id+'&driver=geojson'" target="_blanck"> GeoJSON </a> </mat-option>
-            <mat-option value="option"><a [href]="environment.backend+'/api/group/download/?provider_vector_id='+parameter.admin_boundary_id+'&table_id='+parameter.table_id+'&provider_vector_id_target='+provider.vector.provider_vector_id+'&driver=gpkg'" target="_blanck"> Géopckage </a> </mat-option>
-            <mat-option value="option"><a [href]="environment.backend+'/api/group/download/?provider_vector_id='+parameter.admin_boundary_id+'&table_id='+parameter.table_id+'&provider_vector_id_target='+provider.vector.provider_vector_id+'&driver=kml'" target="_blanck"> KML </a> </mat-option>
-          </mat-select>
-        </mat-form-field>
-        
-        <!-- <button mat-flat-button class=" primaryColor " style="background: rgb(0 0 0 / 0.03);" >{{ 'dowloadLayers.download' | translate }}</button> -->
+        <button mat-flat-button color="accent" class="white" [matMenuTriggerFor]="menu" >{{ 'dowloadLayers.download' | translate }}</button>
+        <mat-menu #menu="matMenu">
+          <a mat-menu-item [href]="environment.backend+'/api/group/download/?provider_vector_id='+parameter.admin_boundary_id+'&table_id='+parameter.table_id+'&provider_vector_id_target='+provider.vector.provider_vector_id+'&driver=shp'" target="_blanck">
+              ShapeFile
+          </a>
+          <a mat-menu-item [href]="environment.backend+'/api/group/download/?provider_vector_id='+parameter.admin_boundary_id+'&table_id='+parameter.table_id+'&provider_vector_id_target='+provider.vector.provider_vector_id+'&driver=geojson'" target="_blanck">
+            GeoJSON
+          </a>
+          <a mat-menu-item [href]="environment.backend+'/api/group/download/?provider_vector_id='+parameter.admin_boundary_id+'&table_id='+parameter.table_id+'&provider_vector_id_target='+provider.vector.provider_vector_id+'&driver=gpkg'" target="_blanck">
+            Géopckage
+          </a>
+          <a mat-menu-item [href]="environment.backend+'/api/group/download/?provider_vector_id='+parameter.admin_boundary_id+'&table_id='+parameter.table_id+'&provider_vector_id_target='+provider.vector.provider_vector_id+'&driver=kml'" target="_blanck">
+            KML
+          </a>
+        </mat-menu>
       </mat-card-actions>
     </mat-card>
   </mat-card-content>
