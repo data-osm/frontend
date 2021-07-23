@@ -1,0 +1,21 @@
+<mat-card class="base-map-card">
+  <div mat-card-image #ghostMap id="ghostMap"></div>
+
+  <mat-card-actions>
+    <mat-checkbox labelPosition="before" color="primary" [formControl]="principalMapForm">
+      <span> {{ principalMap?.name }} </span>
+    </mat-checkbox>
+  </mat-card-actions>
+
+</mat-card>
+
+<ng-container *ngIf="baseMaps$|async as baseMaps" >
+  <button mat-raised-button (click)="openGroupCarteSlide(baseMaps)" class="white base-group-carte-btn" color="primary">
+    Fonds de cartes
+  </button>
+</ng-container>
+
+
+<div class="arborescence-group-thematique" *ngFor="let group of groups">
+  <app-group-thematique (click)="openGroup(group)" class="pointer" [group]="group"></app-group-thematique>
+</div>

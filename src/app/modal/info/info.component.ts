@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { environment } from 'src/environments/environment';
 import { MatDialogRef } from '@angular/material/dialog';
 import * as moment from 'moment'
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-info',

@@ -10,7 +10,7 @@ import { EditLayerProviderComponent } from '../edit-layer-provider/edit-layer-pr
 import { MatTable } from '@angular/material/table';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { MapsService } from '../../../../../../data/services/maps.service';
-import { manageCompHelper } from '../../../../../../../helper/manage-comp.helper';
+import { ManageCompHelper } from '../../../../../../../helper/manage-comp.helper';
 import { LayerProviders, Layer, ReorderProvider } from '../../../../../../type/type';
 
 
@@ -42,7 +42,7 @@ export class ProviderComponent implements OnInit, OnChanges {
     notifierService: NotifierService,
     public mapsService:MapsService,
     public dialog: MatDialog,
-    public manageCompHelper:manageCompHelper,
+    public manageCompHelper:ManageCompHelper,
     public translate: TranslateService,
   ) { 
     this.notifier = notifierService;

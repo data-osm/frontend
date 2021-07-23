@@ -1,9 +1,12 @@
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Polygon } from '@svgdotjs/svg.js';
+import MultiPolygon from 'ol/geom/MultiPolygon';
 import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { AdminBoundary, Parameter, AppExtent } from '../models/parameters';
+import { Feature, Geometry } from '../../ol-module';
+import { AdminBoundary, Parameter, AppExtent, AdminBoundaryRespone, AdminBoundaryFeature } from '../models/parameters';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +15,12 @@ export class ParametersService {
 
   headers: HttpHeaders = new HttpHeaders({});
   url_prefix = environment.backend
+  parameter:Parameter
+  projectPolygon:Feature<Geometry>
+  /**
+   * Actif profil id
+   */
+  map_id:number
 
   constructor(
     private http: HttpClient,
@@ -38,6 +47,7 @@ export class ParametersService {
     return this.http.get<Parameter[]>(this.url_prefix+'/api/parameter/parameter',{headers: this.get_header()}).pipe(
       map((response)=>{
         if (response.length > 0 ) {
+          this.parameter = response[0]
           return response[0]
         }
         return {} as Parameter
@@ -101,12 +111,39 @@ export class ParametersService {
   }
 
   /**
+   * get one app extent by id with his extent
+   * @returns Observable<AppExtent>
+   */
+   getAppExtentById(id:number):Observable<AppExtent>{
+    return this.http.post<AppExtent>(this.url_prefix+'/api/parameter/extent/get',{id:id},{headers: this.get_header()})
+
+  }
+  /**
    * get the list of app extent
    * @param geometry boolean
    * @returns Observable<AppExtent[]>
    */
    getListAppExtent(geometry:boolean=false):Observable<AppExtent[]>{
     return this.http.get<AppExtent[]>(this.url_prefix+'/api/parameter/extent/list?geometry='+geometry,{headers: this.get_header()})
+  }
+
+  /**
+   * Search admin boundary
+   * @param querry string
+   * @returns Observable<AdminBoundaryRespone[]>
+   */
+  searchAdminBoundary(querry:string):Observable<AdminBoundaryRespone[]>{
+    return this.http.post<AdminBoundaryRespone[]>(this.url_prefix+"/api/parameter/admin_boundary/search", {search_word:querry}, {headers: this.get_header()})
+  }
+
+  /**
+   * Get a admin boundary feature with his geometry
+   * @param vector_id number
+   * @param table_id number
+   * @returns Observable<AdminBoundaryFeature>
+   */
+  getAdminBoundaryFeature(vector_id:number, table_id:number):Observable<AdminBoundaryFeature>{
+    return this.http.post<AdminBoundaryFeature>(this.url_prefix+"/api/parameter/admin_boundary/feature", {vector_id:vector_id, table_id:table_id}, {headers: this.get_header()})
   }
 
 }

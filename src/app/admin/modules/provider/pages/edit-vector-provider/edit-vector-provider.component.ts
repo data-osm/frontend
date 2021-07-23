@@ -4,7 +4,7 @@ import { NotifierService } from 'angular-notifier';
 import { Observable, Subject, ReplaySubject, combineLatest, EMPTY, merge } from 'rxjs';
 import { DataForPreview, VectorProvider } from '../../../../../type/type';
 import { VectorProviderService } from '../../../../administration/service/vector-provider.service'
-import { manageCompHelper } from '../../../../../../helper/manage-comp.helper'
+import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { StyleService } from '../../../../administration/service/style.service';
 import { switchMap, catchError, shareReplay, takeUntil, tap, filter } from 'rxjs/operators';
 import { Router } from '@angular/router';
@@ -34,7 +34,7 @@ export class EditVectorProviderComponent implements OnInit, OnChanges {
   constructor(
     public VectorProviderService: VectorProviderService,
     public StyleService: StyleService,
-    public manageCompHelper: manageCompHelper,
+    public manageCompHelper: ManageCompHelper,
     notifierService: NotifierService,
     public fb: FormBuilder,
     public router:Router,

@@ -36,6 +36,8 @@
     "tout_supprimer": "Tout supprimer"
   },
   "dowload_data": {
+    "error_count":"Une érreur est survenu lors du calcul d'entités",
+    "error_fetching_adminboundary":"Une érreur est survenu lors du chargement de la géométrie ",
     "all": "tout",
     "by": "Par",
     "calculate": "Calculer",
@@ -59,7 +61,8 @@
     "save": "SAUVEGARDER"
   },
   "header": {
-    "toolpit_info": "Data OSM ?"
+    "toolpit_info": "Data OSM ?",
+    "toolpit_profil": "Les profils"
   },
   "layer_properties": {
     "click_url_text": "Cliquer ici",
@@ -464,5 +467,12 @@
   },
   "ressearch": {
     "map": "Rechercher un profil"
+  },
+  "portail": {
+    "error_loading": {
+      "extent": "Une erreur est survenue lors du chargement de l'emprise du projet",
+      "parameter": "Une erreur est survenue lors du chargement des réglages de l'application",
+      "basemaps": "Une erreur est survenue lors du chargement des cartes de bases"
+    }
   }
 }

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
-import {StorageServiceService} from './services/storage-service/storage-service.service'
 import * as $ from 'jquery';
 @Component({
   selector: 'app-root',
@@ -12,7 +11,6 @@ export class AppComponent implements OnInit {
 
   constructor(
     public translate: TranslateService,
-    public StorageServiceService:StorageServiceService
     ){
     translate.setDefaultLang('fr');
     translate.use('fr');

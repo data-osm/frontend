@@ -1,0 +1,56 @@
+.mat-option {
+    height: 50px;
+    line-height: 18px;
+  }
+  .group-download {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    padding: 5px;
+    margin-left: -6px;
+    width: 95%;
+    border-radius: 0px 15px 15px 0px;
+    text-align: center;
+    display: flow-root;
+    text-transform: uppercase;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    font-size: 12px;
+  }
+  
+  .download-layers-data-in-btn {
+    margin-top: 10px;
+    margin-bottom: 25px;
+    text-align: center;
+    button {
+      min-width: 32px;
+      width: 32px;
+      height: 31px;
+      border-radius: 5px;
+      padding: 4px;
+      font-size: 12px;
+      margin-left: 7px;
+    }
+  }
+  
+  .submit-download-data {
+    height: 52px;
+    width: 52px;
+    text-align: center;
+    margin-bottom: 10px;
+    margin-left: calc(50% - 26px);
+  }
+  
+  .submit-download-data[disabled] {
+    opacity: 0.6;
+  }
+  
+  .export-data-loading{
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    z-index: 2;
+    background-color: rgba(255, 255, 255, 0.6);
+    display: none;
+  }
+  

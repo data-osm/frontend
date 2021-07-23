@@ -11,7 +11,7 @@ export interface AppExtent{
     b?:number
     c?:number
     d?:number
-    st_asgeojson:any
+    st_asgeojson:string
     id:number
     [key:string]:any
 }
@@ -23,4 +23,25 @@ export interface Parameter{
     extent_pk:number
     boundary:AdminBoundary[],
     appExtent?:AppExtent
+}
+
+export interface AdminBoundaryRespone{
+    feature: {
+        table_id: number,
+        name: string
+    },
+    adminBoundary: {
+        admin_boundary_id: number,
+        name: string,
+        vector: number
+    }
+}
+
+export interface AdminBoundaryFeature{
+    table_id: number,
+    name: string
+    /**
+     * geomtry geojson in 3857
+     */
+    geometry:any
 }

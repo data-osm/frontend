@@ -10,7 +10,7 @@ import { Group } from '../../../../../type/type';
 import { AddGroupComponent } from '../add-group/add-group.component';
 import { IconService } from '../../../../administration/service/icon.service';
 import { MapsService } from '../../../../../data/services/maps.service'
-import {manageCompHelper} from '../../../../../../helper/manage-comp.helper'
+import {ManageCompHelper} from '../../../../../../helper/manage-comp.helper'
 import { SvgIconDirective } from '../../../../../shared/directive/svg-icon.directive';
 import { EditGroupComponent } from '../edit-group/edit-group.component';
 
@@ -46,7 +46,7 @@ export class ListGroupComponent implements OnInit {
     public route: ActivatedRoute,
     notifierService: NotifierService,
     public dialog: MatDialog,
-    public manageCompHelper:manageCompHelper,
+    public manageCompHelper:ManageCompHelper,
     public translate: TranslateService,
     public router:Router,
   ) {

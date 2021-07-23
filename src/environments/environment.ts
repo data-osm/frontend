@@ -8,11 +8,7 @@ export const environment = {
   primaryColor: '#023f5f',
   url_carto:'http://127.0.0.1:3000/ows/?map=',
   backend:'http://127.0.0.1:8000',
-  url_prefix: "https://adminfrance.geosm.org/",
-  url_frontend: "https://localhost:4200/",
-  url_service: 'https://service.geosm.org/',
-  path_qgis: "/var/www/geosm/",
-  pojet_nodejs: "france",
+  url_frontend: "http://localhost:4200/",
   nom_instance:"Data OSM"
 };
 

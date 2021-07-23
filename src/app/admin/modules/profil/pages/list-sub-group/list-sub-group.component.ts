@@ -12,7 +12,7 @@ import { MatTabChangeEvent, MatTabGroup } from '@angular/material/tabs';
 import { ViewChildren } from '@angular/core';
 import { MapsService } from '../../../../../data/services/maps.service';
 import { Group, SubGroup } from '../../../../../type/type';
-import { manageCompHelper } from '../../../../../../helper/manage-comp.helper';
+import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper';
 
 @Component({
   selector: 'app-list-sub-group',
@@ -46,7 +46,7 @@ export class ListSubGroupComponent implements OnInit {
     public router: Router,
     notifierService: NotifierService,
     public dialog: MatDialog,
-    public manageCompHelper: manageCompHelper,
+    public manageCompHelper: ManageCompHelper,
     public translate: TranslateService,
   ) {
     this.notifier = notifierService;

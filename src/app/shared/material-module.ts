@@ -10,6 +10,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import {MatProgressBarModule} from '@angular/material/progress-bar'
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner'
 import {MatTableModule} from '@angular/material/table'
+import {MatIconModule} from '@angular/material/icon'
 
 // import {
 //   MatAutocompleteModule,
@@ -74,6 +75,7 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
 
 @NgModule({
   exports: [
+    MatIconModule,
     MatButtonToggleModule,
     A11yModule,
     CdkStepperModule,

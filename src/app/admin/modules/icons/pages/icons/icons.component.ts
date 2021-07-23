@@ -7,7 +7,7 @@ import { BehaviorSubject, EMPTY, merge, Observable, of, ReplaySubject, Subject, 
 import { catchError } from 'rxjs/internal/operators/catchError';
 import { filter, finalize, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../../../../environments/environment';
-import { manageCompHelper } from '../../../../../../helper/manage-comp.helper'
+import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { Icon } from '../../../../../type/type';
 import { IconService } from '../../../../administration/service/icon.service'
 import { AddIconComponent } from '../add-icon/add-icon.component';
@@ -43,7 +43,7 @@ export class IconsComponent implements OnInit {
   public iconList$: Observable<Array<{[key: string]: Icon[]}>> 
 
   constructor(
-    public manageCompHelper: manageCompHelper,
+    public manageCompHelper: ManageCompHelper,
     public IconService: IconService,
     notifierService: NotifierService,
     public fb: FormBuilder,

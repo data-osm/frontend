@@ -8,7 +8,7 @@ import { catchError, filter, map, shareReplay, switchMap } from 'rxjs/operators'
 import { AdminBoundary, Parameter } from '../../../../../data/models/parameters';
 import { ParametersService } from '../../../../../data/services/parameters.service';
 import { AddBoundaryComponent } from '../add-boundary/add-boundary.component';
-import { manageCompHelper } from '../../../../../../helper/manage-comp.helper'
+import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { UpdateParameterComponent } from '../update-parameter/update-parameter.component';
 
 @Component({
@@ -25,7 +25,6 @@ export class DashboardComponent implements OnInit {
   public onUpdateAParameterInstance:(parameter:Parameter)=>void
   
   parameter$:Observable<Parameter>
-  private readonly notifier: NotifierService;
 
   displayedColumnsAdminBoundary:Array<string> = ['name','source','action']
 
@@ -34,9 +33,8 @@ export class DashboardComponent implements OnInit {
     public notifierService: NotifierService,
     public translate: TranslateService,
     public dialog: MatDialog,
-    public manageCompHelper : manageCompHelper,
+    public manageCompHelper : ManageCompHelper,
   ) {
-    this.notifier = notifierService;
 
     const onInit:Subject<void> = new ReplaySubject<void>(1)
     this.onInitInstance = ()=>{
@@ -63,7 +61,7 @@ export class DashboardComponent implements OnInit {
         switchMap(()=>{
           return this.parametersService.getParameters().pipe(
             catchError((error:HttpErrorResponse) => { 
-              this.notifier.notify("error", "An error occured while loading parameters");
+              notifierService.notify("error", "An error occured while loading parameters");
               return EMPTY 
             }),
           )
@@ -76,7 +74,7 @@ export class DashboardComponent implements OnInit {
             switchMap(()=>{
               return this.parametersService.getParameters().pipe(
                 catchError((error:HttpErrorResponse) => { 
-                  this.notifier.notify("error", "An error occured while loading parameters");
+                  notifierService.notify("error", "An error occured while loading parameters");
                   return EMPTY 
                 }),
               )
@@ -91,7 +89,7 @@ export class DashboardComponent implements OnInit {
             switchMap(()=>{
               return this.parametersService.getParameters().pipe(
                 catchError((error:HttpErrorResponse) => { 
-                  this.notifier.notify("error", "An error occured while loading parameters");
+                  notifierService.notify("error", "An error occured while loading parameters");
                   return EMPTY 
                 }),
               )
@@ -111,13 +109,13 @@ export class DashboardComponent implements OnInit {
             switchMap(()=>{
               return this.parametersService.destroyAdminstrativeBoundary(adminBoundary.admin_boundary_id).pipe(
                 catchError((error:HttpErrorResponse) => { 
-                  this.notifier.notify("error", "An error occured while deleting parameter");
+                  notifierService.notify("error", "An error occured while deleting parameter");
                   return EMPTY 
                 }),
                 switchMap(()=>{
                   return this.parametersService.getParameters().pipe(
                     catchError((error:HttpErrorResponse) => { 
-                      this.notifier.notify("error", "An error occured while loading parameters");
+                      notifierService.notify("error", "An error occured while loading parameters");
                       return EMPTY 
                     }),
                   )
@@ -132,7 +130,7 @@ export class DashboardComponent implements OnInit {
       switchMap((parameter)=>{
         return this.parametersService.getAppExtent(false).pipe(
           catchError((error:HttpErrorResponse) => { 
-            this.notifier.notify("error", "An error occured while loading parameters");
+            notifierService.notify("error", "An error occured while loading parameters");
             return of(parameter) 
           }),
           map((appExtent)=>{

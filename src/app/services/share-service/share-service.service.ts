@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
-import { GeosmLayersServiceService } from '../geosm-layers-service/geosm-layers-service.service'
-import { StorageServiceService } from '../storage-service/storage-service.service'
+import { DataOsmLayersServiceService } from '../data-som-layers-service/data-som-layers-service.service'
 import { BackendApiService } from '../backend-api/backend-api.service'
-import { manageCompHelper } from 'src/helper/manage-comp.helper'
-import { cartoHelper, layersInMap } from '../../../helper/carto.helper'
-import { Point, VectorLayer, Cluster, Feature, GeoJSON, Transform } from '../../../app/ol-module';
+import { CartoHelper, layersInMap } from '../../../helper/carto.helper'
+import { Point, VectorLayer, Cluster, Feature, GeoJSON, Transform, Coordinate, Map } from '../../../app/ol-module';
 import { parse } from '@fortawesome/fontawesome-svg-core';
-import { coucheInterface } from 'src/app/type/type';
 import * as $ from 'jquery'
+import { coucheInterface } from '../../type/type';
+import { ManageCompHelper } from '../../../helper/manage-comp.helper';
+import { ParametersService } from '../../data/services/parameters.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,10 +20,9 @@ import * as $ from 'jquery'
 export class ShareServiceService {
 
   constructor(
-    public GeosmLayersServiceService: GeosmLayersServiceService,
-    public StorageServiceService: StorageServiceService,
-    public manageCompHelper: manageCompHelper,
-    public BackendApiService: BackendApiService
+    public parametersService: ParametersService,
+    public backendApiService: BackendApiService,
+    public manageCompHelper: ManageCompHelper
   ) { }
 
   /**
@@ -42,7 +41,7 @@ export class ShareServiceService {
    * Display feature shared in link of the app
    * @param parametersShared
    */
-  displayFeatureShared(parametersShared: Array<any>) {
+  displayFeatureShared(parametersShared: Array<any>, map:Map) {
 
     for (let index = 0; index < parametersShared.length; index++) {
       const parameterOneFeature = parametersShared[index].split(',');
@@ -52,13 +51,13 @@ export class ShareServiceService {
           couche_id = parseInt(parameterOneFeature[1]),
           type = parameterOneFeature[0],
           id = parameterOneFeature[5]
-        this.addLayersFromUrl([
-          type + "," +
-          couche_id + "," +
-          group_id + ","
-        ])
+        // this.addLayersFromUrl([
+        //   type + "," +
+        //   couche_id + "," +
+        //   group_id + ",",
+        // ], map)
 
-        var cartoClass = new cartoHelper()
+        var cartoClass = new CartoHelper(map)
 
 
         setTimeout(() => {
@@ -82,23 +81,24 @@ export class ShareServiceService {
 
           if (layer.length > 0) {
 
-            var couche: coucheInterface = this.StorageServiceService.getCouche(group_id, couche_id)
+            // var couche: coucheInterface = this.StorageServiceService.getCouche(group_id, couche_id)
 
-            this.getFeatureOSMFromCartoServer(couche, id).then(
-              (feature) => {
-                if (feature) {
-                  var propertie = feature.getProperties()
-                  var geometry = feature.getGeometry()
-                  this.manageCompHelper.openDescriptiveSheet(
-                    layer[0].get('descriptionSheetCapabilities'),
-                    cartoClass.constructAlyerInMap(layer[0]),
-                    [parseFloat(parameterOneFeature[3]), parseFloat(parameterOneFeature[4])],
-                    geometry,
-                    propertie
-                  )
-                }
-              }
-            )
+            // this.getFeatureOSMFromCartoServer(couche, id).then(
+            //   (feature) => {
+            //     if (feature) {
+            //       var propertie = feature.getProperties()
+            //       var geometry = feature.getGeometry()
+            //       // this.manageCompHelper.openDescriptiveSheet(
+            //       //   layer[0].get('descriptionSheetCapabilities'),
+            //       //   cartoClass.constructAlyerInMap(layer[0]),
+            //       //   [parseFloat(parameterOneFeature[3]), parseFloat(parameterOneFeature[4])],
+            //       //   map,
+            //       //   geometry,
+            //       //   propertie
+            //       // )
+            //     }
+            //   }
+            // )
 
           }
 
@@ -117,7 +117,8 @@ export class ShareServiceService {
    */
   getFeatureOSMFromCartoServer(couche: coucheInterface, osmId: number): Promise<Feature> {
     var url = couche.url + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GETFEATURE&outputFormat=GeoJSON&typeName=' + couche.identifiant + '&EXP_FILTER=osm_id=' + osmId;
-    return this.BackendApiService.getRequestFromOtherHost(url).then(
+    
+    return this.backendApiService.getRequestFromOtherHost(url).then(
       (response) => {
         var features = new GeoJSON().readFeatures(response, {
           dataProjection: 'EPSG:4326',
@@ -126,11 +127,11 @@ export class ShareServiceService {
         if (features.length == 1) {
           return features[0]
         } else {
-          return
+          return undefined
         }
       },
       (err) => {
-        return
+        return undefined
       }
     )
   }
@@ -138,13 +139,12 @@ export class ShareServiceService {
   // http://tiles.geosm.org/ows/?map=france/france10.qgs&SERVICE=WFS&VERSION=1.1.0&REQUEST=GETFEATURE&outputFormat=GeoJSON&typeName=Histoire&GEOMETRYNAME=null&EXP_FILTER=osm_id=7816986187
   /**
    * get parameters to share one layer
-   * @param 'carte'|'couche' typeLayer type of the layer
-   * @param number id_layer id of the layer in DB (key_couche)
-   * @param number group_id if of the group layer in BD (id_thematique, id_carte)
+   * @param number id_layer id of the layer
    * @return string
    */
-  shareLayer(typeLayer: 'carte' | 'couche', id_layer: number, group_id: number): string {
-    return 'layers=' + typeLayer + ',' + id_layer + ',' + group_id
+  shareLayer(id_layer: number, group_id:number): string {
+    
+    return 'profil='+this.parametersService.map_id+'&layers='+ id_layer+ ',' + group_id
   }
 
   /**
@@ -156,68 +156,9 @@ export class ShareServiceService {
    * } layers type of the layer
    * @return string
    */
-  shareLayers(layers: Array<{ typeLayer: 'carte' | 'couche', id_layer: number, group_id: number }>): string {
-    var parameters = []
-    for (let index = 0; index < layers.length; index++) {
-      parameters.push(layers[index].typeLayer + ',' + layers[index].id_layer + ',' + layers[index].group_id)
-    }
-    return 'layers=' + parameters.join(';')
+  shareLayers(layers: Array<{id_layer: number, group_id:number}>): string {
+    return 'profil='+this.parametersService.map_id+'&layers=' + layers.map((item)=>item.id_layer+','+item.group_id).join(';')
   }
 
-  /**
-   * Zoom to the position in URL
-   * @param number lon
-   * @param number lat
-   * @param number z the zoom
-   */
-  zoomToSharePos(lon: Number, lat: Number, z:Number) {
-
-    var shareCenter = [lon, lat]
-    var geom = new Point(Transform(shareCenter, 'EPSG:4326', 'EPSG:3857'))
-    setTimeout(() => {
-      new cartoHelper().fit_view(geom, z)
-    }, 2000);
-  }
-
-  /**
-   * Add layers from parameters of the url
-   * @param Array<string> layers
-   * @example of the params layers [carte,39,1] carte is the type of layer, 39 the id_layer and 1 the group_id
-   */
-  addLayersFromUrl(layers: Array<string>) {
-    for (let index = 0; index < layers.length; index++) {
-      const element = layers[index].split(',');
-      try {
-        var type = element[0]
-        if (type == 'carte') {
-          var carte = this.StorageServiceService.getCarte(parseInt(element[2]), parseInt(element[1]))
-          if (carte) {
-            this.GeosmLayersServiceService.addLayerCarte(carte)
-            let groupCarte = this.StorageServiceService.getGroupCarteFromIdCarte(carte.key_couche)
-            if (groupCarte) {
-              this.manageCompHelper.openGroupCarteSlide(groupCarte)
-            }
-          }
-        } else if (type == 'couche') {
-          var couche = this.StorageServiceService.getCouche(parseInt(element[2]), parseInt(element[1]))
-          if (couche) {
-            this.GeosmLayersServiceService.addLayerCouche(couche)
-            let groupThem = this.StorageServiceService.getGroupThematiqueFromIdCouche(couche.key_couche)
-            if (groupThem) {
-              this.manageCompHelper.openGroupThematiqueSlide(groupThem)
-              setTimeout(() => {
-                try {
-                  $('#couche_'+couche.key_couche)[0].scrollIntoView(false);
-                } catch (error) {
-                }
-              }, 1000);
-            }
-          }
-        }
-      } catch (error) {
-
-      }
-    }
-  }
 
 }

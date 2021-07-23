@@ -1,4 +1,3 @@
-import { StorageServiceService } from '../services/storage-service/storage-service.service'
 /**
  * Properties of a right menu
  */
@@ -598,6 +597,14 @@ export interface SubGroup{
   group_sub_id:number
   name:string
   group:number
+}
+export interface SubGroupWithLayers extends SubGroup{
+  layers:Array<Layer>
+}
+export interface SubGroupWithGroup {
+  group_sub_id:number
+  name:string
+  group:Group
 }
 
 export interface Layer{

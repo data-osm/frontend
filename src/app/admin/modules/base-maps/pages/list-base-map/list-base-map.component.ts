@@ -3,10 +3,10 @@ import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, merge, Observable, ReplaySubject, Subject } from 'rxjs';
-import { catchError, filter, shareReplay, switchMap } from 'rxjs/operators';
+import { catchError, filter, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { BaseMap } from '../../../../../data/models/base-maps';
 import { BaseMapsService } from '../../../../../data/services/base-maps.service';
-import { manageCompHelper } from '../../../../../../helper/manage-comp.helper'
+import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { MatDialog } from '@angular/material/dialog';
 import { AddBaseMapComponent } from '../add-base-map/add-base-map.component';
 import { UpdateBaseMapComponent } from '../update-base-map/update-base-map.component';
@@ -18,29 +18,23 @@ import { UpdateBaseMapComponent } from '../update-base-map/update-base-map.compo
 })
 export class ListBaseMapComponent implements OnInit {
   
-  onInitInstance:()=>void
   onAddInstance:()=>void
   onDeleteInstance:(baseMap:BaseMap)=>void
   onUpdateInstance:(baseMap:BaseMap)=>void
   
-  listBaseMaps$:Observable<BaseMap[]>
+  readonly listBaseMaps$:Observable<ReadonlyArray<BaseMap>>
   private readonly notifier: NotifierService;
 
   constructor(
     public  baseMapsService : BaseMapsService,
     public notifierService: NotifierService,
     public translate: TranslateService,
-    public manageCompHelper : manageCompHelper,
+    public manageCompHelper : ManageCompHelper,
     public dialog: MatDialog
   ) {
     this.notifier = notifierService;
 
-    const onInit:Subject<void> = new ReplaySubject<void>(1)
-    this.onInitInstance = ()=>{
-      onInit.next()
-    }
-
-    const onAdd:Subject<void> = new ReplaySubject<void>(1)
+    const onAdd:Subject<void> = new Subject<void>()
     this.onAddInstance = ()=>{
       onAdd.next()
     }
@@ -56,28 +50,10 @@ export class ListBaseMapComponent implements OnInit {
     }
 
     this.listBaseMaps$ = merge(
-      onInit.pipe(
-        switchMap(()=>{
-          return this.baseMapsService.getBaseMaps().pipe(
-            catchError((error:HttpErrorResponse) => { 
-              this.notifier.notify("error", "An error occured while loading basemaps");
-              return EMPTY 
-            }),
-          )
-        })
-      ),
       onAdd.pipe(
         switchMap(()=>{
           return this.dialog.open(AddBaseMapComponent,{}).afterClosed().pipe(
             filter(result => result),
-            switchMap(()=>{
-              return this.baseMapsService.getBaseMaps().pipe(
-                catchError((error:HttpErrorResponse) => { 
-                  this.notifier.notify("error", "An error occured while loading basemaps");
-                  return EMPTY 
-                }),
-              )
-            })
           )
         })
       ),
@@ -85,14 +61,6 @@ export class ListBaseMapComponent implements OnInit {
         switchMap((basemap)=>{
           return this.dialog.open(UpdateBaseMapComponent,{data:basemap}).afterClosed().pipe(
             filter(result => result),
-            switchMap(()=>{
-              return this.baseMapsService.getBaseMaps().pipe(
-                catchError((error:HttpErrorResponse) => { 
-                  this.notifier.notify("error", "An error occured while loading basemaps");
-                  return EMPTY 
-                }),
-              )
-            })
           )
         })
       ),
@@ -110,14 +78,6 @@ export class ListBaseMapComponent implements OnInit {
                 catchError((error:HttpErrorResponse) => { 
                   this.notifier.notify("error", "An error occured while deleting basemap");
                   return EMPTY 
-                }),
-                switchMap(()=>{
-                  return this.baseMapsService.getBaseMaps().pipe(
-                    catchError((error:HttpErrorResponse) => { 
-                      this.notifier.notify("error", "An error occured while loading basemaps");
-                      return EMPTY 
-                    }),
-                  )
                 })
               )
             })
@@ -125,13 +85,21 @@ export class ListBaseMapComponent implements OnInit {
         })
       )
     ).pipe(
-      shareReplay(1)
+      startWith(undefined),
+      shareReplay(1),
+      switchMap(()=>{
+        return this.baseMapsService.getBaseMaps().pipe(
+          catchError((error:HttpErrorResponse) => { 
+            this.notifier.notify("error", "An error occured while updating basemaps");
+            return EMPTY 
+          }),
+        )
+      })
     )
 
    }
 
   ngOnInit(): void {
-    this.onInitInstance()
   }
 
 }

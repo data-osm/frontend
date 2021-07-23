@@ -2,7 +2,7 @@ import { Map, View, Feature } from 'ol';
 import { getWidth, boundingExtent, getTopLeft, extend as MergeExtend, getCenter, equals as extentEquals } from 'ol/extent.js';
 import TileLayer from 'ol/layer/Tile.js';
 import { Group as LayerGroup, Vector as VectorLayer } from 'ol/layer.js';
-import { transform as Transform, fromLonLat, get as getProjection, transformExtent, Projection } from 'ol/proj.js';
+import { transform as Transform, fromLonLat, get as getProjection, transformExtent, } from 'ol/proj.js';
 import WMTS from 'ol/source/WMTS.js';
 import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
 import ImageLayer from 'ol/layer/Image.js';
@@ -27,7 +27,7 @@ import { buffer, extend as Extent, createEmpty as createEmptyExtent } from 'ol/e
 import Zoom from 'ol/control/Zoom';
 import Rotate from 'ol/control/Rotate';
 import { defaults as defaultControls, Attribution, ScaleLine, MousePosition } from 'ol/control.js';
-import {createStringXY} from 'ol/coordinate';
+import {Coordinate, createStringXY} from 'ol/coordinate';
 import LinearRing from 'ol/geom/LinearRing';
 import Point from 'ol/geom/Point';
 import Circle from 'ol/geom/Circle';
@@ -45,11 +45,20 @@ import Collection from 'ol/Collection';
 import { singleClick, click } from 'ol/events/condition'
 import XYZ from 'ol/source/XYZ';
 import {getArea, getLength} from 'ol/sphere';
+import {MapBrowserEvent} from 'ol'
+import { Pixel } from 'ol/pixel';
+import { FeatureLike } from 'ol/Feature';
+import OverlayPositioning from 'ol/OverlayPositioning';
 // var jsts = require('jsts')
 // var ol3Parser = new jsts.io.OL3Parser();
 // ol3Parser.inject(Point, LineString,LinearRing,Polygon,MultiPoint, MultiLineString, MultiPolygon, GeometryCollection);
 
 export {
+  Coordinate,
+  OverlayPositioning,
+  FeatureLike,
+  Pixel,
+  MapBrowserEvent,
   fromLonLat,
   View,
   Map,
@@ -78,7 +87,6 @@ export {
   Transform,
   Attribution, defaultControls,
   VectorSourceEvent,
-  Projection,
   ImageStatic,
   getCenter,
   Polygon,
