@@ -1,7 +1,6 @@
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SocialShareComponent } from '../app/social-share/social-share.component'
 import { Injectable, ComponentFactoryResolver, ApplicationRef, Injector, EmbeddedViewRef, ComponentRef } from '@angular/core';
-import { ListDownloadLayersComponent, downloadDataModelInterface } from '../app/portail/pages/sidenav-right/download/list-download-layers/list-download-layers.component'
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { AddGeosignetComponent } from '../app/portail/pages/context-menu/add-geosignet/add-geosignet.component'
 import { DataForPreview, groupCarteInterface, groupThematiqueInterface, Style } from '../app/type/type';
@@ -98,32 +97,6 @@ export class ManageCompHelper {
     return this.dialog.open(DescriptiveSheetComponent, proprietes);
    
   }
-
-
-  /**
-   * Open modal used to list and download data
-   * @param data downloadDataModelInterface[]
-   * @param size Array<string>|[]
-   * @param callBack Function
-   */
-  openModalDownloadData(data: downloadDataModelInterface[], size: Array<string> | [], callBack: Function) {
-    var proprietes = {
-      disableClose: false,
-      minWidth: 400,
-      data: data
-    }
-
-    if (size.length > 0) {
-      proprietes['width'] = size[0]
-      proprietes['height'] = size[1]
-    }
-    const modal = this.dialog.open(ListDownloadLayersComponent, proprietes);
-
-    modal.afterClosed().subscribe(async (result: any) => {
-      callBack(result)
-    })
-  }
-
 
 
   /**

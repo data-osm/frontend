@@ -36,11 +36,21 @@ export interface dataFromClickOnMapInterface {
  */
 export interface tocCapabilitiesInterface {
   /**
-       * change opactity
+       * Can change opactity ?
        */
   opacity: boolean,
+  /**
+   * have metadata ?
+   */
   metadata: boolean,
+  /**
+   * Can be shared ?
+   */
   share: boolean
+  /**
+   * Can be automatically remove when the user wnant to clear the map ?
+   */
+  removable:boolean
 }
 /**
  * Interface of the legend capabilities
@@ -125,7 +135,7 @@ export interface DataOSMLayer {
    * capabilities of the layer in toc. They user can set opactiy ? read metadata ?...
    * By default, all is set to true
    */
-  tocCapabilities?: tocCapabilitiesInterface
+  tocCapabilities: tocCapabilitiesInterface
   /**
    * capabilities of the layer legend. how to display legend of the layer ? with the url of a image ? with the legend of the carto server ?
    * by default this is none => no legend to display
@@ -813,26 +823,26 @@ export class CartoHelper {
    * @return layersInMap
    */
   constructAlyerInMap(layer: any): layersInMap {
-    var data = null
-    var tocCapabilities: tocCapabilitiesInterface = {} as tocCapabilitiesInterface
-    if (layer.get('tocCapabilities')) {
-      tocCapabilities.opacity = layer.get('tocCapabilities')['opacity'] != undefined ? layer.get('tocCapabilities')['opacity'] : true
-      tocCapabilities.share = layer.get('tocCapabilities')['share'] != undefined ? layer.get('tocCapabilities')['share'] : true
-      tocCapabilities.metadata = layer.get('tocCapabilities')['metadata'] != undefined ? layer.get('tocCapabilities')['metadata'] : true
-    } else {
-      tocCapabilities.opacity = true
-      tocCapabilities.share = true
-      tocCapabilities.metadata = true
-    }
+    // var data = null
+    // var tocCapabilities: tocCapabilitiesInterface = {} as tocCapabilitiesInterface
+    // if (layer.get('tocCapabilities')) {
+    //   tocCapabilities.opacity = layer.get('tocCapabilities')['opacity'] != undefined ? layer.get('tocCapabilities')['opacity'] : true
+    //   tocCapabilities.share = layer.get('tocCapabilities')['share'] != undefined ? layer.get('tocCapabilities')['share'] : true
+    //   tocCapabilities.metadata = layer.get('tocCapabilities')['metadata'] != undefined ? layer.get('tocCapabilities')['metadata'] : true
+    // } else {
+    //   tocCapabilities.opacity = true
+    //   tocCapabilities.share = true
+    //   tocCapabilities.metadata = true
+    // }
 
     return {
-      tocCapabilities: tocCapabilities,
+      tocCapabilities: layer.get('tocCapabilities'),
       legendCapabilities: layer.get('legendCapabilities'),
       nom: layer.get('nom'),
       type_layer: layer.get('type_layer'),
       properties: layer.get('properties'),
       image: layer.get('iconImagette'),
-      data: data,
+      data: null,
       zIndex: layer.getZIndex(),
       visible: layer.getVisible(),
       layer: layer,

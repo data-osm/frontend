@@ -166,7 +166,12 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
         type = 'xyz'
       }
 
-      this.dataOsmLayersServiceService.addBaseMap(principalMap, this.map)
+      this.dataOsmLayersServiceService.addBaseMap(principalMap, this.map, {
+        share:false,
+        metadata:true,
+        opacity:true,
+        removable:false
+      })
 
       let layerGhost = new CartoHelper(this.ghostMap).constructLayer(
         {
@@ -183,7 +188,8 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
           tocCapabilities:{
             share:false,
             metadata:true,
-            opacity:true
+            opacity:true,
+            removable:false
           },
           iconImagette: environment.backend + '/' + principalMap.pictogramme.icon,
           descriptionSheetCapabilities:undefined

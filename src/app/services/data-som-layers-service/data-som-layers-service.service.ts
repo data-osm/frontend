@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NotifierService } from 'angular-notifier';
-import { CartoHelper, DataOSMLayer } from '../../../helper/carto.helper';
+import { CartoHelper, DataOSMLayer, tocCapabilitiesInterface } from '../../../helper/carto.helper';
 import { Map } from 'ol';
 import { environment } from '../../../environments/environment';
 import { BaseMap } from '../../data/models/base-maps';
@@ -155,7 +155,13 @@ export class DataOsmLayersServiceService {
             size: size,
             legendCapabilities: [],
             styleWMS:[provider.vs.name],
-            descriptionSheetCapabilities: 'osm'
+            descriptionSheetCapabilities: 'osm',
+            tocCapabilities:{
+              share:true,
+              metadata:true,
+              opacity:true,
+              removable:true
+            },
           })
 
           cartoHelperClass.addLayerToMap(layerOl)
@@ -194,7 +200,12 @@ export class DataOsmLayersServiceService {
    * Add layer of type 'carte' to map
    * @param baseMap BaseMap
    */
-  addBaseMap(baseMap: BaseMap, map:Map) {
+  addBaseMap(baseMap: BaseMap, map:Map, toc:tocCapabilitiesInterface={
+    share:false,
+    metadata:true,
+    opacity:true,
+    removable:true
+  }) {
     var type;
     if (baseMap.protocol_carto == 'wms') {
       type = 'wms'
@@ -213,11 +224,7 @@ export class DataOsmLayersServiceService {
         couche_id: baseMap.id,
         type: 'carte',
       },
-      tocCapabilities:{
-        share:false,
-        metadata:true,
-        opacity:true
-      },
+      tocCapabilities:toc,
       iconImagette: environment.backend + baseMap.pictogramme.raster_icon,
       descriptionSheetCapabilities:undefined
     }

@@ -183,7 +183,7 @@ export class TableOfContentsComponent implements OnInit {
    * remove all layer of type layersInMap in map
    */
   clearMap() {
-    new CartoHelper(this.map).getAllLayersInToc().map((layerProp)=>{ this.removeLayer(layerProp) })
+    new CartoHelper(this.map).getAllLayersInToc().filter((layerProp)=>layerProp.tocCapabilities.removable).map((layerProp)=>{this.removeLayer(layerProp) })
   }
 
   /**

@@ -51,7 +51,6 @@ export class DownloadComponent implements OnInit {
   ) {
     const onInit: Subject<void> = new ReplaySubject<void>(1)
     this.onInitInstance = () => {
-      console.log(new CartoHelper(this.map).getAllLayersInToc(), 'onInitInstance DownloadComponent')
       this.layersArrayControl.clear()
       new CartoHelper(this.map).getAllLayersInToc()
         .filter((layerProp) => layerProp.type_layer == 'geosmCatalogue' && layerProp.properties['type'] == 'couche')
