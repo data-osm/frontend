@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { icon } from '@fortawesome/fontawesome-svg-core';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { BehaviorSubject, EMPTY, merge, Observable, of, ReplaySubject, Subject, throwError } from 'rxjs';
@@ -97,12 +98,18 @@ export class IconsComponent implements OnInit {
       ),
       onAdd.pipe(
         switchMap(()=>{
-          return this.dialog.open(AddIconComponent,{minWidth: 400,}).afterClosed().pipe(
-            filter(result =>result),
+          return this.dialog.open<AddIconComponent,any, Icon[]|boolean>(AddIconComponent,{minWidth: 400,}).afterClosed().pipe(
+            filter(result =>result instanceof Array),
             tap(()=>{this.loading_icon =true}),
-            switchMap(()=>{
+            switchMap((icons)=>{
               return this.IconService.getIconsGroupByCategory().pipe(
-                tap(()=>{this.loading_icon =false}),
+                tap(()=>{
+                  this.loading_icon =false; 
+                  this.onIconSelect.next(icons[0])
+                  setTimeout(()=>{
+                    this.onIconSelect.next(icons[0])
+                  }, 500)
+                }),
                 catchError( (err)=> { this.notifier.notify("error", "An error occured when loading icons"); this.loading_icon =false ;return EMPTY }),
               )
             })

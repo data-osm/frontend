@@ -61,8 +61,8 @@ export class AddLayerComponent implements OnInit, OnDestroy {
     this.form.addControl('icon_color',new FormControl(null, [Validators.required]))
     this.form.addControl('icon',new FormControl(null, [Validators.required]))
     this.form.addControl('icon_background', new FormControl(true))
-    this.form.addControl('svg_as_text',new FormControl([Validators.required]))
-    this.form.addControl('svg_as_text_square',new FormControl([Validators.required]))
+    this.form.addControl('svg_as_text',new FormControl([]))
+    this.form.addControl('svg_as_text_square',new FormControl([]))
     this.form.addControl('sub',new FormControl(this.sub, [Validators.required]))
 
     const onAdd:Subject<void> = new Subject<void>()

@@ -63,12 +63,10 @@ export class AddGroupComponent implements OnInit, OnDestroy {
     this.form.addControl('color',new FormControl("#02aca7", [Validators.required]))
     this.form.addControl('icon_id',new FormControl(null))
     this.form.addControl('svg_as_text',new FormControl(null))
-    this.form.addControl('icon_path',new FormControl(null))
     
     this.form.addControl('type_group',new FormControl('thematiques', [Validators.required]))
     this.form.addControl('map_id',new FormControl(this.map_id, [Validators.required]))
 
-    this.form.setValidators(atLeastOne(Validators.required, ['icon_path','svg_as_text']))
 
     const onAdd:Subject<void> = new Subject<void>()
     this.onAddInstance = ()=>{

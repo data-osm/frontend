@@ -1,8 +1,9 @@
 <div style="padding: 24px;">
 
+<button style="margin-bottom: 10px;width: 100%;" mat-flat-button color="accent" class="white" (click)="onAddtInstance()" > {{ 'admin.icon.add_icons' | translate }} </button>
+
 <div class="search-icons" fxLayout="row wrap">
-    <h2 class="one-group-icon-title" fxFlex="calc(100% - 170px)" >  {{ 'admin.icon.search_icons' | translate }} </h2>
-    <button fxFlex="150px" style="margin-bottom: 10px;" mat-flat-button color="accent" class="white" (click)="onAddtInstance()" > {{ 'admin.icon.add_icons' | translate }} </button>
+    <!-- <h2 class="one-group-icon-title" fxFlex="calc(100% - 170px)" >  {{ 'admin.icon.search_icons' | translate }} </h2> -->
     <form fxFlex="100%" [formGroup]="searchIconForm" >
         <mat-form-field appearance="outline" style="width: 100%;" *ngIf="searchIconForm.get('search_word')" >
             <i class="fa fa-search black " aria-hidden="true" matPrefix ></i>
@@ -27,7 +28,6 @@
 <div class="text-center loading-icons">
     <mat-spinner color="primary" diameter="150" *ngIf="loading_icon" ></mat-spinner>
 </div>
-
 <div class="all-group-icon" *ngIf="iconList$ |async as iconList" >
         <div class="one-group-icon" *ngFor="let group_name of objectKeys.keys(iconList)" > 
             <h2 class="one-group-icon-title" > {{group_name}} </h2>

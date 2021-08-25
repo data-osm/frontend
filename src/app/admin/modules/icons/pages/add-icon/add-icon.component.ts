@@ -6,7 +6,8 @@ import { requiredFileType } from '../../../../../validators/upload-file-validato
 import {IconService} from '../../../../administration/service/icon.service'
 import { Observable, fromEvent,merge as observerMerge, forkJoin, concat, EMPTY } from 'rxjs';
 import { HttpEvent } from '@angular/common/http';
-import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, concatAll, concatMap, finalize, map, mergeMap, switchMap, take, tap, toArray } from 'rxjs/operators';
+import { Icon } from '../../../../../type/type';
 
 @Component({
   selector: 'app-add-icon',
@@ -47,7 +48,7 @@ export class AddIconComponent implements OnInit {
    */
   initialiseForm() {
 
-    this.form.addControl('category',new FormControl(null, [Validators.required]))
+    // this.form.addControl('category',new FormControl(null, [Validators.required]))
     this.form.addControl('attribution',new FormControl(null))
     this.form.addControl('tags',new FormControl([]))
     this.form.addControl('path',new FormControl(null,[Validators.required]))
@@ -64,14 +65,15 @@ export class AddIconComponent implements OnInit {
     }
   }
 
-  formatIconsToSave():Observable<any>[]{
+  formatIconsToSave():Observable<Icon>[]{
     let listFIle:FileList = this.form.get('path').value
-    let listRequest = []
+
+    let listRequest:Array<Observable<Icon>> = []
     for (let index = 0; index < listFIle.length; index++) {
       let formIcon = toFormData({
         'path':listFIle[index],
         'name':listFIle[index].name.split('.')[0].toLowerCase(),
-        'category':this.form.get('category').value,
+        // 'category':this.form.get('category').value,
         'attribution':this.form.get('attribution').value,
         'tags':JSON.stringify(this.form.get('tags').value)
       })
@@ -84,28 +86,20 @@ export class AddIconComponent implements OnInit {
    * Save icons
    */
    saveIcon(){
-     
-     forkJoin(...this.formatIconsToSave())
+    this.form.disable()
+    concat(this.formatIconsToSave())
     .pipe(
-      tap(value => this.form.disable() ),
-      switchMap(value=> value),
-      catchError( (err)=> { this.notifier.notify("error", "An error occured when saving icons");return EMPTY }),
-      finalize(()=>{
+      concatAll(),
+      toArray(),
+      catchError( (err)=> { this.form.enable();this.notifier.notify("error", "An error occured when saving icons");return EMPTY }),
+      tap((value)=>{
         this.form.enable();
-        this.progress = 0
-      })
+        this.notifier.notify("success", "Images upload successfully")
+        this.dialogRef.close(value.filter(v => v!= undefined));
+      }),
+      take(1)
     )
-    .subscribe(
-      (response)=>{
-        this.progress = this.progress + 1
-
-        if (this.progress == this.formatIconsToSave().length) {
-          this.notifier.notify("success", "Images upload successfully")
-          this.dialogRef.close(true);
-        }
-
-      }
-    )
+    .subscribe( )
    }
 
 }

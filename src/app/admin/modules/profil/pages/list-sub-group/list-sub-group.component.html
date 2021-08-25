@@ -2,9 +2,23 @@
     <mat-sidenav opened mode="side" position="start" class="sidenav-admin-start  black ">
        
         <ng-container *ngIf="group$|async as group">
-            <h2 class="group-title"> {{group.name}} </h2>
+            <h2 class="group-title accentColorBG white"> 
+                <mat-icon class="pointer" routerLink=".." >chevron_left</mat-icon>
+                {{group.name}} 
+            </h2>
         </ng-container>
-        
+        <mat-selection-list class="tab" [multiple]="false" *ngIf="group$|async as group">
+            <mat-list-option class="black" (click)="onAddInstance()" [selected]="false">
+                <div style="display: flex;font-size: 14px;">
+                    Ajouter un sous-groupe
+                    <svg style="width: 17px !important;" width="17" viewBox="0 0 50 50" aria-hidden="true" focusable="false">
+                        <path
+                            d="M50 26.72v-3.535l-23.283.05V.003h-3.535l.05 23.232L0 23.185v3.535h23.232l-.05 23.283h3.535V26.72">
+                        </path>
+                    </svg>
+                </div>
+            </mat-list-option>
+        </mat-selection-list>
         <ng-container *ngIf="subGroupList$ | async as subGroupList">
             <mat-selection-list class="tab" [multiple]="false">
                 <mat-list-option class="black" *ngFor="let sub of subGroupList ; let index = index" [routerLink]="sub.group_sub_id" [selected]="(sub_id|async) == sub.group_sub_id" >
@@ -21,16 +35,7 @@
             </mat-selection-list>
         </ng-container>
 
-        <mat-selection-list class="tab" [multiple]="false" *ngIf="group$|async as group">
-            <mat-list-option class="black" (click)="onAddInstance()" [selected]="false">
-                <svg mat-list-icon style="width: 17px !important;" width="17" viewBox="0 0 50 50" aria-hidden="true" focusable="false">
-                    <path
-                        d="M50 26.72v-3.535l-23.283.05V.003h-3.535l.05 23.232L0 23.185v3.535h23.232l-.05 23.283h3.535V26.72">
-                    </path>
-                </svg>
-                Ajouter un sous-groupe
-            </mat-list-option>
-        </mat-selection-list>
+        
 
 
     </mat-sidenav>
@@ -38,28 +43,3 @@
         <app-list-layer ></app-list-layer>
     </mat-sidenav-content>
 </mat-sidenav-container>
-
-<!-- <mat-tab-group class="list-sub-group" color="accent" (selectedIndexChange)="goToSubGroup($event, subGroupList)" >
-        <mat-tab #tab *ngFor="let sub of subGroupList ; let index = index" class="sub-tab" > 
-            <ng-template mat-tab-label >
-                    <span >   {{sub.name}}  </span>
-                    <svg class="sub-more" [matMenuTriggerFor]="menu" viewBox="0 0 8.701 50" ><path d="M0 0v8.7h8.7V0zm0 20.651v8.7h8.7v-8.7zm0 20.648v8.7h8.7v-8.7z"></path></svg>
-                    <mat-menu #menu="matMenu">
-                        <button mat-menu-item (click)="onUpdateInstance(sub)" >{{ 'edit' | translate }} </button>
-                        <button mat-menu-item  class="red" (click)="onDeleteInstance(sub)" > {{ 'supprimer' | translate }}</button>
-                    </mat-menu>
-            </ng-template>
-            <ng-template matTabContent>
-                <app-list-layer ></app-list-layer>
-            </ng-template>
-            
-        </mat-tab>
-        <mat-tab disabled  *ngIf="group_id|async" >
-            <ng-template mat-tab-label>
-                <button mat-flat-button class="add-sub" (click)="onAddInstance()" >
-                    Ajouter 
-                    <svg width="17" viewBox="0 0 50 50" aria-hidden="true" focusable="false"><path d="M50 26.72v-3.535l-23.283.05V.003h-3.535l.05 23.232L0 23.185v3.535h23.232l-.05 23.283h3.535V26.72"></path></svg>
-                </button>
-            </ng-template>
-        </mat-tab>
-    </mat-tab-group> -->

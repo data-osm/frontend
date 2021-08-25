@@ -29,7 +29,7 @@ export class GenerateIconComponent implements OnInit {
   /**
    * The background color of the icon
    */
-  @Input() backgroundColor: FormControl= new FormControl(environment.primaryColor)
+  @Input() backgroundColor: FormControl = new FormControl(environment.primaryColor)
   /**
    * the circle svg icon as text
    */
@@ -39,9 +39,13 @@ export class GenerateIconComponent implements OnInit {
    */
   @Input() squareSvgAsText?: FormControl
   /**
-   * Icon selected in data osm gallery
+   *  Icon selected in data from data osm gallery
    */
-  iconSelected: Observable<IconWithSVGContent>
+  iconSelected: Observable<Icon>
+  /**
+   * SVG Icon selected in data from data osm gallery
+   */
+  iconSvgSelected: Observable<IconWithSVGContent>
   /**
    * Should the icon have a background ?
    */
@@ -62,6 +66,10 @@ export class GenerateIconComponent implements OnInit {
   @ViewChild('iconOrigin') iconOrigin: ElementRef<HTMLElement>;
   @ViewChild('circleSvg') circleSvg: ElementRef<HTMLElement>;
   @ViewChild('squareSvg') squareSvg: ElementRef<HTMLElement>;
+
+  /**mode of the viewer */
+  mode: 'svg' | 'raster' = 'svg'
+  url_prefix = environment.backend
 
   private readonly notifier: NotifierService;
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
@@ -84,10 +92,35 @@ export class GenerateIconComponent implements OnInit {
       }
     }, 500);
 
-
     this.iconSelected = this.iconComponent.onIconSelect.pipe(
+      tap((icon) => {
+        if (!icon.path.includes('.svg')) {
+          this.mode = 'raster'
+          if (this.squareSvgAsText) {
+            this.squareSvgAsText.setValue(null)
+
+          }
+
+            this.circleSvgAsText.setValue(null)
+
+          if (this.backgroundColor) {
+            this.backgroundColor.setValue(environment.primaryColor)
+          }
+
+          this.iconColorForm.setValue('#000')
+          if (this.icon_id) {
+            this.icon_id.setValue(icon.icon_id)
+          }
+          console.log(this.circleSvgAsText.value)
+
+        }
+      })
+    )
+
+    this.iconSvgSelected = this.iconComponent.onIconSelect.pipe(
       filter((icon) => icon.path.includes('.svg')),
       switchMap((icon) => {
+        this.mode = 'svg'
         return this.IconService.loadSvgContent(icon.path).pipe(
           map((svgContent: string) => {
             return Object.assign(icon, { svgContent: svgContent })
@@ -97,8 +130,8 @@ export class GenerateIconComponent implements OnInit {
       })
     )
 
-    combineLatest(this.iconSelected.pipe(startWith(this.icon)), this.backgroundColor.valueChanges.pipe(startWith(this.backgroundColor.value)), this.iconColorForm.valueChanges, this.matSlideToggleBackground.change.pipe(startWith({ checked: this.background.value }))).pipe(
-      filter((value: [IconWithSVGContent, string, string, MatSlideToggleChange]) => value[0] && value[0].svgContent != undefined),
+    combineLatest(this.iconSvgSelected.pipe(startWith(this.icon)), this.backgroundColor.valueChanges.pipe(startWith(this.backgroundColor.value)), this.iconColorForm.valueChanges, this.matSlideToggleBackground.change.pipe(startWith({ checked: this.background.value }))).pipe(
+      filter((value: [IconWithSVGContent, string, string, MatSlideToggleChange]) => value[0] && value[0].svgContent != undefined && this.mode=='svg'),
       tap((value: [IconWithSVGContent, string, string, MatSlideToggleChange]) => {
         let icon = value[0]
         let form = value[1]
@@ -165,12 +198,12 @@ export class GenerateIconComponent implements OnInit {
     ).subscribe()
 
     this.matSlideToggleBackground.checked = this.background.value
-    
-    this.iconColorForm.setValue(this.iconColorForm.value?this.iconColorForm.value:'#000')
+
+    this.iconColorForm.setValue(this.iconColorForm.value ? this.iconColorForm.value : '#000')
 
 
     this.matSlideToggleBackground.change.pipe(
-      tap((value)=>{
+      tap((value) => {
         this.background.setValue(value.checked)
       }),
       takeUntil(this.destroyed$)

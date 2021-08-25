@@ -13,11 +13,11 @@
     <mat-dialog-content>
 <form [formGroup]="form" (ngSubmit)="saveIcon()">
 
-        <mat-form-field appearance="outline" *ngIf="form.get('category')" style="width: 100%;">
+        <!-- <mat-form-field appearance="outline" *ngIf="form.get('category')" style="width: 100%;">
             <mat-label> {{ 'add_icon.category' | translate }} </mat-label>
             <input matInput formControlName="category">
             <mat-error> {{ 'add_icon.category_error' | translate }} </mat-error>
-        </mat-form-field>
+        </mat-form-field> -->
         <mat-form-field appearance="outline" *ngIf="form.get('attribution')" style="width: 100%;">
             <mat-label> {{ 'add_icon.attribnution' | translate }} </mat-label>
             <input matInput formControlName="attribution">

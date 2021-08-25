@@ -36,8 +36,8 @@
     "tout_supprimer": "Tout supprimer"
   },
   "dowload_data": {
-    "error_count":"Une érreur est survenu lors du calcul d'entités",
-    "error_fetching_adminboundary":"Une érreur est survenu lors du chargement de la géométrie ",
+    "error_count": "Une érreur est survenu lors du calcul d'entités",
+    "error_fetching_adminboundary": "Une érreur est survenu lors du chargement de la géométrie ",
     "all": "tout",
     "by": "Par",
     "calculate": "Calculer",
@@ -450,7 +450,7 @@
     "title": "Ajouter des sources à la couche :",
     "choose_style": "Selectioner un style :",
     "search_provider": "Rechercher une source",
-    "add_source": "Ajouter une source",
+    "add_source": "Définir une nouvelle une source",
     "or": "Ou"
   },
   "list_provider_with_style": {

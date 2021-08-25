@@ -51,8 +51,8 @@ export class IconService {
    * add  icon
    * @param Icon 
    */
-  uploadIcon(icon: any) {
-    return from(this.http.post(this.url_prefix + '/api/group/icons/add', icon, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
+  uploadIcon(icon: FormData):Observable<Icon> {
+    return from(this.http.post<Icon>(this.url_prefix + '/api/group/icons/add', icon, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
       map((value: HttpResponse<any>): Icon => { return value.body })
     ))
   }

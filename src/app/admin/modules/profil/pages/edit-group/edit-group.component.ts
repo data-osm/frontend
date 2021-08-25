@@ -60,13 +60,11 @@ export class EditGroupComponent implements OnInit {
     this.form.addControl('color',new FormControl(this.group.color, [Validators.required]))
     this.form.addControl('icon_id',new FormControl(this.group.icon.icon_id))
     this.form.addControl('svg_as_text',new FormControl(null))
-    this.form.addControl('icon_path',new FormControl(null))
     
     this.form.addControl('type_group',new FormControl(this.group.type_group, [Validators.required]))
     // this.form.addControl('map_id',new FormControl(this.group.map_id, [Validators.required]))
     this.form.addControl('group_id',new FormControl(this.group.group_id, [Validators.required]))
 
-    this.form.setValidators(atLeastOne(Validators.required, ['icon_path','svg_as_text']))
 
     const onUpdate:Subject<void> = new Subject<void>()
     this.onUpdateInstance = ()=>{

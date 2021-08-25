@@ -44,7 +44,12 @@ mat-list-option:hover{
 }
 
 .group-title{
-    text-align: center;
     text-transform: capitalize;
-    margin-top: 10px;
+    margin-top: 0px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    mat-icon{
+        padding-right: 20px;
+    }
 }

@@ -36,7 +36,9 @@
         {{ 'select_provider_with_style.or' | translate }}
     </div>
     <button (click)="addProviderInNewWindow()" mat-stroked-button style="width: 100%;height: 45px;margin: 20px 0px;">
-        {{ 'select_provider_with_style.add_source' | translate }} </button>
+        <mat-icon>open_in_new</mat-icon>
+        {{ 'select_provider_with_style.add_source' | translate }} 
+    </button>
     <mat-card *ngIf="selectedProvider|async">
         <mat-card-header>
             <mat-card-title> {{(selectedProvider|async).name}} </mat-card-title>
