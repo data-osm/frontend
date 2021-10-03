@@ -3,9 +3,9 @@ import { SocialShareComponent } from '../app/social-share/social-share.component
 import { Injectable, ComponentFactoryResolver, ApplicationRef, Injector, EmbeddedViewRef, ComponentRef } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { AddGeosignetComponent } from '../app/portail/pages/context-menu/add-geosignet/add-geosignet.component'
-import { DataForPreview, groupCarteInterface, groupThematiqueInterface, Style } from '../app/type/type';
+import { AddStyle, DataForPreview, groupCarteInterface, groupThematiqueInterface, Style } from '../app/type/type';
 import { AddVectorProviderComponent } from '../app/admin/modules/provider/pages/add-vector-provider/add-vector-provider.component';
-import { AddStyleComponent } from '../app/admin/modules/provider/pages/add-style/add-style.component';
+import {  AddStyleComponent } from '../app/admin/modules/provider/pages/add-style/add-style.component';
 import {ConfirmationDialogComponent, ConfirmationDialogData} from '../app/modal/confirmation-dialog/confirmation-dialog.component'
 import { map } from 'rxjs/internal/operators/map';
 import { Observable } from 'rxjs';
@@ -171,12 +171,12 @@ export class ManageCompHelper {
    * Open add style dialog
    * @return Observable<boolean>
    */
-  openAddStyleDialog(size: Array<string> | [], provider_vector_id:number):Observable<boolean>{
+  openAddStyleDialog(size: Array<string> | [], data:AddStyle):Observable<Style>{
 
     let proprietes = {
       minWidth:400,
       disableClose:true,
-      data:provider_vector_id
+      data:data
     }
     
     if (size.length > 0) {
@@ -184,11 +184,9 @@ export class ManageCompHelper {
       proprietes['height'] = size[1]
     }
     
-    const modal = this.dialog.open(AddStyleComponent, proprietes);
+    const modal = this.dialog.open<AddStyleComponent, AddStyle, Style>(AddStyleComponent, proprietes);
   
-    return modal.afterClosed().pipe(
-      map((value:boolean)=>value)
-    )
+    return modal.afterClosed()
   }
 
   /**

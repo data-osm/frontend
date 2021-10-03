@@ -8,6 +8,8 @@ import { filter, tap, switchMap, catchError, takeUntil } from 'rxjs/operators';
 import { toFormData } from '../../../icons/pages/add-icon/add-icon.component';
 import { AddStyleComponent } from '../add-style/add-style.component';
 import { StyleService } from '../../../../administration/service/style.service'
+import { CustomStyle, Icon, Style } from '../../../../../type/type';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-cluster',
@@ -19,13 +21,17 @@ export class ClusterComponent implements OnInit {
   
   @Input() styleName: AbstractControl
   @Input() provider_vector_id: number
-
+  @Input() customStyle:CustomStyle
+  @Input() color: string
+  @Input() icon_color: string 
+  @Input() icon: Icon 
+  @Input() icon_background: boolean 
 
   public onAddInstance: () => void
 
   private readonly notifier: NotifierService;
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
-
+  environment = environment
   form: FormGroup
   loading: boolean = false
   public colorList = [
@@ -53,7 +59,7 @@ export class ClusterComponent implements OnInit {
   public presetValues: string[] = [];
 
   constructor(
-    public dialogRef: MatDialogRef<AddStyleComponent>,
+    public dialogRef: MatDialogRef<AddStyleComponent, Style>,
     private formBuilder: FormBuilder,
     notifierService: NotifierService,
     public StyleService: StyleService,
@@ -62,11 +68,13 @@ export class ClusterComponent implements OnInit {
 
     this.presetValues = this.getColorValues()
     this.form = this.formBuilder.group({
-      name: new FormControl(null, [Validators.required]),
-      color: new FormControl(null, [Validators.required]),
+      name: this.styleName,
+      icon: new FormControl(this.icon, [Validators.required]),
+      color: new FormControl(this.color, [Validators.required]),
+      icon_color: new FormControl(this.icon_color, []),
       svg_as_text: new FormControl(null, [Validators.required]),
       type: new FormControl('cluster',[Validators.required]),
-      provider_vector_id: new FormControl(null, [Validators.required]),
+      icon_background: new FormControl(this.icon_background != undefined?this.icon_background:false,[]),
     })
 
     const onAdd: Subject<void> = new Subject<void>()
@@ -79,10 +87,10 @@ export class ClusterComponent implements OnInit {
       tap(() => { this.form.disable() }),
       switchMap(() => {
         let style = {
-          'color': this.form.get('color').value,
-          'name': this.form.get('name').value,
-          'provider_vector_id': this.form.get('provider_vector_id').value,
-          'type': this.form.get('type').value,
+          'name': this.styleName.value,
+          'icon': this.form.get('icon').value.icon_id,
+          'provider_vector_id': this.provider_vector_id,
+          'custom_style_id': this.customStyle.custom_style_id,
           'svg_as_text': this.form.get('svg_as_text').value,
         }
         return this.StyleService.addStyle(style)
@@ -92,7 +100,7 @@ export class ClusterComponent implements OnInit {
               this.loading = false; this.form.enable()
               return EMPTY
             }),
-            tap(() => { this.loading = false; this.form.enable(); this.dialogRef.close(true) })
+            tap((res) => { this.loading = false; this.form.enable(); this.dialogRef.close(res) })
           )
       }),
       takeUntil(this.destroyed$)
@@ -108,22 +116,14 @@ export class ClusterComponent implements OnInit {
     this.destroyed$.complete();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    //Called before any other lifecycle hook. Use it to inject dependencies, but avoid any serious work here.
-    //Add '${implements OnChanges}' to the class.
-    if (changes.styleName) {
-      this.styleName.valueChanges.pipe(
-        tap((value:string)=>{
-          this.form.get('name').setValue(value)
-        }),
-        takeUntil(this.destroyed$)
-      ).subscribe()
-    }
+  ngOnChanges(changes:SimpleChanges){
 
-    if (changes.provider_vector_id) {
-      this.form.get('provider_vector_id').setValue(changes.provider_vector_id.currentValue)
+    if (changes.icon && this.icon) {
+      this.form.get('icon').setValue(this.icon)
+      this.form.get('color').setValue(this.color)
+      this.form.get('icon_color').setValue(this.icon_color)
+      this.form.get('icon_background').setValue(this.icon_background != undefined?this.icon_background:false)
     }
-
   }
 
   getColorValues() {

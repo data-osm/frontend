@@ -2,7 +2,7 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { HttpResponse, Style } from '../../../type/type';
+import { HttpResponse, Style, CustomStyle } from '../../../type/type';
 
 @Injectable({
   providedIn: 'root'
@@ -70,5 +70,21 @@ export class StyleService {
     }
     return this.http.post<Style>(this.url_prefix+'/api/provider/style/'+provider_vector_id,style,{ headers: this.get_header() })
   }
+
+   /**
+   * list all custom styles
+   * @returns Observable<Style>
+   */
+  listCustomStyles():Observable<CustomStyle[]>{
+    return this.http.get<CustomStyle[]>(this.url_prefix+'/api/provider/style/custom',{ headers: this.get_header() })
+  }
+
+   /**
+   * list all custom styles of a geometryType
+   * @returns Observable<Style>
+   */
+    listCustomStylesOfGeometryType(geometryType:'Point'|'Polygon'|'LineString'):Observable<CustomStyle[]>{
+      return this.http.get<CustomStyle[]>(this.url_prefix+'/api/provider/style/custom?geometry_type='+geometryType,{ headers: this.get_header() })
+    }
 
 }

@@ -5,11 +5,12 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NotifierService } from 'angular-notifier';
 import { BehaviorSubject, combineLatest, EMPTY, Observable, ReplaySubject, Subject } from 'rxjs';
 import { catchError, filter, shareReplay, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { VectorProvider } from '../../../../../type/type';
+import { CustomStyle, Icon, VectorProvider, AddStyle } from '../../../../../type/type';
 import { StyleService } from '../../../../administration/service/style.service'
 import { VectorProviderService } from '../../../../administration/service/vector-provider.service'
 import { ClusterComponent } from '../cluster/cluster.component';
 import { QmlComponent } from '../qml/qml.component';
+
 
 @Component({
   selector: 'app-add-style',
@@ -33,16 +34,20 @@ export class AddStyleComponent implements OnInit, OnDestroy {
    */
   loading:boolean
 
-  styleType:BehaviorSubject<string> = new BehaviorSubject<string>(null)
+  styleType:BehaviorSubject<CustomStyle> = new BehaviorSubject<CustomStyle>(this.data.customStyle)
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
+  
+  nameStyle = new FormControl(this.data.name,[Validators.required])
 
   provider$:Observable<VectorProvider>
+  customStyles$:Observable<CustomStyle[]>
 
   private readonly notifier: NotifierService;
   formAddStyle: FormGroup 
 
   @ViewChild(QmlComponent) qmlComponent:QmlComponent
   @ViewChild(ClusterComponent) clusterComponent:ClusterComponent
+  
 
   constructor(
     public dialogRef: MatDialogRef<AddStyleComponent>,
@@ -51,14 +56,9 @@ export class AddStyleComponent implements OnInit, OnDestroy {
     public StyleService:StyleService,
     public VectorProviderService: VectorProviderService,
     private cdRef:ChangeDetectorRef,
-    @Inject(MAT_DIALOG_DATA) public provider_vector_id: number
+    @Inject(MAT_DIALOG_DATA) public data: AddStyle
   ) { 
     this.notifier = notifierService;
-
-    this.formAddStyle = this.formBuilder.group({
-      name: new FormControl(null,[Validators.required]),
-      qml_file: new FormControl(null,[Validators.required]),
-    })
 
     const onInit:Subject<void> = new ReplaySubject<void>(1)
     this.onInitInstance = ()=>{
@@ -67,16 +67,28 @@ export class AddStyleComponent implements OnInit, OnDestroy {
 
     this.provider$ = onInit.pipe(
       switchMap(()=>{
-        return this.VectorProviderService.getVectorProvider(this.provider_vector_id).pipe(
+        return this.VectorProviderService.getVectorProvider(this.data.provider_vector_id).pipe(
           catchError((value:HttpErrorResponse)=>{
             this.notifier.notify("error", "An error occured while loading the provider")
             this.dialogRef.close(false)
             return EMPTY
           }),
-          tap(()=>{this.styleType.next('qml')})
+          
         )
       }),
       shareReplay(1)
+    )
+
+    this.customStyles$ = onInit.pipe(
+      switchMap(()=>{
+        return this.StyleService.listCustomStyles().pipe(
+          catchError((value:HttpErrorResponse)=>{
+            this.notifier.notify("error", "An error occured while loading all custom styles ")
+            this.dialogRef.close(false)
+            return EMPTY
+          }),
+        )
+      })
     )
   
     
@@ -88,13 +100,13 @@ export class AddStyleComponent implements OnInit, OnDestroy {
 
   ngAfterViewInit(){
     this.styleType.pipe(
-     tap((type)=>{
-       if (type ==='qml') {
+     tap((customStyle)=>{
+       if (customStyle == undefined) {
          this.formAddStyle = this.qmlComponent.form
          this.onAddInstance = ()=>{
            this.qmlComponent.onAddInstance()
          }
-       }else if (type==='cluster') {
+       }else if (customStyle.fucntion_name==='pointCluster') {
          this.formAddStyle = this.clusterComponent.form
          this.onAddInstance = ()=>{
            this.clusterComponent.onAddInstance()
@@ -121,7 +133,7 @@ export class AddStyleComponent implements OnInit, OnDestroy {
    * Change the type of project
    * @param type string
    */
-  styleTypeChanged(type:string):void{
+  styleTypeChanged(type:CustomStyle):void{
     this.styleType.next(type)
   }
 

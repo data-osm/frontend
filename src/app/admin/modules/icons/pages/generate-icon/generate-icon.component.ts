@@ -21,7 +21,7 @@ export class GenerateIconComponent implements OnInit {
    * @optional
    * use this icon to start an icon
    */
-  @Input() icon: Icon
+  @Input() icon: FormControl
   /**
    * The icon id used to generate the icon 
    */
@@ -87,13 +87,16 @@ export class GenerateIconComponent implements OnInit {
 
 
     setTimeout(() => {
-      if (this.icon) {
-        this.iconComponent.onIconSelect.next(this.icon)
+      if (this.icon ) {
+        if (this.icon.value) {
+          this.iconComponent.onIconSelect.next(this.icon.value)
+        }
       }
     }, 500);
 
     this.iconSelected = this.iconComponent.onIconSelect.pipe(
       tap((icon) => {
+        this.icon.setValue(icon)
         if (!icon.path.includes('.svg')) {
           this.mode = 'raster'
           if (this.squareSvgAsText) {
@@ -111,7 +114,6 @@ export class GenerateIconComponent implements OnInit {
           if (this.icon_id) {
             this.icon_id.setValue(icon.icon_id)
           }
-          console.log(this.circleSvgAsText.value)
 
         }
       })

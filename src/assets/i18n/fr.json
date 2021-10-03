@@ -447,9 +447,10 @@
   "edit": "modifier",
   "supprimer": "supprimer",
   "select_provider_with_style": {
-    "title": "Ajouter des sources à la couche :",
-    "choose_style": "Selectioner un style :",
-    "search_provider": "Rechercher une source",
+    "title": "Ajouter une source de données à la couche :",
+    "choose_style": "Selectioner un style existant de cette source :",
+    "create_new_style": "Créer un nouveau style à cette source :",
+    "search_provider": "Rechercher une source pour l'ajouter",
     "add_source": "Définir une nouvelle une source",
     "or": "Ou"
   },

@@ -6,54 +6,71 @@
 </h1>
 
 <mat-dialog-content>
-    <div>
-        <form fxFlex="100%" [formGroup]="searchtVectorProviderForm">
-            <mat-form-field appearance="outline" style="width: 100%;"
-                *ngIf="searchtVectorProviderForm.get('search_word')">
-                <mat-label> {{ 'select_provider_with_style.search_provider' | translate }} </mat-label>
-                <i class="fa fa-search black " aria-hidden="true" matPrefix></i>
-                <input matInput formControlName="search_word" [matAutocomplete]="autoComplete">
-                <i class="fa fa-times-circle pointer" matSuffix
-                    (click)="searchtVectorProviderForm.get('search_word').setValue(null)"
-                    *ngIf="searchtVectorProviderForm.get('search_word').value"></i>
-                <mat-autocomplete autoActiveFirstOption #autoComplete="matAutocomplete"
-                    [displayWith]="displaySelectedVectorProvider"
-                    (optionSelected)="selectedProvider.next($event.option.value)">
-                    <mat-option *ngFor="let vectorProvider of searchResultVectorProvider | async"
-                        [value]="vectorProvider">
-                        <mat-list>
-                            <mat-list-item>
-                                <div mat-line>{{vectorProvider.name}}</div>
-                            </mat-list-item>
-                        </mat-list>
-                    </mat-option>
-                </mat-autocomplete>
-            </mat-form-field>
-        </form>
+  
+    <div [fxLayout]="'column'" class="whiteBG" style="border-radius: 3px;padding: 10px;">
+                <form fxFlex="100%" [formGroup]="searchtVectorProviderForm">
+                    <mat-form-field appearance="outline" style="width: 100%;"
+                        *ngIf="searchtVectorProviderForm.get('search_word')">
+                        <mat-label> {{ 'select_provider_with_style.search_provider' | translate }} </mat-label>
+                        <i class="fa fa-search black " aria-hidden="true" matPrefix></i>
+                        <input matInput formControlName="search_word" [matAutocomplete]="autoComplete">
+                        <i class="fa fa-times-circle pointer" matSuffix
+                            (click)="searchtVectorProviderForm.get('search_word').setValue(null)"
+                            *ngIf="searchtVectorProviderForm.get('search_word').value"></i>
+                        <mat-autocomplete autoActiveFirstOption #autoComplete="matAutocomplete"
+                            [displayWith]="displaySelectedVectorProvider"
+                            (optionSelected)="selectedProvider.next($event.option.value)">
+                            <mat-option *ngFor="let vectorProvider of searchResultVectorProvider | async"
+                                [value]="vectorProvider">
+                                <mat-list>
+                                    <mat-list-item>
+                                        <div mat-line>{{vectorProvider.name}}</div>
+                                    </mat-list-item>
+                                </mat-list>
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field>
+                </form>
+        <div >
+            <ng-container *ngIf="selectedProvider|async">
+
+            <label>{{ 'select_provider_with_style.choose_style' | translate }} </label>
+            
+            <mat-radio-group [formControl]="VectorProviderForm.get('vs_id')" class="example-radio-group">
+                <div *ngFor="let style of selectedProviderStyle|async" class="style-item" fxLayout  fxLayoutGap="10px">
+                    <mat-radio-button class="example-radio-button" 
+                    [value]="style.provider_style_id" fxFlex="20px" [disableRipple]="true" >
+                    </mat-radio-button>
+                    <img fxFlex="75px" [src]="environment.backend+style.pictogram" alt="">
+                    <span fxFlex >{{style.name}}</span>
+                    <span  class="state-badje style-type" *ngIf="style.custom_style"   > {{style.custom_style.name}}  </span>
+                    <span  class="state-badje style-type" *ngIf="!style.custom_style"  > Qml File </span>
+                </div>
+            </mat-radio-group>
+            
+            <label style="display: block;margin-bottom: 15px;" >{{ 'select_provider_with_style.create_new_style' | translate }} </label>
+
+            <button mat-stroked-button *ngFor="let customStyle of customStyles$|async"  style="padding: 10px;" (click)="onAddStyleToSource(customStyle)" >
+                <div fxLayout style="align-items: center;font-weight: normal;" fxLayoutGap="10px">
+                    <img fxFlex="40px" [src]="environment.backend+layer.cercle_icon" alt="">
+                    <span fxFlex >Créer un style de type {{customStyle.name}} en utilisant l'icone de votre couche</span>
+                    <span  class="state-badje style-type"  > {{customStyle.name}}  </span>
+                    <!-- <mat-icon>info</mat-icon> -->
+                </div>
+            </button>
+        </ng-container>
+
+        </div>
     </div>
 
-    <div class="text-center">
+    <div class="text-center" style="margin-top: 15px;" >
         {{ 'select_provider_with_style.or' | translate }}
     </div>
-    <button (click)="addProviderInNewWindow()" mat-stroked-button style="width: 100%;height: 45px;margin: 20px 0px;">
+    <button (click)="addProviderInNewWindow()" mat-stroked-button class="whiteBG" style="width: 100%;height: 45px;margin: 15px 0px;">
         <mat-icon>open_in_new</mat-icon>
         {{ 'select_provider_with_style.add_source' | translate }} 
     </button>
-    <mat-card *ngIf="selectedProvider|async">
-        <mat-card-header>
-            <mat-card-title> {{(selectedProvider|async).name}} </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <label>{{ 'select_provider_with_style.choose_style' | translate }} </label>
-            <mat-radio-group [formControl]="VectorProviderForm.get('vs_id')" class="example-radio-group">
-                <mat-radio-button class="example-radio-button" *ngFor="let style of selectedProviderStyle|async"
-                    [value]="style.provider_style_id">
-                    {{style.name}}
-                </mat-radio-button>
-            </mat-radio-group>
-
-        </mat-card-content>
-    </mat-card>
+   
 
 </mat-dialog-content>
 

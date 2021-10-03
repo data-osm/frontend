@@ -8,13 +8,14 @@ import { SimpleChanges } from '@angular/core';
 import { EMPTY, ReplaySubject, Subject } from 'rxjs';
 import { catchError, filter, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Style } from '../../../../../type/type';
 
 @Component({
   selector: 'app-qml',
   templateUrl: './qml.component.html',
   styleUrls: ['./qml.component.scss']
 })
-export class QmlComponent implements OnInit, OnChanges, OnDestroy {
+export class QmlComponent implements OnInit, OnDestroy {
 
   @Input() styleName: AbstractControl
   @Input() provider_vector_id: number
@@ -29,7 +30,7 @@ export class QmlComponent implements OnInit, OnChanges, OnDestroy {
   loading: boolean = false
 
   constructor(
-    public dialogRef: MatDialogRef<AddStyleComponent>,
+    public dialogRef: MatDialogRef<AddStyleComponent, Style>,
     private formBuilder: FormBuilder,
     notifierService: NotifierService,
     public StyleService: StyleService,
@@ -37,8 +38,7 @@ export class QmlComponent implements OnInit, OnChanges, OnDestroy {
     this.notifier = notifierService;
 
     this.form = this.formBuilder.group({
-      name: new FormControl(null, [Validators.required]),
-      provider_vector_id: new FormControl(null, [Validators.required]),
+      name: this.styleName,
       qml_file: new FormControl(null, [Validators.required]),
     })
 
@@ -53,8 +53,8 @@ export class QmlComponent implements OnInit, OnChanges, OnDestroy {
       switchMap(() => {
         let style = toFormData({
           'qml_file': this.form.get('qml_file').value[0],
-          'name': this.form.get('name').value,
-          'provider_vector_id': this.form.get('provider_vector_id').value
+          'name': this.styleName.value,
+          'provider_vector_id': this.provider_vector_id,
         })
         return this.StyleService.addStyle(style)
           .pipe(
@@ -63,7 +63,7 @@ export class QmlComponent implements OnInit, OnChanges, OnDestroy {
               this.loading = false; this.form.enable()
               return EMPTY
             }),
-            tap(() => { this.loading = false; this.form.enable(); this.dialogRef.close(true) })
+            tap((res) => { this.loading = false; this.form.enable(); this.dialogRef.close(res) })
           )
       }),
       takeUntil(this.destroyed$)
@@ -77,24 +77,6 @@ export class QmlComponent implements OnInit, OnChanges, OnDestroy {
   ngOnDestroy():void{
     this.destroyed$.next(true);
     this.destroyed$.complete();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    //Called before any other lifecycle hook. Use it to inject dependencies, but avoid any serious work here.
-    //Add '${implements OnChanges}' to the class.
-    if (changes.styleName) {
-      this.styleName.valueChanges.pipe(
-        tap((value:string)=>{
-          this.form.get('name').setValue(value)
-        }),
-        takeUntil(this.destroyed$)
-      ).subscribe()
-    }
-
-    if (changes.provider_vector_id) {
-      this.form.get('provider_vector_id').setValue(changes.provider_vector_id.currentValue)
-    }
-
   }
 
   /**

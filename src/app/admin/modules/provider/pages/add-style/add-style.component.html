@@ -11,11 +11,10 @@
 
 <mat-dialog-content>
 
-    <form [formGroup]="formAddStyle">
 
-        <mat-form-field appearance="outline" *ngIf="formAddStyle.get('name')" style="width: 100%;">
+        <mat-form-field appearance="outline" *ngIf="nameStyle" style="width: 100%;">
             <mat-label> {{ 'add_style.name' | translate }} </mat-label>
-            <input matInput formControlName="name">
+            <input matInput [formControl]="nameStyle" >
             <mat-error> {{ 'add_icon.category_error' | translate }} </mat-error>
         </mat-form-field>
 
@@ -23,23 +22,43 @@
             <div class="select-type-style">
                 <mat-button-toggle-group multiple="false" [value]="styleType|async"
                     (change)="styleTypeChanged($event.value)">
-                    <mat-button-toggle [value]="'qml'"> QML</mat-button-toggle>
-                    <mat-button-toggle *ngIf="provider.geometry_type === 'Point'" [value]="'cluster'">Cluster
-                    </mat-button-toggle>
+                    
+                    <mat-button-toggle [checked]="(styleType|async) == undefined" [value]="undefined"> QML</mat-button-toggle>
+
+                    <ng-container *ngIf="customStyles$|async as customStyles">
+                        <mat-button-toggle *ngFor="let customStyle of customStyles" [hidden]="provider.geometry_type != customStyle.geometry_type " [value]="customStyle">
+                            {{customStyle.name}}
+                        </mat-button-toggle>
+                    </ng-container>
+                    
                 </mat-button-toggle-group>
             </div>
         </ng-container>
 
-        <app-qml [hidden]="(styleType|async) != 'qml'" [provider_vector_id]="provider_vector_id"
-            [styleName]="formAddStyle.get('name')"></app-qml>
-        <app-cluster [hidden]="(styleType|async) != 'cluster'" [provider_vector_id]="provider_vector_id"
-            [styleName]="formAddStyle.get('name')"></app-cluster>
+        
+        <ng-container *ngIf="{customStyle:(styleType|async) } as context">
+            <app-qml [hidden]="context.customStyle != undefined " [provider_vector_id]="data.provider_vector_id"
+            [styleName]="nameStyle"></app-qml>
 
-    </form>
+            <app-cluster 
+            [hidden]="context.customStyle?.fucntion_name != 'pointCluster'" 
+            [customStyle]="context.customStyle" 
+            [provider_vector_id]="data.provider_vector_id"
+            [color]="data.color"
+            [icon_color]="data.icon_color"
+            [icon]="data.icon"
+            [icon_background]="data.icon_background"
+            [styleName]="nameStyle"
+            >
+            </app-cluster>
+
+        </ng-container>
+        
+
 </mat-dialog-content>
 
 <mat-dialog-actions>
-    <div fxLayout fxLayoutGap="15px" fxLayoutAlign="end">
+    <div fxLayout fxLayoutGap="15px" fxLayoutAlign="end" *ngIf="formAddStyle" >
         <mat-progress-bar fxFlex="100%" mode="indeterminate" *ngIf="formAddStyle.disabled"></mat-progress-bar>
         <button fxFlex="150px" mat-stroked-button color="primary" [disabled]="formAddStyle.disabled"
             (click)="close()">{{ 'cancel' | translate }}</button>

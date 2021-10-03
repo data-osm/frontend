@@ -1,1 +1,20 @@
-<app-generate-icon class="generate-icon" [backgroundColor]="form.get('color')"  [circleSvgAsText]="form.get('svg_as_text')" ></app-generate-icon>
+<ng-container *ngIf="customStyle" >
+    <mat-accordion>
+        <mat-expansion-panel [expanded]="false" >
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Description
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="description-style" >
+            <div class="text" [innerText]="customStyle.description" > </div>
+            <div class="image">
+                <img [src]="environment.backend+customStyle.icon">
+              </div>
+        </div>
+        </mat-expansion-panel>
+    </mat-accordion>
+    
+</ng-container>
+
+<app-generate-icon class="generate-icon" [icon]="form.get('icon')" [iconColorForm]="form.get('icon_color')"  [background]="form.get('icon_background')" [backgroundColor]="form.get('color')"  [circleSvgAsText]="form.get('svg_as_text')" ></app-generate-icon>

@@ -8,6 +8,7 @@ import { StyleService } from '../../../../administration/service/style.service'
 import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { TranslateService } from '@ngx-translate/core';
 import { style } from '@angular/animations';
+import { environment } from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-list-style',
@@ -44,7 +45,7 @@ export class ListStyleComponent implements OnInit {
   listStyles:Observable<Array<Style>>
 
   private readonly notifier: NotifierService;
-  
+  environment=environment
   constructor(
     public StyleService:StyleService,
     notifierService: NotifierService,
@@ -91,9 +92,9 @@ export class ListStyleComponent implements OnInit {
       ),
       onAdd.pipe(
         switchMap((provider_vector_id)=>{
-          return this.manageCompHelper.openAddStyleDialog([],provider_vector_id)
+          return this.manageCompHelper.openAddStyleDialog([],{provider_vector_id})
             .pipe(
-              filter(response => response),
+              filter(response => response != undefined),
               switchMap(()=>{
                 return this.StyleService.getAllStylesOfVectorProvider(provider_vector_id)
                   .pipe(

@@ -550,6 +550,9 @@ export interface Style{
   provider_style_id:number
   provider_vector_id:number
   custom_style_id:number
+  pictogram:string
+  qml_file:string
+  custom_style:CustomStyle
 }
 
 /**
@@ -650,4 +653,23 @@ export interface Metadata{
   tags:Array<Tag>
   description:string
   layer:number
+}
+
+export interface CustomStyle{
+  custom_style_id:number
+  name:string
+  description:string
+  fucntion_name:string
+  geometry_type:'Polygon'|'Point'|'LineString'
+  icon:string
+}
+
+export interface AddStyle{
+  name?:string
+  provider_vector_id: number
+  color?: string
+  icon_color?: string 
+  icon?: Icon 
+  icon_background?: boolean 
+  customStyle?:CustomStyle
 }
