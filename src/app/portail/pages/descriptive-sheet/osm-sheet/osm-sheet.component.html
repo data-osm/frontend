@@ -1,16 +1,17 @@
   <div class="text-center">
-    <mat-chip-list style="display: inline-table;" #featuresList [multiple]="false" color="accent" selectable>
+    <mat-chip-list id="asd" style="display: inline-table;" #featuresList [multiple]="false" color="accent" selectable>
       <mat-chip #chip="matChip" (click)="toggleSelection(chip)" *ngFor="let feat of features ; let index = index"
         [value]="feat">
         {{getNameOfFeature(feat, index+1)}}
       </mat-chip>
     </mat-chip-list>
   </div>
+ 
+<ng-container *ngIf="{ configTagsOsm: configTagsOsm$ | async, listAttributes: featureToDisplay$ | async } as context">
 
-<ng-container *ngIf="configTagsOsm$|async as configTagsOsm ">
-
-  <ng-container *ngIf="featuresList.selected">
-    <ng-container *ngIf="formatFeatureAttributes(featuresList.selected['value']) as listAttributes">
+  <ng-container *ngIf="context.configTagsOsm">
+    <ng-container *ngIf="context.listAttributes">
+    
       <div class="text-center descriptive-sheet-body-header-btn " style="margin-top: 10px;">
 
         <button [matTooltip]="'OpenStreetMap'" mat-mini-fab class="descriptive-sheet-body-header-btn-osm" *ngIf="osm_url"
@@ -18,40 +19,40 @@
         <img src="assets/icones/descriptive-sheet/Logo_mono.svg" alt="" srcset="" style="margin-top: -6px;height: 25px">
       </button>
 
-        <ng-container *ngFor="let attribute of listAttributes;let i = index">
-          <ng-container *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].header">
+        <ng-container *ngFor="let attribute of context.listAttributes;let i = index">
+          <ng-container *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].header">
 
             <button [matTooltip]="attribute.field| translate" mat-mini-fab
-              *ngIf="configTagsOsm[attribute.field].header == 'wikipedia'"
-              (click)="openUrl(configTagsOsm[attribute.field].prefix + attribute.value)">
+              *ngIf="context.configTagsOsm[attribute.field].header == 'wikipedia'"
+              (click)="openUrl(context.configTagsOsm[attribute.field].prefix + attribute.value)">
               <img src="assets/icones/descriptive-sheet/wikipedia.svg" alt="" srcset="" style="height: 25px">
             </button>
 
             <button [matTooltip]="attribute.field| translate" mat-mini-fab
-              *ngIf="configTagsOsm[attribute.field].header == 'wikidata'"
-              (click)="openUrl(configTagsOsm[attribute.field].prefix + attribute.value)">
+              *ngIf="context.configTagsOsm[attribute.field].header == 'wikidata'"
+              (click)="openUrl(context.configTagsOsm[attribute.field].prefix + attribute.value)">
               <img src="assets/icones/descriptive-sheet/wikidata-logo.svg" alt="" srcset="" style="height: 19px;">
             </button>
 
             <button [matTooltip]="attribute.field| translate" mat-mini-fab
-              *ngIf="configTagsOsm[attribute.field].header == 'website'"
-              (click)="openUrl(configTagsOsm[attribute.field].prefix + attribute.value)">
+              *ngIf="context.configTagsOsm[attribute.field].header == 'website'"
+              (click)="openUrl(context.configTagsOsm[attribute.field].prefix + attribute.value)">
               <i class="fa fa-globe  accentColor" style="font-size: 20px;margin-top: -2px;" aria-hidden="true"></i>
             </button>
 
             <button [matTooltip]="attribute.field| translate" mat-mini-fab
-              *ngIf="configTagsOsm[attribute.field].header == 'wikimedia'"
-              (click)="openUrl(configTagsOsm[attribute.field].prefix + attribute.value)">
+              *ngIf="context.configTagsOsm[attribute.field].header == 'wikimedia'"
+              (click)="openUrl(context.configTagsOsm[attribute.field].prefix + attribute.value)">
               <img src="assets/icones/descriptive-sheet/commons-logo.svg" alt="" srcset="" style="height: 25px;">
             </button>
 
             <button [matTooltip]=" attribute.field| translate" mat-mini-fab
-              *ngIf="configTagsOsm[attribute.field].header == 'email'" (click)="alertValue( attribute.value)">
+              *ngIf="context.configTagsOsm[attribute.field].header == 'email'" (click)="alertValue( attribute.value)">
               <i class="fa fa-at  accentColor" style="font-size: 20px;margin-top: -2px;" aria-hidden="true"></i>
             </button>
 
             <button [matTooltip]="attribute.field| translate" mat-mini-fab
-              *ngIf="configTagsOsm[attribute.field].header == 'tel'" (click)="alertValue( attribute.value)">
+              *ngIf="context.configTagsOsm[attribute.field].header == 'tel'" (click)="alertValue( attribute.value)">
               <i class="fa fa-phone  accentColor" style="font-size: 20px;margin-top: -2px;" aria-hidden="true"></i>
             </button>
 
@@ -64,7 +65,7 @@
   </p> -->
 
       <div fxLayout class="descriptive-sheet-body" style="margin-bottom: 5px;"
-        *ngIf="constructAdresse(listAttributes) as adresse">
+        *ngIf="constructAdresse(context.listAttributes) as adresse">
         <div fxFlex="35%" class="attribute">
           {{ 'layer_properties.adresse'| translate }}
           :
@@ -74,40 +75,40 @@
         </div>
       </div>
 
-      <ng-container *ngFor="let attribute of listAttributes;let i = index">
+      <ng-container *ngFor="let attribute of context.listAttributes;let i = index">
         <ng-container *ngIf="i <= initialNumberOfAttributes">
           <div fxLayout class="descriptive-sheet-body" style="margin-bottom: 5px;"
-            *ngIf="!configTagsOsm[attribute.field] || configTagsOsm[attribute.field].display">
+            *ngIf="!context.configTagsOsm[attribute.field] || context.configTagsOsm[attribute.field].display">
             <div fxFlex="38%" class="attribute">
               {{ attribute.field| translate }}
               <i class="fa fa-phone" style="font-size: 10px;"
-                *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'tel'"></i>
+                *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].type == 'tel'"></i>
               <i class="fa fa-link" style="font-size: 10px;"
-                *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'url'"></i>
+                *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].type == 'url'"></i>
               <i class="fa fa-at" style="font-size: 10px;"
-                *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'email'"></i>
+                *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].type == 'email'"></i>
               <span class="attribute-two-points"> : </span>
             </div>
 
             <div fxFlex class="attribute-value"
-              *ngIf="!configTagsOsm[attribute.field] || configTagsOsm[attribute.field].display">
-              <div *ngIf="!configTagsOsm[attribute.field]" [innerHTML]="attribute.value"> </div>
+              *ngIf="!context.configTagsOsm[attribute.field] || context.configTagsOsm[attribute.field].display">
+              <div *ngIf="!context.configTagsOsm[attribute.field]" [innerHTML]="attribute.value"> </div>
 
-              <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'url'">
-                <a href="{{configTagsOsm[attribute.field].prefix + attribute.value}}" target="_blank">{{
+              <div *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].type == 'url'">
+                <a href="{{context.configTagsOsm[attribute.field].prefix + attribute.value}}" target="_blank">{{
                   'layer_properties.click_url_text' | translate }} </a>
               </div>
 
-              <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'tel'">
+              <div *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].type == 'tel'">
                 <a href="tel:{{attribute.value}}" target="_blank">{{attribute.value}} </a>
               </div>
 
-              <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'email'">
+              <div *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].type == 'email'">
                 <a href="mailto:{{attribute.value}}" target="_blank">{{attribute.value}} </a>
               </div>
 
               <div style="padding-left: 5px;display: flex;"
-                *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'colour'">
+                *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].type == 'colour'">
 
                 <span>{{attribute.value}}</span>
                 <div style="height: 30px;width: 150px;display: flex;margin-left: 10px;"
@@ -115,32 +116,32 @@
               </div>
 
               <div
-                (click)="openUrl(configTagsOsm[attribute.field].prefix + attribute.value + configTagsOsm[attribute.field].surfix)"
+                (click)="openUrl(context.configTagsOsm[attribute.field].prefix + attribute.value + context.configTagsOsm[attribute.field].surfix)"
                 style="text-align: center;cursor: pointer;"
-                *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'image'">
+                *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].type == 'image'">
                 <img style="max-width: 340px;height: auto;"
-                  src="{{configTagsOsm[attribute.field].prefix + attribute.value + configTagsOsm[attribute.field].surfix}}">
+                  src="{{context.configTagsOsm[attribute.field].prefix + attribute.value + context.configTagsOsm[attribute.field].surfix}}">
               </div>
 
-              <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field]?.type == 'choice'">
+              <div *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field]?.type == 'choice'">
 
                 <span
-                  *ngIf="!configTagsOsm[attribute.field]['values'][attribute.value] || configTagsOsm[attribute.field]['values'][attribute.value]['type'] == 'text'">
+                  *ngIf="!context.configTagsOsm[attribute.field]['values'][attribute.value] || context.configTagsOsm[attribute.field]['values'][attribute.value]['type'] == 'text'">
                   {{ attribute.value | translate }} </span>
 
-                <i class="fa fa-{{configTagsOsm[attribute.field]['values'][attribute.value]['value']}}"
-                  [ngStyle]="{'color':configTagsOsm[attribute.field]['values'][attribute.value]['color']}"
-                  *ngIf="configTagsOsm[attribute.field]['values'][attribute.value] && configTagsOsm[attribute.field]['values'][attribute.value]['type'] == 'fa' ">
+                <i class="fa fa-{{context.configTagsOsm[attribute.field]['values'][attribute.value]['value']}}"
+                  [ngStyle]="{'color':context.configTagsOsm[attribute.field]['values'][attribute.value]['color']}"
+                  *ngIf="context.configTagsOsm[attribute.field]['values'][attribute.value] && context.configTagsOsm[attribute.field]['values'][attribute.value]['type'] == 'fa' ">
                 </i>
               </div>
 
-              <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'boolean'">
+              <div *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].type == 'boolean'">
 
                 <i class="fa fa-check" style="color: green;" *ngIf="attribute.value=='yes' "> </i>
                 <i class="fa fa-times" style="color: red;" *ngIf="attribute.value=='no' "> </i>
               </div>
 
-              <div *ngIf="configTagsOsm[attribute.field] && configTagsOsm[attribute.field].type == 'area'">
+              <div *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].type == 'area'">
                 {{formatArea(attribute.value)}}
               </div>
 
@@ -151,15 +152,15 @@
 
 
 
-      <ng-container *ngIf="listAttributes.length > 5">
+      <ng-container *ngIf="context.listAttributes.length > 5">
 
         <a class="descriptive-sheet-body-display-attributes-number pointer"
-          (click)="initialNumberOfAttributes = listAttributes.length+1"
-          *ngIf="initialNumberOfAttributes < listAttributes.length">
+          (click)="initialNumberOfAttributes = context.listAttributes.length+1"
+          *ngIf="initialNumberOfAttributes < context.listAttributes.length">
           {{'descriptive_sheet.displayAllAttributes' | translate}}
         </a>
         <a class="descriptive-sheet-body-display-attributes-number pointer" (click)="initialNumberOfAttributes = 3"
-          *ngIf="initialNumberOfAttributes >= listAttributes.length">
+          *ngIf="initialNumberOfAttributes >= context.listAttributes.length">
           {{'descriptive_sheet.displayLesAttributes' | translate}}
         </a>
       </ng-container>

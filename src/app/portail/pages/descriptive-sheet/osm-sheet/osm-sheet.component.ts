@@ -4,7 +4,7 @@ import { ImageWMS, TileWMS, GeoJSON, VectorLayer, Map, Coordinate } from '../../
 import { CartoHelper } from '../../../../../helper/carto.helper'
 import { BackendApiService } from '../../../../services/backend-api/backend-api.service'
 import { NotifierService } from "angular-notifier";
-import { retryWhen, tap, delayWhen, take, switchMap, map, toArray, shareReplay, debounceTime, filter, startWith } from 'rxjs/operators';
+import { retryWhen, tap, delayWhen, take, switchMap, map, toArray, shareReplay, debounceTime, filter, startWith, withLatestFrom } from 'rxjs/operators';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { concat, ReplaySubject, Subject, timer, Observable, of } from 'rxjs';
 import { ShareServiceService } from '../../../../services/share-service/share-service.service'
@@ -99,9 +99,40 @@ export class OsmSheetComponent implements OnInit, OnChanges {
   /**
    * extent of the current feature, if the user want to zoom on int
    */
-  extent:Subject<Extent> = new Subject<Extent>()
+  extent: Subject<Extent> = new Subject<Extent>()
 
-  osm_url:string
+  /**
+   * Feature to display
+   */
+  featureToDisplay$: Observable<AttributeInterface[]>
+
+  osm_url: string
+
+ 
+
+  listenToChipsChanged(matChipList: MatChipList) {
+    this.featureToDisplay$ = matChipList.chipSelectionChanges.pipe(
+      // startWith(matChipList.value),
+      filter((value) => value.selected),
+      map((chipChnaged) => {
+        let feature: Feature = chipChnaged.source.value
+        if (feature.getGeometry()) {
+          this.extent.next(feature.getGeometry().getExtent())
+        }
+        this.highlightLayer.getSource().clear()
+        this.getOsmLink(feature)
+        setTimeout(() => {
+          this.highlightLayer.getSource().addFeature(feature)
+        }, 500);
+        console.log(feature,'======')
+        return this.formatFeatureAttributes(feature)
+      }),
+      shareReplay(1)
+    )
+
+    
+
+  }
 
   constructor(
     public BackendApiService: BackendApiService,
@@ -118,38 +149,27 @@ export class OsmSheetComponent implements OnInit, OnChanges {
       onInit.next()
     }
 
-   
-
     this.configTagsOsm$ = onInit.pipe(
       take(1),
       switchMap(() => {
         return this.http.get<ConfigTagsOsm>('/assets/config/config_tags.json')
       }),
-      tap(()=>{
-        this.matChipList.chipSelectionChanges.pipe(
-          filter((value)=>value.selected),
-          tap((value)=>{
-            let feature:Feature = value.source.value
-            if (feature.getGeometry()) {
-              this.extent.next(feature.getGeometry().getExtent())
-            }
-            this.highlightLayer.getSource().clear()
-            this.getOsmLink(feature)
-            setTimeout(() => {
-              this.highlightLayer.getSource().addFeature(feature)
-            }, 500);
-          })
-        ).subscribe()
+      tap(() => {
+        this.listenToChipsChanged(this.matChipList)
+        /**
+         * if after 500ms, no chips is selected (idk why this happens)
+         */
         this.matChipList.chips.changes.pipe(
           startWith(undefined),
-          filter(()=>this.matChipList.chips.length > 0),
-          tap(()=>{
+          // take(1),
+          debounceTime(500),
+          filter(() => this.matChipList.chips.length > 0),
+          tap(() => {
             this.toggleSelection(this.matChipList.chips.first)
           }),
         ).subscribe()
       })
     )
-
 
   }
 
@@ -169,7 +189,7 @@ export class OsmSheetComponent implements OnInit, OnChanges {
     if (changes.dataOsmLAyer) {
       if (this.dataOsmLAyer && this.features.length > 0) {
         this.onInitInstance()
-      
+
       }
     }
 
@@ -180,8 +200,8 @@ export class OsmSheetComponent implements OnInit, OnChanges {
 
   }
 
-  ngAfterViewInit(){
-   
+  ngAfterViewInit() {
+
   }
 
 
@@ -308,20 +328,20 @@ export class OsmSheetComponent implements OnInit, OnChanges {
         Math.abs(osm_id) +
         "&format=json";
 
-    this.http.get(url).pipe(
+      this.http.get(url).pipe(
         take(1),
         map((response: any) => {
           if (response.length > 0) {
             var osm_type = response[0].osm_type;
             var osm_id = response[0].osm_id;
-            this.osm_url =  "https://www.openstreetmap.org/" + osm_type + "/" + osm_id;
+            this.osm_url = "https://www.openstreetmap.org/" + osm_type + "/" + osm_id;
           } else {
             this.osm_url = undefined
           }
         })
       ).subscribe()
 
-    }else{
+    } else {
       this.osm_url = undefined
     }
   }
@@ -386,6 +406,7 @@ export class OsmSheetComponent implements OnInit, OnChanges {
   }
 
   openUrl(url) {
+    console.log(url)
     window.open(url, '_blank')
   }
 
@@ -394,6 +415,7 @@ export class OsmSheetComponent implements OnInit, OnChanges {
    * @param value string
    */
   alertValue(value: string) {
+    console.log(value)
     alert(value)
   }
 

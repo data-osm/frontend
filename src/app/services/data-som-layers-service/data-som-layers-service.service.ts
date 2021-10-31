@@ -136,13 +136,13 @@ export class DataOsmLayersServiceService {
         layer.providers
         .filter((provider)=>provider.vp.state =='good')
         .map((provider)=>{
-          
+          let url =environment.url_carto+provider.vp.path_qgis
           let layerOl = cartoHelperClass.constructLayer({
             nom: layer.name,
             type: 'wms',
             identifiant: [provider.vp.id_server],
             type_layer: 'geosmCatalogue',
-            url: environment.url_carto+provider.vp.url_server,
+            url: url,
             visible: true,
             inToc: true,
             properties: {
