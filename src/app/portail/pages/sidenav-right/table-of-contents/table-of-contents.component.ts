@@ -243,33 +243,8 @@ export class TableOfContentsComponent implements OnInit {
    * @param layer layersInMap
    */
   openMetadata(layer: layersInMap) {
-    var metadata
-    var wms_type
-  //   if (layer['properties']['type'] == 'carte') {
-  //     var carte = this.StorageServiceService.getCarte(layer.properties['group_id'], layer.properties['couche_id'])
-  //     metadata = carte.metadata
-  //   } else if (layer['properties']['type'] == 'couche') {
-  //     var couche = this.StorageServiceService.getCouche(layer.properties['group_id'], layer.properties['couche_id'])
-  //     metadata = couche.metadata
-  //     wms_type = couche.wms_type
-  //   }
-
-  //   if (this.displayMetadataLink(metadata) || wms_type == "osm") {
-
-  //     const MetaData = this.dialog.open(MetadataLayerComponent, {
-  //       minWidth: "350px",
-  //       // height: '80%',
-  //       data: { exist: true, metadata: metadata, nom: carte ? carte.nom : couche.nom, url_prefix: environment.url_prefix, data: carte ? carte : couche }
-  //     });
-
-  //     MetaData.afterClosed().subscribe(result => {
-  //     });
-  //   } else {
-  //     const MetaData = this.dialog.open(MetadataLayerComponent, {
-  //       minWidth: "350px",
-  //       data: { exist: false, metadata: metadata, nom: carte ? carte.nom : couche.nom, url_prefix: environment.url_prefix, data: carte ? carte : couche }
-  //     });
-  //   }
+    let data = this.dataOsmLayersServiceService.getLayerInMap(layer.properties['couche_id'])
+    this.dialog.open(MetadataLayerComponent,{data:data.layer})
 
   }
 

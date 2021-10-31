@@ -18,7 +18,7 @@
       <mat-card-content>
 
         <p>
-          <i class="fa fa-info-circle pointer primaryColor" *ngIf="layer.tocCapabilities.metadata"
+          <i class="fa fa-info-circle pointer primaryColor" *ngIf="layer['properties']['type'] == 'couche'"
             matTooltip="{{ 'couche_en_cours.information_couche' | translate }}"
             style="margin-right: 10px;font-size: 17px;" (click)="openMetadata(layer)" ></i>
          <i class="fa fa-share-alt pointer primaryColor" *ngIf="layer.tocCapabilities.share" (click)="shareLayer(layer)"
