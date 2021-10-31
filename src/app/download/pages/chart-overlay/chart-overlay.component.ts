@@ -16,7 +16,7 @@ export class ChartOverlayComponent implements OnInit {
   /** configuration of th chart */
   @Input() chartConnfiguration:any
  
-  @Input()admin_boundary_id:number
+  @Input()provider_vector_id:number
   @Input()table_id:number
   @Input()name:string
   @Input()countFeatures:FeatureToDownload[]
@@ -61,7 +61,7 @@ export class ChartOverlayComponent implements OnInit {
   listFilesToDownload(){
     this.dialog.open(ListDownloadLayersComponent,{
       data:{
-        admin_boundary_id:this.admin_boundary_id,
+        provider_vector_id:this.provider_vector_id,
         table_id:this.table_id,
         name:this.name,
         countFeatures:this.countFeatures

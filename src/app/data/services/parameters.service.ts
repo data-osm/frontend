@@ -138,12 +138,12 @@ export class ParametersService {
 
   /**
    * Get a admin boundary feature with his geometry
-   * @param vector_id number
+   * @param provider_vector_id number
    * @param table_id number
    * @returns Observable<AdminBoundaryFeature>
    */
-  getAdminBoundaryFeature(vector_id:number, table_id:number):Observable<AdminBoundaryFeature>{
-    return this.http.post<AdminBoundaryFeature>(this.url_prefix+"/api/parameter/admin_boundary/feature", {vector_id:vector_id, table_id:table_id}, {headers: this.get_header()})
+  getAdminBoundaryFeature(provider_vector_id:number, table_id:number):Observable<AdminBoundaryFeature>{
+    return this.http.post<AdminBoundaryFeature>(this.url_prefix+"/api/parameter/admin_boundary/feature", {vector_id:provider_vector_id, table_id:table_id}, {headers: this.get_header()})
   }
 
 }

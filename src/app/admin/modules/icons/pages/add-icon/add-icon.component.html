@@ -25,7 +25,7 @@
 
         <app-update-tags [type]="'icons'" [tagsForm]="form.get('tags')" > </app-update-tags>
 
-        <app-file-upload *ngIf="form.get('path')" formControlName="path"  [multiple]="false" [accept]="'image/*'" ></app-file-upload>
+        <app-file-upload *ngIf="form.get('path')" formControlName="path"  [multiple]="true" [accept]="'image/*'" ></app-file-upload>
         <span *ngIf="hasError('path', 'required')" > {{ 'add_icon.image_error' | translate }} </span>
 
     </form>

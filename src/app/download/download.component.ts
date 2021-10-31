@@ -86,33 +86,35 @@ export class DownloadComponent implements OnInit {
         this.parameterService.parameter.extent
         let adminBoundarySelected: AdminBoundaryRespone = this.fromDownload.get('adminBoundary').value;
         let admin_boundary_id:number = undefined
+        let provider_vector_id:number = undefined
         let table_id:number = undefined
         try {
           admin_boundary_id = adminBoundarySelected.adminBoundary.admin_boundary_id
+          provider_vector_id = adminBoundarySelected.adminBoundary.vector
           table_id = adminBoundarySelected.feature.table_id
         } catch (error) {
           
         }
         return iif(
           ()=>this.fromDownload.get('exportAll').value === false,
-          this.downloadService.countFeaturesInAdminBoundary(this.layersArrayControl.controls.map((control) => control.value.layer_id), admin_boundary_id, table_id).
+          this.downloadService.countFeaturesInAdminBoundary(this.layersArrayControl.controls.map((control) => control.value.layer_id), provider_vector_id, table_id).
           pipe(
             switchMap((countFeatures)=>{
-              return this.parameterService.getAdminBoundaryFeature(admin_boundary_id, table_id).pipe(
+              return this.parameterService.getAdminBoundaryFeature(provider_vector_id, table_id).pipe(
                 catchError((error: HttpErrorResponse) => {
                   this.notifier.notify("error", this.translate.instant('dowload_data.error_fetching_adminboundary'));
                   return EMPTY
                 }),
                 map((adminBoundaryFeature)=>{
                   let feature = new GeoJSON().readFeature(adminBoundaryFeature.geometry);
-                  return {countFeatures:countFeatures,feature:feature, admin_boundary_id:admin_boundary_id, table_id:table_id, name:adminBoundarySelected.feature.name}
+                  return {countFeatures:countFeatures,feature:feature, provider_vector_id:provider_vector_id, table_id:table_id, name:adminBoundarySelected.feature.name}
                 })
               )
             })
           ),
           this.downloadService.countFeaturesInAdminBoundary(this.layersArrayControl.controls.map((control) => control.value.layer_id)).pipe(
             map((countFeatures)=>{
-              return {countFeatures:countFeatures,feature:this.parameterService.projectPolygon, admin_boundary_id:undefined, table_id:undefined,name:"Export total"}
+              return {countFeatures:countFeatures,feature:this.parameterService.projectPolygon, provider_vector_id:undefined, table_id:undefined,name:"Export total"}
             })
           ),
         )
@@ -236,7 +238,7 @@ export class DownloadComponent implements OnInit {
 
             cartoClass.getLayerByName('exportData').slice().map((element) => { cartoClass.map.removeLayer(element) })
 
-          }.bind(this), 'admin_boundary_id': parameters.admin_boundary_id,'name': parameters.name, 'table_id': parameters.table_id, 'countFeatures': countFeatures.map((feature) => { return Object.assign(feature, { layer: this.layersArrayControl.controls.find((control) => control.value.layer_id === feature.layer_id).value as Layer }) })
+          }.bind(this), 'provider_vector_id': parameters.provider_vector_id,'name': parameters.name, 'table_id': parameters.table_id, 'countFeatures': countFeatures.map((feature) => { return Object.assign(feature, { layer: this.layersArrayControl.controls.find((control) => control.value.layer_id === feature.layer_id).value as Layer }) })
         })
 
         this.manipulateComponent.appendComponent(elementChart, this.downlodListOverlays.nativeElement)
