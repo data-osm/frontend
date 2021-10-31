@@ -2,7 +2,7 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Polygon } from '@svgdotjs/svg.js';
 import MultiPolygon from 'ol/geom/MultiPolygon';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Feature, Geometry } from '../../ol-module';
@@ -15,7 +15,15 @@ export class ParametersService {
 
   headers: HttpHeaders = new HttpHeaders({});
   url_prefix = environment.backend
+  /**
+   * List of app extents with geometry
+   */
+  lisAppExtent$: BehaviorSubject<AppExtent[]> = new BehaviorSubject<AppExtent[]>([])
+  
   parameter:Parameter
+  /**
+   * Polygon of the project 
+   */
   projectPolygon:Feature<Geometry>
   /**
    * Actif profil id

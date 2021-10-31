@@ -140,6 +140,32 @@ export class PortailMapComponent implements OnInit {
 
     onInit.pipe(
       take(1),
+      switchMap(() => { 
+        return this.parametersService.getListAppExtent(true).pipe(
+          catchError((error: HttpErrorResponse) => {
+            this.notifier.notify("error", this.translate.instant('portail.error_loading.extent'));
+            return EMPTY
+          }),
+          tap((value) => {
+            this.parametersService.lisAppExtent$.next(value)
+            let features = value.map((val)=> new GeoJSON().readFeature(val.st_asgeojson, {
+              dataProjection: 'EPSG:4326',
+              featureProjection: 'EPSG:3857'
+            }))
+            
+            let shadowMap = new CartoHelper(this.map).constructShadowLayer(features)
+
+            shadowMap.setZIndex(1000)
+            this.map.addLayer(shadowMap)
+
+          })
+        )
+      }),
+    ).subscribe()
+
+
+    onInit.pipe(
+      take(1),
       switchMap(() => {
         return this.parametersService.getAppExtent(true).pipe(
           catchError((error: HttpErrorResponse) => {
@@ -148,16 +174,12 @@ export class PortailMapComponent implements OnInit {
           }),
           tap((value) => {
 
-            let shadowMap = new CartoHelper(this.map).constructShadowLayer(value.st_asgeojson)
             
             this.parametersService.projectPolygon = new GeoJSON().readFeature(value.st_asgeojson, {
               dataProjection: 'EPSG:4326',
               featureProjection: 'EPSG:3857'
             });
             
-            shadowMap.setZIndex(1000)
-            this.map.addLayer(shadowMap)
-
             setTimeout(() => {
               this.map.getView().fit(
                 [value.a, value.b, value.c, value.d],

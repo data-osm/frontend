@@ -3,7 +3,8 @@ import {
   , ScaleLine,
   MousePosition,
   createStringXY,
-  MapBrowserEvent
+  MapBrowserEvent,
+  Geometry
 } from '../app/ol-module'
 import * as $ from 'jquery'
 import { BackendApiService } from '../app/services/backend-api/backend-api.service'
@@ -170,7 +171,7 @@ export class CartoHelper {
    * Construct a shadow layer
    * @returns ImageLayer
    */
-  constructShadowLayer(geojsonLayer: Object): ImageLayer {
+  constructShadowLayer(featureToShadow: Feature<Geometry>[]): ImageLayer {
     var worldGeojson = {
       "type": "FeatureCollection",
       "name": "world_shadow",
@@ -180,11 +181,11 @@ export class CartoHelper {
       ]
     }
 
-    var featureToShadow = new GeoJSON().readFeatures(geojsonLayer, {
-      dataProjection: 'EPSG:4326',
-      featureProjection: 'EPSG:3857'
-    });
-
+    // var featureToShadow = new GeoJSON().readFeatures(geojsonLayer, {
+    //   dataProjection: 'EPSG:4326',
+    //   featureProjection: 'EPSG:3857'
+    // });
+    
     var featureWorld = new GeoJSON().readFeatures(worldGeojson);
 
     var rasterSource_world = new VectorImageLayer({

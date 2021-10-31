@@ -41,7 +41,8 @@ export class SelectRoiComponent implements OnInit {
 
     this.lisAppExtent$ = onInit.pipe(
       switchMap(() => {
-        return this.parameterService.getListAppExtent().pipe(
+        return this.parameterService.lisAppExtent$.pipe(
+          filter((value)=> value && value.length >0),
           catchError(() => {
             return EMPTY
           })
