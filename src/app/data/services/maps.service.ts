@@ -112,6 +112,15 @@ export class MapsService {
   }
 
   /**
+   * Reorder groups
+   * @param reorderGroups Array<{group_id:number, order:number}>
+   * @returns Observable<[]>
+   */
+  reorderGroups(reorderGroups:Array<{group_id:number, order:number}>):Observable<[]>{
+    return this.http.post<[]>(this.url_prefix + '/api/group/group/reorder',{reorderGroups}, { headers: this.get_header() })
+  }
+
+  /**
    * Delete group
    * @param group Group
    */
