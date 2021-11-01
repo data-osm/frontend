@@ -37,8 +37,13 @@ input{
 	background: transparent !important;
 }
 
-.dialog-no-shadow, .mat-dialog-container{
+.dialog-no-shadow .mat-dialog-container{
 	box-shadow: none !important;
+}
+
+.dialog-no-padding .mat-dialog-container{
+	padding-left: 5px !important;
+    padding-right: 5px !important;
 }
 /* ///// spinner ////////////// */
 

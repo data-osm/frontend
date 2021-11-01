@@ -22,7 +22,10 @@
       </mat-card-header>
   
       <mat-card-actions style="text-align: right;" >
-        <button mat-flat-button color="accent" class="white" [matMenuTriggerFor]="menu" >{{ 'dowloadLayers.download' | translate }}</button>
+        <button mat-flat-button color="accent" class="white" [matMenuTriggerFor]="menu" >
+          {{ 'dowloadLayers.download' | translate }}
+          <i class="fa fa-chevron-down white" aria-hidden="true"></i>
+        </button>
         <mat-menu #menu="matMenu">
           <a mat-menu-item [href]="environment.backend+'/api/group/download/?provider_vector_id='+parameter.provider_vector_id+'&table_id='+parameter.table_id+'&provider_vector_id_target='+provider.vector.provider_vector_id+'&driver=shp'" target="_blanck">
               ShapeFile

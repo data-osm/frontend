@@ -1,13 +1,14 @@
 .sidenav-left-second-header {
     height: 55px;
-    padding-top: 15px;
+    // padding-top: 15px;
     position: fixed;
     top: 60px;
     left: 0px;
     z-index: 1;
     width: 325px;
+    align-items: center;
     .fa-angle-left {
-      margin-top: -10px;
+      // margin-top: -10px;
       font-size: 25px;
       padding: 12px;
     }
@@ -22,11 +23,12 @@
     .sidenav-left-second-header-title {
       text-align: left;
       padding: 0px;
+      margin: 0px;
       overflow: hidden !important;
       white-space: nowrap;
       text-overflow: ellipsis !important;
       font-size: 17px;
-      padding-top: 2px;
+      // padding-top: 2px;
     }
 }
 

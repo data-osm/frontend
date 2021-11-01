@@ -228,7 +228,7 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
       height:'calc(100% - 60px)',
       hasBackdrop:false,
       disableClose:true,
-      panelClass:'dialog-no-shadow',
+      panelClass:['dialog-no-shadow','dialog-no-padding'],
     })
   }
 
@@ -251,7 +251,7 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
       height:'calc(100% - 60px)',
       hasBackdrop:false,
       disableClose:true,
-      panelClass:'dialog-no-shadow',
+      panelClass:['dialog-no-shadow','dialog-no-padding'],
     })
   }
 

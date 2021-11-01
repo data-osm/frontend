@@ -39,6 +39,7 @@ export class DownloadComponent implements OnInit {
     adminBoundary: new FormControl(undefined),
     exportAll: new FormControl(false, [Validators.required])
   })
+  loading:boolean=false
   constructor(
     public formBuilder: FormBuilder,
     public dataOsmLayersServiceService: DataOsmLayersServiceService,
@@ -83,6 +84,7 @@ export class DownloadComponent implements OnInit {
     onCountFeature.pipe(
       // filter(() => this.fromDownload.valid),
       mergeMap(() => {
+        this.loading = true
         this.parameterService.parameter.extent
         let adminBoundarySelected: AdminBoundaryRespone = this.fromDownload.get('adminBoundary').value;
         let admin_boundary_id:number = undefined
@@ -103,6 +105,7 @@ export class DownloadComponent implements OnInit {
               return this.parameterService.getAdminBoundaryFeature(provider_vector_id, table_id).pipe(
                 catchError((error: HttpErrorResponse) => {
                   this.notifier.notify("error", this.translate.instant('dowload_data.error_fetching_adminboundary'));
+                  this.loading = false
                   return EMPTY
                 }),
                 map((adminBoundaryFeature)=>{
@@ -121,6 +124,7 @@ export class DownloadComponent implements OnInit {
       }),
       catchError((error: HttpErrorResponse) => {
         this.notifier.notify("error", this.translate.instant('dowload_data.error_count'));
+        this.loading = false
         return EMPTY
       }),
       map((parameters)=>{
@@ -161,6 +165,7 @@ export class DownloadComponent implements OnInit {
         return Object.assign(parameters,{center:getCenter(layerExport.getSource().getExtent())}) ;
       }),
       tap((parameters) => {
+        this.loading = false
         let countFeatures = parameters.countFeatures
         let feature = parameters.feature
         let center = parameters.center
