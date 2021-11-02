@@ -4,6 +4,7 @@ import { environment } from '../../../../../../environments/environment';
 import { BaseMap } from '../../../../../data/models/base-maps';
 import { DataForPreview } from '../../../../../type/type';
 import { PreviewDataComponent } from '../../../../../shared/pages/preview-data/preview-data.component';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-base-map',
@@ -13,6 +14,7 @@ import { PreviewDataComponent } from '../../../../../shared/pages/preview-data/p
 export class BaseMapComponent implements OnInit {
 
   @Input() baseMap: BaseMap
+  @Input() princiaplControl: FormControl
 
   @Output() delete: EventEmitter<BaseMap> = new EventEmitter()
   @Output() update: EventEmitter<BaseMap> = new EventEmitter()

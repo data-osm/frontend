@@ -64,4 +64,13 @@ export class BaseMapsService {
   updateBaseMap(parameters:FormData):Observable<BaseMap>{
     return this.http.put<BaseMap>(this.url_prefix+'/api/group/basemaps/'+parameters.get('id') ,parameters, {headers: this.get_header()} )
   }
+
+  /**
+   * Set a base map as the princiapl one
+   * @param id number
+   * @returns Observable<BaseMap>
+   */
+  setBaseMapPrincipal(id:number):Observable<{}>{
+    return this.http.post<{}>(this.url_prefix+'/api/group/basemaps/principal',{id},{headers:this.get_header()})
+  }
 }

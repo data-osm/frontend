@@ -1,5 +1,8 @@
 <mat-card style="margin-bottom: 15px;">
     <img mat-card-image  style="margin-bottom: 0px;" [src]="environment.backend+baseMap.pictogramme.raster_icon">
+    <mat-radio-group [formControl]="princiaplControl" class="radio-button-princiapl" matTooltip="Définir comme carte principale ?" >
+      <mat-radio-button color="primary" [value]="baseMap.id"></mat-radio-button>
+    </mat-radio-group>
     <mat-card-content style="margin-bottom: 0px;">
      <h3 style="text-transform: uppercase;"> {{baseMap.name}} </h3>
     </mat-card-content>

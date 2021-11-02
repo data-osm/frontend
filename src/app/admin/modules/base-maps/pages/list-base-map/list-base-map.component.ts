@@ -3,13 +3,14 @@ import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, merge, Observable, ReplaySubject, Subject } from 'rxjs';
-import { catchError, filter, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { catchError, filter, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { BaseMap } from '../../../../../data/models/base-maps';
 import { BaseMapsService } from '../../../../../data/services/base-maps.service';
 import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { MatDialog } from '@angular/material/dialog';
 import { AddBaseMapComponent } from '../add-base-map/add-base-map.component';
 import { UpdateBaseMapComponent } from '../update-base-map/update-base-map.component';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-list-base-map',
@@ -21,16 +22,21 @@ export class ListBaseMapComponent implements OnInit {
   onAddInstance:()=>void
   onDeleteInstance:(baseMap:BaseMap)=>void
   onUpdateInstance:(baseMap:BaseMap)=>void
+  onSetPrinciaplInstance:(baseMap:BaseMap)=>void
   
   readonly listBaseMaps$:Observable<ReadonlyArray<BaseMap>>
   private readonly notifier: NotifierService;
 
+  principalMapForm:FormGroup = this.fb.group({
+    principal:new FormControl('')
+  })
   constructor(
     public  baseMapsService : BaseMapsService,
     public notifierService: NotifierService,
     public translate: TranslateService,
     public manageCompHelper : ManageCompHelper,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    public fb:FormBuilder
   ) {
     this.notifier = notifierService;
 
@@ -49,6 +55,11 @@ export class ListBaseMapComponent implements OnInit {
       onUpdate.next(baseMap)
     }
 
+    const onSetPrinciapl:Subject<BaseMap> = new Subject<BaseMap>()
+    this.onSetPrinciaplInstance = (baseMap:BaseMap)=>{
+      onSetPrinciapl.next(baseMap)
+    }
+
     this.listBaseMaps$ = merge(
       onAdd.pipe(
         switchMap(()=>{
@@ -61,6 +72,17 @@ export class ListBaseMapComponent implements OnInit {
         switchMap((basemap)=>{
           return this.dialog.open(UpdateBaseMapComponent,{data:basemap}).afterClosed().pipe(
             filter(result => result),
+          )
+        })
+      ),
+      this.principalMapForm.get('principal').valueChanges.pipe(
+        filter((id)=>id!=undefined),
+        switchMap((id)=>{
+          return this.baseMapsService.setBaseMapPrincipal(id).pipe(
+            catchError((error:HttpErrorResponse) => { 
+              this.notifier.notify("error", "An error occured while setting basemap as principal");
+              return EMPTY 
+            })
           )
         })
       ),
@@ -93,6 +115,12 @@ export class ListBaseMapComponent implements OnInit {
             this.notifier.notify("error", "An error occured while updating basemaps");
             return EMPTY 
           }),
+          tap((baseMaps)=>{
+            let principalBaseMap = baseMaps.find((baseMap)=>baseMap.principal)
+            if (principalBaseMap) {
+              this.principalMapForm.get('principal').setValue(principalBaseMap.id,{emitEvent:false})
+            }
+          })
         )
       })
     )

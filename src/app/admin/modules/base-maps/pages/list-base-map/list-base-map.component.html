@@ -1,15 +1,16 @@
 <div style="padding: 24px;">
     <div style="padding: 24px;" fxLayout="row wrap">
-        <h2  fxFlex="calc(100% - 240px)" >  {{ 'admin.base-map.title' | translate }} </h2>
+        <h2 fxFlex="calc(100% - 240px)"> {{ 'admin.base-map.title' | translate }} </h2>
         <button style="text-align: right;margin-bottom: 10px;width: 200px;" mat-flat-button color="accent" class="white"
-        (click)="onAddInstance()"> {{ 'admin.base-map.add.title' | translate }} </button>
+            (click)="onAddInstance()"> {{ 'admin.base-map.add.title' | translate }} </button>
     </div>
 
-    <ng-container *ngIf="listBaseMaps$ | async as listBaseMaps">
-        <div fxLayout="row wrap" fxLayoutGap="15px" >
-            <app-base-map fxFlex="240px" (delete)="onDeleteInstance($event)" (update)="onUpdateInstance($event)" *ngFor="let baseMap of listBaseMaps"
-                [baseMap]="baseMap"></app-base-map>
-        </div>
-    </ng-container>
+        <ng-container *ngIf="listBaseMaps$ | async as listBaseMaps">
+            <div fxLayout="row wrap" fxLayoutGap="15px">
+                <app-base-map fxFlex="240px" [princiaplControl]="principalMapForm.get('principal')" (delete)="onDeleteInstance($event)" (update)="onUpdateInstance($event)"
+                    *ngFor="let baseMap of listBaseMaps" [baseMap]="baseMap">
+                </app-base-map>
+            </div>
+        </ng-container>
 
 </div>

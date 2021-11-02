@@ -90,8 +90,7 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
             return EMPTY
           }),
           map((basemaps)=>{
-            basemaps[0].principal = true
-            this.principalMap = basemaps.find((item)=>item.principal)
+            this.principalMap = basemaps.find((item)=>item.principal)?basemaps.find((item)=>item.principal):basemaps[0]
             return basemaps
           }),
           tap((baseMaps)=>{
