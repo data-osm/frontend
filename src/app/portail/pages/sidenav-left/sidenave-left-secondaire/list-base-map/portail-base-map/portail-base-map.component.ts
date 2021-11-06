@@ -60,7 +60,12 @@ export class PortailBaseMapComponent implements OnInit {
         if (layer.length > 0 && value ==false) {
           this.dataOsmLayersServiceService.removeBaseMap(this.baseMap.id, this.map)
         }else if(layer.length == 0 && value ==true) {
-          this.dataOsmLayersServiceService.addBaseMap(this.baseMap, this.map)
+          this.dataOsmLayersServiceService.addBaseMap(this.baseMap, this.map,{
+            share:true,
+            metadata:true,
+            opacity:true,
+            removable:true
+          })
         }
       })
     ).subscribe()

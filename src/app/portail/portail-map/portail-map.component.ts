@@ -6,8 +6,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { ObjectEvent } from 'ol/Object';
-import { combineLatest, concat, EMPTY, forkJoin, iif, merge, Observable, of, ReplaySubject, Subject, Subscriber } from 'rxjs';
-import { catchError, debounceTime, map, mergeMap, startWith, switchMap, take, takeUntil, tap, toArray } from 'rxjs/operators';
+import { combineLatest, concat, EMPTY, forkJoin, iif, merge, Observable, of, ReplaySubject, Subject, Subscriber, timer } from 'rxjs';
+import { catchError, debounceTime, delayWhen, map, mergeMap, retryWhen, startWith, switchMap, take, takeUntil, tap, toArray } from 'rxjs/operators';
 import { CartoHelper, dataFromClickOnMapInterface, layersInMap } from '../../../helper/carto.helper';
 import { ManageCompHelper } from '../../../helper/manage-comp.helper';
 import { BaseMap } from '../../data/models/base-maps';
@@ -78,6 +78,16 @@ export class PortailMapComponent implements OnInit {
     this.map.addControl(CartoHelper.scaleControl('scaleline', 'scale-map'))
     this.map.addControl(CartoHelper.mousePositionControl('mouse-position-map'))
 
+    merge(this.sidenavContainer.start.openedChange,this.sidenavContainer.end.openedChange).pipe(
+      takeUntil(this.destroyed$),
+      tap(()=>{
+        this.map.updateSize()
+        setTimeout(() => {
+          this.map.updateSize()
+        }, 1000);
+      })
+    ).subscribe()
+
     fromOpenLayerEvent<ObjectEvent>(this.map.getLayers(), 'propertychange').pipe(
       startWith(undefined),
       tap(() => {
@@ -128,7 +138,7 @@ export class PortailMapComponent implements OnInit {
     public manageCompHelper: ManageCompHelper,
     public activatedRoute: ActivatedRoute,
     public dataOsmLayersServiceService: DataOsmLayersServiceService,
-    public router:Router
+    public router: Router
   ) {
     this.notifier = notifierService;
 
@@ -140,19 +150,19 @@ export class PortailMapComponent implements OnInit {
 
     onInit.pipe(
       take(1),
-      switchMap(() => { 
-        return this.parametersService.getListAppExtent(true).pipe(
+      switchMap(() => {
+        return this.parametersService.getListAppExtent(true, 0.07).pipe(
           catchError((error: HttpErrorResponse) => {
             this.notifier.notify("error", this.translate.instant('portail.error_loading.extent'));
             return EMPTY
           }),
           tap((value) => {
             this.parametersService.lisAppExtent$.next(value)
-            let features = value.map((val)=> new GeoJSON().readFeature(val.st_asgeojson, {
+            let features = value.map((val) => new GeoJSON().readFeature(val.st_asgeojson, {
               dataProjection: 'EPSG:4326',
               featureProjection: 'EPSG:3857'
             }))
-            
+
             let shadowMap = new CartoHelper(this.map).constructShadowLayer(features)
 
             shadowMap.setZIndex(1000)
@@ -164,9 +174,9 @@ export class PortailMapComponent implements OnInit {
     ).subscribe()
 
 
-    onInit.pipe(
+    combineLatest(onInit, this.activatedRoute.queryParams).pipe(
       take(1),
-      switchMap(() => {
+      switchMap((parameters) => {
         return this.parametersService.getAppExtent(true).pipe(
           catchError((error: HttpErrorResponse) => {
             this.notifier.notify("error", this.translate.instant('portail.error_loading.extent'));
@@ -174,18 +184,41 @@ export class PortailMapComponent implements OnInit {
           }),
           tap((value) => {
 
-            
+
             this.parametersService.projectPolygon = new GeoJSON().readFeature(value.st_asgeojson, {
               dataProjection: 'EPSG:4326',
               featureProjection: 'EPSG:3857'
             });
-            
-            setTimeout(() => {
-              this.map.getView().fit(
-                [value.a, value.b, value.c, value.d],
-                { 'size': this.map.getSize(), 'duration': 1000 }
-              );
-            }, 500);
+            let params = parameters[1]
+
+            if (params['pos']) {
+              try {
+                let positionData = params['pos'].split(',').map((u) => parseFloat(u))
+                let shareCenter: Coordinate = [positionData[0], positionData[1]]
+
+                var geom = new Point(Transform(shareCenter, 'EPSG:4326', 'EPSG:3857'))
+                setTimeout(() => {
+                  new CartoHelper(this.map).fit_view(geom, parseFloat(positionData[2]))
+                }, 500);
+              } catch (error) {
+                setTimeout(() => {
+                  this.map.getView().fit(
+                    [value.a, value.b, value.c, value.d],
+                    { 'size': this.map.getSize(), 'duration': 1000 }
+                  );
+                }, 500);
+              }
+
+            } else {
+              setTimeout(() => {
+                this.map.getView().fit(
+                  [value.a, value.b, value.c, value.d],
+                  { 'size': this.map.getSize(), 'duration': 1000 }
+                );
+              }, 500);
+            }
+
+
 
           })
         )
@@ -223,14 +256,14 @@ export class PortailMapComponent implements OnInit {
           return this.mapsService.getAllGroupOfMap(map_id).pipe(
             catchError((error: HttpErrorResponse) => {
               this.notifier.notify("error", this.translate.instant('portail.error_loading.parameter'));
-              this.router.navigateByUrl('/map').then(()=>{
+              this.router.navigateByUrl('/map').then(() => {
                 window.location.reload();
               })
               return EMPTY
             }),
-            tap((groups)=>{
-              if (groups.length ==0) {
-                this.router.navigateByUrl('/map').then(()=>{
+            tap((groups) => {
+              if (groups.length == 0) {
+                this.router.navigateByUrl('/map').then(() => {
                   window.location.reload();
                 })
               }
@@ -248,67 +281,101 @@ export class PortailMapComponent implements OnInit {
       switchMap((parameters) => {
         let params = parameters[0]
         let groups = parameters[1]
-        if (params['pos']) {
-          try {
-            let positionData = params['pos'].split(',').map((u) => parseFloat(u))
-            let shareCenter: Coordinate = [positionData[0], positionData[1]]
 
-            var geom = new Point(Transform(shareCenter, 'EPSG:4326', 'EPSG:3857'))
-            setTimeout(() => {
-              new CartoHelper(this.map).fit_view(geom, parseFloat(positionData[2]))
-            }, 2000);
-          } catch (error) {
-
-          }
-
-        }
         if (params['layers']) {
-          let isOldShare:boolean = false
-          params['layers'].split(';').map((item) => item.split(',').map((u) => { if (u=='couche') {
-            isOldShare=true
-          }  } ) )
-          let getLayers$: Observable<{
-            layer: Layer;
-            group: Group;
-          }>[]
+          let isOldShare: boolean = false
+          params['layers'].split(';').map((item) => item.split(',').map((u) => {
+            if (u == 'couche') {
+              isOldShare = true
+            }
+          }))
+
+          let getLayers$: Array<
+            Observable<{
+              layer: Layer;
+              group: Group;
+            } | number>
+          >
           if (isOldShare) {
-            let shareParameters: Array<[number, number]> = params['layers'].split(';').map((item) => item.split(',').filter((u)=>u != 'couche').map((u) => parseInt(u)))
+            let shareParameters: Array<[number, number]> = params['layers'].split(';').map((item) => item.split(',').filter((u) => u != 'couche').map((u) => parseInt(u)))
             getLayers$ = shareParameters
-            .map((shareParam) => {
-              return this.mapsService.getLayerByOldId(shareParam[0]).pipe(
-                catchError((error: HttpErrorResponse) => {
-                  return EMPTY
-                })
-              )
-            })
+              .map((shareParam) => {
+                return this.mapsService.getLayerByOldId(shareParam[0]).pipe(
+                  catchError((error: HttpErrorResponse) => {
+                    return EMPTY
+                  })
+                )
+              })
           } else {
-            let shareParameters: Array<[number, number]> = params['layers'].split(';').map((item) => item.split(',').map((u) => parseInt(u)))
+            let shareParameters: Array<[string, string, string]> = params['layers'].split(';').map((item) => item.split(',').map((u) => u))
             getLayers$ = shareParameters
-            .filter((shareParam) => groups.find((group) => group.group_id === shareParam[1]) != undefined)
-            .map((shareParam) => {
-              let group = groups.find((group) => group.group_id === shareParam[1])
-              return this.mapsService.getLayer(shareParam[0]).pipe(
-                catchError((error: HttpErrorResponse) => {
-                  return EMPTY
-                }),
-                map((layer) => {
-                  return {
-                    layer: layer,
-                    group: group
-                  }
-                })
-              )
-            })
+              .map((shareParam) => {
+                if (shareParam[2] == 'layer' && groups.find((group) => group.group_id === parseInt(shareParam[1])) != undefined) {
+                  let group = groups.find((group) => group.group_id === parseInt(shareParam[1]))
+                  return this.mapsService.getLayer(parseInt(shareParam[0])).pipe(
+                    catchError((error: HttpErrorResponse) => {
+                      return EMPTY
+                    }),
+                    map((layer) => {
+                      return {
+                        layer: layer,
+                        group: group
+                      }
+                    })
+                  )
+                } else if (shareParam[2] == 'map') {
+
+                  return of(parseInt(shareParam[0]))
+                }
+
+              })
           }
-          
+
 
           return concat(...getLayers$).pipe(toArray())
         }
         return EMPTY
       }),
+      map((layers_groups) => {
+        let prinicpalBaseMapLoaded = new CartoHelper(this.map).getAllLayersInToc()
+          .filter((layerProp) => layerProp.type_layer == 'geosmCatalogue')
+          .filter((layerProp) => layerProp.properties['type'] == 'carte')
+          .map((layerProp) => this.dataOsmLayersServiceService.getBasemap(layerProp.properties['couche_id']))
+          .filter((baseMap) => baseMap && baseMap.principal)
+        if (prinicpalBaseMapLoaded.length > 0) {
+          return layers_groups
+        } else {
+          throw 'Basemap not yet loaded'
+        }
+      }),
+      retryWhen(errors =>
+        errors.pipe(
+          //log error message
+          // tap(val => console.log(`Basemap not loaded yet`)),
+          //restart in 500 miliseconds
+          delayWhen(val => timer(500))
+        )
+      ),
       tap((layers_groups) => {
-        layers_groups.map((layer_group) => {
-          this.dataOsmLayersServiceService.addLayer(layer_group.layer, this.map, layer_group.group)
+        layers_groups.map((layer_group, index) => {
+        console.log(layer_group, index)
+
+          setTimeout(() => {
+            if (typeof layer_group == 'number') {
+              let baseMap = this.dataOsmLayersServiceService.getBasemap(layer_group)
+              console.log(baseMap, 'baseMap')
+              if (baseMap) {
+                this.dataOsmLayersServiceService.addBaseMap(baseMap, this.map, {
+                  share: true,
+                  metadata: true,
+                  opacity: true,
+                  removable: true
+                })
+              }
+            } else {
+              this.dataOsmLayersServiceService.addLayer(layer_group.layer, this.map, layer_group.group)
+            }
+          }, index * 500);
         })
       })
     ).subscribe()

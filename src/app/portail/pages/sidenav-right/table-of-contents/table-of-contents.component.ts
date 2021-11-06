@@ -7,7 +7,7 @@ import { ManageCompHelper } from '../../../../../helper/manage-comp.helper'
 import {
   Map, Transform, unByKey
 } from '../../../../ol-module';
-import { ShareServiceService } from '../../../../services/share-service/share-service.service'
+import { DataToShareLayer, ShareServiceService } from '../../../../services/share-service/share-service.service'
 import { MatSliderChange } from '@angular/material/slider';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { map, catchError, debounceTime, tap, startWith, takeUntil } from 'rxjs/operators';
@@ -76,12 +76,12 @@ export class TableOfContentsComponent implements OnInit {
       /**
        * unique layer ^^
        */
-      return self.map((item)=>item.properties['couche_id']+item.properties['type']).indexOf(layerProp.properties['couche_id']+layerProp.properties['type']) === index;
+      return self.map((item)=>item.properties.couche_id+item.properties['type']).indexOf(layerProp.properties.couche_id+layerProp.properties['type']) === index;
    
     })
     .map((layerProp)=>{
       if (layerProp.properties['type']=='couche') {
-        let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(layerProp.properties['couche_id'])
+        let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(layerProp.properties.couche_id)
 
         layerProp.badge = {
           text: groupLayer.group.name,
@@ -89,7 +89,7 @@ export class TableOfContentsComponent implements OnInit {
         }
         layerProp.data = groupLayer
       } else if (layerProp.properties['type']=='carte')  {
-        let baseMap = this.dataOsmLayersServiceService.getBasemap(layerProp.properties['couche_id'])
+        let baseMap = this.dataOsmLayersServiceService.getBasemap(layerProp.properties.couche_id)
         layerProp.badge = {
           text: baseMap.name,
           bgColor: baseMap.pictogramme.color
@@ -191,10 +191,18 @@ export class TableOfContentsComponent implements OnInit {
    * @param layer
    */
   shareLayer(layer: layersInMap) {
-    let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(layer.properties['couche_id'])
-    var params = this.ShareServiceService.shareLayer(layer.properties['couche_id'], groupLayer.group.group_id)
-    var url_share = environment.url_frontend + '/map?' + params
-    this.manageCompHelper.openSocialShare(url_share, 7)
+    if (layer.properties.type=='couche') {
+      let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(layer.properties.couche_id)
+      var params = this.ShareServiceService.shareLayer({id_layer:layer.properties.couche_id,group_id:groupLayer.group.group_id, type:'layer' })
+      var url_share = environment.url_frontend + '/map?' + params
+      this.manageCompHelper.openSocialShare(url_share, 7)
+    }else{
+      var params = this.ShareServiceService.shareLayer({id_layer:layer.properties.couche_id,group_id:null, type:'map' })
+      var url_share = environment.url_frontend + '/map?' + params
+      this.manageCompHelper.openSocialShare(url_share, 7)
+
+    }
+    
 
   }
 
@@ -202,13 +210,26 @@ export class TableOfContentsComponent implements OnInit {
    * Share all layers in the toc
    */
   shareAllLayersInToc() {
-    let pteToGetParams =  this.layersInToc.filter((item)=>item.tocCapabilities.share).map((item)=>{
-        let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(item.properties['couche_id'])
-      return {
-        id_layer:parseInt(item.properties['couche_id']),
-        group_id:groupLayer.group.group_id
+    let pteLayerToGetParams:Array<DataToShareLayer> =  this.layersInToc
+    .filter((item)=>item.tocCapabilities.share)
+    .map((item)=>{
+      if (item.properties['type']=='couche') {
+        let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(item.properties.couche_id)
+        return {
+          id_layer:item.properties.couche_id,
+          group_id:groupLayer.group.group_id,
+          type:'layer'
+        }
+      }else if (item.properties['type']=='carte') {
+        return {
+          id_layer:item.properties.couche_id,
+          group_id:null,
+          type:'map'
+        }
       }
+      
     })
+
     //Retrieve center's coordinates
     var center = this.map.getView().getCenter();
     var lonlat = Transform(center, 'EPSG:3857', 'EPSG:4326');
@@ -218,7 +239,7 @@ export class TableOfContentsComponent implements OnInit {
 
     var coordinateSharedLink = 'pos=' + lon.toFixed(4) + ',' + lat.toFixed(4) + ',' + Math.floor(zoom)
 
-    var params = this.ShareServiceService.shareLayers(pteToGetParams)
+    var params = this.ShareServiceService.shareLayers(pteLayerToGetParams)
 
     var url_share = environment.url_frontend + '/map?' + params + '&' + coordinateSharedLink
 
@@ -243,7 +264,7 @@ export class TableOfContentsComponent implements OnInit {
    * @param layer layersInMap
    */
   openMetadata(layer: layersInMap) {
-    let data = this.dataOsmLayersServiceService.getLayerInMap(layer.properties['couche_id'])
+    let data = this.dataOsmLayersServiceService.getLayerInMap(layer.properties.couche_id)
     this.dialog.open(MetadataLayerComponent,{data:data.layer})
 
   }

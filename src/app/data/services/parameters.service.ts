@@ -111,10 +111,11 @@ export class ParametersService {
   /**
    * get the app extent 
    * @param geometry boolean
+   * @param tolerance number the tolrance to simplify the geometry with ST_SimplifyPreserveTopology function
    * @returns Observable<AppExtent>
    */
-  getAppExtent(geometry:boolean=false):Observable<AppExtent>{
-    return this.http.get<AppExtent>(this.url_prefix+'/api/parameter/extent?geometry='+geometry,{headers: this.get_header()})
+  getAppExtent(geometry:boolean=false, tolerance:number=0):Observable<AppExtent>{
+    return this.http.get<AppExtent>(this.url_prefix+'/api/parameter/extent?geometry='+geometry+'&tolerance='+tolerance,{headers: this.get_header()})
 
   }
 
@@ -129,10 +130,11 @@ export class ParametersService {
   /**
    * get the list of app extent
    * @param geometry boolean
+   * @param tolerance number the tolrance to simplify the geometry with ST_SimplifyPreserveTopology function
    * @returns Observable<AppExtent[]>
    */
-   getListAppExtent(geometry:boolean=false):Observable<AppExtent[]>{
-    return this.http.get<AppExtent[]>(this.url_prefix+'/api/parameter/extent/list?geometry='+geometry,{headers: this.get_header()})
+   getListAppExtent(geometry:boolean=false, tolerance:number=0):Observable<AppExtent[]>{
+    return this.http.get<AppExtent[]>(this.url_prefix+'/api/parameter/extent/list?geometry='+geometry+'&tolerance='+tolerance,{headers: this.get_header()})
   }
 
   /**

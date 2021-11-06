@@ -9,6 +9,9 @@ import { coucheInterface } from '../../type/type';
 import { ManageCompHelper } from '../../../helper/manage-comp.helper';
 import { ParametersService } from '../../data/services/parameters.service';
 
+export interface DataToShareLayer{
+  id_layer: number, group_id:number, type:'map'|'layer'
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -136,15 +139,14 @@ export class ShareServiceService {
     )
   }
 
-  // http://tiles.geosm.org/ows/?map=france/france10.qgs&SERVICE=WFS&VERSION=1.1.0&REQUEST=GETFEATURE&outputFormat=GeoJSON&typeName=Histoire&GEOMETRYNAME=null&EXP_FILTER=osm_id=7816986187
   /**
    * get parameters to share one layer
    * @param number id_layer id of the layer
    * @return string
    */
-  shareLayer(id_layer: number, group_id:number): string {
+  shareLayer(layer:DataToShareLayer): string {
     
-    return 'profil='+this.parametersService.map_id+'&layers='+ id_layer+ ',' + group_id
+    return 'profil='+this.parametersService.map_id+'&layers='+ layer.id_layer+ ',' + layer.group_id+','+layer.type
   }
 
   /**
@@ -156,8 +158,8 @@ export class ShareServiceService {
    * } layers type of the layer
    * @return string
    */
-  shareLayers(layers: Array<{id_layer: number, group_id:number}>): string {
-    return 'profil='+this.parametersService.map_id+'&layers=' + layers.map((item)=>item.id_layer+','+item.group_id).join(';')
+  shareLayers(layers: Array<DataToShareLayer>): string {
+    return 'profil='+this.parametersService.map_id+'&layers=' + layers.map((item)=>item.id_layer+','+item.group_id+','+item.type).reverse().join(';')
   }
 
 

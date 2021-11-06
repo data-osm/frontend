@@ -50,7 +50,7 @@ export class SelectRoiComponent implements OnInit {
       }),
       tap((listAppExten) => {
         if (this.parameterService.parameter && this.parameterService.parameter.extent_pk) {
-          this.controlSelectRoi.setValue(listAppExten.find((appExtent)=>appExtent.id ==this.parameterService.parameter.extent_pk), {emitEvent:true})
+          this.controlSelectRoi.setValue(listAppExten.find((appExtent)=>appExtent.id ==this.parameterService.parameter.extent_pk), {emitEvent:false})
         }
       })
     )

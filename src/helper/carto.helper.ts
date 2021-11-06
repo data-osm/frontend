@@ -74,7 +74,11 @@ export interface layersInMap {
   nom: string
   type_layer: 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'exportData' | 'other' | 'routing',
   image: string
-  properties: Object | null
+  properties: {
+    type:'couche'|'carte',
+    couche_id:number
+    [key:string]:any
+  }
   zIndex: number
   visible: boolean
   data: any,
