@@ -193,6 +193,13 @@ export class MapsService {
   }
 
   /**
+   * get a layer by old id
+   */
+   getLayerByOldId(layer_id:number):Observable<{layer:Layer, group:Group}>{
+    return this.http.post<{layer:Layer, group:Group}>(this.url_prefix + '/api/group/layer/old',{layer_id},{ headers: this.get_header() }) 
+  }
+
+  /**
    * get a layer by id
    */
   getLayer(layer_id:number):Observable<Layer>{

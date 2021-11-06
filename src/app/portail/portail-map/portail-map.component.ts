@@ -31,7 +31,7 @@ import {
 import { DataOsmLayersServiceService } from '../../services/data-som-layers-service/data-som-layers-service.service';
 import { fromOpenLayerEvent } from '../../shared/class/fromOpenLayerEvent';
 
-import { Group, rightMenuInterface } from '../../type/type';
+import { Group, Layer, rightMenuInterface } from '../../type/type';
 import { ContextMenuComponent } from '../pages/context-menu/context-menu.component';
 import { DescriptiveSheetData } from '../pages/descriptive-sheet/descriptive-sheet.component';
 
@@ -263,8 +263,27 @@ export class PortailMapComponent implements OnInit {
 
         }
         if (params['layers']) {
-          let shareParameters: Array<[number, number]> = params['layers'].split(';').map((item) => item.split(',').map((u) => parseInt(u)))
-          let getLayers$ = shareParameters
+          let isOldShare:boolean = false
+          params['layers'].split(';').map((item) => item.split(',').map((u) => { if (u=='couche') {
+            isOldShare=true
+          }  } ) )
+          let getLayers$: Observable<{
+            layer: Layer;
+            group: Group;
+          }>[]
+          if (isOldShare) {
+            let shareParameters: Array<[number, number]> = params['layers'].split(';').map((item) => item.split(',').filter((u)=>u != 'couche').map((u) => parseInt(u)))
+            getLayers$ = shareParameters
+            .map((shareParam) => {
+              return this.mapsService.getLayerByOldId(shareParam[0]).pipe(
+                catchError((error: HttpErrorResponse) => {
+                  return EMPTY
+                })
+              )
+            })
+          } else {
+            let shareParameters: Array<[number, number]> = params['layers'].split(';').map((item) => item.split(',').map((u) => parseInt(u)))
+            getLayers$ = shareParameters
             .filter((shareParam) => groups.find((group) => group.group_id === shareParam[1]) != undefined)
             .map((shareParam) => {
               let group = groups.find((group) => group.group_id === shareParam[1])
@@ -280,6 +299,8 @@ export class PortailMapComponent implements OnInit {
                 })
               )
             })
+          }
+          
 
           return concat(...getLayers$).pipe(toArray())
         }
