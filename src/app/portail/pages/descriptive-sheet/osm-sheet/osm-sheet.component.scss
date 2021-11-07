@@ -1,12 +1,20 @@
 .descriptive-sheet-body{
   font-family:'Avenir Next Rounded Pro Regular';
   font-size: 15px;
+  margin-bottom: 10px;
   .attribute{
-    font-family:'Avenir Next Rounded Pro Medium';
-    font-weight: bold;
-    text-align: right;
     padding-right: 10px;
+    text-align: right;
     position: relative;
+    .attribute-title{
+      font-family:'Avenir Next Rounded Pro Medium';
+      font-weight: bold;
+      text-align: right;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      // hyphens: auto;
+      display: block;
+    }
     .attribute-two-points{
       position: absolute;
       top: calc(50% - 10px);

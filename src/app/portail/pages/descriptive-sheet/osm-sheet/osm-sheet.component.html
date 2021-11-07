@@ -64,7 +64,7 @@
     <a href="{{osmUrl}}" target=" _blanck " class="descriptive-sheet-body-url"> Voir cette entité sur OpenStreetMap </a>
   </p> -->
 
-      <div fxLayout class="descriptive-sheet-body" style="margin-bottom: 5px;"
+      <div fxLayout class="descriptive-sheet-body" 
         *ngIf="constructAdresse(context.listAttributes) as adresse">
         <div fxFlex="35%" class="attribute">
           {{ 'layer_properties.adresse'| translate }}
@@ -80,7 +80,8 @@
           <div fxLayout class="descriptive-sheet-body" style="margin-bottom: 5px;"
             *ngIf="!context.configTagsOsm[attribute.field] || context.configTagsOsm[attribute.field].display">
             <div fxFlex="38%" class="attribute">
-              {{ attribute.field| translate }}
+              <span class="attribute-title"> {{ attribute.field| translate }} </span>
+              
               <i class="fa fa-phone" style="font-size: 10px;"
                 *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].type == 'tel'"></i>
               <i class="fa fa-link" style="font-size: 10px;"

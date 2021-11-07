@@ -6,9 +6,9 @@ export const environment = {
   production: false,
   global_logo: undefined,
   primaryColor: '#023f5f',
-  url_carto:'http://127.0.0.1:3000/ows/?map=',
-  backend:'http://127.0.0.1:8000',
-  url_frontend: "http://localhost:4200/",
+  backend:'https://ws.dataosm.info',
+  url_carto:'https://tiles.dataosm.info/ows/?map=',
+  url_frontend: 'https://dataosm.info',
   nom_instance:"Data OSM"
 };
 
