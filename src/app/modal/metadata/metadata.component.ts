@@ -8,6 +8,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { switchMap, catchError, tap, map, mergeMap, toArray, concatMap } from 'rxjs/operators';
 import { NotifierService } from 'angular-notifier';
 import { OsmQuerryService } from '../../admin/administration/service/osm-querry.service';
+import { environment } from '../../../environments/environment';
 
 export interface MetaDataInterface {
   metadata
@@ -29,6 +30,7 @@ export class MetadataLayerComponent implements OnInit {
   onInitInstance:()=>void
   metadata$:Observable<Metadata>
   osmQuerry$:Observable<OsmQuerry[]>
+  environment=environment
   
   constructor(
     public dialogRef: MatDialogRef<MetadataLayerComponent>,

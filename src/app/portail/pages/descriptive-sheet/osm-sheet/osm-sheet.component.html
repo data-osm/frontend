@@ -23,6 +23,15 @@
           <ng-container *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].header">
 
             <button [matTooltip]="attribute.field| translate" mat-mini-fab
+              *ngIf="context.configTagsOsm[attribute.field].header == 'france'"
+              (click)="openUrl(context.configTagsOsm[attribute.field].prefix + attribute.value)" 
+              style="background-image:url(assets/icones/descriptive-sheet/france.svg);background-repeat: no-repeat;
+              background-size: 40px 40px;
+              background-origin: border-box;"
+              >
+            </button>
+
+            <button [matTooltip]="attribute.field| translate" mat-mini-fab
               *ngIf="context.configTagsOsm[attribute.field].header == 'wikipedia'"
               (click)="openUrl(context.configTagsOsm[attribute.field].prefix + attribute.value)">
               <img src="assets/icones/descriptive-sheet/wikipedia.svg" alt="" srcset="" style="height: 25px">
@@ -57,6 +66,21 @@
             </button>
 
           </ng-container>
+          
+        </ng-container>
+
+        <ng-container *ngFor="let attribute of context.listAttributes;let i = index"> 
+          <div
+                  style="text-align: center; margin-top: 20px;"
+                  *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].type == 'mapillary'">
+                  <iframe 
+                    [src]="'https://www.mapillary.com/embed?image_key='+attribute.value+'&style=photo' | safe " 
+                    height="auto" 
+                    width="100%"  
+                    height="300px"
+                    frameborder="0">
+                  </iframe>
+            </div>
         </ng-container>
       </div>
 
@@ -120,8 +144,8 @@
                 (click)="openUrl(context.configTagsOsm[attribute.field].prefix + attribute.value + context.configTagsOsm[attribute.field].surfix)"
                 style="text-align: center;cursor: pointer;"
                 *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].type == 'image'">
-                <img style="max-width: 340px;height: auto;"
-                  src="{{context.configTagsOsm[attribute.field].prefix + attribute.value + context.configTagsOsm[attribute.field].surfix}}">
+               
+                <img style="max-width: 340px;height: auto;" src="{{context.configTagsOsm[attribute.field].prefix + attribute.value + context.configTagsOsm[attribute.field].surfix}}">
               </div>
 
               <div *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field]?.type == 'choice'">

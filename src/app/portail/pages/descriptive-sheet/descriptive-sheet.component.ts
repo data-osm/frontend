@@ -6,8 +6,8 @@ import { layersInMap, CartoHelper } from '../../../../helper/carto.helper';
 import { environment } from '../../../../environments/environment';
 import { VectorSource, VectorLayer, Style, Fill, Stroke, CircleStyle, GeoJSON, Feature, Map, Coordinate, ImageLayer, TileLayer, ImageWMS } from '../../../ol-module';
 import Geometry from 'ol/geom/Geometry';
-import { concat, Observable, ReplaySubject, Subject, timer } from 'rxjs';
-import { delayWhen, filter, map, retryWhen, switchMap, take, takeUntil, tap, toArray } from 'rxjs/operators';
+import { concat, EMPTY, Observable, ReplaySubject, Subject, timer } from 'rxjs';
+import { catchError, delayWhen, filter, map, retryWhen, switchMap, take, takeUntil, tap, toArray } from 'rxjs/operators';
 import { DataOsmLayersServiceService } from '../../../services/data-som-layers-service/data-som-layers-service.service';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { OsmSheetComponent } from './osm-sheet/osm-sheet.component';
@@ -98,9 +98,10 @@ export class DescriptiveSheetComponent implements OnInit {
    */
   extent:Extent
 
+  featureInfoIsLoading:boolean=false
+
   @ViewChild(OsmSheetComponent) set osmSheetComponent(osmSheetComponent: OsmSheetComponent) {
      if(osmSheetComponent) { // initially setter gets called with undefined
-      console.log(osmSheetComponent)
       osmSheetComponent.extent.pipe(tap((extent)=>{this.extent=extent}), takeUntil(this.destroyed$)).subscribe()
      }
   }
@@ -147,9 +148,15 @@ export class DescriptiveSheetComponent implements OnInit {
       }),
       switchMap((urls)=>{
         const headers = new HttpHeaders({ 'Content-Type': 'text/xml' });
-
+        this.featureInfoIsLoading = true
+        this.cdRef.detectChanges();
         return concat(...urls.map((url)=>{
           return this.http.get(url, { responseType: 'text' }).pipe(
+            catchError(()=>{
+              this.featureInfoIsLoading = false
+              this.cdRef.detectChanges();
+              return EMPTY
+            }),
             map((response) => {
               return new GeoJSON().readFeatures(response)
             }),
@@ -171,6 +178,8 @@ export class DescriptiveSheetComponent implements OnInit {
             return [].concat.apply([], values);
           }),
           tap((values)=>{
+            this.featureInfoIsLoading = false
+            this.cdRef.detectChanges();
             if (values.length == 0 ) {
               this.closeModal()
             }

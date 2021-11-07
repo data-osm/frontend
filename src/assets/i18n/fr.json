@@ -114,7 +114,8 @@
     "shareholders": "Partenaires / producteurs : ",
     "text_no_metadata": "Le résumé de cette donnée n'est pas encore disponible",
     "title": "Fiche descriptive :",
-    "update_date": "Mise à jour: "
+    "update_date": "Mise à jour: ",
+    "download_style": "Téléchargez le style QML"
   },
   "naviguation_tools": {
     "compare_maps": "Comparer des cartes",

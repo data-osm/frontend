@@ -1,33 +1,24 @@
-<app-sidenav-header [title]="parameters.group.name" [backgroundColor]="parameters.group.color" [dialogRef]="dialogRef" [logo]="environment.backend + parameters.group.icon_path"  ></app-sidenav-header>
+<app-sidenav-header [title]="parameters.group.name" [backgroundColor]="parameters.group.color" [dialogRef]="dialogRef"
+  [logo]="environment.backend + parameters.group.icon_path"></app-sidenav-header>
 
 <ng-container *ngIf="subGroupList$ |async as subGroupList">
   <mat-accordion multi="true" class="couche-thematique">
-    <mat-expansion-panel
-      class="couche-thematique-panel"
-      *ngFor="let subGroup of subGroupList"
-      expanded="true"
-    >
-      <mat-expansion-panel-header
-        class="accentColorBG"
-        collapsedHeight="45px"
-        expandedHeight="45px"
-      >
-        <mat-panel-title>
-          {{ subGroup.name }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-      <div style="margin-top: 15px;">
+    <ng-container *ngFor="let subGroup of subGroupList">
+      <mat-expansion-panel class="couche-thematique-panel" expanded="true" *ngIf="subGroup.layers.length > 0" >
+        <mat-expansion-panel-header class="accentColorBG" collapsedHeight="45px" expandedHeight="45px">
+          <mat-panel-title>
+            {{ subGroup.name }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div style="margin-top: 15px;">
           <mat-selection-list>
-            <app-couche-thematique
-              *ngFor="let layer of subGroup.layers"
-              id="{{ 'couche_' + layer.layer_id }}"
-              [layer]="layer"
-              [map]="parameters.map"
-            ></app-couche-thematique>
+            <app-couche-thematique *ngFor="let layer of subGroup.layers" id="{{ 'couche_' + layer.layer_id }}"
+              [layer]="layer" [map]="parameters.map"></app-couche-thematique>
           </mat-selection-list>
 
-      </div>
-    </mat-expansion-panel>
+        </div>
+      </mat-expansion-panel>
+    </ng-container>
+
   </mat-accordion>
 </ng-container>
-

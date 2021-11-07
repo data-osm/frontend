@@ -124,7 +124,6 @@ export class OsmSheetComponent implements OnInit, OnChanges {
         setTimeout(() => {
           this.highlightLayer.getSource().addFeature(feature)
         }, 500);
-        console.log(feature,'======')
         return this.formatFeatureAttributes(feature)
       }),
       shareReplay(1)

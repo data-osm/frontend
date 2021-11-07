@@ -6,47 +6,21 @@
 
 <div mat-dialog-content style="background: #eeeeee;align-items: stretch;" fxLayout="row wrap" fxLayoutGap="15px" >
 
-  <mat-card *ngFor="let layer_name of objectKeys.keys(data)" fxFlex class="card-layer" >
-  
-  <mat-card-header>
-    <img mat-card-avatar [src]="  environment.backend + data[layer_name][0].layer.square_icon " alt="{{layer_name}}">
-    <mat-card-title  >{{layer_name}}</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <mat-card *ngFor="let provider of data[layer_name]" class="card-provider" >
-      <mat-card-header>
-        <mat-card-title > {{provider.count}} 
-          <span *ngIf="data[layer_name].length > 1" > {{provider.vector.name}} </span>
-          <span *ngIf="data[layer_name].length == 1" >{{layer_name}} </span>
-        </mat-card-title>
-      </mat-card-header>
-  
-      <mat-card-actions style="text-align: right;" >
-        <button mat-flat-button color="accent" class="white" [matMenuTriggerFor]="menu" >
-          {{ 'dowloadLayers.download' | translate }}
-          <i class="fa fa-chevron-down white" aria-hidden="true"></i>
-        </button>
-        <mat-menu #menu="matMenu">
-          <a mat-menu-item [href]="environment.backend+'/api/group/download/?provider_vector_id='+parameter.provider_vector_id+'&table_id='+parameter.table_id+'&provider_vector_id_target='+provider.vector.provider_vector_id+'&driver=shp'" target="_blanck">
-              ShapeFile
-          </a>
-          <a mat-menu-item [href]="environment.backend+'/api/group/download/?provider_vector_id='+parameter.provider_vector_id+'&table_id='+parameter.table_id+'&provider_vector_id_target='+provider.vector.provider_vector_id+'&driver=geojson'" target="_blanck">
-            GeoJSON
-          </a>
-          <a mat-menu-item [href]="environment.backend+'/api/group/download/?provider_vector_id='+parameter.provider_vector_id+'&table_id='+parameter.table_id+'&provider_vector_id_target='+provider.vector.provider_vector_id+'&driver=gpkg'" target="_blanck">
-            Géopckage
-          </a>
-          <a mat-menu-item [href]="environment.backend+'/api/group/download/?provider_vector_id='+parameter.provider_vector_id+'&table_id='+parameter.table_id+'&provider_vector_id_target='+provider.vector.provider_vector_id+'&driver=kml'" target="_blanck">
-            KML
-          </a>
-        </mat-menu>
-      </mat-card-actions>
-    </mat-card>
-  </mat-card-content>
+  <app-card-download-layer 
+  *ngFor="let layer_name of objectKeys.keys(data)" 
+  [layer]="data[layer_name]" 
+  [layer_name]="layer_name" 
+  [provider_vector_id]="parameter.provider_vector_id" 
+  [table_id]="parameter.table_id" 
+  >
+  </app-card-download-layer>
 
-  </mat-card>
-
-
+  <div style="margin:10px 0px">
+    <div>Un point licence important… donc nous soulignons et repètons:</div>
+    <div>ces données sont sous Licence ODbL,</div>
+    <div>elles doivent rester en ODbL, même si elles sont republiées ailleurs,
+      toutes les améliorations, corrections, combinaisons doivent aussi être publiées et en ODbL.</div>
+  </div>
 </div>
 
 <div mat-dialog-actions>

@@ -33,19 +33,22 @@
 
 	<mat-tab-group>
 		<mat-tab label="{{ 'metadata.description' | translate }}">
-			<div style="background-color: #fff;margin-top: 20px;padding: 0px;">
-				<p *ngFor="let provider of layer.providers">
-					<span class=" primaryColor bold " *ngIf="layer.providers.length >1"> {{provider.vp.name}} : </span>
-					<span class=" primaryColor">
-						{{provider.vp.count}} {{ 'metadata.number_entite' | translate }}
-						<span *ngIf="provider.vp.geometry_type=='Polygon'">
-							; {{provider.vp.total_area}} {{ 'metadata.area' | translate }}
-						</span>
-						<span *ngIf="provider.vp.geometry_type=='LineString'"> ;
-							{{provider.vp.total_lenght}}
-							{{ 'metadata.lenght' | translate }} </span>
-					</span>
-				</p>
+			<div style="margin-top: 20px;padding: 0px;">
+				<app-card-download-layer 
+					[layer]="layer" 
+					[layer_name]="layer.name" 
+					[provider_vector_id]="undefined" 
+					[table_id]="undefined" 
+					>
+				</app-card-download-layer>
+
+				<div style="margin:10px 0px">
+					<div>Un point licence important… donc nous soulignons et repètons:</div>
+					<div>ces données sont sous Licence ODbL,</div>
+					<div>elles doivent rester en ODbL, même si elles sont republiées ailleurs,
+					  toutes les améliorations, corrections, combinaisons doivent aussi être publiées et en ODbL.</div>
+				</div>
+
 				<ng-container *ngIf="metadata$|async as metadata">
 					<mat-list>
 						<mat-list-item style="height: auto;padding: 10px 0px;">

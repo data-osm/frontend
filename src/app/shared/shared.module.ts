@@ -25,10 +25,12 @@ import { PreviewDataComponent } from './pages/preview-data/preview-data.componen
 import { _VIEW_REPEATER_STRATEGY, _DisposeViewRepeaterStrategy } from '@angular/cdk/collections';
 import { _CoalescedStyleScheduler, CdkTable, CDK_TABLE } from '@angular/cdk/table';
 import { MatTable } from '@angular/material/table';
+import { SafeUrlPipe } from './pipe/safe-url/safe-url.pipe';
+import { CardDownloadLayerComponent } from './pages/card-download-layer/card-download-layer.component';
 
 
 @NgModule({
-  declarations: [FileUploadComponent, SearchProviderComponent, SearchMapComponent, SvgIconDirective, PreviewDataComponent, SafeStylePipe],
+  declarations: [FileUploadComponent, SearchProviderComponent, SearchMapComponent, SvgIconDirective, PreviewDataComponent, SafeStylePipe, SafeUrlPipe, CardDownloadLayerComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -60,7 +62,9 @@ import { MatTable } from '@angular/material/table';
     SearchMapComponent,
     SvgIconDirective,
     PreviewDataComponent,
-    SafeStylePipe
+    SafeStylePipe,
+    SafeUrlPipe,
+    CardDownloadLayerComponent
   ],
   providers:[_CoalescedStyleScheduler,
     {provide: _VIEW_REPEATER_STRATEGY, useClass: _DisposeViewRepeaterStrategy},
