@@ -3,6 +3,6 @@ export const environment = {
   primaryColor: '#023f5f',
   backend:'https://ws.dataosm.info',
   url_carto:'https://tiles.dataosm.info/ows/?map=',
-  url_frontend: 'https://dataosm.info',
+  url_frontend: 'https://demo.openstreetmap.fr',
   nom_instance:"Data OSM"
 };
