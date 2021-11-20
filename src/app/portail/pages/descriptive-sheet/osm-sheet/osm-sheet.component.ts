@@ -396,17 +396,18 @@ export class OsmSheetComponent implements OnInit, OnChanges {
       let dateRanges:Array<DateRange> = checker.parse(opening_hours.trim())
       let intervals:Interval[] = dateRanges[0].getTypical().getIntervals()
       let response ={
-        mo:intervals.filter((interval)=>interval.getStartDay()==0).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
-        tu:intervals.filter((interval)=>interval.getStartDay()==1).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
-        we:intervals.filter((interval)=>interval.getStartDay()==2).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
-        th:intervals.filter((interval)=>interval.getStartDay()==3).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
-        fr:intervals.filter((interval)=>interval.getStartDay()==4).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
-        sa:intervals.filter((interval)=>interval.getStartDay()==5).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
-        su:intervals.filter((interval)=>interval.getStartDay()==6).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
+        mo:intervals.filter((interval)=>interval && interval.getStartDay()==0).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
+        tu:intervals.filter((interval)=>interval && interval.getStartDay()==1).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
+        we:intervals.filter((interval)=>interval && interval.getStartDay()==2).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
+        th:intervals.filter((interval)=>interval && interval.getStartDay()==3).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
+        fr:intervals.filter((interval)=>interval && interval.getStartDay()==4).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
+        sa:intervals.filter((interval)=>interval && interval.getStartDay()==5).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
+        su:intervals.filter((interval)=>interval && interval.getStartDay()==6).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
       }
       return response
 
     } catch (error) {
+      console.error(error)
       return
     }
   }

@@ -86,11 +86,21 @@ export class PortailMapComponent implements OnInit {
         }, 1000);
       })
     ).subscribe()
-
+    
+    let mapInitialise=true
     fromOpenLayerEvent<ObjectEvent>(this.map.getLayers(), 'propertychange').pipe(
       startWith(undefined),
       tap(() => {
-        this.layersInToc = new CartoHelper(this.map).getAllLayersInToc().
+        let cartoHelperClass = new CartoHelper(this.map)
+        if (mapInitialise && cartoHelperClass.getAllLayersInToc().filter((lay)=>lay.properties.type=='couche').length>0) {
+          let tocMenu = this.ritghtMenus.find((r)=>r.name=='toc')
+          if (tocMenu && !tocMenu.active) {
+            this.openRightMenu('toc')
+          }
+          mapInitialise=false
+        }
+
+        this.layersInToc = cartoHelperClass.getAllLayersInToc().
           filter((layerProp) => layerProp.type_layer == 'geosmCatalogue')
           .filter((value, index, self) => {
             /**
