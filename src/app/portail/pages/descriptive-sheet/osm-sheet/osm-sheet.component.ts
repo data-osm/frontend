@@ -6,7 +6,7 @@ import { BackendApiService } from '../../../../services/backend-api/backend-api.
 import { NotifierService } from "angular-notifier";
 import { retryWhen, tap, delayWhen, take, switchMap, map, toArray, shareReplay, debounceTime, filter, startWith, withLatestFrom } from 'rxjs/operators';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { concat, ReplaySubject, Subject, timer, Observable, of } from 'rxjs';
+import { concat, ReplaySubject, Subject, timer, Observable, of, interval } from 'rxjs';
 import { ShareServiceService } from '../../../../services/share-service/share-service.service'
 import { measureUtil } from '../../../../../utils/measureUtils'
 import { Feature } from 'ol';
@@ -14,6 +14,30 @@ import { Group, Layer } from '../../../../type/type';
 import WMSGetFeatureInfo from 'ol/format/WMSGetFeatureInfo';
 import { MatChip, MatChipList } from '@angular/material/chips';
 import { Extent } from 'ol/extent';
+// import * as OpeningHoursParser from './OpeningHoursParser.js';
+
+declare var OpeningHoursParser: any;
+
+export interface Week{
+  _intervals:Array<Interval>
+  getIntervals:()=>Array<Interval>
+}
+
+export interface Day{
+  _intervals:Array<Interval>
+  getIntervals:()=>Array<Interval>
+}
+
+export interface Interval{
+  getEndDay: ()=>number
+  getFrom: ()=>number
+  getStartDay: ()=>number
+  getTo: ()=>number
+}
+
+export interface DateRange{
+  getTypical:()=> Week|Day
+}
 
 export interface AttributeInterface {
   field: string,
@@ -140,7 +164,6 @@ export class OsmSheetComponent implements OnInit, OnChanges {
     private cdRef: ChangeDetectorRef
   ) {
     this.notifier = notifierService;
-
     this.initialNumberOfAttributes = 5
 
     const onInit: Subject<void> = new ReplaySubject<void>(1)
@@ -345,6 +368,48 @@ export class OsmSheetComponent implements OnInit, OnChanges {
     }
   }
 
+  constructOpeningHOurs(opening_hours:string):{
+    mo: string[];
+    tu: string[];
+    we: string[];
+    th: string[];
+    fr: string[];
+    sa: string[];
+    su: string[];
+}{
+
+    function pad(num) {
+      return ("0"+num).slice(-2);
+    }
+    function hhmmss(secs) {
+      var minutes = Math.floor(secs / 60);
+      secs = secs%60;
+      var hours = Math.floor(minutes/60)
+      minutes = minutes%60;
+      return `${pad(minutes)}h${pad(secs)}`;
+      // return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
+      // return pad(hours)+":"+pad(minutes)+":"+pad(secs); for old browsers
+    }
+    var checker = new OpeningHoursParser();
+    // opening_hours='12:00-14:30,19:00-22:30'
+    try {
+      let dateRanges:Array<DateRange> = checker.parse(opening_hours.trim())
+      let intervals:Interval[] = dateRanges[0].getTypical().getIntervals()
+      let response ={
+        mo:intervals.filter((interval)=>interval.getStartDay()==0).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
+        tu:intervals.filter((interval)=>interval.getStartDay()==1).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
+        we:intervals.filter((interval)=>interval.getStartDay()==2).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
+        th:intervals.filter((interval)=>interval.getStartDay()==3).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
+        fr:intervals.filter((interval)=>interval.getStartDay()==4).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
+        sa:intervals.filter((interval)=>interval.getStartDay()==5).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
+        su:intervals.filter((interval)=>interval.getStartDay()==6).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
+      }
+      return response
+
+    } catch (error) {
+      return
+    }
+  }
 
   /**
    * construct adresse of the feature osm if exist

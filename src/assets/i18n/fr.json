@@ -71,7 +71,15 @@
     "title": "Fiche descriptive",
     "title_download": "Téléchargement des fichiers",
     "toolpit_share": "Partager ce lieu",
-    "adresse": "Adresse"
+    "adresse": "Adresse",
+    "monday": "Lundi",
+    "lock": "Fermé",
+    "tuesday": "Mardi",
+    "wednesday": "Mercredi",
+    "thursday": "Jeudi",
+    "friday": "Vendredi",
+    "saturday": "Samedi",
+    "sunday": "Dimanche"
   },
   "left_menu": {
     "fonds_de_carte": "Tous les fonds de cartes",

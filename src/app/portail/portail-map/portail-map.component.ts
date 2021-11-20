@@ -36,7 +36,6 @@ import { ContextMenuComponent } from '../pages/context-menu/context-menu.compone
 import { DescriptiveSheetData } from '../pages/descriptive-sheet/descriptive-sheet.component';
 
 
-
 @Component({
   selector: 'app-portail-map',
   templateUrl: './portail-map.component.html',
@@ -141,8 +140,6 @@ export class PortailMapComponent implements OnInit {
     public router: Router
   ) {
     this.notifier = notifierService;
-
-
     const onInit: Subject<void> = new ReplaySubject<void>(1)
     this.onInitInstance = () => {
       onInit.next()

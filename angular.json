@@ -34,7 +34,9 @@
               "node_modules/ol/ol.css",
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "src/assets/js/OpeningHoursParser.js"
+            ]
           },
           "configurations": {
             "production": {

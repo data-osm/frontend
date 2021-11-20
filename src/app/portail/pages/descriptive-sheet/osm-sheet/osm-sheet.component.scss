@@ -59,3 +59,13 @@
 .mat-chip.mat-standard-chip.mat-chip-selected.mat-primary{
   color: #fff !important;
 }
+
+.opening_hours{
+  margin-top: 10px;
+  box-shadow: none;
+  .day{
+    justify-content: center;
+    margin-top: 10px;
+    align-items: center;
+  }
+}

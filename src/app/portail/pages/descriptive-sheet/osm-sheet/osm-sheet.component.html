@@ -82,6 +82,82 @@
                   </iframe>
             </div>
         </ng-container>
+
+        <ng-container *ngFor="let attribute of context.listAttributes;let i = index"> 
+
+          
+
+          <ng-container   *ngIf="attribute.field == 'opening_hours'">
+            <ng-container   *ngIf="constructOpeningHOurs(attribute.value) as oh">
+              <mat-expansion-panel class="opening_hours">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    {{ attribute.field | translate }}
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                  <div fxLayout="column"  >
+                      <div fxLayout class="day" >
+                        <div fxFlex="75px" > {{ 'layer_properties.monday'| translate }} </div>
+                        <div fxFlex="100px" *ngIf="oh.mo.length>0"> 
+                          <div *ngFor="let inter of oh.mo" > {{inter}} </div>  
+                        </div>
+                        <div fxFlex="100px" *ngIf="oh.mo.length==0"> {{ 'layer_properties.lock'| translate }} </div>
+                      </div>
+
+                      <div fxLayout class="day">
+                        <div fxFlex="75px" > {{ 'layer_properties.tuesday'| translate }} </div>
+                        <div fxFlex="100px" *ngIf="oh.tu.length>0"> 
+                          <div *ngFor="let inter of oh.tu" > {{inter}} </div>  
+                        </div>
+                        <div fxFlex="100px" *ngIf="oh.tu.length==0"> {{ 'layer_properties.lock'| translate }} </div>
+                      </div>
+
+                      <div fxLayout class="day">
+                        <div fxFlex="75px" > {{ 'layer_properties.wednesday'| translate }} </div>
+                        <div fxFlex="100px" *ngIf="oh.we.length>0"> 
+                          <div *ngFor="let inter of oh.we" > {{inter}} </div>  
+                        </div>
+                        <div fxFlex="100px" *ngIf="oh.we.length==0"> {{ 'layer_properties.lock'| translate }} </div>
+                      </div>
+
+                      <div fxLayout class="day">
+                        <div fxFlex="75px" > {{ 'layer_properties.thursday'| translate }} </div>
+                        <div fxFlex="100px" *ngIf="oh.th.length>0"> 
+                          <div *ngFor="let inter of oh.th" > {{inter}} </div>  
+                        </div>
+                        <div fxFlex="100px" *ngIf="oh.th.length==0"> {{ 'layer_properties.lock'| translate }} </div>
+                      </div>
+
+                      <div fxLayout class="day">
+                        <div fxFlex="75px" > {{ 'layer_properties.friday'| translate }} </div>
+                        <div fxFlex="100px" *ngIf="oh.fr.length>0"> 
+                          <div *ngFor="let inter of oh.fr" > {{inter}} </div>  
+                        </div>
+                        <div fxFlex="100px" *ngIf="oh.fr.length==0"> {{ 'layer_properties.lock'| translate }} </div>
+                      </div>
+
+                      <div fxLayout class="day">
+                        <div fxFlex="75px" > {{ 'layer_properties.saturday'| translate }} </div>
+                        <div fxFlex="100px" *ngIf="oh.sa.length>0"> 
+                          <div *ngFor="let inter of oh.sa" > {{inter}} </div>  
+                        </div>
+                        <div fxFlex="100px" *ngIf="oh.sa.length==0"> {{ 'layer_properties.lock'| translate }} </div>
+                      </div>
+
+                      <div fxLayout class="day">
+                        <div fxFlex="75px" > {{ 'layer_properties.sunday'| translate }} </div>
+                        <div fxFlex="100px" *ngIf="oh.su.length>0"> 
+                          <div *ngFor="let inter of oh.su" > {{inter}} </div>  
+                        </div>
+                        <div fxFlex="100px" *ngIf="oh.su.length==0"> {{ 'layer_properties.lock'| translate }} </div>
+                      </div>
+
+                  </div>
+              </mat-expansion-panel>
+            </ng-container>
+          </ng-container>
+        </ng-container>
+
       </div>
 
       <!-- <p style="margin-top: 10px;font-family: 'Avenir Next Rounded Pro Regular';" *ngIf="osmUrl">
