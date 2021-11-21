@@ -8,6 +8,10 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';
 import { MultiTranslateHttpLoader } from 'ngx-translate-multi-http-loader';
 
+import { LMarkdownEditorModule, MarkdownEditorComponent } from 'ngx-markdown-editor';
+// import { LMarkdownEditorModule } from 'ngx-markdown-editor';
+
+
 export function HttpLoaderFactory(httpClient: HttpClient) {
   return new MultiTranslateHttpLoader(httpClient, [
     { prefix: "./assets/i18n/", suffix: ".json" },
@@ -40,6 +44,7 @@ import { CardDownloadLayerComponent } from './pages/card-download-layer/card-dow
     TranslateModule,
     FlexLayoutModule,
     NotifierModule,
+    LMarkdownEditorModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -64,7 +69,8 @@ import { CardDownloadLayerComponent } from './pages/card-download-layer/card-dow
     PreviewDataComponent,
     SafeStylePipe,
     SafeUrlPipe,
-    CardDownloadLayerComponent
+    CardDownloadLayerComponent,
+    MarkdownEditorComponent
   ],
   providers:[_CoalescedStyleScheduler,
     {provide: _VIEW_REPEATER_STRATEGY, useClass: _DisposeViewRepeaterStrategy},

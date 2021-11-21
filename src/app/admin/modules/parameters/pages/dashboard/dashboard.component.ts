@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, merge, Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { catchError, filter, map, shareReplay, switchMap } from 'rxjs/operators';
+import { catchError, filter, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { AdminBoundary, Parameter } from '../../../../../data/models/parameters';
 import { ParametersService } from '../../../../../data/services/parameters.service';
 import { AddBoundaryComponent } from '../add-boundary/add-boundary.component';
@@ -23,7 +23,24 @@ export class DashboardComponent implements OnInit {
   public onUpdateAdministrativeBoundaryInstance:(adminBoundary:AdminBoundary)=>void
   public onDeleteAdministrativeBoundaryInstance:(adminBoundary:AdminBoundary)=>void
   public onUpdateAParameterInstance:(parameter:Parameter)=>void
-  
+  public onUpdateInfoInstance:(parameter:Parameter)=>void
+  /**
+   * make the info message editable
+   */
+  public onEditMarDownInfo:()=>void
+  public cancelEditMarkDown:()=>void
+  /**
+   * use as ngmodel to update info
+   */
+  info:string
+  /**
+   * use to compare with the updated one
+   */
+   infoInitial:string
+  /**
+   * Mardown edior mode
+   */
+  markDownEditorMode:'editor'|'preview' = 'preview'
   parameter$:Observable<Parameter>
 
   displayedColumnsAdminBoundary:Array<string> = ['name','source','action']
@@ -35,6 +52,14 @@ export class DashboardComponent implements OnInit {
     public dialog: MatDialog,
     public manageCompHelper : ManageCompHelper,
   ) {
+    this.onEditMarDownInfo = ()=>{
+      this.markDownEditorMode = 'editor'
+    }
+
+    this.cancelEditMarkDown = ()=>{
+      this.markDownEditorMode='preview'
+      this.info=this.infoInitial
+    }
 
     const onInit:Subject<void> = new ReplaySubject<void>(1)
     this.onInitInstance = ()=>{
@@ -54,6 +79,11 @@ export class DashboardComponent implements OnInit {
     const onUpdateAParameterInstance:Subject<Parameter> = new Subject<Parameter>()
     this.onUpdateAParameterInstance = (parameter:Parameter)=>{
       onUpdateAParameterInstance.next(parameter)
+    }
+
+    const onUpdateInfo:Subject<Parameter> = new Subject<Parameter>()
+    this.onUpdateInfoInstance= (parameter:Parameter)=>{
+      onUpdateInfo.next(parameter)
     }
 
     this.parameter$ = merge(
@@ -97,6 +127,24 @@ export class DashboardComponent implements OnInit {
           )
         })
       ),
+      onUpdateInfo.pipe(
+        switchMap((parameter)=>{
+          return this.parametersService.updateParameter({info:this.info,parameter_id:parameter.parameter_id}).pipe(
+            catchError((error:HttpErrorResponse) => { 
+              notifierService.notify("error", "An error occured while updating info");
+              return EMPTY 
+            }),
+            switchMap(()=>{
+              return this.parametersService.getParameters().pipe(
+                catchError((error:HttpErrorResponse) => { 
+                  notifierService.notify("error", "An error occured while loading parameters");
+                  return EMPTY 
+                }),
+              )
+            })
+          )
+        })
+      ),
       onDeleteAdministrative.pipe(
         switchMap((adminBoundary:AdminBoundary)=>{
           return this.manageCompHelper.openConfirmationDialog([],{
@@ -127,6 +175,11 @@ export class DashboardComponent implements OnInit {
       )
     ).pipe(
       shareReplay(1),
+      tap((parameter)=>{
+        this.info = parameter.info
+        this.infoInitial = parameter.info
+        this.markDownEditorMode ='preview'
+      }),
       switchMap((parameter)=>{
         return this.parametersService.getAppExtent(false).pipe(
           catchError((error:HttpErrorResponse) => { 

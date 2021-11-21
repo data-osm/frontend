@@ -40,67 +40,17 @@ c0,0,0,0,0,0C28.1,6.3,21.8,0,14.1,0z" />
 </style>
 <mat-dialog-content style="background:rgba(255, 255, 255, 0.8);padding: 34px;">
 
-        <div class="example-container text_infos" style="text-align:justify;background-color: #fff; width: 600px;">
-                <p style="color: rgba(0, 0, 0, 0.7);font-style: italic;">
-                        Dernière mise à jour de la BD OSM : {{lastSaturday.format("dddd DD-MM-YYYY ")}}, 23h50
-                </p>
-                <div >
-                        <p>
-                                Data OSM est une infrastructure offrant la possibilité de manipuler, valoriser et
-                                télécharger les données OpenStreetMap de façon simple et sans que cela ne nécessite de
-                                compétences avancées en développement informatique.
-                                Il est basé sur le serveur cartographique QGIS SERVER
-                        </p>
-                </div>
-
-                <div>
-                        <ul style="text-align: left;">
-
-                                <li> Pour remonter une anormalie (bug) de l'application :
-                                               <a href="https://github.com/data-osm/geosm-frontend/issues" target="_blank">
-                                                https://github.com/data-osm/geosm-frontend/issues </a>
-                                </li>
-
-                                <li>
-                                Pour contribuer à OSM : <a href="https://www.openstreetmap.fr/contribuer/" target="_blank">
-                                                https://www.openstreetmap.fr/contribuer/ </a>
-                                </li>
+        <!-- <div class="example-container text_infos" style="text-align:justify;background-color: #fff; width: 600px;"> -->
+                
+                <md-editor name="Content" 
+                    [mode]="'preview'"
+                    [(ngModel)]="parameterService.parameter.info"
+                    [height]="'calc(100% - 100px)'" 
+                >
+                </md-editor>
+        <!-- </div> -->
 
 
-                                <li > Pour les ajouts / modifications des thèmes : <a
-                                                href="https://www.loomio.org/d/018TijXh/th-mes-utilisateurs-"
-                                                target="_blank">
-                                                https://www.loomio.org/d/018TijXh/th-mes-utilisateurs- </a> </li>
-                                <li > Pour créer des cartes personnalisées sur des fonds
-                                        <a href="https://osm.org" target="_blank" rel="noopener noreferrer">
-                                                OpenStreetMap </a> en un instant et les afficher dans votre site. :
-                                        <a href="https://umap.openstreetmap.fr/" target="_blank"
-                                                rel="noopener noreferrer">https://umap.openstreetmap.fr/</a> </li>
-                        </ul>
-
-                </div>
-                <div style="text-align: left;" >
-                        Remerciements à <a href="https://twitter.com/JLZIMMERMANN" target="_blank">@ J.L ZIMMERMANN</a>
-                        pour son implication et l'ordonnance des 16 thèmes
-                </div>
-        </div>
-
-
-
-
-
-        <div class="text-center" style="margin-top:20px" >
-                <div style="width: 150px;height: initial;margin: 0 auto;cursor: pointer;"
-                        (click)="openUrl('https://www.openstreetmap.fr/')">
-                        <a href="https://www.openstreetmap.fr/" target="_blank" class="a_link">
-                                <img width="150" style="cursor: pointer;"
-                                        src="https://wiki.openstreetmap.org/w/images/thumb/8/8c/Openstreepmap-france-logo-texte-carre.pdf/page1-250px-Openstreepmap-france-logo-texte-carre.pdf.jpg"
-                                        alt="" srcset="">
-
-                        </a>
-                </div>
-
-        </div>
 
 </mat-dialog-content>
 

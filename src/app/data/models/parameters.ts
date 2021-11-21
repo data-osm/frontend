@@ -23,6 +23,7 @@ export interface Parameter{
     extent_pk:number
     boundary:AdminBoundary[],
     appExtent?:AppExtent
+    info:string
 }
 
 export interface AdminBoundaryRespone{
