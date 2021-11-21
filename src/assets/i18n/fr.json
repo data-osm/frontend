@@ -453,7 +453,8 @@
     "qml_error": "Ajouter un fichier QML"
   },
   "edit_style": {
-    "title": "Modifier un style"
+    "title": "Modifier un style",
+    "edit_description_title": "Modifier la description du style "
   },
   "edit": "modifier",
   "supprimer": "supprimer",

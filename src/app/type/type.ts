@@ -553,6 +553,7 @@ export interface Style{
   pictogram:string
   qml_file:string
   custom_style:CustomStyle
+  description:string
 }
 
 /**

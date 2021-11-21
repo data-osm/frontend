@@ -33,7 +33,9 @@ $height: calc(100% - 60px);
     overflow-y: auto;
   }
 }
-
+.sidenav-right-legend {
+  width: 270px !important;
+}
 .sidenav-right {
   width: 219px;
   .sidenav-right-content {
@@ -41,7 +43,6 @@ $height: calc(100% - 60px);
     padding-top: 20px;
   }
   .sidenav-right-title {
-    background-color: $primary_transparent_bg;
     color: $primary_color;
     font-size: 13px;
     text-transform: uppercase;
@@ -57,6 +58,7 @@ $height: calc(100% - 60px);
   }
   .sidenav-right-title-fake {
     height: 20px;
+    background-color: $primary_transparent_bg;
   }
   app-download {
     padding-bottom: 140px;

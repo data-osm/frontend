@@ -13,7 +13,7 @@
 
 <app-header [map]="map" ></app-header>
 
-  <mat-sidenav-container class="sidenav-container" #sidenavContainer>
+  <mat-sidenav-container class="sidenav-container" #sidenavContainer [autosize]="true" >
     <mat-sidenav class="sidenav-left" opened mode="side" position="start">
       <ng-container *ngIf="groups$|async as groups">
         <app-sidenave-left-principal [map]="map" [groups]="groups" ></app-sidenave-left-principal>
@@ -161,7 +161,7 @@
               primaryColor: ritghtMenu_i.active
             }" >file_download</mat-icon>
             <!-- <i
-              class="fas fa-download fa-lg"
+              class="fa fa-download fa-lg"
               *ngIf="ritghtMenu_i.name == 'download'"
               [ngClass]="{
                 white: !ritghtMenu_i.active,
@@ -173,7 +173,7 @@
       </div>
     </mat-sidenav-content>
   
-    <mat-sidenav class="sidenav-right" closed mode="side" position="end">
+    <mat-sidenav class="sidenav-right sidenav-right-{{getRightMenuActive()?.name}}"  closed mode="side" position="end">
       <div class="sidenav-right-title" *ngIf="getRightMenuActive()">
         {{ "right_menu." + getRightMenuActive().title + ".title" | translate }}
         <span [hidden]="!getRightMenu('toc').active">

@@ -175,3 +175,6 @@ mat-dialog-container::-webkit-scrollbar-thumb
 	position: absolute !important;
     top: 25px !important;
 }
+*, ::after, ::before{
+	box-sizing: initial ;
+}
