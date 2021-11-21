@@ -1,0 +1,56 @@
+<div class="export-data-loading" *ngIf="loading" >
+    <div style="position:absolute;top:calc(50% - 30px);left:30%">
+        <div class="lds-ripple" style="width: 100px;
+  height: 100px;">
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</div>
+
+<div class="description_download text-center">
+    {{ 'dowload_data.description' | translate }}
+</div>
+
+
+<h5 class="bold primaryColor primary_transparent_bg group-download ">
+    {{ 'dowload_data.title_data_in' | translate }}
+</h5>
+
+<form [formGroup]="fromDownload">
+    <app-search-layer *ngFor="let control of layersArrayControl.controls ; let i = index" [selected]="control">
+    </app-search-layer>
+
+    <h5 class="bold primaryColor primary_transparent_bg group-download">
+        {{ 'dowload_data.title_choose_emprise' | translate }}
+    </h5>
+
+    <mat-slide-toggle style="margin-top: 10px;margin-bottom: 15px;" formControlName="exportAll" color="primary"
+        [matTooltip]="'right_menu.download_data.downloadCompleteDataTooltip' | translate "
+        *ngIf="parameterService.parameter?.boundary?.length > 0"> {{ 'right_menu.download_data.downloadCompleteData' |
+        translate }}
+    </mat-slide-toggle>
+
+    <app-search-admin-boundary *ngIf="!fromDownload.get('exportAll').value"
+        [selected]="fromDownload.get('adminBoundary')"></app-search-admin-boundary>
+
+</form>
+
+<button class="submit-download-data primaryColorBG" (click)="onCountFeatureInstance()"
+    matTooltip="{{ 'dowload_data.calculate' | translate }}" [disabled]="!fromDownload.valid" mat-mini-fab>
+
+    <svg style="height: 32px;" x="0px" y="0px" viewBox="0 0 22 22.2">
+        <g id="Tracé_1915">
+            <path class="whiteFill" d="M18.3,22.2l-3.4-3.7c-3.3,1.9-7.3,1.8-10.5-0.3c-2.2-1.5-3.7-3.7-4.2-6.3c-0.5-2.6,0-5.3,1.5-7.5
+c3-4.6,9.2-5.8,13.8-2.8c4.4,2.9,5.7,8.8,3.1,13.3l3.4,3.6L18.3,22.2z M15.2,16.6l3.2,3.5l1.5-1.5l-3.3-3.4l0.3-0.5
+c2.6-3.9,1.5-9.1-2.3-11.7C10.8,0.3,5.5,1.4,2.9,5.3c-1.3,1.9-1.7,4.1-1.3,6.3s1.7,4.1,3.6,5.4c2.9,1.9,6.6,1.9,9.4,0L15.2,16.6z
+M9.9,16.1c-3.4,0-6.2-2.8-6.2-6.2c0-3.4,2.8-6.2,6.2-6.2c3.4,0,6.2,2.8,6.2,6.2C16.1,13.4,13.4,16.1,9.9,16.1L9.9,16.1z M9.9,5.2
+c-2.6,0-4.7,2.1-4.7,4.7c0,2.6,2.1,4.7,4.7,4.7c2.6,0,4.7-2.1,4.7-4.7C14.6,7.4,12.5,5.2,9.9,5.2z" />
+        </g>
+    </svg>
+
+</button>
+
+<div id="downlod-list-overlays" #downlod_list_overlays style="display: flex;">
+
+</div>

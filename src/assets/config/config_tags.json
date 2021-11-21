@@ -108,6 +108,12 @@
     "type": "url",
     "prefix": ""
   },
+  "ref:mhs":{
+    "display": false,
+    "type": "url",
+    "prefix": "https://www.pop.culture.gouv.fr/notice/merimee/",
+    "header":"france"
+  },
   "contact:instagram": {
     "display": true,
     "type": "url",
@@ -190,8 +196,8 @@
     "surfix": ""
   },
   "mapillary": {
-    "display": true,
-    "type": "image",
+    "display": false,
+    "type": "mapillary",
     "prefix": "https://d1cuyjsrcm0gby.cloudfront.net/",
     "surfix": "/thumb-320.jpg"
   },

@@ -1,0 +1,20 @@
+<h1 mat-dialog-title>
+    <span class="bold primaryColor " style="font-size: 17px;"> {{ data.confirmationTitle  }} </span>
+    <i (click)="closeDialog(false)" class="fa fa-times primaryColor pointer close" style="opacity: 1;
+      font-size: 18px;;margin-right: 10px;margin-top: 6px;"></i>
+</h1>
+
+<mat-dialog-content>
+    {{data.confirmationExplanation}}
+</mat-dialog-content>
+
+<div mat-dialog-actions>
+    <div fxLayout fxLayoutGap="15px" fxLayoutAlign="end">
+        <button fxFlex="150px" mat-stroked-button color="primary"   (click)="closeDialog(true)">
+            {{ data.confirmText }} </button>
+
+        <button fxFlex="150px" mat-flat-button color="accent" class="white"
+            (click)="closeDialog(false)">{{ data.cancelText}}</button>
+        
+    </div>
+</div>

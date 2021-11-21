@@ -1,0 +1,7 @@
+<form [formGroup]="form">
+
+    <app-file-upload *ngIf="form.get('qml_file')" formControlName="qml_file" [multiple]="false" [accept]="'.qml'">
+    </app-file-upload>
+    <span *ngIf="hasError('qml_file', 'required')"> {{ 'add_style.qml_error' | translate }} </span>
+
+</form>

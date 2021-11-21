@@ -1,0 +1,71 @@
+.descriptive-sheet-body{
+  font-family:'Avenir Next Rounded Pro Regular';
+  font-size: 15px;
+  margin-bottom: 10px;
+  .attribute{
+    padding-right: 10px;
+    text-align: right;
+    position: relative;
+    .attribute-title{
+      font-family:'Avenir Next Rounded Pro Medium';
+      font-weight: bold;
+      text-align: right;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      // hyphens: auto;
+      display: block;
+    }
+    .attribute-two-points{
+      position: absolute;
+      top: calc(50% - 10px);
+      margin-left: 5px;
+    }
+  }
+  .attribute-value{
+    padding-left: 5px;
+  }
+}
+.descriptive-sheet-body-url{
+  color: inherit;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.descriptive-sheet-body-url:hover{
+  text-decoration: underline;
+}
+.descriptive-sheet-body-display-attributes-number{
+  font-size: 14px;
+  color: inherit;
+  font-family: 'Avenir Next Rounded Pro Italic';
+  text-decoration: underline;
+}
+.descriptive-sheet-body-header-btn{
+  margin-bottom: 10px;
+  button{
+    margin-right: 5px;
+    margin-left: 5px;
+    // height: 50px;
+    // width: 50px;
+    border: 2px solid #06aca7;
+    background-color: transparent;
+    box-shadow: none;
+  }
+  .descriptive-sheet-body-header-btn-osm{
+    background-color: #06aca7 !important;
+  }
+}
+
+.mat-chip.mat-standard-chip.mat-chip-selected.mat-primary{
+  color: #fff !important;
+}
+
+.opening_hours{
+  margin-top: 10px;
+  box-shadow: none;
+  .day{
+    justify-content: center;
+    margin-top: 10px;
+    align-items: center;
+  }
+}

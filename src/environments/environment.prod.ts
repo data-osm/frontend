@@ -1,12 +1,8 @@
 export const environment = {
   production: true,
-  global_logo:undefined,
-  primaryColor:'#023f5f',
-  backend:'http://127.0.0.1:8000/',
-  url_prefix:"https://adminfrance.geosm.org/",
-  url_frontend:"https://demo.openstreetmap.fr/",
-  url_service: 'https://service.geosm.org/',
-  path_qgis: "/var/www/geosm/",
-  pojet_nodejs: "france",
+  primaryColor: '#023f5f',
+  backend:'https://ws.dataosm.info',
+  url_carto:'https://tiles.dataosm.info/ows/?map=',
+  url_frontend: 'https://demo.openstreetmap.fr',
   nom_instance:"Data OSM"
 };

@@ -1,0 +1,72 @@
+<ng-container *ngIf="vectorProvider$|async as vectorProvider">
+    <div class="details-vp-title" fxLayout>
+        <h1 fxFlex="calc(100% - 150px)">
+            {{vectorProvider.name}}
+
+            <span *ngIf="vectorProvider.count" > ({{vectorProvider.count}}) </span>
+
+            <span class="state-badje state-badje-geometry ">
+                <svg xmlns="http://www.w3.org/2000/svg" *ngIf="vectorProvider.geometry_type=='Point'" width="20px" style="vertical-align: middle;" viewBox="0 0 20 20"><path class="whiteFill" d="M10 3C6.686 3 4 5.612 4 8.833 4 12.055 10 17 10 17s6-4.945 6-8.167C16 5.612 13.314 3 10 3zm.187 3.5c1.326 0 2.4 1.045 2.4 2.333 0 1.289-1.074 2.334-2.4 2.334-1.325 0-2.4-1.045-2.4-2.334 0-1.288 1.075-2.333 2.4-2.333z" ></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" *ngIf="vectorProvider.geometry_type=='Polygon'" width="20px" style="vertical-align: middle;" viewBox="0 0 20 20" ><path d="M6.5 6.5h7v7h-7v-7z" class="whiteFill" fill-opacity=".253"></path><path class="whiteFill" d="M5.5 3A2.5 2.5 0 003 5.5c0 .958.543 1.788 1.333 2.208v4.584A2.502 2.502 0 003 14.5 2.5 2.5 0 005.5 17c.958 0 1.788-.543 2.208-1.333h4.584c.42.79 1.25 1.333 2.208 1.333a2.5 2.5 0 002.5-2.5c0-.958-.543-1.788-1.333-2.208V7.708A2.502 2.502 0 0017 5.5 2.5 2.5 0 0014.5 3c-.969 0-1.804.558-2.219 1.365l-.062-.032H7.708A2.502 2.502 0 005.5 3zm0 1.5a1 1 0 110 2 1 1 0 010-2zm9 0a1 1 0 110 2 1 1 0 010-2zM7.708 6.667h4.584c.234.441.6.807 1.041 1.041v4.584c-.441.234-.807.6-1.041 1.041H7.708a2.523 2.523 0 00-1.041-1.041V7.708c.441-.234.807-.6 1.041-1.041zM5.5 13.5a1 1 0 110 2 1 1 0 010-2zm9 0a1 1 0 110 2 1 1 0 010-2z" ></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" *ngIf="vectorProvider.geometry_type=='LineString'" width="20px" style="vertical-align: middle;" viewBox="0 0 20 20" ><path class="whiteFill" d="M14.558 3a2.442 2.442 0 00-2.442 2.442c0 .246.045.478.112.702l-6.084 6.084a2.432 2.432 0 00-.702-.112 2.442 2.442 0 102.442 2.442c0-.246-.045-.478-.112-.702l6.084-6.084c.224.067.456.112.702.112a2.442 2.442 0 000-4.884zm0 1.465a.976.976 0 11.001 1.953.976.976 0 01-.001-1.953zm-9.116 9.116a.978.978 0 11-.001 1.955.978.978 0 01.001-1.955z" ></path></svg>
+
+                {{vectorProvider.geometry_type}}
+            </span>
+
+            <span class="state-badje state-badje-{{vectorProvider.state}}">
+                {{ 'admin.vector_provider.table.header.state_type.' + vectorProvider.state | translate }}
+            </span>
+
+        </h1>
+        <div fxFlex="150px" class="details-vp-preview">
+            <button mat-flat-button color="accent" (click)="onPreviewInstance()">
+                <span class="white"> {{ 'admin.vector_provider.details.preview_provider' | translate }} </span>
+                <svg viewBox="0 0 477.874 477.874">
+                    <g>
+                        <path
+                            d="M460.812,0c-2.651-0.001-5.266,0.615-7.637,1.8L323.844,66.483L177.6,1.476c-0.239-0.102-0.512-0.12-0.768-0.222
+              c-0.658-0.246-1.331-0.451-2.014-0.614c-0.679-0.183-1.369-0.326-2.065-0.427c-1.386-0.114-2.779-0.114-4.164,0
+              c-0.696,0.101-1.386,0.244-2.065,0.427c-0.683,0.163-1.356,0.368-2.014,0.614c-0.256,0.102-0.529,0.119-0.768,0.222l-153.6,68.267
+              C3.976,72.481,0.003,78.595,0.004,85.341v375.467c0.003,5.774,2.924,11.155,7.765,14.302c4.842,3.152,10.949,3.64,16.23,1.297
+              l146.671-65.195l146.671,65.195c0.256,0.102,0.529,0,0.785,0.154c4.132,1.848,8.875,1.742,12.919-0.29
+              c0.273-0.119,0.58,0,0.853-0.188l136.533-68.267c5.786-2.891,9.441-8.806,9.438-15.275V17.075
+              C477.875,7.649,470.237,0.004,460.812,0z M153.604,381.448L34.137,434.542V96.435L153.604,43.34V381.448z M307.204,434.542
+              l-119.467-53.094V43.34l119.467,53.094V434.542z M443.737,381.994l-102.4,51.2V95.888l102.4-51.2V381.994z" />
+                    </g>
+                </svg>
+            </button>
+        </div>
+
+    </div>
+
+    <mat-tab-group>
+        <mat-tab label=" {{ 'admin.vector_provider.details.datasource_tab' | translate }}">
+            <ng-template matTabContent>
+                <app-osm-querry (reloadVectorProvider)="reloadVectorProvider()" 
+                    [provider_vector_id]="vectorProvider.provider_vector_id">
+                </app-osm-querry>
+            </ng-template>
+        </mat-tab>
+        <mat-tab label="{{ 'admin.vector_provider.details.style_tab' | translate }}">
+            <ng-template matTabContent>
+                <app-list-style [provider_vector_id]="vectorProvider.provider_vector_id"> </app-list-style>
+            </ng-template>
+        </mat-tab>
+        <mat-tab label="{{ 'admin.vector_provider.details.general_tab' | translate }}">
+            <ng-template matTabContent>
+                <mat-list>
+                    <mat-list-item>
+                        <span class="bold "> {{ 'admin.vector_provider.details.general_tab_content.name' | translate }} : &nbsp;&nbsp; </span>
+                        {{vectorProvider.name}} 
+                        <svg (click)="onUpdateInstance(vectorProvider)" style="margin-left: 5px;margin-bottom: 2px;" class="pointer" height="20" width="20" viewBox="0 0 50 49.543" ><path d="M47.815 6.6l-4.47-4.42L41.208.044 39.073 2.18 2.893 38l-.66.66-.2.916-1.118 5.538-.916 4.5 4.47-.864 5.59-1.067.91-.152.66-.66L47.812 11l2.184-2.185L47.81 6.63zm-40.7 31.555L35.67 9.852l4.472 4.472-28.557 28.303-4.47-4.472zm-3.202 7.57L5.03 40.34l4.32 4.32-5.437 1.066zM42.277 12.14l-4.472-4.472 3.405-3.354 4.47 4.42-3.403 3.405z"></path></svg>
+                    </mat-list-item>
+                    <mat-list-item>
+                        <img src="assets/icones/qgis.svg" mat-list-icon >
+                        {{vectorProvider.path_qgis}} ({{vectorProvider.id_server}})
+                    </mat-list-item>
+                </mat-list>
+            </ng-template>
+        </mat-tab>
+    </mat-tab-group>
+
+</ng-container>

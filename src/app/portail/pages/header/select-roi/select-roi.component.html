@@ -1,0 +1,7 @@
+<ng-container *ngIf="lisAppExtent$|async as lisAppExtent">
+  <mat-form-field appearance="fill" class="select-roi-form">
+    <mat-select [formControl]="controlSelectRoi">
+      <mat-option *ngFor="let appExtent of lisAppExtent" [value]="appExtent"> {{appExtent.name}} </mat-option>
+    </mat-select>
+  </mat-form-field>
+</ng-container>

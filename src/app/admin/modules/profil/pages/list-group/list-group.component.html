@@ -1,0 +1,37 @@
+<div style="padding: 24px;" fxLayout="row wrap">
+    <button style="margin-bottom: 10px;" mat-flat-button color="accent" class="white" (click)="onAddInstance()"> {{
+        'admin.add_group.title' | translate }} </button>
+</div>
+<ng-container *ngIf="groups$|async as groups">
+
+        <div fxLayout="row wrap" fxLayoutGap="15px" class="example-list" style="padding: 24px;" cdkDropListGroup >
+
+            <div cdkDropList [cdkDropListEnterPredicate]="enter" (cdkDropListDropped)="drop(groups)" #placeholder></div>
+
+            <div fxFlex="240px" *ngFor="let group of groups;let i=index" 
+                cdkDropList 
+                [cdkDropListEnterPredicate]="enter" 
+                (cdkDropListDropped)="drop(groups)"
+                >
+                    <app-group [group]="group" 
+                        (update)="onUpdateInstance($event)"
+                        (add)="onAddInstance($event)"
+                        (delete)="onDeleteInstance($event)" 
+                        (open)="openGroup($event)"
+                        cdkDrag
+                        class="example-box"
+                        >
+                    <!-- <div  *cdkDragPlaceholder></div> -->
+                    </app-group>
+            </div>
+          
+        </div>
+
+</ng-container>
+
+<!-- <div cdkDropList class="example-list" (cdkDropListDropped)="drop($event)">
+    <div class="example-box" *ngFor="let movie of movies" cdkDrag>
+      <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+      {{movie}}
+    </div>
+  </div> -->

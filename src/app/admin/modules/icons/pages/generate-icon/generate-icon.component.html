@@ -1,0 +1,27 @@
+<div style="height: 100%;background: #f2f5f6;" >
+    <h4 style="padding-left: 24px;margin-bottom: 0px;" > Sélectionner une icone : </h4>
+    <div fxLayout style="max-height: 100%;"  >
+        <div fxFlex="70%" style="overflow-y: scroll;">
+            <app-icons> </app-icons>
+        </div>
+        <div fxFlex="30%" style="text-align: center;" [hidden]="mode!='svg'" >
+            <div #iconOrigin >
+                
+            </div>
+            <div #circleSvg >
+                
+            </div>
+            <div #squareSvg >
+                
+            </div>
+    
+            <mat-slide-toggle [fxHide]="!displayBackground" > {{ 'admin.generate_icon.background' | translate }} </mat-slide-toggle>
+            <app-color-picker style="display: block; padding: 20px;" [colorLabel]=" 'admin.generate_icon.icon_color' | translate " [colorForm]="iconColorForm" ></app-color-picker>
+            <app-color-picker style="display: block; padding: 20px;" [colorLabel]=" 'admin.generate_icon.icon_bg_color' | translate " [colorForm]="backgroundColor" ></app-color-picker>
+        </div>
+
+        <div fxFlex="30%" style="text-align: center;" [hidden]="mode!='raster'" >
+            <img src="{{url_prefix+(iconSelected |async)?.path}}" style="width: 100px;height: auto;" >
+        </div>
+    </div>
+</div>

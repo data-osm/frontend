@@ -6,10 +6,17 @@
         border: none;
     }
     .sidenav-admin-content{
-        padding: 24px;
-        height: 100%;
+        height: calc(100% - 50px);
     }
     .mat-sidenav-content{
         background-color: #e7ebed;
+    }
+    .sidenav-admin-nav-bar{
+        position: fixed;
+        left: 0px;
+        right: 0px;
+        margin-left:256px;
+        z-index: 2;
+        background: #fff;
     }
 }

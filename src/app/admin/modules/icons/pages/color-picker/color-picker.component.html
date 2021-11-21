@@ -1,0 +1,19 @@
+<mat-form-field *ngIf="colorForm" style="width: 100%;">
+    <mat-label> {{colorLabel}} </mat-label>
+    <input 
+    class="input-style"
+    [cpPositionOffset]="'50%'"
+    [cpPosition]="'bottom-left'"
+    [cpAlphaChannel]="'always'"
+    [cpOutputFormat]="'rgba'"
+    [cpPresetColors]="presetValues"
+    [cpSaveClickOutside]="true"
+    [(colorPicker)]="colorForm.value" 
+    (colorPickerChange)="onColorPickerSelect($event,'color')"
+    matInput 
+    [attr.style]="('background:' + colorForm.value + ' !important') | safeStyle"
+    [formControl]="colorForm"
+    />
+   
+    <mat-error> {{ 'add_vector_provider.name_error' | translate }} </mat-error>
+</mat-form-field>

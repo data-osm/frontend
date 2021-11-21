@@ -22,6 +22,7 @@
   max-height: calc(100% - 112px) !important;
   height: calc(100% - 112px) !important;
   padding: 24px !important;
+  background: #eeeeee;
 }
 
 ::ng-deep .mat-dialog-title {
@@ -30,7 +31,7 @@
   margin-right: -24px !important;
   margin-top: -24px !important;
   margin-bottom: 0px !important;
-  padding: 6px 0px !important;
+  padding: 6px 10px !important;
   background-color: $primary_transparent_bg !important;
 }
 

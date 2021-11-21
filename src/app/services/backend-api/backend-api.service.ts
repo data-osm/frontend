@@ -14,7 +14,7 @@ export class BackendApiService {
 
   headers: HttpHeaders = new HttpHeaders({});
   headers_nodejs: Headers = new Headers({});
-  url_prefix = environment.url_prefix
+  // url_prefix = environment.url_prefix
 
   constructor(
     private http: HttpClient
@@ -67,49 +67,5 @@ export class BackendApiService {
     return promise;
   }
 
-  /**
- * Make a get request to Backend
- * @param string path url
- */
-  getRequest(path: string): Promise<any> {
-
-    let promise = new Promise((resolve, reject) => {
-      this.http.get(this.url_prefix + path, { headers: this.headers })
-        .toPromise()
-        .then(
-          res => {
-            resolve(res);
-          },
-          msg => { // Error
-            reject(msg);
-          }
-        );
-    });
-
-    return promise;
-  }
-
-
-  /**
-   * Make a Post request to Backend
-   * @param string path url
-   * @param Object data
-   */
-  post_requete(url: string, data: Object): Promise<any> {
-
-    return new Promise((resolve, reject) => {
-      this.http.post(this.url_prefix + url, data, { headers: this.get_header() })
-        .toPromise()
-        .then(
-          res => {
-            resolve(res);
-          },
-          msg => { // Error
-
-            reject(msg.error);
-          }
-        );
-    });
-  }
 
 }

@@ -36,6 +36,8 @@
     "tout_supprimer": "Tout supprimer"
   },
   "dowload_data": {
+    "error_count": "Une érreur est survenu lors du calcul d'entités",
+    "error_fetching_adminboundary": "Une érreur est survenu lors du chargement de la géométrie ",
     "all": "tout",
     "by": "Par",
     "calculate": "Calculer",
@@ -59,7 +61,8 @@
     "save": "SAUVEGARDER"
   },
   "header": {
-    "toolpit_info": "Data OSM ?"
+    "toolpit_info": "Data OSM ?",
+    "toolpit_profil": "Les profils"
   },
   "layer_properties": {
     "click_url_text": "Cliquer ici",
@@ -68,7 +71,15 @@
     "title": "Fiche descriptive",
     "title_download": "Téléchargement des fichiers",
     "toolpit_share": "Partager ce lieu",
-    "adresse": "Adresse"
+    "adresse": "Adresse",
+    "monday": "Lundi",
+    "lock": "Fermé",
+    "tuesday": "Mardi",
+    "wednesday": "Mercredi",
+    "thursday": "Jeudi",
+    "friday": "Vendredi",
+    "saturday": "Samedi",
+    "sunday": "Dimanche"
   },
   "left_menu": {
     "fonds_de_carte": "Tous les fonds de cartes",
@@ -106,12 +117,13 @@
     "number_entite": " entité(s)",
     "properties": "Propriétes",
     "ressources": "Ressources",
-    "resume": "Résumé :",
+    "resume": "Mots clés",
     "scale": "Echelle : ",
     "shareholders": "Partenaires / producteurs : ",
     "text_no_metadata": "Le résumé de cette donnée n'est pas encore disponible",
     "title": "Fiche descriptive :",
-    "update_date": "Mise à jour: "
+    "update_date": "Mise à jour: ",
+    "download_style": "Téléchargez le style QML"
   },
   "naviguation_tools": {
     "compare_maps": "Comparer des cartes",
@@ -247,13 +259,163 @@
     "title": " Connecter vous"
   },
   "admin": {
+    "generate_icon": {
+      "background": "Activer l'arrière plan",
+      "icon_color": "Couleur de l'icone",
+      "icon_bg_color": "Couleur de l'arière plan"
+    },
     "icon": {
       "add_group": "Ajouter un groupe",
       "add_icons": "Ajouter des icones",
-      "search_icons": "Rechercher une icone"
+      "search_icons": "Rechercher un icone"
+    },
+    "vector_provider": {
+      "search_vector_provider": "Rechercher une source",
+      "add_vector_provider": "Ajouter une source",
+      "table": {
+        "header": {
+          "name": "Nom",
+          "state": "Etat de la source",
+          "state_type": {
+            "good": "Actif",
+            "not_working": "Hors service",
+            "action_require": "Action requise",
+            "unknow": "Inconnu",
+            "null": "Inconnu"
+          },
+          "type_geometrie": "Type de géometrie"
+        }
+      },
+      "edit_vector_provider": {
+        "title": "Modifier une source "
+      },
+      "details": {
+        "datasource_tab": "Source de données",
+        "style_tab": "Styles",
+        "general_tab": "General",
+        "preview_provider": "Visualiser",
+        "general_tab_content": {
+          "name": "Nom de la  source"
+        }
+      },
+      "delete_vector_provider": "Supprimer les sources sélectionnés",
+      "select_vector_provider": "Selectionnez des sources",
+      "delete_confirmation_title": "Supprimer des sources vecteurs",
+      "delete_confirmation_explanation": "Confirmer la suppression de ",
+      "delete_confirmation_explanation2": "source(s) "
     },
     "lef_sidenav": {
-      "icons": "Icones"
+      "icons": "Icones",
+      "vector_provider": "Dépot de sources",
+      "maps": "Profils",
+      "base-map": "Carte de bases",
+      "user": "Utilisateurs",
+      "parameters": "Réglages"
+    },
+    "osm_querry": {
+      "where": "Clause where de la requete",
+      "edit_where_querry": "Editer la clause where de la requete",
+      "edit_select_querry": "Editer la clause select de la requete",
+      "select": "Clause select de la requete"
+    },
+    "list-style": {
+      "delete_confirmation_title": "Supprimer un style",
+      "delete_confirmation_explanation": "Confirmer la suppression du style "
+    },
+    "preview-data": {
+      "title": "Visualiser"
+    },
+    "add_map": {
+      "title": "Ajouter un profil",
+      "map_name": "Nom du profil"
+    },
+    "edi_map": {
+      "title": "Modifier un profil"
+    },
+    "map": {
+      "delete_confirmation_title": "Supprimer un profil",
+      "delete_confirmation_explanation": "Confirmer la suppresion du profil"
+    },
+    "detail_map": {
+      "group": {
+        "delete": "Supprimer un groupe"
+      }
+    },
+    "add_group": {
+      "title": "Ajouter un groupe",
+      "group_name": "Nom du groupe",
+      "color": "Couleur du groupe"
+    },
+    "edit_group": {
+      "title": "Modifier le groupe "
+    },
+    "add_sub_group": {
+      "title": "Ajouter un sous groupe",
+      "group_name": "Nom du sous groupe"
+    },
+    "edit_sub_group": {
+      "title": "Modifier un sous groupe"
+    },
+    "sub_group": {
+      "delete": "Supprimer un sous groupe"
+    },
+    "add_layer": {
+      "title": "Ajouter une couche",
+      "name": "Nom de la couche",
+      "color": "Couleur"
+    },
+    "update_layer": {
+      "title": "Modifier la couche"
+    },
+    "base-map": {
+      "delete_confirmation_title": "Supprimer une carte de base",
+      "delete_confirmation_explanation": "Supprimer la carte de base : ",
+      "add": {
+        "title": "Ajouter une carte de base",
+        "name": "Nom de la carte de base",
+        "url": "Url de la carte de base",
+        "protocol_carto": "Protocol du flux de la carte de base",
+        "identifiant": "Identifiant du WMS de la carte de base",
+        "attribution": "Attribution de la carte de base"
+      },
+      "update": {
+        "title": "Mettre à jour une carte de base"
+      },
+      "title": "Carte de bases"
+    },
+    "user": {
+      "list_user": "Utilisateurs",
+      "add_user": "Ajouter un utilisateur",
+      "add_user_comp": {
+        "title": "Ajouter un utilisateur",
+        "email": "E-mail",
+        "psw": "Mot de passe",
+        "name": "Nom"
+      }
+    },
+    "parameter": {
+      "admin_boundary": {
+        "delete_confirmation_title": "Supprimer une limite administrative",
+        "delete_confirmation_explanation": "Supprimer la limite administrative ",
+        "add": {
+          "title": "Ajouter une limite administrative",
+          "name": "Nom de la limite administrative"
+        },
+        "title": "Limites administratives",
+        "add_title": "Ajouter une limite administrative"
+      },
+      "parameter": {
+        "update": {
+          "title": "Mettre à jour les paramètres"
+        }
+      },
+      "title": "Paramètres",
+      "update": "Mettre à jour les paramètres",
+      "principal_profil": "Profil principal",
+      "source_extent": "Source des emprises du projet",
+      "source_principal": "Emprise princiale du projet ",
+      "info": "A Propos",
+      "update_info": "Modifier le texte"
     }
   },
   "add_icon": {
@@ -263,6 +425,67 @@
     "image_error": "Ajouter au moins une image",
     "attribnution": "Attribution des images"
   },
+  "update_icon": {
+    "title": "Modifier une icone",
+    "category": "Slectionnez la catégorie des icones",
+    "category_error": "Champ obligatoire",
+    "image_error": "Ajouter au moins une image",
+    "attribnution": "Attribution des images"
+  },
   "save": "Valider",
-  "cancel": "Annuler"
+  "cancel": "Annuler",
+  "add_vector_provider": {
+    "title": "Ajouter une source",
+    "name": "Le nom de la  source",
+    "name_error": "Champ obligatoire",
+    "geometry_type": "Selectionner le type de géometrie",
+    "geometry_type_point": "Point et centroid des polygonnes",
+    "geometry_type_polygon": "Polygon uniquement",
+    "geometry_type_lineString": "Lignes uniquement"
+  },
+  "delete": "Supprimer",
+  "list-style": {
+    "add_style": "Ajouter un style"
+  },
+  "add_style": {
+    "title": "Ajouter un style",
+    "name": "Nom du style",
+    "qml_error": "Ajouter un fichier QML"
+  },
+  "edit_style": {
+    "title": "Modifier un style",
+    "edit_description_title": "Modifier la description du style "
+  },
+  "edit": "modifier",
+  "supprimer": "supprimer",
+  "select_provider_with_style": {
+    "title": "Ajouter une source de données à la couche :",
+    "choose_style": "Selectioner un style existant de cette source :",
+    "create_new_style": "Créer un nouveau style à cette source :",
+    "search_provider": "Rechercher une source pour l'ajouter",
+    "add_source": "Définir une nouvelle une source",
+    "or": "Ou"
+  },
+  "list_provider_with_style": {
+    "add": "Ajouter une source",
+    "provider": "Source",
+    "style": "Style",
+    "delete_title": "Supprimer une souce d'une couche"
+  },
+  "list_layer": {
+    "add_layer": "Ajouter une couche",
+    "delete": "Supprimer",
+    "update": "Modifier",
+    "delte_layer": "Supprimer une couche"
+  },
+  "ressearch": {
+    "map": "Rechercher un profil"
+  },
+  "portail": {
+    "error_loading": {
+      "extent": "Une erreur est survenue lors du chargement de l'emprise du projet",
+      "parameter": "Une erreur est survenue lors du chargement des réglages de l'application",
+      "basemaps": "Une erreur est survenue lors du chargement des cartes de bases"
+    }
+  }
 }

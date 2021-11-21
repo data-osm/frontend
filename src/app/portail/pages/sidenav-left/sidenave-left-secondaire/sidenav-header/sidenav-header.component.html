@@ -1,0 +1,14 @@
+<div class="sidenav-left-second-header-ghost " ></div>
+
+<div class=" black sidenav-left-second-header white" [ngClass]="{'primaryColorBG': !backgroundColor}"
+[ngStyle]="{'background-color': backgroundColor}" fxLayout="row" fxLayoutGap="10px" >
+
+<i fxFlex="20px" class="fa fa-angle-left fa-lg white pointer " (click)="close()"></i>
+
+<div fxFlex="25px" class="sidenav-left-second-header-img" *ngIf="logo == undefined"> </div>
+<img fxFlex="35px" *ngIf="logo != undefined"  class="sidenav-left-second-header-img" src="{{logo}}" alt="">
+
+
+<h5 fxFlex class="bold  white sidenav-left-second-header-title" matTooltip="{{title}}"> {{title}}</h5>
+
+</div>

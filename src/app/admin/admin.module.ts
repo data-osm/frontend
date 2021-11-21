@@ -1,45 +1,31 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { MultiTranslateHttpLoader } from 'ngx-translate-multi-http-loader';
-export function HttpLoaderFactory(httpClient: HttpClient) {
-  return new MultiTranslateHttpLoader(httpClient, [
-    { prefix: "./assets/i18n/", suffix: ".json" },
-    {prefix: './assets/i18n/tags-', suffix: '.json'}
-  ]);
-}
 
 
 import { AdminRoutingModule } from './admin-routing.module';
 import { AdministrationComponent } from './administration/administration.component';
-import {ComponentMaterialModule} from '../material-module';
-import { SidenavLeftAdminComponent } from './administration/sidenav-left-admin/sidenav-left-admin.component';
-import { NavBarComponent } from './administration/nav-bar/nav-bar.component';
-import { IconsComponent } from './administration/content/icons/icons.component'
-import { FlexLayoutModule } from '@angular/flex-layout';
-import { AddIconComponent } from './administration/content/icons/add-icon/add-icon.component';
-import { FileUploadComponent } from './administration/content/icons/add-icon/file-upload/file-upload.component';
+import { SidenavLeftAdminComponent } from './administration/pages/sidenav-left-admin/sidenav-left-admin.component';
+import { NavBarComponent } from './administration/pages/nav-bar/nav-bar.component';
+
+import {SharedModule} from '../shared/shared.module'
+import { AddMapComponent } from './administration/pages/add-map/add-map.component';
+import { EditMapComponent } from './administration/pages/edit-map/edit-map.component';
+import { _VIEW_REPEATER_STRATEGY, _DisposeViewRepeaterStrategy } from '@angular/cdk/collections';
+import { _CoalescedStyleScheduler, CdkTable, CDK_TABLE } from '@angular/cdk/table';
+import { MatTable } from '@angular/material/table';
 
 @NgModule({
-  declarations: [AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, IconsComponent, AddIconComponent, FileUploadComponent],
+  declarations: [ AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, AddMapComponent, EditMapComponent],
   imports: [
     CommonModule,
     AdminRoutingModule,
-    ComponentMaterialModule,
-    FlexLayoutModule,
-    HttpClientModule,
-    ReactiveFormsModule,
-    FormsModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient],
-      }
-    }),
-  ]
+    SharedModule
+  ],
+  providers:[_CoalescedStyleScheduler,
+    {provide: _VIEW_REPEATER_STRATEGY, useClass: _DisposeViewRepeaterStrategy},
+    {provide: CdkTable, useExisting: MatTable},
+    {provide: CDK_TABLE, useExisting: MatTable},]
+
 })
 export class AdminModule { }

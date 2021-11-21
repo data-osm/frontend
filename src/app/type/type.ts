@@ -1,4 +1,3 @@
-import {StorageServiceService} from '../services/storage-service/storage-service.service'
 /**
  * Properties of a right menu
  */
@@ -7,7 +6,7 @@ export interface rightMenuInterface {
   tooltip: string,
   active: boolean,
   enable: boolean,
-  title:string
+  title: string
 }
 
 /**
@@ -74,9 +73,9 @@ export interface coucheInterface {
    * categorie of the layer
    */
   categorie: categorieInterface
- /**
-   * Is the layer in map ?
-   */
+  /**
+    * Is the layer in map ?
+    */
   check: boolean
   /**
    * Only if wms_type is OSM and categorie.mode_sql is false
@@ -166,7 +165,7 @@ export interface coucheInterface {
   /**
    * render layer in wms ?, if false, render layer in wfs
    */
-  service_wms:boolean
+  service_wms: boolean
   /**
    * Url of QGIS SERVER
    */
@@ -206,7 +205,7 @@ export interface sousThematiqueInterface {
   nom: string
 }
 
-export interface  groupInterface{
+export interface groupInterface {
   /**
    *  background color
    */
@@ -256,7 +255,7 @@ export interface groupThematiqueInterface extends groupInterface {
  * Interface for a carte
  * @interface carteInterface
  */
-export interface carteInterface  {
+export interface carteInterface {
   /**
   * Extend of the layer if exists
   * @example "40.91789245605469,29.5161103,40.91789245605469,29.5161103"
@@ -344,7 +343,7 @@ export interface sousCarteIntgerface {
  * interface for classes that represent a group of carte
  * @interface groupCarteInterface
  */
-export interface groupCarteInterface extends groupInterface  {
+export interface groupCarteInterface extends groupInterface {
 
   id: number
   /**
@@ -354,7 +353,7 @@ export interface groupCarteInterface extends groupInterface  {
   /**
    * Is this group the principal group of cartes
    */
-  principal:boolean
+  principal: boolean
   /**
    * Sous thematiques
    */
@@ -406,7 +405,7 @@ export interface configProjetInterface {
   /**
    * Geojson of the region of interest
    */
-  roiGeojson:any
+  roiGeojson: any
   /**
    * Geographic limit of the project
    */
@@ -414,7 +413,7 @@ export interface configProjetInterface {
   /**
    * Geosignets of the projects
    */
-  geosignetsProject:geosignetsProjectInterface[]
+  geosignetsProject: geosignetsProjectInterface[]
 
 }
 
@@ -426,7 +425,7 @@ export interface geosignetsProjectInterface {
    * Is the geosignet active ?
    */
   active: boolean
-  geometry:string
+  geometry: string
   /**
    * Id in DB
    */
@@ -440,16 +439,16 @@ export interface geosignetsProjectInterface {
 /**
  * User interface
  */
-export interface User{
+export interface User {
   /**
    * Name of the user
    */
-  username:string
-  id:number
+  username: string
+  id: number
   /**
    * email of the user
    */
-  email:string
+  email: string
 }
 
 /**
@@ -473,18 +472,205 @@ export interface ResponseOfSerachLimitInterface {
    */
   name: string
   ref: string
-  geometry?:any
+  geometry?: any
+}
+
+export interface TagsIcon{
+  id:number,
+  name:string
 }
 
 /**
  * interface of a icon
  */
-export interface Icon{
-  icon_id:number
-  path:string
+export interface Icon {
+  icon_id: number
+  path: string
+  name: string
+  category: string
+  icon?: File
+  attribution: string,
+  svgContent?:string,
+  tags:Array<TagsIcon>
+}
+/**
+ * interface of a vector provider
+ */
+export interface VectorProvider {
+  provider_vector_id: number
   name:string
-  category:string
-  icon?:File
-  tags:string[]
-  attribution:string
+  /** the table where data are store */
+  table:string
+  /** the shema where data are store */
+  shema:string
+  geometry_type:'Polygon'|'Point'|'LineString'
+  /** url of the carto server */
+  url_server:string
+  path_qgis:string
+  /** identifiant of this ressource in the carto server */
+  id_server:string
+  /**extent of this ressource  */
+  extent:[number,number,number,number]
+  z_min:number
+  z_max:number
+  /**
+   * number of feature of this ressources 
+   */
+  count:number
+  /**
+   * total lenght of the ressource if geometry type is LineString 
+   */
+  total_lenght:number
+  /**
+   * total area of the ressource if geometry type is Polygon 
+   */
+  total_area:number
+  epsg:number
+  /**
+   * state of the data
+   */
+  state:'good'|'not_working'|'action_require'|'unknow'
+}
+
+/**
+ * interface of an osm querry
+ */
+export interface OsmQuerry{
+  select:string,
+  where:string,
+  sql?:string
+  provider_vector_id:number
+}
+
+/**
+ * interface of a style
+ */
+export interface Style{
+  name:string
+  provider_style_id:number
+  provider_vector_id:number
+  custom_style_id:number
+  pictogram:string
+  qml_file:string
+  custom_style:CustomStyle
+  description:string
+}
+
+/**
+ * Interface of a response from DB
+ */
+export interface HttpResponse{
+  error:boolean
+  msg:string
+  data:any
+}
+
+/**
+ * Model to send a data in the preview modal
+ */
+export interface DataForPreview{
+  name:string
+  url_server:string
+  id_server:string
+  extent:[number,number,number,number],
+  type:'wms'|'wmts'
+  style:Array<string>,
+  attributions?:string|Array<string>
+}
+
+/**
+ * interface of a map or profil
+ */
+export interface Map{
+  map_id:number
+  name:string
+}
+
+
+export interface Group{
+  group_id: number
+  name:string
+  color:string
+  icon_path:string
+  icon:Icon
+  type_group:string
+  map_id:number[]
+}
+
+export interface SubGroup{
+  group_sub_id:number
+  name:string
+  group:number
+}
+export interface SubGroupWithLayers extends SubGroup{
+  layers:Array<Layer>
+}
+export interface SubGroupWithGroup {
+  group_sub_id:number
+  name:string
+  group:Group
+}
+
+export interface Layer{
+  layer_id:number
+  name:string
+  protocol_carto: 'wms'|'wfs'|'wmts'
+  color:string
+  icon_color:string
+  icon:number
+  icon_background:boolean
+  cercle_icon :string
+  square_icon :string
+  description :string
+  opacity :boolean
+  metadata :boolean
+  share :boolean
+  sub :number,
+  providers:Array<LayerProviders>
+}
+
+export interface LayerProviders {
+  id:number
+  layer_id:number,
+  vs_id:number,
+  vp_id:number,
+  vp:VectorProvider,
+  vs:Style,
+  ordre:number
+}
+
+export  interface ReorderProvider{
+  id:number
+  ordre:number
+}
+
+export interface Tag{
+  id:number,
+  name:string
+}
+
+export interface Metadata{
+  id?:number
+  tags:Array<Tag>
+  description:string
+  layer:number
+}
+
+export interface CustomStyle{
+  custom_style_id:number
+  name:string
+  description:string
+  fucntion_name:string
+  geometry_type:'Polygon'|'Point'|'LineString'
+  icon:string
+}
+
+export interface AddStyle{
+  name?:string
+  provider_vector_id: number
+  color?: string
+  icon_color?: string 
+  icon?: Icon 
+  icon_background?: boolean 
+  customStyle?:CustomStyle
 }

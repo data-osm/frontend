@@ -1,0 +1,38 @@
+@import '../../../../../theme.scss';
+
+.search-vp{
+    background-color: #f3f5f6;
+    padding: 20px 20px 0px 20px;
+    border-radius: 10px;
+    .fa-search{
+        font-size: 22px;
+    }
+    .fa-times-circle{
+        font-size: 20px;
+        transform: translateY(-4px);
+    }
+    ::ng-deep  .mat-option{
+        height: 55px;
+    }
+    .search-vp-title{
+        padding: 14px;
+        border-bottom: 5px solid #023f5e;
+    }
+}
+
+.loading-vp{
+    mat-spinner{
+        margin: auto;
+        margin-top: 40px;
+    }
+}
+
+.list-vp{
+    border-radius: 10px;
+    margin-top: 20px;
+    padding-bottom: 30px;
+    
+   
+    
+}
+

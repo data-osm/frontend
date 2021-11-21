@@ -1,0 +1,43 @@
+<div style="padding: 24px;">
+
+<button style="margin-bottom: 10px;width: 100%;" mat-flat-button color="accent" class="white" (click)="onAddtInstance()" > {{ 'admin.icon.add_icons' | translate }} </button>
+
+<div class="search-icons" fxLayout="row wrap">
+    <!-- <h2 class="one-group-icon-title" fxFlex="calc(100% - 170px)" >  {{ 'admin.icon.search_icons' | translate }} </h2> -->
+    <form fxFlex="100%" [formGroup]="searchIconForm" >
+        <mat-form-field appearance="outline" style="width: 100%;" *ngIf="searchIconForm.get('search_word')" >
+            <i class="fa fa-search black " aria-hidden="true" matPrefix ></i>
+            <input matInput formControlName="search_word" [matAutocomplete]="autoCompleteIcon">
+            <i class="fa fa-times-circle pointer" matSuffix (click)="searchIconForm.get('search_word').setValue(null)" *ngIf="searchIconForm.get('search_word').value" ></i>
+            <mat-autocomplete (optionSelected)="onIconSelect.next($event.option.value)" autoActiveFirstOption #autoCompleteIcon="matAutocomplete" [displayWith]="displaySelectedIcon">
+                <mat-option *ngFor="let icon of searchResultIcon | async" [value]="icon">
+                    <mat-list>
+                        <mat-list-item> 
+                            <img [src]="url_prefix+icon.path" mat-list-icon style="height: 32px;width: 32px;border-radius: 0px;">
+                            <div mat-line>{{icon.name}}, {{icon.category}}</div>
+                        </mat-list-item>
+                       </mat-list>
+                </mat-option>
+              </mat-autocomplete>
+
+        </mat-form-field>
+    </form>
+    
+</div>
+
+<div class="text-center loading-icons">
+    <mat-spinner color="primary" diameter="150" *ngIf="loading_icon" ></mat-spinner>
+</div>
+<div class="all-group-icon" *ngIf="iconList$ |async as iconList" >
+        <div class="one-group-icon" *ngFor="let group_name of objectKeys.keys(iconList)" > 
+            <h2 class="one-group-icon-title" > {{group_name}} </h2>
+            <div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="center">
+                <div fxFlex="108px" class="one-icon" [ngClass]="{'one-icon-selected':(onIconSelect|async)?.icon_id == icon.icon_id}" (click)="onIconSelect.next(icon)" *ngFor="let icon of iconList[group_name]" [matTooltip]="icon.name" >
+                    <i class="fa fa-trash red" (click)="onDeletetInstance(icon)" ></i>
+                    <svg height="15" width="15" viewBox="0 0 50 49.543" (click)="onUpdatetInstance(icon)"  class="fa-pencil" ><path d="M47.815 6.6l-4.47-4.42L41.208.044 39.073 2.18 2.893 38l-.66.66-.2.916-1.118 5.538-.916 4.5 4.47-.864 5.59-1.067.91-.152.66-.66L47.812 11l2.184-2.185L47.81 6.63zm-40.7 31.555L35.67 9.852l4.472 4.472-28.557 28.303-4.47-4.472zm-3.202 7.57L5.03 40.34l4.32 4.32-5.437 1.066zM42.277 12.14l-4.472-4.472 3.405-3.354 4.47 4.42-3.403 3.405z"></path></svg>
+                    <img src="{{url_prefix+icon.path}}" alt="" srcset="">
+                </div>
+            </div>
+        </div>
+</div>
+</div>

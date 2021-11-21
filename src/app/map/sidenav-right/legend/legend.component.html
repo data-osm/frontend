@@ -1,8 +1,0 @@
-<div *ngFor="let layer of layersInTocWithLegend">
-  <mat-list-item class="bold black" style="padding: 5px 0px;width:100%;">
-    <p style="margin-bottom: -5px;" > {{layer.nom}} : </p>
-
-    <img [src]="DomSanitizer.bypassSecurityTrustUrl(layer.legendCapabilities.urlImg)" alt="" srcset="">
-  </mat-list-item>
-  <mat-divider style="border-color: #0006;"></mat-divider>
-</div>

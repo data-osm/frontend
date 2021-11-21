@@ -1,0 +1,69 @@
+@import '../../../../../theme.scss';
+
+.style-item{
+    background-color: #fff;
+    color: #000;
+    transition: background-color .5s, color .5s;
+    margin-bottom: 10px;
+    align-items: center;
+    align-items: stretch;
+
+    .style-item-title{
+        padding: 5px 10px;
+        align-items: center;
+        .title{
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+    }
+    .style-item-rigth{
+        align-items: center;
+        background-color: #fff;
+        text-align: center;
+        border-left: 2px solid #e7ebed;
+    }
+    .style-item-delete{
+        span{
+            color:red;
+        }
+        svg{
+            path{
+                fill: red;
+            }
+        }
+    }
+
+    .style-item-update{
+        span{
+            color:$accent_color;
+        }
+        svg{
+            path{
+                fill: $accent_color;
+            }
+        }
+    }
+
+    .style-item-download{
+        color: #000;
+        text-decoration: none;
+    }
+
+    // .style-item-delete:hover{
+    //     background-color: red;
+    //     .style-item-delete-text{
+    //         color: white;
+    //     }
+    //     svg{
+    //         vertical-align: middle;
+    //         path{
+    //             fill: white;
+    //         }
+    //     }
+    // }
+}
+
+// .style-item-title:hover{
+//     background-color: $accent_color;
+//     color: #fff;
+// }

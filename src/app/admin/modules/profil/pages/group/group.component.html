@@ -1,0 +1,22 @@
+<mat-card style="margin-bottom: 15px;padding-bottom: 0px;">
+    <!-- <svg-icon mat-card-image [icon]="group.icon" [color]="'#5e6367'" [size]="25" > </svg-icon> -->
+    <div style="text-align: center;">
+      <img mat-card-image  style="margin-bottom: 0px;height: 100px;width: 100px;margin-top: 5px;" [src]="environment.backend+group.icon_path">
+    </div>
+    <mat-card-content style="margin-bottom: 0px;">
+     <h3 style="text-transform: uppercase;"> {{group.name}} </h3>
+    </mat-card-content>
+    <mat-card-actions fxLayout >
+      <button fxFlex mat-button class="white accentColorBG" style="border-radius: 0px;" (click)="open.emit(group)" > 
+            Ouvrir
+      </button>
+
+      <div fxFlex="40px" style="padding-top: 10px;text-align: center;" (click)="update.emit(group)" class="pointer" >
+        <svg  fxFlexAlign="end"  height="17" width="17" viewBox="0 0 50 49.543"><path _ngcontent-oxc-c355="" d="M47.815 6.6l-4.47-4.42L41.208.044 39.073 2.18 2.893 38l-.66.66-.2.916-1.118 5.538-.916 4.5 4.47-.864 5.59-1.067.91-.152.66-.66L47.812 11l2.184-2.185L47.81 6.63zm-40.7 31.555L35.67 9.852l4.472 4.472-28.557 28.303-4.47-4.472zm-3.202 7.57L5.03 40.34l4.32 4.32-5.437 1.066zM42.277 12.14l-4.472-4.472 3.405-3.354 4.47 4.42-3.403 3.405z"></path></svg>
+      </div>
+      
+      <div fxFlex="40px" style="padding-top: 10px;text-align: center;" (click)="delete.emit(group)" class="pointer" >
+        <svg  fxFlexAlign="end"  height="17" width="17" viewBox="0 0 49.501 50"><path _ngcontent-oxc-c372="" fill="red" d="M17.865 0v5.938H0V9.43h4.543L8.393 50h32.77l3.8-40.57h4.54V5.94H31.635V0zm3.493 3.493h6.786v2.445h-6.786zM8.052 9.43h33.4L37.98 46.508H11.57zm9.71 7.632l-3.487.208 1.497 25.1 3.487-.208zm14.477 0l-1.5 25.1 3.487.207 1.496-25.1zm-8.988.104v25.1h3.493v-25.1z"></path></svg>
+      </div>
+    </mat-card-actions>
+</mat-card>

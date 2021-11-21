@@ -1,0 +1,15 @@
+@import '../../../../../modal-style.scss';
+.input-style{
+    height: 35px;
+}
+.generate-icon{
+    height: calc(80vh - 230px);
+    background: #f2f5f6;
+    display: block;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 15px 5px;
+}
+.gen_icon_title{
+    margin-top: 10px; margin-bottom: 0px;
+}
