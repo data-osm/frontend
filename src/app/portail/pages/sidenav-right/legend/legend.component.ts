@@ -32,7 +32,6 @@ export class LegendComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-
   }
 
   ngOnDestroy(){
@@ -63,9 +62,10 @@ export class LegendComponent implements OnInit {
                   .filter((provider) => { return provider.vp.state == 'good' && provider.vp.id_server != undefined })
                   .map((provider) => {
                     
-
+                    
                     layerProp.legendCapabilities.push(
                       {
+                        description:provider.vs.description,
                         urlImg: $.trim(environment.url_carto+provider.vp.url_server + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=" + provider.vp.id_server + "&STYLE=" + provider.vs.name + "&SLD_VERSION=1.1.0&LAYERTITLE=false&RULELABEL=true")
                       }
                     )

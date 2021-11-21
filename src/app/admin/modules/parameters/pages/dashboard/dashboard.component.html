@@ -56,6 +56,25 @@
             </mat-card-content>
         </mat-card>
 
+        <mat-card style="margin-bottom: 24px;margin-top: 24px;">
+            <mat-card-header>
+                <mat-card-title> {{'admin.parameter.info' |translate}} </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <md-editor name="Content" 
+                    [mode]="markDownEditorMode"
+                    [(ngModel)]="info"
+                    [height]="'500px'" 
+                >
+                </md-editor>
+                <button *ngIf="markDownEditorMode=='preview'"  mat-flat-button style="margin-top: 15px;" color="accent" class="white" (click)="onEditMarDownInfo()" > {{'admin.parameter.update_info' |translate}}</button>
+
+                <button *ngIf="markDownEditorMode=='editor'" mat-flat-button style="margin-top: 15px;" color="warn" class="white" (click)="cancelEditMarkDown()" > {{'cancel' |translate}}</button>
+                <button *ngIf="markDownEditorMode=='editor'" mat-flat-button style="margin-top: 15px;margin-left: 10px;" color="accent" class="white" (click)="onUpdateInfoInstance(parameter)" > {{'admin.parameter.update' |translate}}</button>
+
+            </mat-card-content>
+        </mat-card>
+
     </ng-container>
 
 </div>

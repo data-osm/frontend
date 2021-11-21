@@ -1,0 +1,28 @@
+<h1 mat-dialog-title>
+
+
+    <span class="bold primaryColor " style="font-size: 17px;">{{ 'edit_style.edit_description_title' | translate }} {{style.name}}
+    </span>
+
+    <i (click)="close()" class="fa fa-times primaryColor pointer close"></i>
+</h1>
+
+
+<mat-dialog-content>
+
+    <md-editor name="style" 
+        [mode]="'editor'"
+        [(ngModel)]="description"
+        [height]="'500px'" 
+    >
+    </md-editor>
+    
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <div fxLayout fxLayoutGap="15px" fxLayoutAlign="end" >
+        <mat-progress-bar fxFlex="100%" mode="indeterminate" *ngIf="loading" ></mat-progress-bar>
+        <button fxFlex="150px" mat-stroked-button color="primary" [disabled]="loading" (click)="close()">{{ 'cancel' | translate }}</button>
+        <button fxFlex="150px" mat-flat-button color="accent" class="white" (click)="onEditInstance()" [disabled]="loading" >   {{ 'save' | translate }} </button>
+    </div>
+</mat-dialog-actions>

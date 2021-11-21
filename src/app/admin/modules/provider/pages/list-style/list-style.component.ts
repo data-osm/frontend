@@ -9,6 +9,8 @@ import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { TranslateService } from '@ngx-translate/core';
 import { style } from '@angular/animations';
 import { environment } from '../../../../../../environments/environment';
+import { MatDialog } from '@angular/material/dialog';
+import { UpdateDescriptionStyleComponent } from './update-description-style/update-description-style.component';
 
 @Component({
   selector: 'app-list-style',
@@ -25,6 +27,10 @@ export class ListStyleComponent implements OnInit {
    * update a style
    */
   onUpdateInstance:(style:Style)=>void
+  /**
+   * update description of a style
+   */
+   onUpdateDescriptionInstance:(style:Style)=>void
   /**
    * add a style
    */
@@ -51,6 +57,7 @@ export class ListStyleComponent implements OnInit {
     notifierService: NotifierService,
     public manageCompHelper:ManageCompHelper,
     public translate: TranslateService,
+    public dialog:MatDialog
   ) {
 
     this.notifier = notifierService;
@@ -74,6 +81,11 @@ export class ListStyleComponent implements OnInit {
     const onUpdate:Subject<Style> = new Subject<Style>()
     this.onUpdateInstance = (style:Style)=>{
       onUpdate.next(style)
+    }
+
+    const onUpdateDescription:Subject<Style>= new Subject<Style>()
+    this.onUpdateDescriptionInstance = (style)=>{
+      onUpdateDescription.next(style)
     }
 
     this.listStyles = merge(
@@ -144,6 +156,24 @@ export class ListStyleComponent implements OnInit {
       onUpdate.pipe(
         switchMap((style:Style)=>{
           return this.manageCompHelper.openUpdateStyleDialog([],style).pipe(
+            filter(resultConfirmation => resultConfirmation),
+            switchMap(()=>{
+              return this.StyleService.getAllStylesOfVectorProvider(this.provider_vector_id)
+              .pipe(
+                catchError((value:HttpErrorResponse)=>{
+                  if (value.status != 404) {
+                    this.notifier.notify("error", "An error occured while loading styles")
+                  }
+                  return EMPTY
+                })
+              ) 
+            })
+          )
+        })
+      ),
+      onUpdateDescription.pipe(
+        switchMap((style:Style)=>{
+          return this.dialog.open(UpdateDescriptionStyleComponent,{data:style, width:'600px'}).afterClosed().pipe(
             filter(resultConfirmation => resultConfirmation),
             switchMap(()=>{
               return this.StyleService.getAllStylesOfVectorProvider(this.provider_vector_id)

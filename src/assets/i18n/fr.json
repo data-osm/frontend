@@ -413,7 +413,9 @@
       "update": "Mettre à jour les paramètres",
       "principal_profil": "Profil principal",
       "source_extent": "Source des emprises du projet",
-      "source_principal": "Emprise princiale du projet "
+      "source_principal": "Emprise princiale du projet ",
+      "info": "A Propos",
+      "update_info": "Modifier le texte"
     }
   },
   "add_icon": {
@@ -451,7 +453,8 @@
     "qml_error": "Ajouter un fichier QML"
   },
   "edit_style": {
-    "title": "Modifier un style"
+    "title": "Modifier un style",
+    "edit_description_title": "Modifier la description du style "
   },
   "edit": "modifier",
   "supprimer": "supprimer",

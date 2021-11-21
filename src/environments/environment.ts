@@ -6,8 +6,8 @@ export const environment = {
   production: false,
   global_logo: undefined,
   primaryColor: '#023f5f',
-  backend:'https://ws.dataosm.info',
-  url_carto:'https://tiles.dataosm.info/ows/?map=',
+  backend:'http://127.0.0.1:8000',
+  url_carto:'http://127.0.0.1:3000/ows/?map=',
   url_frontend: 'http://localhost:4200',
   nom_instance:"Data OSM"
 };

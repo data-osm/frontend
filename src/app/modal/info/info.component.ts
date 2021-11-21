@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import * as moment from 'moment'
 import { environment } from '../../../environments/environment';
+import { ParametersService } from '../../data/services/parameters.service';
 
 @Component({
   selector: 'app-info',
@@ -14,7 +15,9 @@ export class InfoComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<InfoComponent>,
-  ) { }
+    public parameterService:ParametersService
+  ) { 
+  }
 
   ngOnInit(): void {
     // let lastSaturday = moment().isoWeekday(6).locale("fr");

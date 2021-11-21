@@ -1,8 +1,17 @@
 <div *ngFor="let layer of layersInTocWithLegend">
   <mat-list-item class="bold black" style="padding: 5px 0px;width:100%;">
     <p style="margin-bottom: -5px;" > {{layer.nom}} : </p>
+    <ng-container   *ngFor="let provider of layer.legendCapabilities" >
+      <md-editor style="display: block;margin-top: 10px;"
+      *ngIf="provider.description" 
+      [mode]="'preview'"
+      [(ngModel)]="provider.description"
+      [height]="'calc(100% - 100px)'" 
+    >
+    </md-editor>
+    <img *ngIf="!provider.description" [src]="DomSanitizer.bypassSecurityTrustUrl(provider.urlImg)" alt="" srcset="">
+    </ng-container>
 
-    <img *ngFor="let provider of layer.legendCapabilities" [src]="DomSanitizer.bypassSecurityTrustUrl(provider.urlImg)" alt="" srcset="">
   </mat-list-item>
   <mat-divider style="border-color: #0006;"></mat-divider>
 </div>

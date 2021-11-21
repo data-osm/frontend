@@ -65,6 +65,7 @@ export interface legendCapabilitiesInterface {
    * use legend from the carto server
    */
   useCartoServer?: boolean
+  description:string
 }
 
 /**

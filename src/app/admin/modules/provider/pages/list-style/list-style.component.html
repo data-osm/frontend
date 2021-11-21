@@ -3,7 +3,7 @@
 </div>
 
 <div fxLayout="row wrap" *ngFor="let style of listStyles | async" class="style-item pointer">
-    <div fxFlex="calc(100% - 330px)" fxLayoutGap="15px" fxLayout class="style-item-title"   >
+    <div fxFlex="calc(100% - 440px)" fxLayoutGap="15px" fxLayout class="style-item-title"   >
         <span class="title" >{{style.name}} </span>
         <img fxFlex="75px" [src]="environment.backend+style.pictogram" alt="">
         <span class="state-badje" *ngIf="style.custom_style" > {{style.custom_style.name}}  </span>
@@ -17,6 +17,11 @@
     <div fxFlex="110px" fxLayout="column" class="style-item-rigth style-item-delete" (click)="onDeleteInstance(style)" > 
         <svg fxFlex="auto" height="20" width="20" viewBox="0 0 49.501 50" class="" ><path  d="M17.865 0v5.938H0V9.43h4.543L8.393 50h32.77l3.8-40.57h4.54V5.94H31.635V0zm3.493 3.493h6.786v2.445h-6.786zM8.052 9.43h33.4L37.98 46.508H11.57zm9.71 7.632l-3.487.208 1.497 25.1 3.487-.208zm14.477 0l-1.5 25.1 3.487.207 1.496-25.1zm-8.988.104v25.1h3.493v-25.1z"></path></svg>
         <span fxFlex >Supprimer</span>
+    </div>
+
+    <div fxFlex="110px" fxLayout="column" class="style-item-rigth style-item-update" (click)="onUpdateDescriptionInstance(style)" > 
+        <svg fxFlex="auto" height="20" width="20" viewBox="0 0 50 50" ><path d="M25,0 C40.448,0 50,12.958 50,25 C50,38.77 38.77,50 25,50 C11.23,50 0,38.77 0,25 C0,11.23 11.23,0 25,0 Z M25,3 C12.88,3 3,12.88 3,25 C3,37.12 12.88,47 25,47 C37.12,47 47,37.12 47,25 C47,14.402 38.594,3 25,3 Z M26.778,21.798 L26.778,34.654 L23.222,34.654 L23.222,21.798 L26.778,21.798 Z M26.778,15.344 L26.778,18.904 L23.222,18.904 L23.222,15.344 L26.778,15.344 Z"></path></svg>
+        <span fxFlex >Description</span>
     </div>
 
     <div fxFlex="110px" fxLayout="column" class="style-item-rigth style-item-update" (click)="onUpdateInstance(style)" > 
