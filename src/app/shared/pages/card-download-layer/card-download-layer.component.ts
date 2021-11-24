@@ -1,4 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
+import { Component, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { NotifierService } from 'angular-notifier';
+import { merge, ReplaySubject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import { FeatureToDownload } from '../../../data/models/download';
 import { Layer } from '../../../type/type';
@@ -16,10 +21,34 @@ export class CardDownloadLayerComponent implements OnInit {
   @Input() layer_name:string
 
   environment=environment
+  private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
+  
+  @ViewChildren(CdkCopyToClipboard) copyClipboards: QueryList<CdkCopyToClipboard>
 
-  constructor() { }
+  constructor(
+    public notifierService: NotifierService,
+    public translate: TranslateService,
+  ) {
+    
+   }
 
   ngOnInit(): void {
+  }
+
+  ngAfterViewInit(){
+    if (this.copyClipboards) {
+      merge(...this.copyClipboards.map((item)=>item.copied)).pipe(
+        takeUntil(this.destroyed$),
+        tap(()=>{
+          this.notifierService.notify('success', this.translate.instant('dowloadLayers.copy_link_succeed') )
+        })
+      ).subscribe()
+    }
+  }
+
+  ngOnDestroy():void{
+    this.destroyed$.next(true);
+    this.destroyed$.complete();
   }
 
 }
