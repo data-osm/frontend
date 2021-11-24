@@ -11,6 +11,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar'
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner'
 import {MatTableModule} from '@angular/material/table'
 import {MatIconModule} from '@angular/material/icon'
+import {ClipboardModule} from '@angular/cdk/clipboard';
 
 // import {
 //   MatAutocompleteModule,
@@ -108,7 +109,8 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
     MatBottomSheetModule,
     MatPaginatorModule,
     MatTableModule,
-    MatRadioModule
+    MatRadioModule,
+    ClipboardModule
   ]
 })
 export class ComponentMaterialModule { }

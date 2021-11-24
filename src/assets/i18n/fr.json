@@ -241,7 +241,9 @@
   "dowloadLayers": {
     "features": " entité(s)",
     "download": "Télécharger",
-    "title": "Télécharger vos fichiers"
+    "title": "Télécharger vos fichiers",
+    "copy_link": "Lien permanent",
+    "copy_link_succeed": "Le lien permanent a été copié"
   },
   "descriptive_sheet": {
     "share": " Partager",

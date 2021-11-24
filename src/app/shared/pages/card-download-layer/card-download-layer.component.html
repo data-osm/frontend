@@ -1,3 +1,5 @@
+<notifier-container></notifier-container>
+
 <mat-card class="card-layer">
 
   <mat-card-header>
@@ -15,8 +17,40 @@
       </mat-card-header>
 
       <mat-card-actions style="text-align: right;">
+        <button mat-flat-button style="margin-right: 10px;background: #0d47a1;" class="white" [matMenuTriggerFor]="menuCopy"
+          [disabled]="provider.vp.count==0">
+          <mat-icon style="width: 20px;font-size: 20px;height: 20px;" >content_copy</mat-icon>
+          {{ 'dowloadLayers.copy_link' | translate }}
+          <i class="fa fa-chevron-down white" aria-hidden="true"></i>
+        </button>
+        <mat-menu #menuCopy="matMenu">
+          <a mat-menu-item
+            [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=shp'"
+            target="_blanck">
+            ShapeFile
+            
+          </a>
+          <a mat-menu-item
+            [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=geojson'"
+            target="_blanck">
+            GeoJSON
+          </a>
+          <a mat-menu-item
+            [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=gpkg'"
+            target="_blanck">
+            Géopckage
+          </a>
+          <a mat-menu-item
+            [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=kml'"
+            target="_blanck">
+            KML
+          </a>
+         
+        </mat-menu>
+
         <button mat-flat-button color="accent" class="white" [matMenuTriggerFor]="menu"
           [disabled]="provider.vp.count==0">
+          <mat-icon style="width: 20px;font-size: 20px;height: 20px;" >file_download</mat-icon>
           {{ 'dowloadLayers.download' | translate }}
           <i class="fa fa-chevron-down white" aria-hidden="true"></i>
         </button>
