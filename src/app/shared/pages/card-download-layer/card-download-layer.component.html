@@ -45,6 +45,11 @@
             target="_blanck">
             KML
           </a>
+          <a mat-menu-item
+            [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=csv'"
+            target="_blanck">
+            CSV
+          </a>
          
         </mat-menu>
 
@@ -74,6 +79,11 @@
             [href]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=kml'"
             target="_blanck">
             KML
+          </a>
+          <a mat-menu-item
+            [href]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=csv'"
+            target="_blanck">
+            CSV
           </a>
           <a mat-menu-item [href]="environment.backend+provider.vs.qml_file" target="_blanck"> {{
             'metadata.download_style' | translate }} </a>
