@@ -176,12 +176,17 @@ export class ListGroupComponent implements OnInit {
     ).pipe(
       shareReplay(1),
       tap((groups)=>{
-        setTimeout(() => {
-          let phElement = this.placeholder.element.nativeElement;
-
-          phElement.style.display = "none";
-          phElement.parentNode.removeChild(phElement);
-        }, 1000);
+        try {
+          setTimeout(() => {
+            let phElement = this.placeholder.element.nativeElement;
+  
+            phElement.style.display = "none";
+            phElement.parentNode.removeChild(phElement);
+          }, 1000);
+        } catch (error) {
+          
+        }
+       
       })
     )
    }
