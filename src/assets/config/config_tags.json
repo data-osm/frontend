@@ -117,7 +117,8 @@
   "contact:instagram": {
     "display": true,
     "type": "url",
-    "prefix": ""
+    "prefix": "",
+    "header":"instagram"
   },
   "contact:twitter": {
     "display": true,
@@ -159,12 +160,14 @@
   "contact:facebook": {
     "display": true,
     "type": "url",
-    "prefix": ""
+    "prefix": "",
+    "header": "facebook"
   },
   "facebook": {
     "display": true,
     "type": "url",
-    "prefix": ""
+    "prefix": "",
+    "header": "facebook"
   },
   "fax": {
     "display": true,
