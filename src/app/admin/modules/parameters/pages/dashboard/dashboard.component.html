@@ -65,6 +65,7 @@
                     [mode]="markDownEditorMode"
                     [(ngModel)]="info"
                     [height]="'500px'" 
+                    [options]="{enablePreviewContentClick:true}"
                 >
                 </md-editor>
                 <button *ngIf="markDownEditorMode=='preview'"  mat-flat-button style="margin-top: 15px;" color="accent" class="white" (click)="onEditMarDownInfo()" > {{'admin.parameter.update_info' |translate}}</button>

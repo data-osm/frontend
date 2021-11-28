@@ -117,7 +117,8 @@
   "contact:instagram": {
     "display": true,
     "type": "url",
-    "prefix": ""
+    "prefix": "",
+    "header":"instagram"
   },
   "contact:twitter": {
     "display": true,
@@ -159,12 +160,14 @@
   "contact:facebook": {
     "display": true,
     "type": "url",
-    "prefix": ""
+    "prefix": "",
+    "header": "facebook"
   },
   "facebook": {
     "display": true,
     "type": "url",
-    "prefix": ""
+    "prefix": "",
+    "header": "facebook"
   },
   "fax": {
     "display": true,
@@ -194,12 +197,6 @@
     "type": "image",
     "prefix": "",
     "surfix": ""
-  },
-  "mapillary": {
-    "display": false,
-    "type": "mapillary",
-    "prefix": "https://d1cuyjsrcm0gby.cloudfront.net/",
-    "surfix": "/thumb-320.jpg"
   },
   "flickr": {
     "display": true,

@@ -65,6 +65,21 @@
               <i class="fa fa-phone  accentColor" style="font-size: 20px;margin-top: -2px;" aria-hidden="true"></i>
             </button>
 
+            <button [matTooltip]="attribute.field| translate" mat-mini-fab
+            *ngIf="context.configTagsOsm[attribute.field].header == 'facebook'" (click)="openUrl( attribute.value)">
+            <i class="fa fa-facebook  accentColor" style="font-size: 20px;margin-top: -2px;" aria-hidden="true"></i>
+          </button>
+
+          <button [matTooltip]="attribute.field| translate" mat-mini-fab
+          *ngIf="context.configTagsOsm[attribute.field].header == 'facebook'" (click)="openUrl( attribute.value)">
+          <i class="fa fa-facebook  accentColor" style="font-size: 20px;margin-top: -2px;" aria-hidden="true"></i>
+        </button>
+
+        <button [matTooltip]="attribute.field| translate" mat-mini-fab
+          *ngIf="context.configTagsOsm[attribute.field].header == 'instagram'" (click)="openUrl( attribute.value)">
+          <i class="fa fa-instagram  accentColor" style="font-size: 20px;margin-top: -2px;" aria-hidden="true"></i>
+        </button>
+
           </ng-container>
           
         </ng-container>
@@ -166,7 +181,7 @@
 
       <div fxLayout class="descriptive-sheet-body" 
         *ngIf="constructAdresse(context.listAttributes) as adresse">
-        <div fxFlex="35%" class="attribute">
+        <div fxFlex="35%" class="attribute bold">
           {{ 'layer_properties.adresse'| translate }}
           :
         </div>
@@ -177,6 +192,7 @@
 
       <ng-container *ngFor="let attribute of context.listAttributes;let i = index">
         <ng-container *ngIf="i <= initialNumberOfAttributes">
+          <ng-container  *ngIf="context.configTagsOsm[attribute.field]? context.configTagsOsm[attribute.field].display && !context.configTagsOsm[attribute.field].header:true "  > 
           <div fxLayout class="descriptive-sheet-body" style="margin-bottom: 5px;"
             *ngIf="!context.configTagsOsm[attribute.field] || context.configTagsOsm[attribute.field].display">
             <div fxFlex="38%" class="attribute">
@@ -248,6 +264,7 @@
 
             </div>
           </div>
+        </ng-container>
         </ng-container>
       </ng-container>
 
