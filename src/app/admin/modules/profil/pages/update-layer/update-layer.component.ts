@@ -2,9 +2,9 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NotifierService } from 'angular-notifier';
-import { Observable, ReplaySubject, Subject } from 'rxjs';
+import { iif, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { EMPTY } from 'rxjs/internal/observable/empty';
-import { catchError, filter, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { catchError, filter, map, mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { MapsService } from '../../../../../data/services/maps.service';
 import { Icon, Layer } from '../../../../../type/type';
 import { IconService } from '../../../../administration/service/icon.service';
@@ -44,6 +44,7 @@ export class UpdateLayerComponent implements OnInit {
 
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
   icon:Observable<Icon>
+  iconForm:FormControl = new FormControl()
 
   form: FormGroup = this.formBuilder.group({})
   private readonly notifier: NotifierService;
@@ -72,14 +73,23 @@ export class UpdateLayerComponent implements OnInit {
     this.form.addControl('sub', new FormControl(this.layer.sub, [Validators.required]))
 
     this.icon = this.iconService.getIcon(this.layer.icon).pipe(
-      switchMap((icon)=>{
-        return this.iconService.loadSvgContent(icon.path).pipe(
-          map((svgContent:string)=>{
-            return Object.assign(icon,{svgContent:svgContent})
-          }),
-          catchError((err) => {this.notifier.notify("error", "An error occured while loading icons"); return EMPTY })
-        )
-      })
+      mergeMap(icon => 
+        iif(() => icon.path.toLowerCase().includes('svg') , 
+        of(icon).pipe(
+          switchMap((icon)=>{
+            return this.iconService.loadSvgContent(icon.path).pipe(
+              map((svgContent:string)=>{
+                return Object.assign(icon,{svgContent:svgContent})
+              }),
+              catchError((err) => {this.notifier.notify("error", "An error occured while loading icons"); return EMPTY })
+            )
+          })
+        ), 
+        of(icon)
+      )),
+      tap((value)=>{
+        this.iconForm.setValue(value)
+      }),
     )
 
     const onUpdate: Subject<void> = new Subject<void>()

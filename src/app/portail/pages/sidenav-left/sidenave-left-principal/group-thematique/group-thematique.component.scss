@@ -66,10 +66,12 @@
   // -webkit-transition: 0.5s;
   // transition: 0.5s;
   // margin-top: 12px;
-  height: 45px;
-  width: 45px;
+  height: 50px;
+  width: 50px;
   margin: auto;
-  margin-top: 4px;
+  // margin-top: 4px;
+  box-shadow: 0 0 3px 1px rgb(48 48 48 / 48%);
+  border-radius: 50%;
   /* max-width: 55px; */
 }
 .menu-thematiques-child-next {

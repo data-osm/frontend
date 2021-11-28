@@ -96,7 +96,10 @@ export class GenerateIconComponent implements OnInit {
 
     this.iconSelected = this.iconComponent.onIconSelect.pipe(
       tap((icon) => {
-        this.icon.setValue(icon)
+        if (this.icon) {
+          this.icon.setValue(icon)
+        }
+        
         if (!icon.path.includes('.svg')) {
           this.mode = 'raster'
           if (this.squareSvgAsText) {

@@ -14,7 +14,9 @@
 
     </form>
 
-    <app-generate-icon class="generate-icon" [displayBackground]="false" [backgroundColor]="form.get('color')" [circleSvgAsText]="form.get('svg_as_text')" [icon]="group.icon" [icon_id]="form.get('icon_id')" ></app-generate-icon>
+    <ng-container *ngIf="icon$|async as icon" > 
+        <app-generate-icon class="generate-icon" [displayBackground]="false" [backgroundColor]="form.get('color')" [circleSvgAsText]="form.get('svg_as_text')" [icon]="iconForm" [icon_id]="form.get('icon_id')" ></app-generate-icon>
+    </ng-container>
     
 </mat-dialog-content>
 

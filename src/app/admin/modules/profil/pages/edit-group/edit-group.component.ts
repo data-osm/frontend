@@ -2,10 +2,11 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, ValidationErrors, ValidatorFn, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NotifierService } from 'angular-notifier';
-import { EMPTY, ReplaySubject, Subject } from 'rxjs';
-import { takeUntil, switchMap, catchError, tap } from 'rxjs/operators';
+import { EMPTY, iif, Observable, of, ReplaySubject, Subject } from 'rxjs';
+import { takeUntil, switchMap, catchError, tap, map, mergeMap } from 'rxjs/operators';
 import { MapsService } from '../../../../../data/services/maps.service';
-import { Group } from '../../../../../type/type';
+import { Group, Icon } from '../../../../../type/type';
+import { IconService } from '../../../../administration/service/icon.service';
 
 @Component({
   selector: 'app-edit-group',
@@ -44,6 +45,9 @@ export class EditGroupComponent implements OnInit {
   
 
   form: FormGroup = this.formBuilder.group({})
+  icon$:Observable<Icon>
+  iconForm:FormControl = new FormControl()
+
   private readonly notifier: NotifierService;
   
   constructor(
@@ -51,6 +55,7 @@ export class EditGroupComponent implements OnInit {
     private formBuilder: FormBuilder,
     notifierService: NotifierService,
     public mapsService:MapsService,
+    public iconService:IconService, 
     @Inject(MAT_DIALOG_DATA) public group: Group,
   ) { 
     this.notifier = notifierService;
@@ -65,6 +70,25 @@ export class EditGroupComponent implements OnInit {
     // this.form.addControl('map_id',new FormControl(this.group.map_id, [Validators.required]))
     this.form.addControl('group_id',new FormControl(this.group.group_id, [Validators.required]))
 
+    this.icon$ = this.iconService.getIcon(this.group.icon.icon_id).pipe(
+      mergeMap(icon => 
+        iif(() => icon.path.toLowerCase().includes('svg') , 
+        of(icon).pipe(
+          switchMap((icon)=>{
+            return this.iconService.loadSvgContent(icon.path).pipe(
+              map((svgContent:string)=>{
+                return Object.assign(icon,{svgContent:svgContent})
+              }),
+              catchError((err) => {this.notifier.notify("error", "An error occured while loading icons"); return EMPTY })
+            )
+          })
+        ), 
+        of(icon)
+      )),
+      tap((value)=>{
+        this.iconForm.setValue(value)
+      }),
+    )
 
     const onUpdate:Subject<void> = new Subject<void>()
     this.onUpdateInstance = ()=>{
