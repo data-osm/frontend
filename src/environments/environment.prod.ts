@@ -4,5 +4,7 @@ export const environment = {
   backend:'https://ws.dataosm.info',
   url_carto:'https://tiles.dataosm.info/ows/?map=',
   url_frontend: 'https://demo.openstreetmap.fr',
-  nom_instance:"OSMdata"
+  nom_instance:"OSMdata",
+  matomoUrl:'https://matomo.geosm.org/',
+  matomoSiteId:1
 };

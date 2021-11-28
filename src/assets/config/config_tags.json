@@ -198,12 +198,6 @@
     "prefix": "",
     "surfix": ""
   },
-  "mapillary": {
-    "display": false,
-    "type": "mapillary",
-    "prefix": "https://d1cuyjsrcm0gby.cloudfront.net/",
-    "surfix": "/thumb-320.jpg"
-  },
   "flickr": {
     "display": true,
     "type": "image",

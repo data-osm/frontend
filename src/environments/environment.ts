@@ -9,7 +9,9 @@ export const environment = {
   backend:'http://127.0.0.1:8000',
   url_carto:'http://127.0.0.1:3000/ows/?map=',
   url_frontend: 'http://localhost:4200',
-  nom_instance:"OSMdata"
+  nom_instance:"OSMdata",
+  matomoUrl:'https://matomo.geosm.org/',
+  matomoSiteId:1
 };
 
 /*

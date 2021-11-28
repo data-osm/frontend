@@ -37,7 +37,9 @@ import { InfoComponent } from './modal/info/info.component';
 import { AuthGuard } from './auth/guard/auth.guard';
 import { ConfirmationDialogComponent } from './modal/confirmation-dialog/confirmation-dialog.component';
 import { MetadataLayerComponent } from './modal/metadata/metadata.component';
+import { MatomoConsentMode, NgxMatomoTrackerModule } from '@ngx-matomo/tracker';
 
+import { environment } from '../environments/environment';
 @NgModule({
   declarations: [
     AppComponent,
@@ -71,7 +73,12 @@ import { MetadataLayerComponent } from './modal/metadata/metadata.component';
         deps: [HttpClient],
       }
     }),
-    
+    NgxMatomoTrackerModule.forRoot({
+      disabled: !environment.production,
+      siteId: environment.matomoSiteId, 
+      trackerUrl: environment.matomoUrl, 
+      requireConsent:MatomoConsentMode.COOKIE
+    }),
   ],
   providers: [BackendApiService, ManageCompHelper, AuthGuard, AuthGuard],
   bootstrap: [AppComponent],
