@@ -5,8 +5,11 @@
   <mat-card-header>
     <img mat-card-avatar [src]="  environment.backend + layer.square_icon " alt="{{layer_name}}">
     <mat-card-title>{{layer_name}}</mat-card-title>
-    <mat-card-subtitle *ngIf="layer.providers.length == 1 "> {{layer.providers[0].vp.count}} entités
+    <mat-card-subtitle > 
+      <span *ngIf="layer.providers.length == 1 "> {{layer.providers[0].vp.count}} {{ 'dowloadLayers.entities' | translate }} ;  </span>
+      <span> {{ 'dowloadLayers.updated_at'  |translate}} {{layer.providers[0].vp.updated_at | date:'medium'}} </span>
     </mat-card-subtitle>
+    
   </mat-card-header>
   <mat-card-content>
     <mat-card *ngFor="let provider of layer.providers" class="card-provider" style="margin: 10px 0px;">
@@ -14,6 +17,9 @@
         <mat-card-title>
           <span *ngIf="layer.providers.length > 1"> {{provider.vp.name}} ({{provider.vp.count}}) </span>
         </mat-card-title>
+        <mat-card-subtitle *ngIf="layer.providers.length > 1">
+          <span> {{ 'dowloadLayers.updated_at'  |translate}} {{provider.vp.updated_at | date:'medium'}} </span>
+        </mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-actions style="text-align: right;">

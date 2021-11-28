@@ -34,21 +34,6 @@
 	<mat-tab-group>
 		<mat-tab label="{{ 'metadata.description' | translate }}">
 			<div style="margin-top: 20px;padding: 0px;">
-				<app-card-download-layer 
-					[layer]="layer" 
-					[layer_name]="layer.name" 
-					[provider_vector_id]="undefined" 
-					[table_id]="undefined" 
-					>
-				</app-card-download-layer>
-
-				<div style="margin:10px 0px">
-					<div>Un point licence important… donc nous soulignons et repètons:</div>
-					<div>ces données sont sous Licence ODbL,</div>
-					<div>elles doivent rester en ODbL, même si elles sont republiées ailleurs,
-					  toutes les améliorations, corrections, combinaisons doivent aussi être publiées et en ODbL.</div>
-				</div>
-
 				<ng-container *ngIf="metadata$|async as metadata">
 					<mat-list>
 						<mat-list-item style="height: auto;padding: 10px 0px;">
@@ -78,6 +63,22 @@
 
 					</mat-list>
 				</ng-container>
+
+				<app-card-download-layer 
+					[layer]="layer" 
+					[layer_name]="layer.name" 
+					[provider_vector_id]="undefined" 
+					[table_id]="undefined" 
+					>
+				</app-card-download-layer>
+
+				<div style="margin:10px 0px">
+					<div>Un point licence important… donc nous soulignons et repètons:</div>
+					<div>ces données sont sous Licence ODbL,</div>
+					<div>elles doivent rester en ODbL, même si elles sont republiées ailleurs,
+					  toutes les améliorations, corrections, combinaisons doivent aussi être publiées et en ODbL.</div>
+				</div>
+				
 			</div>
 		</mat-tab>
 

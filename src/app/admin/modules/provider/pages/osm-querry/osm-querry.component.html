@@ -22,7 +22,8 @@
     </button>
 
     <button mat-flat-button fxFlex class="active-save-btn" [fxHide]="!osmQuerryState.where.activated" (click)="submitForms()" >
-        <span> {{ 'save'| translate }} </span>
+        <span *ngIf="!osmQuerryExist" > {{ 'admin.osm_querry.execute_querry' | translate }} </span>
+        <span *ngIf="osmQuerryExist" > {{ 'admin.osm_querry.reexecute_querry' | translate }} </span>
         <svg height="25" width="25" viewBox="0 0 50 37.072" ><path d="M50 2.46L47.485-.058 15.443 31.986 2.515 19.058 0 21.573l15.443 15.443"></path></svg>    </button>
 
 </div>

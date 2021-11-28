@@ -243,7 +243,9 @@
     "download": "Télécharger",
     "title": "Télécharger vos fichiers",
     "copy_link": "Lien permanent",
-    "copy_link_succeed": "Le lien permanent a été copié"
+    "copy_link_succeed": "Le lien permanent a été copié",
+    "entities": "entités",
+    "updated_at": "Mise à jour :"
   },
   "descriptive_sheet": {
     "share": " Partager",
@@ -318,7 +320,9 @@
       "where": "Clause where de la requete",
       "edit_where_querry": "Editer la clause where de la requete",
       "edit_select_querry": "Editer la clause select de la requete",
-      "select": "Clause select de la requete"
+      "select": "Clause select de la requete",
+      "execute_querry": "Executer",
+      "reexecute_querry": "réexécuter"
     },
     "list-style": {
       "delete_confirmation_title": "Supprimer un style",
