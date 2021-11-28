@@ -70,9 +70,9 @@ export class ClusterComponent implements OnInit {
     this.form = this.formBuilder.group({
       name: this.styleName,
       icon: new FormControl(this.icon, [Validators.required]),
-      color: new FormControl(this.color, [Validators.required]),
+      color: new FormControl(this.color, []),
       icon_color: new FormControl(this.icon_color, []),
-      svg_as_text: new FormControl(null, [Validators.required]),
+      svg_as_text: new FormControl(null, []),
       type: new FormControl('cluster',[Validators.required]),
       icon_background: new FormControl(this.icon_background != undefined?this.icon_background:false,[]),
     })
