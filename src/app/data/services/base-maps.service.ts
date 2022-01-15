@@ -44,7 +44,7 @@ export class BaseMapsService {
    * @returns Observable<BaseMap>
    */
   addBaseMap(baseMap:any):Observable<BaseMap>{
-    return this.http.post<BaseMap>(this.url_prefix+'/api/group/basemaps/add',baseMap, {headers: this.get_header()})
+    return this.http.post<BaseMap>(this.url_prefix+'/api/group/basemaps',baseMap, {headers: this.get_header()})
   }
   
   /**
