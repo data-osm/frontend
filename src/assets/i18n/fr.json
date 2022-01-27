@@ -61,7 +61,7 @@
     "save": "SAUVEGARDER"
   },
   "header": {
-    "toolpit_info": "Data OSM ?",
+    "toolpit_info": "OSMdata ?",
     "toolpit_profil": "Les profils"
   },
   "layer_properties": {
@@ -235,7 +235,7 @@
     "download": "Telecharger"
   },
   "geosm": {
-    "text": "Data OSM utilise les données",
+    "text": "OSMdata utilise les données",
     "text1": " d'"
   },
   "dowloadLayers": {

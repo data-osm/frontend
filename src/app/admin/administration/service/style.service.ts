@@ -68,7 +68,7 @@ export class StyleService {
     } else {
       provider_vector_id = style['provider_vector_id']
     }
-    return this.http.post<Style>(this.url_prefix+'/api/provider/style/'+provider_vector_id,style,{ headers: this.get_header() })
+    return this.http.post<Style>(this.url_prefix+'/api/provider/style/vector/'+provider_vector_id,style,{ headers: this.get_header() })
   }
 
    /**
