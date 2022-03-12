@@ -14,29 +14,31 @@ import { Group, Layer } from '../../../../type/type';
 import WMSGetFeatureInfo from 'ol/format/WMSGetFeatureInfo';
 import { MatChip, MatChipList } from '@angular/material/chips';
 import { Extent } from 'ol/extent';
+import { FeatureForSheet } from '../descriptive-sheet.component';
+import { environment } from '../../../../../environments/environment';
 // import * as OpeningHoursParser from './OpeningHoursParser.js';
 
 declare var OpeningHoursParser: any;
 
-export interface Week{
-  _intervals:Array<Interval>
-  getIntervals:()=>Array<Interval>
+export interface Week {
+  _intervals: Array<Interval>
+  getIntervals: () => Array<Interval>
 }
 
-export interface Day{
-  _intervals:Array<Interval>
-  getIntervals:()=>Array<Interval>
+export interface Day {
+  _intervals: Array<Interval>
+  getIntervals: () => Array<Interval>
 }
 
-export interface Interval{
-  getEndDay: ()=>number
-  getFrom: ()=>number
-  getStartDay: ()=>number
-  getTo: ()=>number
+export interface Interval {
+  getEndDay: () => number
+  getFrom: () => number
+  getStartDay: () => number
+  getTo: () => number
 }
 
-export interface DateRange{
-  getTypical:()=> Week|Day
+export interface DateRange {
+  getTypical: () => Week | Day
 }
 
 export interface AttributeInterface {
@@ -87,16 +89,25 @@ export interface ConfigTagsOsm {
 export class OsmSheetComponent implements OnInit, OnChanges {
 
   public onInitInstance: () => void
-
+  environment = environment
+  /**
+   * Openlayer layer to highlight the feature on the map
+   */
   @Input() highlightLayer: VectorLayer
   @Input() map: Map
-  @Input() feature: Feature
+  // @Input() feature: Feature
+  /**
+   * Coordiante at pixel where the user clicked
+   */
   @Input() coord: Coordinate
   @Input() dataOsmLAyer: {
     group: Group;
     layer: Layer;
   }
-  @Input() features: Feature[]
+  /**
+   * List of features from WMSGetFeatureInfo at pixel where user clicked
+   */
+  @Input() features: FeatureForSheet[]
 
   /**
    * loading
@@ -123,25 +134,37 @@ export class OsmSheetComponent implements OnInit, OnChanges {
   /**
    * extent of the current feature, if the user want to zoom on int
    */
-  extent: Subject<Extent> = new Subject<Extent>()
+  extent: Extent
 
   /**
    * Feature to display
    */
   featureToDisplay$: Observable<AttributeInterface[]>
 
+  /**
+   * selected feature to display
+   */
+  selectedFeature: FeatureForSheet
+
+  /**
+   * Osm url of selected feature
+   */
   osm_url: string
 
- 
+
 
   listenToChipsChanged(matChipList: MatChipList) {
     this.featureToDisplay$ = matChipList.chipSelectionChanges.pipe(
       // startWith(matChipList.value),
       filter((value) => value.selected),
       map((chipChnaged) => {
-        let feature: Feature = chipChnaged.source.value
+        let feature: FeatureForSheet = chipChnaged.source.value
+        this.selectedFeature = feature
+
         if (feature.getGeometry()) {
-          this.extent.next(feature.getGeometry().getExtent())
+          this.extent = feature.getGeometry().getExtent()
+        }else{
+          this.extent = undefined
         }
         this.highlightLayer.getSource().clear()
         this.getOsmLink(feature)
@@ -153,7 +176,7 @@ export class OsmSheetComponent implements OnInit, OnChanges {
       shareReplay(1)
     )
 
-    
+
 
   }
 
@@ -368,7 +391,7 @@ export class OsmSheetComponent implements OnInit, OnChanges {
     }
   }
 
-  constructOpeningHOurs(opening_hours:string):{
+  constructOpeningHOurs(opening_hours: string): {
     mo: string[];
     tu: string[];
     we: string[];
@@ -376,16 +399,16 @@ export class OsmSheetComponent implements OnInit, OnChanges {
     fr: string[];
     sa: string[];
     su: string[];
-}{
+  } {
 
     function pad(num) {
-      return ("0"+num).slice(-2);
+      return ("0" + num).slice(-2);
     }
     function hhmmss(secs) {
       var minutes = Math.floor(secs / 60);
-      secs = secs%60;
-      var hours = Math.floor(minutes/60)
-      minutes = minutes%60;
+      secs = secs % 60;
+      var hours = Math.floor(minutes / 60)
+      minutes = minutes % 60;
       return `${pad(minutes)}h${pad(secs)}`;
       // return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
       // return pad(hours)+":"+pad(minutes)+":"+pad(secs); for old browsers
@@ -393,16 +416,16 @@ export class OsmSheetComponent implements OnInit, OnChanges {
     var checker = new OpeningHoursParser();
     // opening_hours='12:00-14:30,19:00-22:30'
     try {
-      let dateRanges:Array<DateRange> = checker.parse(opening_hours.trim())
-      let intervals:Interval[] = dateRanges[0].getTypical().getIntervals()
-      let response ={
-        mo:intervals.filter((interval)=>interval && interval.getStartDay()==0).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
-        tu:intervals.filter((interval)=>interval && interval.getStartDay()==1).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
-        we:intervals.filter((interval)=>interval && interval.getStartDay()==2).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
-        th:intervals.filter((interval)=>interval && interval.getStartDay()==3).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
-        fr:intervals.filter((interval)=>interval && interval.getStartDay()==4).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
-        sa:intervals.filter((interval)=>interval && interval.getStartDay()==5).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
-        su:intervals.filter((interval)=>interval && interval.getStartDay()==6).map((interval)=>{ return hhmmss(interval.getFrom())+' - '+hhmmss(interval.getTo())   }),
+      let dateRanges: Array<DateRange> = checker.parse(opening_hours.trim())
+      let intervals: Interval[] = dateRanges[0].getTypical().getIntervals()
+      let response = {
+        mo: intervals.filter((interval) => interval && interval.getStartDay() == 0).map((interval) => { return hhmmss(interval.getFrom()) + ' - ' + hhmmss(interval.getTo()) }),
+        tu: intervals.filter((interval) => interval && interval.getStartDay() == 1).map((interval) => { return hhmmss(interval.getFrom()) + ' - ' + hhmmss(interval.getTo()) }),
+        we: intervals.filter((interval) => interval && interval.getStartDay() == 2).map((interval) => { return hhmmss(interval.getFrom()) + ' - ' + hhmmss(interval.getTo()) }),
+        th: intervals.filter((interval) => interval && interval.getStartDay() == 3).map((interval) => { return hhmmss(interval.getFrom()) + ' - ' + hhmmss(interval.getTo()) }),
+        fr: intervals.filter((interval) => interval && interval.getStartDay() == 4).map((interval) => { return hhmmss(interval.getFrom()) + ' - ' + hhmmss(interval.getTo()) }),
+        sa: intervals.filter((interval) => interval && interval.getStartDay() == 5).map((interval) => { return hhmmss(interval.getFrom()) + ' - ' + hhmmss(interval.getTo()) }),
+        su: intervals.filter((interval) => interval && interval.getStartDay() == 6).map((interval) => { return hhmmss(interval.getFrom()) + ' - ' + hhmmss(interval.getTo()) }),
       }
       return response
 
@@ -482,6 +505,17 @@ export class OsmSheetComponent implements OnInit, OnChanges {
   alertValue(value: string) {
     console.log(value)
     alert(value)
+  }
+
+/**
+* Zoom on feature extent
+*/
+  zoomOnFeatureExtent() {
+    console.log(this.extent)
+    if (this.extent) {
+      var cartoClass = new CartoHelper(this.map)
+      cartoClass.fit_view(this.extent, 16)
+    }
   }
 
 }
