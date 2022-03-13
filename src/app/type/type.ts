@@ -532,6 +532,10 @@ export interface VectorProvider {
   state:'good'|'not_working'|'action_require'|'unknow'
   created_at:string
   updated_at:string
+  /**
+   * number of download
+   */
+  download_number:number
 }
 
 /**

@@ -299,7 +299,10 @@
         "general_tab": "General",
         "preview_provider": "Visualiser",
         "general_tab_content": {
-          "name": "Nom de la  source"
+          "name": "Nom de la  source",
+          "name_project_qgis": "Nom du projet QGIS ",
+          "name_layer_qgis": "Nom de la couche dans le projet QGIS ",
+          "num_download": "Nombre de téléchargements "
         }
       },
       "delete_vector_provider": "Supprimer les sources sélectionnés",

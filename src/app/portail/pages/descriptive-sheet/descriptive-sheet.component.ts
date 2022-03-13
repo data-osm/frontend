@@ -34,10 +34,16 @@ export interface DescriptiveSheetData {
    */
   layer: ImageLayer|TileLayer|VectorLayer,
   map:Map
+  /**
+   * Coordiante at pixel where the user clicked
+   */
   coordinates_3857: Coordinate,
   // getShareUrl?:(environment,ShareServiceService:ShareServiceService)=>string
 }
 
+export interface FeatureForSheet extends Feature{
+  provider_vector_id: number;
+}
 @Component({
   selector: 'app-descriptive-sheet',
   templateUrl: './descriptive-sheet.component.html',
@@ -86,8 +92,10 @@ export class DescriptiveSheetComponent implements OnInit {
       })
     },
   });
-
-  features$:Observable<Feature[]>
+  /**
+   * List of features from WMSGetFeatureInfo at pixel where user clicked
+   */
+  features$:Observable<FeatureForSheet[]>
 
   environment = environment
 
@@ -100,11 +108,6 @@ export class DescriptiveSheetComponent implements OnInit {
 
   featureInfoIsLoading:boolean=false
 
-  @ViewChild(OsmSheetComponent) set osmSheetComponent(osmSheetComponent: OsmSheetComponent) {
-     if(osmSheetComponent) { // initially setter gets called with undefined
-      osmSheetComponent.extent.pipe(tap((extent)=>{this.extent=extent}), takeUntil(this.destroyed$)).subscribe()
-     }
-  }
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: DescriptiveSheetData,
@@ -138,27 +141,32 @@ export class DescriptiveSheetComponent implements OnInit {
       map(()=>{
         return this.dataOsmLAyer.layer.providers.map((provider)=>{
           let url =environment.url_carto+provider.vp.path_qgis
-          return new ImageWMS({
+          
+          return {url: new ImageWMS({
             url: url,
             params: { 'LAYERS': provider.vp.id_server, 'TILED': true },
             serverType: 'qgis',
             crossOrigin: 'anonymous',
           }).getFeatureInfoUrl(this.data.coordinates_3857, this.data.map.getView().getResolution(), 'EPSG:3857',{})+"&INFO_FORMAT=application/json&WITH_GEOMETRY=true&FI_POINT_TOLERANCE=30&FI_LINE_TOLERANCE=10&FI_POLYGON_TOLERANCE=10"
+          ,provider_vector_id:provider.vp.provider_vector_id
+        }
         })
       }),
-      switchMap((urls)=>{
+      switchMap((parameters)=>{
         const headers = new HttpHeaders({ 'Content-Type': 'text/xml' });
         this.featureInfoIsLoading = true
         this.cdRef.detectChanges();
-        return concat(...urls.map((url)=>{
-          return this.http.get(url, { responseType: 'text' }).pipe(
+        return concat(...parameters.map((param)=>{
+          return this.http.get(param.url, { responseType: 'text' }).pipe(
             catchError(()=>{
               this.featureInfoIsLoading = false
               this.cdRef.detectChanges();
               return EMPTY
             }),
             map((response) => {
-              return new GeoJSON().readFeatures(response)
+              return new GeoJSON().readFeatures(response).map((feature)=>{
+                return Object.assign(feature,{provider_vector_id:param.provider_vector_id})
+              })
             }),
            )
         })).pipe(
@@ -178,6 +186,7 @@ export class DescriptiveSheetComponent implements OnInit {
             return [].concat.apply([], values);
           }),
           tap((values)=>{
+            console.log(values)
             this.featureInfoIsLoading = false
             this.cdRef.detectChanges();
             if (values.length == 0 ) {
@@ -244,15 +253,7 @@ export class DescriptiveSheetComponent implements OnInit {
   //   )
   // }
 
-      /**
-   * Zoom on feature extent
-   */
-  zoomOnFeatureExtent(){
-    if (this.extent) {
-      var cartoClass = new CartoHelper(this.data.map)
-      cartoClass.fit_view(this.extent,16)
-    }
-  }
+  
 
 
   /**

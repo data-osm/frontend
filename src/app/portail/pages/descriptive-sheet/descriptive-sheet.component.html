@@ -6,7 +6,9 @@
 
   {{ dataOsmLAyer?.layer.name}}
 </h1>
-<div mat-dialog-content style="padding-top: 5px;max-height: 250px !important;" class="scroll">
+
+<ng-container *ngIf="{ features:features$|async} as context" >
+<div mat-dialog-content style="padding-top: 5px;max-height: 250px !important;" class="scroll" *ngIf="context.features == undefined"  >
   <div style="position: relative;margin-top: 10px;" *ngIf="featureInfoIsLoading"   >
     <div style="position:absolute;top:calc(50% - 30px);left:40%">
       <div class="lds-ripple" style="width: 100px;
@@ -16,18 +18,10 @@ height: 100px;">
       </div>
   </div>
   </div>
-  <ng-container *ngIf="features$|async as features" >
-    <app-osm-sheet *ngIf="data.type == 'osm'" [features]="features" [dataOsmLAyer]="dataOsmLAyer" [feature]="data.feature" [coord]="data.coordinates_3857" [map]="data.map" [highlightLayer]="highlightLayer" (closeDescriptiveSheet)="closeModal()"></app-osm-sheet>
-  </ng-container>
 </div>
 
-<div mat-dialog-actions class="text-center" >
-  <!-- <button mat-raised-button (click)="shareFeature()">
-    <i class="fa fa-share-alt"> </i> {{'descriptive_sheet.share' | translate}}
-  </button>-->
+<ng-container *ngIf="context.features != undefined" >
+  <app-osm-sheet *ngIf="data.type == 'osm'" [features]="context.features" [dataOsmLAyer]="dataOsmLAyer"  [coord]="data.coordinates_3857"  [map]="data.map" [highlightLayer]="highlightLayer" (closeDescriptiveSheet)="closeModal()"></app-osm-sheet>
+</ng-container>
 
-  <button mat-raised-button [hidden]="!extent" (click)="zoomOnFeatureExtent()"  >
-    <i class="fa fa-search-plus"> </i> {{'descriptive_sheet.zoomTo' | translate}}
-  </button> 
-
-</div>
+</ng-container>

@@ -5,6 +5,6 @@ export const environment = {
   url_carto:'https://tiles.dataosm.info/ows/?map=',
   url_frontend: 'https://demo.openstreetmap.fr',
   nom_instance:"OSMdata",
-  matomoUrl:'http://piwik.dataosm.info/',
+  matomoUrl:'https://piwik.dataosm.info/',
   matomoSiteId:1
 };
