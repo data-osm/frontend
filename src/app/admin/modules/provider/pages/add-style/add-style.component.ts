@@ -9,6 +9,7 @@ import { CustomStyle, Icon, VectorProvider, AddStyle } from '../../../../../type
 import { StyleService } from '../../../../administration/service/style.service'
 import { VectorProviderService } from '../../../../administration/service/vector-provider.service'
 import { ClusterComponent } from '../cluster/cluster.component';
+import { PointIconSimpleComponent } from '../point-icon-simple/point-icon-simple.component';
 import { QmlComponent } from '../qml/qml.component';
 
 
@@ -47,6 +48,7 @@ export class AddStyleComponent implements OnInit, OnDestroy {
 
   @ViewChild(QmlComponent) qmlComponent:QmlComponent
   @ViewChild(ClusterComponent) clusterComponent:ClusterComponent
+  @ViewChild(PointIconSimpleComponent) pointIconSimpleComponent:PointIconSimpleComponent
   
 
   constructor(
@@ -111,7 +113,12 @@ export class AddStyleComponent implements OnInit, OnDestroy {
          this.onAddInstance = ()=>{
            this.clusterComponent.onAddInstance()
          }
-       }
+       }else if (customStyle.fucntion_name==='point_icon_simple') {
+        this.formAddStyle = this.pointIconSimpleComponent.form
+        this.onAddInstance = ()=>{
+          this.pointIconSimpleComponent.onAddInstance()
+        }
+      }
      
        this.cdRef.detectChanges();
 

@@ -52,6 +52,18 @@
             >
             </app-cluster>
 
+            <app-point-icon-simple 
+            [hidden]="context.customStyle?.fucntion_name != 'point_icon_simple'" 
+            [customStyle]="context.customStyle" 
+            [provider_vector_id]="data.provider_vector_id"
+            [color]="data.color"
+            [icon_color]="data.icon_color"
+            [icon]="data.icon"
+            [icon_background]="data.icon_background"
+            [styleName]="nameStyle"
+            >
+            </app-point-icon-simple>
+
         </ng-container>
         
 
