@@ -92,7 +92,7 @@ export class MapsService {
    * @param group Group
    */
   addGroup(group:Group):Observable<Group>{
-    return this.http.post<Group>(this.url_prefix + '/api/group/group',group, { headers: this.get_header() })
+    return this.http.post<Group>(this.url_prefix + '/api/group/',group, { headers: this.get_header() })
   }
 
   /**
