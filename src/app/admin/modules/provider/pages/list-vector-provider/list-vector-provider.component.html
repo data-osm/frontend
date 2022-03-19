@@ -3,7 +3,7 @@
     <div class="search-vp" fxLayout="row wrap">
         <h2 fxFlex="calc(100% - 240px)"> {{ 'admin.vector_provider.search_vector_provider' | translate }} </h2>
         <button fxFlex="200px" style="margin-bottom: 10px;" mat-flat-button color="accent" class="white"
-            (click)="openModalToAddVectorProvider()"> {{ 'admin.vector_provider.add_vector_provider' | translate }}
+            (click)="onAddInstance()"> {{ 'admin.vector_provider.add_vector_provider' | translate }}
         </button>
         <form fxFlex="100%" [formGroup]="searchtVectorProviderForm">
             <mat-form-field appearance="outline" style="width: 100%;"
@@ -36,7 +36,7 @@
 
     <div class="list-vp">
 
-        <app-table-vector-provider (deleteVectorProvider)="deleteVectorProvider($event)" [data]="data">
+        <app-table-vector-provider (deleteVectorProvider)="deleteVectorInstance($event)" [data]="data">
         </app-table-vector-provider>
     </div>
 

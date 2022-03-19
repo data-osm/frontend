@@ -48,11 +48,11 @@ export class VectorProviderService {
   /**
    * add  icon
    * @param group 
-   * @returns Observable<HttpResponse<any>>
+   * @returns Observable<VectorProvider>
    */
-  addVectorProvider(vectorProvicer: VectorProvider):Observable<HttpResponse<any>> {
+  addVectorProvider(vectorProvicer: VectorProvider):Observable<VectorProvider> {
 
-    return this.http.post<HttpResponse<any>>(this.url_prefix + '/api/provider/vector', vectorProvicer, {headers: this.get_header(), reportProgress: true,})
+    return this.http.post<VectorProvider>(this.url_prefix + '/api/provider/vector', vectorProvicer, {headers: this.get_header(), reportProgress: true,})
   }
 
   /**

@@ -13,6 +13,8 @@ import {MatTableDataSource} from '@angular/material/table';
 import { HttpResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
+import { AddVectorProviderComponent } from '../add-vector-provider/add-vector-provider.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-list-vector-provider',
@@ -55,7 +57,8 @@ export class ListVectorProviderComponent implements OnInit {
     notifierService: NotifierService,
     public fb: FormBuilder,
     public translate: TranslateService,
-
+    private router: Router,
+    public dialog:MatDialog
   ) { 
     this.notifier = notifierService;
 
@@ -125,12 +128,26 @@ export class ListVectorProviderComponent implements OnInit {
         })
       ),
       onAdd.pipe(
-        tap(() => this.loading = true),
+        
         switchMap(() => {
-          return this.VectorProviderService.fetchAndStoreListVectorProvider().pipe(
-            tap(() => this.loading = false),
-            catchError(()=>{this.notifier.notify("error", "An error occured while loading vector provider");return EMPTY})
-          );
+          let proprietes = {
+            disableClose: false,
+            minWidth: 400,
+          }
+      
+         return  this.dialog.open(AddVectorProviderComponent, proprietes).afterClosed().pipe(
+            filter((response:VectorProvider)=> response != undefined ),
+            tap(() => this.loading = true),
+            switchMap((response) => {
+              return this.VectorProviderService.fetchAndStoreListVectorProvider().pipe(
+                tap(() => {
+                  this.loading = false
+                  this.router.navigate(['/admin/vector-provider', response.provider_vector_id]);
+                }),
+                catchError(()=>{this.loading = false;this.notifier.notify("error", "An error occured while loading vector provider");return EMPTY})
+              );
+            })
+          )
         })
       ),
     ).pipe(
@@ -153,25 +170,6 @@ export class ListVectorProviderComponent implements OnInit {
     if (vectorProvider) {
       return vectorProvider.name
     }
-  }
-
-
-  /**
-   * Open modal to add a vector provider
-   */
-  openModalToAddVectorProvider(){
-    this.manageCompHelper.openModalAddVectorProvider([],(response:boolean)=>{
-      if (response) {
-        this.onAddInstance()
-      }
-    })
-  }
-
-  /**
-   * delete vector providers
-   */
-  deleteVectorProvider(ids:number[]){
-    this.deleteVectorInstance(ids)
   }
 
 }
