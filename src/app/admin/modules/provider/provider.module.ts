@@ -19,11 +19,14 @@ import { _CoalescedStyleScheduler, CdkTable, CDK_TABLE } from '@angular/cdk/tabl
 import { MatTable } from '@angular/material/table';
 import { IconsModule } from '../icons/icons.module';
 import { UpdateDescriptionStyleComponent } from './pages/list-style/update-description-style/update-description-style.component';
+import { PointIconSimpleComponent } from './pages/point-icon-simple/point-icon-simple.component';
+import { PolygonSimpleComponent } from './pages/ polygon-simple/polygon-simple.component';
+import { LineSimpleComponent } from './pages/line-simple/line-simple.component';
 
 
 
 @NgModule({
-  declarations: [AddStyleComponent, AddVectorProviderComponent, DetailsVectorProviderComponent, EditStyleComponent, EditVectorProviderComponent,ListStyleComponent, ListVectorProviderComponent, OsmQuerryComponent, EditStyleComponent, AddStyleComponent, TableVectorProviderComponent, UpdateProviderComponent, QmlComponent, ClusterComponent, UpdateDescriptionStyleComponent],
+  declarations: [AddStyleComponent, AddVectorProviderComponent, DetailsVectorProviderComponent, EditStyleComponent, EditVectorProviderComponent,ListStyleComponent, ListVectorProviderComponent, OsmQuerryComponent, EditStyleComponent, AddStyleComponent, TableVectorProviderComponent, UpdateProviderComponent, QmlComponent, ClusterComponent, PointIconSimpleComponent,PolygonSimpleComponent,LineSimpleComponent,  UpdateDescriptionStyleComponent],
   imports: [
     CommonModule,
     SharedModule,

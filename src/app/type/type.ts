@@ -560,6 +560,7 @@ export interface Style{
   qml_file:string
   custom_style:CustomStyle
   description:string
+  parameters: {[key:string]:string|number}
 }
 
 /**

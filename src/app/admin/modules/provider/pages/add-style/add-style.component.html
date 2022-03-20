@@ -52,6 +52,37 @@
             >
             </app-cluster>
 
+            <app-point-icon-simple 
+            [hidden]="context.customStyle?.fucntion_name != 'point_icon_simple'" 
+            [customStyle]="context.customStyle" 
+            [provider_vector_id]="data.provider_vector_id"
+            [color]="data.color"
+            [icon_color]="data.icon_color"
+            [icon]="data.icon"
+            [icon_background]="data.icon_background"
+            [styleName]="nameStyle"
+            >
+            </app-point-icon-simple>
+
+            <app-polygon-simple 
+            [hidden]="context.customStyle?.fucntion_name != 'polygon_simple'" 
+            [customStyle]="context.customStyle" 
+            [provider_vector_id]="data.provider_vector_id"
+            [strokeColor]="data.color"
+            [fillColor]="data.icon_color"
+            [styleName]="nameStyle"
+            >
+            </app-polygon-simple>
+
+            <app-line-simple 
+            [hidden]="context.customStyle?.fucntion_name != 'line_simple'" 
+            [customStyle]="context.customStyle" 
+            [provider_vector_id]="data.provider_vector_id"
+            [lineColor]="data.color"
+            [styleName]="nameStyle"
+            >
+            </app-line-simple>
+
         </ng-container>
         
 

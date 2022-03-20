@@ -11,6 +11,7 @@ export class ColorPickerComponent implements OnInit {
 
   @Input()colorForm:FormControl
   @Input()colorLabel:String
+  @Input()colorOutputFormat:String='rgba'
 
   public colorList = [
     { key: 'red', value: '#FF3A33' },

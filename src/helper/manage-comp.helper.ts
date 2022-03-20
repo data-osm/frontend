@@ -3,7 +3,7 @@ import { SocialShareComponent } from '../app/social-share/social-share.component
 import { Injectable, ComponentFactoryResolver, ApplicationRef, Injector, EmbeddedViewRef, ComponentRef } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { AddGeosignetComponent } from '../app/portail/pages/context-menu/add-geosignet/add-geosignet.component'
-import { AddStyle, DataForPreview, groupCarteInterface, groupThematiqueInterface, Style } from '../app/type/type';
+import { AddStyle, DataForPreview, groupCarteInterface, groupThematiqueInterface, Style, VectorProvider } from '../app/type/type';
 import { AddVectorProviderComponent } from '../app/admin/modules/provider/pages/add-vector-provider/add-vector-provider.component';
 import {  AddStyleComponent } from '../app/admin/modules/provider/pages/add-style/add-style.component';
 import {ConfirmationDialogComponent, ConfirmationDialogData} from '../app/modal/confirmation-dialog/confirmation-dialog.component'
@@ -138,7 +138,7 @@ export class ManageCompHelper {
     }
     const modal = this.dialog.open(AddVectorProviderComponent, proprietes);
 
-    modal.afterClosed().subscribe((result: boolean) => {
+    modal.afterClosed().subscribe((result: VectorProvider) => {
       callBack(result)
     })
   }

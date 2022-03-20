@@ -1,0 +1,25 @@
+.description-style{
+    display: inline-flex;
+    vertical-align: top;
+    align-items: center;
+    .text{
+        flex: 1;
+        text-align: justify;
+    }
+
+    .image {
+        flex: 1;
+        height: 100%;
+        text-align: center;
+      }
+}
+
+.generate-icon{
+    height: calc(80vh - 230px);
+    margin-top: 10px;
+    display: block;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 15px 5px;
+    background: #f2f5f6;
+}

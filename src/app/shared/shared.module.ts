@@ -31,10 +31,11 @@ import { _CoalescedStyleScheduler, CdkTable, CDK_TABLE } from '@angular/cdk/tabl
 import { MatTable } from '@angular/material/table';
 import { SafeUrlPipe } from './pipe/safe-url/safe-url.pipe';
 import { CardDownloadLayerComponent } from './pages/card-download-layer/card-download-layer.component';
-
+import { ColorPickerComponent } from './pages/color-picker/color-picker.component';
+import { ColorPickerModule } from 'ngx-color-picker';
 
 @NgModule({
-  declarations: [FileUploadComponent, SearchProviderComponent, SearchMapComponent, SvgIconDirective, PreviewDataComponent, SafeStylePipe, SafeUrlPipe, CardDownloadLayerComponent],
+  declarations: [FileUploadComponent,ColorPickerComponent, SearchProviderComponent, SearchMapComponent, SvgIconDirective, PreviewDataComponent, SafeStylePipe, SafeUrlPipe, CardDownloadLayerComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -45,6 +46,7 @@ import { CardDownloadLayerComponent } from './pages/card-download-layer/card-dow
     FlexLayoutModule,
     NotifierModule,
     LMarkdownEditorModule,
+    ColorPickerModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -70,7 +72,9 @@ import { CardDownloadLayerComponent } from './pages/card-download-layer/card-dow
     SafeStylePipe,
     SafeUrlPipe,
     CardDownloadLayerComponent,
-    MarkdownEditorComponent
+    MarkdownEditorComponent,
+    ColorPickerComponent,
+    ColorPickerModule
   ],
   providers:[_CoalescedStyleScheduler,
     {provide: _VIEW_REPEATER_STRATEGY, useClass: _DisposeViewRepeaterStrategy},
