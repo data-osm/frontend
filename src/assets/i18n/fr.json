@@ -425,6 +425,17 @@
       "source_principal": "Emprise princiale du projet ",
       "info": "A Propos",
       "update_info": "Modifier le texte"
+    },
+    "symbology": {
+      "polygon": {
+        "fillColor": "Couleur du polygone",
+        "strokeWidth": "Largeur de la bordure (pixels) ",
+        "strokeColor": "Couleur de la bordure"
+      },
+      "line": {
+        "lineColor": "Couleur de la ligne",
+        "lineWidth": "Largeur de la ligne"
+      }
     }
   },
   "add_icon": {

@@ -7,19 +7,15 @@ import { AddIconComponent } from './pages/add-icon/add-icon.component';
 import { IconRoutingModule } from './icon-routing.module';
 import { GenerateIconComponent } from './pages/generate-icon/generate-icon.component';
 import { UpdateTagsComponent } from './pages/update-tags/update-tags.component';
-import { ColorPickerModule } from 'ngx-color-picker';
-import { ColorPickerComponent } from './pages/color-picker/color-picker.component';
-
 
 
 @NgModule({
-  declarations: [IconsComponent, UpdateIconComponent, AddIconComponent, GenerateIconComponent, UpdateTagsComponent, ColorPickerComponent],
+  declarations: [IconsComponent, UpdateIconComponent, AddIconComponent, GenerateIconComponent, UpdateTagsComponent],
   imports: [
     CommonModule,
     SharedModule,
     IconRoutingModule,
-    ColorPickerModule
   ],
-  exports:[GenerateIconComponent]
+  exports:[GenerateIconComponent, IconsComponent]
 })
 export class IconsModule { }

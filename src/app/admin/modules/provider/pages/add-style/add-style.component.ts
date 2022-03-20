@@ -5,10 +5,12 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { NotifierService } from 'angular-notifier';
 import { BehaviorSubject, combineLatest, EMPTY, Observable, ReplaySubject, Subject } from 'rxjs';
 import { catchError, filter, shareReplay, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { PolygonSimpleComponent } from '../ polygon-simple/polygon-simple.component';
 import { CustomStyle, Icon, VectorProvider, AddStyle } from '../../../../../type/type';
 import { StyleService } from '../../../../administration/service/style.service'
 import { VectorProviderService } from '../../../../administration/service/vector-provider.service'
 import { ClusterComponent } from '../cluster/cluster.component';
+import { LineSimpleComponent } from '../line-simple/line-simple.component';
 import { PointIconSimpleComponent } from '../point-icon-simple/point-icon-simple.component';
 import { QmlComponent } from '../qml/qml.component';
 
@@ -49,6 +51,8 @@ export class AddStyleComponent implements OnInit, OnDestroy {
   @ViewChild(QmlComponent) qmlComponent:QmlComponent
   @ViewChild(ClusterComponent) clusterComponent:ClusterComponent
   @ViewChild(PointIconSimpleComponent) pointIconSimpleComponent:PointIconSimpleComponent
+  @ViewChild(PolygonSimpleComponent) polygonSimpleComponent:PolygonSimpleComponent
+  @ViewChild(LineSimpleComponent) lineSimpleComponent:LineSimpleComponent
   
 
   constructor(
@@ -118,8 +122,17 @@ export class AddStyleComponent implements OnInit, OnDestroy {
         this.onAddInstance = ()=>{
           this.pointIconSimpleComponent.onAddInstance()
         }
+      }else if (customStyle.fucntion_name==='polygon_simple') {
+        this.formAddStyle = this.polygonSimpleComponent.form
+        this.onAddInstance = ()=>{
+          this.polygonSimpleComponent.onAddInstance()
+        }
+      }else if (customStyle.fucntion_name==='line_simple') {
+        this.formAddStyle = this.lineSimpleComponent.form
+        this.onAddInstance = ()=>{
+          this.lineSimpleComponent.onAddInstance()
+        }
       }
-     
        this.cdRef.detectChanges();
 
      }),
