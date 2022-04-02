@@ -73,6 +73,15 @@
                         <span class="bold "> {{ 'admin.vector_provider.details.general_tab_content.name_layer_qgis' | translate }} : &nbsp;&nbsp; </span>
                         {{vectorProvider.id_server}}
                     </mat-list-item>
+                    <mat-list-item>
+                        <span class="bold "> {{ 'admin.vector_provider.table.header.created_at' | translate }}  : &nbsp;&nbsp; </span>
+                        {{vectorProvider.created_at | date: "d-M-yy H:mm"}}
+                    </mat-list-item>
+                    <mat-list-item>
+                        <span class="bold ">{{ 'admin.vector_provider.table.header.edited_at' | translate }}  : &nbsp;&nbsp; </span>
+                        {{vectorProvider.updated_at | date: "d-M-yy H:mm"}}
+                    </mat-list-item>
+                   
                 </mat-list>
             </ng-template>
         </mat-tab>

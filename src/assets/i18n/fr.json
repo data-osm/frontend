@@ -287,7 +287,9 @@
             "unknow": "Inconnu",
             "null": "Inconnu"
           },
-          "type_geometrie": "Type de géometrie"
+          "type_geometrie": "Type de géometrie",
+          "created_at": "Création",
+          "edited_at": "Mise à jour"
         }
       },
       "edit_vector_provider": {
