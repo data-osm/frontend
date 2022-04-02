@@ -29,7 +29,6 @@ export class CardDownloadLayerComponent implements OnInit {
     public notifierService: NotifierService,
     public translate: TranslateService,
   ) {
-    
    }
 
   ngOnInit(): void {

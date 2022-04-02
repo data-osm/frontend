@@ -42,6 +42,7 @@ export interface DescriptiveSheetData {
 }
 
 export interface FeatureForSheet extends Feature{
+  provider_style_id:number
   provider_vector_id: number;
 }
 @Component({
@@ -148,7 +149,8 @@ export class DescriptiveSheetComponent implements OnInit {
             serverType: 'qgis',
             crossOrigin: 'anonymous',
           }).getFeatureInfoUrl(this.data.coordinates_3857, this.data.map.getView().getResolution(), 'EPSG:3857',{})+"&INFO_FORMAT=application/json&WITH_GEOMETRY=true&FI_POINT_TOLERANCE=30&FI_LINE_TOLERANCE=10&FI_POLYGON_TOLERANCE=10"
-          ,provider_vector_id:provider.vp.provider_vector_id
+          ,provider_vector_id:provider.vp.provider_vector_id,
+          provider_style:provider.vs,
         }
         })
       }),
@@ -165,7 +167,7 @@ export class DescriptiveSheetComponent implements OnInit {
             }),
             map((response) => {
               return new GeoJSON().readFeatures(response).map((feature)=>{
-                return Object.assign(feature,{provider_vector_id:param.provider_vector_id})
+                return Object.assign(feature,{provider_vector_id:param.provider_vector_id, provider_style_id:param.provider_style.provider_style_id})
               })
             }),
            )
