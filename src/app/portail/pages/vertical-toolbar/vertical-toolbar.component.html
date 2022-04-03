@@ -87,17 +87,24 @@
 
   <div class="vertical-toolbar-groupe-btn-2">
     <button
-    style="display: none;"
-      matTooltip="{{ 'naviguation_tools.mappilary' | translate }} "
+    style="box-shadow: none;"
+      matTooltip="{{ 'naviguation_tools.edit_osm' | translate }} "
       class="primaryColorBG"
       mat-mini-fab
-      (click)="toogleMappilary()"
+      [matMenuTriggerFor]="menuEditOsm"
     >
       <img
-        src="assets/icones/mappilary.png"
-        style="margin-top: -5px; height: 30px;"
+        src="assets/icones/josm.png"
+        style="    margin-top: -2px;
+        width: 30px;
+        margin-left: 4px;"
       />
     </button>
+
+    <mat-menu #menuEditOsm="matMenu">
+      <button mat-menu-item (click)="editOsmOnId()" > Modifier avec iD  </button>
+      <button mat-menu-item (click)="editOsmInOther()" > Modifier avec Éditeur externe (JOSM) </button>
+    </mat-menu>
 
     <button
     style="display: none;"

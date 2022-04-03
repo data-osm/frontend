@@ -1,9 +1,10 @@
 import { Component, OnInit, Input } from '@angular/core';
 import {
-  Map, Zoom, Point,
+  Map, Zoom, Point, Transform,
 } from '../../../ol-module';
 import { MatSidenavContainer } from '@angular/material/sidenav';
 import { environment } from '../../../../environments/environment';
+import { fromLonLat, transform } from 'ol/proj';
 /**
  * vertical toolbar that contains naviguation button
  */
@@ -117,6 +118,21 @@ export class VerticalToolbarComponent implements OnInit {
    */
   toogleCompare() {
 
+  }
+
+  /**
+   * Edit map on ID osm
+   */
+  editOsmOnId(){
+  let coord4326 = Transform( this.map.getView().getCenter(), 'EPSG:3857', 'EPSG:4326')
+  let url = 'https://www.openstreetmap.org/edit?editor=id#map='+Math.floor(this.map.getView().getZoom())+'/'+coord4326[1]+'/'+coord4326[0]
+  window.open(url,'_blank')
+  }
+
+  editOsmInOther(){
+    let coord4326 = Transform( this.map.getView().getCenter(), 'EPSG:3857', 'EPSG:4326')
+    let url = 'https://www.openstreetmap.org/edit?editor=remote#map='+Math.floor(this.map.getView().getZoom())+'/'+coord4326[1]+'/'+coord4326[0]
+    window.open(url,'_blank')
   }
 
 }
