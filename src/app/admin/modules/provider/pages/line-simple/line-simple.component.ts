@@ -83,7 +83,6 @@ export class LineSimpleComponent implements OnInit {
       switchMap(() => {
         let style = {
           'name': this.styleName.value,
-          'fillColor': this.form.get('fillColor').value,
           'provider_vector_id': this.provider_vector_id,
           'custom_style_id': this.customStyle.custom_style_id,
           'lineColor': this.form.get('lineColor').value,

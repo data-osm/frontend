@@ -23,7 +23,7 @@ export class TableVectorProviderComponent implements OnInit, OnDestroy {
     /**
    * list of the table colum that can be displayed
    */
-  displayedColumns: string[] = ['choose','name','type_geometrie','state','detail'];
+  displayedColumns: string[] = ['choose','name','type_geometrie','state','created_at','edited_at','detail'];
   
   @Input() data:Observable<VectorProvider[]>;
   @Output() deleteVectorProvider: EventEmitter<number[]> = new EventEmitter<number[]>()

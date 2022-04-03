@@ -31,28 +31,28 @@
         </button>
         <mat-menu #menuCopy="matMenu">
           <a mat-menu-item
-            [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=shp'"
+            [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_style_id_target='+provider.vs_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=shp'"
             target="_blanck">
             ShapeFile
             
           </a>
           <a mat-menu-item
-            [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=geojson'"
+            [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_style_id_target='+provider.vs_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=geojson'"
             target="_blanck">
             GeoJSON
           </a>
           <a mat-menu-item
-            [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=gpkg'"
+            [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_style_id_target='+provider.vs_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=gpkg'"
             target="_blanck">
             Géopckage
           </a>
           <a mat-menu-item
-            [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=kml'"
+            [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_style_id_target='+provider.vs_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=kml'"
             target="_blanck">
             KML
           </a>
           <a mat-menu-item
-            [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=csv'"
+            [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_style_id_target='+provider.vs_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=csv'"
             target="_blanck">
             CSV
           </a>
@@ -67,27 +67,27 @@
         </button>
         <mat-menu #menu="matMenu">
           <a mat-menu-item
-            [href]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=shp'"
+            [href]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_style_id_target='+provider.vs_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=shp'"
             target="_blanck">
             ShapeFile
           </a>
           <a mat-menu-item
-            [href]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=geojson'"
+            [href]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_style_id_target='+provider.vs_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=geojson'"
             target="_blanck">
             GeoJSON
           </a>
           <a mat-menu-item
-            [href]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=gpkg'"
+            [href]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_style_id_target='+provider.vs_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=gpkg'"
             target="_blanck">
             Géopckage
           </a>
           <a mat-menu-item
-            [href]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=kml'"
+            [href]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_style_id_target='+provider.vs_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=kml'"
             target="_blanck">
             KML
           </a>
           <a mat-menu-item
-            [href]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=csv'"
+            [href]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_style_id_target='+provider.vs_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=csv'"
             target="_blanck">
             CSV
           </a>

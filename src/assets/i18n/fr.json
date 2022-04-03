@@ -134,7 +134,8 @@
     "toogle_left_menu": "Ouvrir / Fermer le menu de gauche",
     "zoom_minus": "Zoomer en arrière",
     "zoom_plus": "Zoomer en avant",
-    "zoom_to_coordinates": "Zoomer sur une coordonnée"
+    "zoom_to_coordinates": "Zoomer sur une coordonnée",
+    "edit_osm": "Modifier sur OSM"
   },
   "notifications": {
     "click_on_map_itineraire": "Cliquer sur la carte pour placer votre point",
@@ -287,7 +288,9 @@
             "unknow": "Inconnu",
             "null": "Inconnu"
           },
-          "type_geometrie": "Type de géometrie"
+          "type_geometrie": "Type de géometrie",
+          "created_at": "Création",
+          "edited_at": "Mise à jour"
         }
       },
       "edit_vector_provider": {
