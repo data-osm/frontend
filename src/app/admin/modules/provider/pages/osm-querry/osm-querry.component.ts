@@ -37,7 +37,7 @@ export class OsmQuerryComponent implements OnInit {
   /**
    * reload vector provider
    */
-  @Output()reloadVectorProvider:EventEmitter<any> = new EventEmitter<any>()
+  @Output()reloadVectorProvider:EventEmitter<void> = new EventEmitter<void>()
 
   private readonly notifier: NotifierService;
 
