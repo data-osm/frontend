@@ -5,6 +5,7 @@ import { Observable, fromEvent, merge as observerMerge, Subscriber, ReplaySubjec
 import { CartoHelper, layersInMap } from '../../../../../helper/carto.helper'
 import { ManageCompHelper } from '../../../../../helper/manage-comp.helper'
 import {
+  LayerGroup,
   Map, Transform, unByKey
 } from '../../../../ol-module';
 import { DataToShareLayer, ShareServiceService } from '../../../../services/share-service/share-service.service'
@@ -96,10 +97,12 @@ export class TableOfContentsComponent implements OnInit {
         }
         layerProp.data = baseMap
       }
-    
-      allObservableOFLayers.push(fromOpenLayerEvent<BaseEvent>(layerProp.layer, 'change:visible').pipe(map((value) => value)))
-      allObservableOFLayers.push(fromOpenLayerEvent<BaseEvent>(layerProp.layer, 'change:zIndex').pipe(map((value) => value)))
-      allObservableOFLayers.push(fromOpenLayerEvent<BaseEvent>(layerProp.layer, 'change:opacity').pipe(map((value) => value)))
+      layerProp.layer.map((ll)=>{
+        allObservableOFLayers.push(fromOpenLayerEvent<BaseEvent>(ll, 'change:visible').pipe(map((value) => value)))
+        allObservableOFLayers.push(fromOpenLayerEvent<BaseEvent>(ll, 'change:zIndex').pipe(map((value) => value)))
+        allObservableOFLayers.push(fromOpenLayerEvent<BaseEvent>(ll, 'change:opacity').pipe(map((value) => value)))
+      })
+     
 
       return layerProp
     })
@@ -137,8 +140,8 @@ export class TableOfContentsComponent implements OnInit {
   drop(event: CdkDragDrop<string[]>) {
     let cartoHelperClass = new CartoHelper(this.map)
     var layer = this.layersInToc[event.previousIndex]
-    cartoHelperClass.editZindexOfLayer(layer.layer, this.layersInToc[event.currentIndex].zIndex)
-
+    layer.layer.map((ll)=> cartoHelperClass.editZindexOfLayer(ll, this.layersInToc[event.currentIndex].zIndex))
+   
     moveItemInArray(this.layersInToc, event.previousIndex, event.currentIndex);
 
     this.getAllLayersForTOC()
@@ -150,7 +153,8 @@ export class TableOfContentsComponent implements OnInit {
    * @param layer layersInMap
    */
   setOpactiyOfLayer(event: MatSliderChange, layer: layersInMap) {
-    layer.layer.setOpacity(event.value / 100)
+  
+    layer.layer.map((lay)=>lay.setOpacity(event.value / 100))
   }
 
   /**
@@ -159,7 +163,8 @@ export class TableOfContentsComponent implements OnInit {
    * @param layer layersInMap
    */
   setVisibleOfLayer(event: MatCheckboxChange, layer: layersInMap) {
-    layer.layer.setVisible(event.checked)
+    layer.layer.map((lay)=>lay.setVisible(event.checked))
+   console.log(layer, event.checked)
   }
 
   
@@ -174,7 +179,8 @@ export class TableOfContentsComponent implements OnInit {
       console.log(layer)
       this.dataOsmLayersServiceService.removeLayer(layer['properties']['couche_id'], this.map)
     }else{
-      new CartoHelper(this.map).removeLayerToMap(layer.layer)
+      layer.layer.map((lay)=> new CartoHelper(this.map).removeLayerToMap(lay))
+     
     }
 
   }
