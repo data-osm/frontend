@@ -25,7 +25,7 @@ export interface dataFromClickOnMapInterface {
   type: 'vector' | 'raster' | 'clear',
   data: {
     coord: Coordinate,
-    layers: Array<ImageLayer|TileLayer|VectorLayer>,
+    layers: Array<ImageLayer | TileLayer | VectorLayer>,
     feature?: Feature
     /** additional data */
     data?: {}
@@ -51,7 +51,7 @@ export interface tocCapabilitiesInterface {
   /**
    * Can be automatically remove when the user wnant to clear the map ?
    */
-  removable:boolean
+  removable: boolean
 }
 /**
  * Interface of the legend capabilities
@@ -65,7 +65,7 @@ export interface legendCapabilitiesInterface {
    * use legend from the carto server
    */
   useCartoServer?: boolean
-  description:string
+  description: string
 }
 
 /**
@@ -76,9 +76,9 @@ export interface layersInMap {
   type_layer: 'geosmCatalogue' | 'draw' | 'mesure' | 'mappilary' | 'exportData' | 'other' | 'routing',
   image: string
   properties: {
-    type:'couche'|'carte',
-    couche_id:number
-    [key:string]:any
+    type: 'couche' | 'carte',
+    couche_id: number
+    [key: string]: any
   }
   zIndex: number
   visible: boolean
@@ -93,7 +93,7 @@ export interface layersInMap {
   /**
    * The layer type OL/layer in the map
    */
-  layer: BaseLayer
+  layer: Array<BaseLayer>
   /**
  * capabilities of the layer in toc. They user can set opactiy ? read metadata ?...
  * By default, all is set to true
@@ -190,12 +190,12 @@ export class CartoHelper {
     //   dataProjection: 'EPSG:4326',
     //   featureProjection: 'EPSG:3857'
     // });
-    
+
     var featureWorld = new GeoJSON().readFeatures(worldGeojson);
 
     var rasterSource_world = new VectorImageLayer({
       source: new VectorSource({
-        features:featureWorld
+        features: featureWorld
       }),
       // projection: 'EPSG:3857',
       style: new Style({
@@ -207,7 +207,7 @@ export class CartoHelper {
 
     var rasterSource_cmr = new VectorImageLayer({
       source: new VectorSource({
-        features:featureToShadow
+        features: featureToShadow
       }),
       // projection: 'EPSG:3857',
       style: new Style({
@@ -241,7 +241,7 @@ export class CartoHelper {
       className: 'map-shadow',
 
     });
-    rasterLayer.set('nom','map-shadow')
+    rasterLayer.set('nom', 'map-shadow')
 
     return rasterLayer
 
@@ -283,8 +283,8 @@ export class CartoHelper {
    * @param couche geosmLayer the layer to construct
    * @return VectorLayer|ImageLayer the layer costructed
    */
-  constructLayer(couche: DataOSMLayer):TileLayer|LayerGroup|VectorLayer {
-    let layer:TileLayer|LayerGroup|VectorLayer ;
+  constructLayer(couche: DataOSMLayer): TileLayer | LayerGroup | VectorLayer {
+    let layer: TileLayer | LayerGroup | VectorLayer;
 
     if (couche.type == "xyz") {
       layer = new TileLayer({
@@ -299,12 +299,12 @@ export class CartoHelper {
         className: couche.nom + '___' + couche.type_layer
       })
     } else if (couche.type == "wms") {
-      let params :{ [key: string]: any;} = {
+      let params: { [key: string]: any; } = {
         'LAYERS': couche.identifiant.join(','),
-        'TILED': true 
+        'TILED': true
       }
-      if (couche.styleWMS && couche.styleWMS.length>0) {
-        params[ 'STYLE'] = couche.styleWMS.join(',') 
+      if (couche.styleWMS && couche.styleWMS.length > 0) {
+        params['STYLE'] = couche.styleWMS.join(',')
       }
       var wmsSourceTile = new TileWMS({
         url: couche.url,
@@ -340,7 +340,7 @@ export class CartoHelper {
         maxResolution: this.map.getView().getResolutionForZoom(9),
       });
 
-       layer = new LayerGroup({
+      layer = new LayerGroup({
         layers: [
           layerTile,
           layerImage
@@ -369,7 +369,7 @@ export class CartoHelper {
         });
         var styleCache = {};
         var styleCacheCopy = {}
-         layer = new VectorLayer({
+        layer = new VectorLayer({
           source: clusterSource,
           style: (feature) => {
             var size = feature.get('features').length;
@@ -457,7 +457,7 @@ export class CartoHelper {
             )
             .subscribe(
               (data) => {
-                let features:any= source.getFormat().readFeatures(data)
+                let features: any = source.getFormat().readFeatures(data)
 
                 source.addFeatures(features);
                 for (let index = 0; index < source.getFeatures().length; index++) {
@@ -473,7 +473,7 @@ export class CartoHelper {
         }
       });
 
-       layer = new VectorLayer({
+      layer = new VectorLayer({
         source: source,
         style: new Style({
           image: new Icon({
@@ -495,7 +495,7 @@ export class CartoHelper {
         });
         var styleCache = {};
         var styleCacheCopy = {}
-         layer = new VectorLayer({
+        layer = new VectorLayer({
           source: clusterSource,
           style: (feature) => {
             var size = feature.get('features').length;
@@ -600,7 +600,7 @@ export class CartoHelper {
         element.set('nom', couche.nom)
         element.set('type_layer', couche.type_layer)
         element.set('iconImagette', couche.iconImagette)
-        element.set('identifiant', couche.identifiant?couche.identifiant.join(','):undefined)
+        element.set('identifiant', couche.identifiant ? couche.identifiant.join(',') : undefined)
         element.set('inToc', couche.inToc)
         element.set('tocCapabilities', couche.tocCapabilities)
         element.set('legendCapabilities', couche.legendCapabilities)
@@ -612,7 +612,7 @@ export class CartoHelper {
     layer.set('nom', couche.nom)
     layer.set('type_layer', couche.type_layer)
     layer.set('iconImagette', couche.iconImagette)
-    layer.set('identifiant', couche.identifiant?couche.identifiant.join(','):undefined)
+    layer.set('identifiant', couche.identifiant ? couche.identifiant.join(',') : undefined)
     layer.set('inToc', couche.inToc)
     layer.set('tocCapabilities', couche.tocCapabilities)
     layer.set('legendCapabilities', couche.legendCapabilities)
@@ -625,7 +625,7 @@ export class CartoHelper {
    * @param layer layer to add
    * @param group string name of layerGroup where we want to add the layer.
    */
-  addLayerToMap(layer: TileLayer|LayerGroup|VectorLayer , group: string = 'principal') {
+  addLayerToMap(layer: TileLayer | LayerGroup | VectorLayer, group: string = 'principal') {
     if (!layer.get('nom')) {
       throw new Error("Layer must have a 'nom' properties");
     }
@@ -792,21 +792,21 @@ export class CartoHelper {
    */
   getLayerByPropertiesCatalogueGeosm(properties: { group_id?: number, couche_id: number, type: 'couche' | 'carte' }): Array<BaseLayer> {
 
-    return  this.getAllLAyerInMap()
-    .filter((layer) => layer.get('properties')!=undefined)
-    .filter((layer)=>{
-      if (properties.group_id) {
-        return layer.get('properties')['type'] == properties.type && layer.get('properties')['group_id'] == properties.group_id && layer.get('properties')['couche_id'] == properties.couche_id
-      } else {
-        return layer.get('properties')['type'] == properties.type && layer.get('properties')['couche_id'] == properties.couche_id
-      }
-    })
+    return this.getAllLAyerInMap()
+      .filter((layer) => layer.get('properties') != undefined)
+      .filter((layer) => {
+        if (properties.group_id) {
+          return layer.get('properties')['type'] == properties.type && layer.get('properties')['group_id'] == properties.group_id && layer.get('properties')['couche_id'] == properties.couche_id
+        } else {
+          return layer.get('properties')['type'] == properties.type && layer.get('properties')['couche_id'] == properties.couche_id
+        }
+      })
 
   }
 
   /**
    * Get all layers in the TOC.
-   * Remark : all layer not in group group-layer-shadow
+   * Remark : all layer not in group call "group-layer-shadow"
    * @return Array<layersInMap>
    */
   getAllLayersInToc(): Array<layersInMap> {
@@ -820,15 +820,41 @@ export class CartoHelper {
       }
     }
 
-    return reponseLayers
+    let cloneAllLayers = [...reponseLayers]
+    let duplicates: Array<layersInMap> = []
+    let duplicatesGrouped: Array<layersInMap> = []
+    function flatDeep(arr) {
+      return arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? flatDeep(val) : val), []);
+   };
+    let layerOfSameGroup = cloneAllLayers.find((nnn, index) =>{
+      return cloneAllLayers.find((x, ind)=> x.properties.couche_id+x.properties['type'] === nnn.properties.couche_id+nnn.properties['type'] && index !== ind )
+    })
+    while (layerOfSameGroup) {
+      let allInstanceDuplicates = reponseLayers.filter((t)=> t.properties.couche_id+t.properties['type'] === layerOfSameGroup.properties.couche_id+layerOfSameGroup.properties['type'] )
+      allInstanceDuplicates.map((t)=> duplicates.push(t) )
+      let allLayersDuplicate:Array<BaseLayer> =flatDeep(allInstanceDuplicates.map((h)=>h.layer))
+      let clone = {...layerOfSameGroup}
+      clone.layer = allLayersDuplicate
+      duplicatesGrouped.push(clone)
+
+      let duplicatesKey = duplicates.map((y)=>y.properties.couche_id+y.properties['type'])
+      cloneAllLayers = cloneAllLayers.filter((g)=> !duplicatesKey.includes(g.properties.couche_id+g.properties['type']) )
+
+      layerOfSameGroup = cloneAllLayers.find((nnn, index) =>{
+        return cloneAllLayers.find((x, ind)=> x.properties.couche_id+x.properties['type'] === nnn.properties.couche_id+nnn.properties['type'] && index !== ind )
+      })
+    }
+
+    duplicatesGrouped.map((ll)=>cloneAllLayers.push(ll))
+    return cloneAllLayers
   }
 
   /**
    * construct a layersInMap Object fron a layer in the map
-   * @param layer any
+   * @param layer BaseLayer
    * @return layersInMap
    */
-  constructAlyerInMap(layer: any): layersInMap {
+  constructAlyerInMap(layer: BaseLayer): layersInMap {
     // var data = null
     // var tocCapabilities: tocCapabilitiesInterface = {} as tocCapabilitiesInterface
     // if (layer.get('tocCapabilities')) {
@@ -851,7 +877,7 @@ export class CartoHelper {
       data: null,
       zIndex: layer.getZIndex(),
       visible: layer.getVisible(),
-      layer: layer,
+      layer: [layer],
       descriptionSheetCapabilities: layer.get('descriptionSheetCapabilities')
     }
   }
@@ -864,26 +890,27 @@ export class CartoHelper {
    * @param layer any layer to edit zindex
    * @param zIndex number
    */
-  editZindexOfLayer(layer: any, zIndex: number) {
+  editZindexOfLayer(layer: BaseLayer, zIndex: number) {
     for (let index = 0; index < this.getAllLayersInToc().length; index++) {
-      const layerInmap = this.getAllLayersInToc()[index].layer;
+      // const layerInmap = this.getAllLayersInToc()[index].layer;
+      this.getAllLayersInToc()[index].layer.map((layerInmap) => {
+        if (layer.getZIndex() < zIndex) {
+          // if the layer is going up
+          if (layerInmap.getZIndex() <= zIndex) {
+            this.setZindexToLayer(layerInmap, layerInmap.getZIndex() - 1)
+          } else if (layerInmap.getZIndex() > zIndex) {
+            this.setZindexToLayer(layerInmap, layerInmap.getZIndex() + 1)
+          }
+        } else if (layer.getZIndex() > zIndex) {
+          // if the layer is going down
+          if (layerInmap.getZIndex() >= zIndex) {
+            this.setZindexToLayer(layerInmap, layerInmap.getZIndex() + 1)
+          } else if (layerInmap.getZIndex() < zIndex) {
+            this.setZindexToLayer(layerInmap, layerInmap.getZIndex() - 1)
+          }
+        }
+      })
 
-      console.log(layer.getZIndex(), zIndex)
-      if (layer.getZIndex() < zIndex) {
-        // if the layer is going up
-        if (layerInmap.getZIndex() <= zIndex) {
-          this.setZindexToLayer(layerInmap, layerInmap.getZIndex() - 1)
-        } else if (layerInmap.getZIndex() > zIndex) {
-          this.setZindexToLayer(layerInmap, layerInmap.getZIndex() + 1)
-        }
-      } else if (layer.getZIndex() > zIndex) {
-        // if the layer is going down
-        if (layerInmap.getZIndex() >= zIndex) {
-          this.setZindexToLayer(layerInmap, layerInmap.getZIndex() + 1)
-        } else if (layerInmap.getZIndex() < zIndex) {
-          this.setZindexToLayer(layerInmap, layerInmap.getZIndex() - 1)
-        }
-      }
     }
     this.setZindexToLayer(layer, zIndex)
   }
@@ -921,8 +948,8 @@ export class CartoHelper {
    * @param Array<string> oddLayersValues
    * @returns Array<ImageLayer>
    */
-  displayFeatureInfo(pixel: number[], oddLayersAttr: string, oddLayersValues: Array<string>): Array<ImageLayer|TileLayer> {
-    var layers:Array<ImageLayer|TileLayer>  = []
+  displayFeatureInfo(pixel: number[], oddLayersAttr: string, oddLayersValues: Array<string>): Array<ImageLayer | TileLayer> {
+    var layers: Array<ImageLayer | TileLayer> = []
     this.map.forEachLayerAtPixel(pixel,
       function (layer, rgb: Uint8ClampedArray) {
 
@@ -944,7 +971,7 @@ export class CartoHelper {
     *@param evt MapBrowserEvent
     *@param (param :dataFromClickOnMapInterface)=>void
     */
-  mapHasCliked(evt:MapBrowserEvent, callback: (param: dataFromClickOnMapInterface) => void) {
+  mapHasCliked(evt: MapBrowserEvent, callback: (param: dataFromClickOnMapInterface) => void) {
     var pixel = this.map.getEventPixel(evt.originalEvent);
 
     var feature = this.map.forEachFeatureAtPixel(pixel,
@@ -964,7 +991,7 @@ export class CartoHelper {
       hitTolerance: 5
     });
 
-    let layers :Array<ImageLayer|TileLayer|VectorLayer> = []
+    let layers: Array<ImageLayer | TileLayer | VectorLayer> = []
 
     if (!feature) {
       var all_pixels = new manageDataHelper().calcHitMatrix(evt.pixel)
@@ -1091,9 +1118,9 @@ export class CartoHelper {
     * @param WMTS source
     * @param Array<number> coordinates  coodonnées
     */
-  getFeatureInfoFromWmsSource(source: ImageWMS, coordinates: Array<number>):string {
+  getFeatureInfoFromWmsSource(source: ImageWMS, coordinates: Array<number>): string {
     var viewResolution = this.map.getView().getResolution();
-    var url = source.getFeatureInfoUrl(coordinates, viewResolution, 'EPSG:3857',{}) + "&WITH_GEOMETRY=true&INFO_FORMAT=application/json&FI_LINE_TOLERANCE=17&FI_POLYGON_TOLERANCE=17&FI_POINT_TOLERANCE=17"
+    var url = source.getFeatureInfoUrl(coordinates, viewResolution, 'EPSG:3857', {}) + "&WITH_GEOMETRY=true&INFO_FORMAT=application/json&FI_LINE_TOLERANCE=17&FI_POLYGON_TOLERANCE=17&FI_POINT_TOLERANCE=17"
     return url
   }
 
@@ -1208,39 +1235,39 @@ export class CartoHelper {
     positionFeature.setStyle(
       [
         new Style({
-        image: new CircleStyle({
-          radius: 8,
-          fill: new Fill({
-            color: this.environment.primaryColor,
+          image: new CircleStyle({
+            radius: 8,
+            fill: new Fill({
+              color: this.environment.primaryColor,
+            }),
+            // stroke: new Stroke({
+            //   color: '#fff',
+            //   width: 0,
+            // }),
           }),
-          // stroke: new Stroke({
-          //   color: '#fff',
-          //   width: 0,
-          // }),
         }),
-      }),
-      new Style({
-        image: new Icon({
-          scale: 0.7,
-          src: '/assets/icones/geolocation_pin.png',
-          anchor:[0.5,0.95]
-        }),
-        // text: new Text({
-        //   font: "15px Calibri,sans-serif",
-        //   fill: new Fill({ color: "#000" }),
-        //   text:"Your position",
-        //   stroke: new Stroke({ color: "#000", width: 1 }),
-        //   padding: [10, 10, 10, 10],
-        //   backgroundFill:new Fill({ color: "#fff" }),
-        //   offsetX: 0,
-        //   offsetY: 30,
-        // })
-      })
-    ]
+        new Style({
+          image: new Icon({
+            scale: 0.7,
+            src: '/assets/icones/geolocation_pin.png',
+            anchor: [0.5, 0.95]
+          }),
+          // text: new Text({
+          //   font: "15px Calibri,sans-serif",
+          //   fill: new Fill({ color: "#000" }),
+          //   text:"Your position",
+          //   stroke: new Stroke({ color: "#000", width: 1 }),
+          //   padding: [10, 10, 10, 10],
+          //   backgroundFill:new Fill({ color: "#fff" }),
+          //   offsetX: 0,
+          //   offsetY: 30,
+          // })
+        })
+      ]
     );
     // 
 
-    
+
 
 
     let geolocation = new Geolocation({
@@ -1282,7 +1309,7 @@ export class CartoHelper {
       source: new VectorSource({
       }),
     });
-    geolocalisationLayer.set('nom','user_position')
+    geolocalisationLayer.set('nom', 'user_position')
     geolocalisationLayer.setZIndex(99999999)
     this.map.addLayer(geolocalisationLayer)
   }

@@ -29,7 +29,7 @@
         </p>
 
         <mat-slider *ngIf="layer.tocCapabilities.opacity" (change)="setOpactiyOfLayer($event,layer)" style="width: 100%;" [max]="100" [min]="0" color="primary"
-          [thumbLabel]="true" [value]="layer.layer.getOpacity()*100"></mat-slider>
+          [thumbLabel]="true" [value]="layer.layer[0].getOpacity()*100"></mat-slider>
 
       </mat-card-content>
       <mat-card-actions>

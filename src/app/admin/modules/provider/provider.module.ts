@@ -22,11 +22,13 @@ import { UpdateDescriptionStyleComponent } from './pages/list-style/update-descr
 import { PointIconSimpleComponent } from './pages/point-icon-simple/point-icon-simple.component';
 import { PolygonSimpleComponent } from './pages/ polygon-simple/polygon-simple.component';
 import { LineSimpleComponent } from './pages/line-simple/line-simple.component';
+import { SourceVectorProviderComponent } from './pages/source-vector-provider/source-vector-provider.component';
+import { QuerryVectorProviderComponent } from './pages/querry-vector-provider/querry-vector-provider.component';
 
 
 
 @NgModule({
-  declarations: [AddStyleComponent, AddVectorProviderComponent, DetailsVectorProviderComponent, EditStyleComponent, EditVectorProviderComponent,ListStyleComponent, ListVectorProviderComponent, OsmQuerryComponent, EditStyleComponent, AddStyleComponent, TableVectorProviderComponent, UpdateProviderComponent, QmlComponent, ClusterComponent, PointIconSimpleComponent,PolygonSimpleComponent,LineSimpleComponent,  UpdateDescriptionStyleComponent],
+  declarations: [AddStyleComponent, AddVectorProviderComponent, DetailsVectorProviderComponent, EditStyleComponent, EditVectorProviderComponent,ListStyleComponent, ListVectorProviderComponent, OsmQuerryComponent, EditStyleComponent, AddStyleComponent, TableVectorProviderComponent, UpdateProviderComponent, QmlComponent, ClusterComponent, PointIconSimpleComponent,PolygonSimpleComponent,LineSimpleComponent,  UpdateDescriptionStyleComponent, SourceVectorProviderComponent, QuerryVectorProviderComponent],
   imports: [
     CommonModule,
     SharedModule,

@@ -4,7 +4,7 @@ import { Observable, throwError, BehaviorSubject, from, of } from 'rxjs';
 import { catchError, finalize, retry, tap } from 'rxjs/operators';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
-import { VectorProvider, OsmQuerry } from '../../../type/type';
+import { VectorProvider, OsmQuerry, Querry } from '../../../type/type';
 import { NotifierService } from 'angular-notifier';
 
 @Injectable({
@@ -29,6 +29,14 @@ export class OsmQuerryService {
 
   }
 
+  /**
+   * Get all connections of the  app
+   * @returns Observable<Array<string>>
+   */
+  listConnections():Observable<Array<string>>{
+    return this.http.get<Array<string>>(this.url_prefix + '/api/datasource/connections',{ headers: this.get_header() })
+  }
+
    /**
    * add  Osm Querry
    * @param osmQuerry OsmQuerry
@@ -49,6 +57,34 @@ export class OsmQuerryService {
       })
   }
 
+  /**
+   * add   Querry
+   * @param querry Querry
+   */
+   addQuerry(querry: Querry) {
+    return this.http.post(this.url_prefix + '/api/datasource/querry', querry, {
+      headers: this.get_header(), 
+    })
+  }
+
+   /**
+   * add   Querry
+   * @param querry Querry
+   */
+    updateQuerry(querry: Querry) {
+      return this.http.put(this.url_prefix + '/api/datasource/querry/'+querry.provider_vector_id, querry, {
+        headers: this.get_header(), 
+      })
+  }
+
+   /**
+   * get a  querry by vector_provider_id
+   * @param id number 
+   * @returns Observable<Querry|HttpErrorResponse>
+   */
+   getQuerry(id:number):Observable<Querry>{
+      return this.http.get<Querry>(this.url_prefix +'/api/datasource/querry/'+id,{ headers: this.get_header() })
+    }
 
    /**
    * get a osm querry by osm_vector_provider_id

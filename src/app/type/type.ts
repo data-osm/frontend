@@ -536,6 +536,19 @@ export interface VectorProvider {
    * number of download
    */
   download_number:number
+  /**
+   * Source that defined this provider
+   */
+  source:'osm'|'querry'
+}
+
+/**
+ * interface of an osm querry
+ */
+ export interface Querry{
+  connection:string,
+  sql:string
+  provider_vector_id:number
 }
 
 /**

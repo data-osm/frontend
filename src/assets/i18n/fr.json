@@ -328,7 +328,7 @@
       "edit_select_querry": "Editer la clause select de la requete",
       "select": "Clause select de la requete",
       "execute_querry": "Executer",
-      "reexecute_querry": "réexécuter"
+      "reexecute_querry": "Réexécuter"
     },
     "list-style": {
       "delete_confirmation_title": "Supprimer un style",
@@ -439,6 +439,11 @@
         "lineColor": "Couleur de la ligne",
         "lineWidth": "Largeur de la ligne"
       }
+    },
+    "querry": {
+      "edit_sql_querry": "Editer la requête SQL",
+      "choose_connection": "Choisisser votre base de données",
+      "required_field_msg": " Attention : les champs osm_id (valeurs uniques) , geom (champ de géométries) et name sont obligatoires"
     }
   },
   "add_icon": {
