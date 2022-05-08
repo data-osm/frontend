@@ -73,6 +73,7 @@ import {MatBottomSheetModule} from '@angular/material/bottom-sheet'
 import {MatPaginatorModule} from '@angular/material/paginator'
 import {MatRadioModule} from '@angular/material/radio';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { MatSortModule } from '@angular/material/sort';
 
 @NgModule({
   exports: [
@@ -110,7 +111,8 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
     MatPaginatorModule,
     MatTableModule,
     MatRadioModule,
-    ClipboardModule
+    ClipboardModule,
+    MatSortModule
   ]
 })
 export class ComponentMaterialModule { }

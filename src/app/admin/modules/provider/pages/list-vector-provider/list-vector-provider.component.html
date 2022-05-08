@@ -36,7 +36,7 @@
 
     <div class="list-vp">
 
-        <app-table-vector-provider (deleteVectorProvider)="deleteVectorInstance($event)" [data]="data">
+        <app-table-vector-provider (onSortChangeInstance)="onSortChangeInstance($event)" (deleteVectorProvider)="deleteVectorInstance($event)" [data]="data">
         </app-table-vector-provider>
     </div>
 

@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { Observable, of, ReplaySubject, Subject, combineLatest, BehaviorSubject } from 'rxjs';
+import { Observable, of, ReplaySubject, Subject, combineLatest, BehaviorSubject, Subscription } from 'rxjs';
 import { switchMap, takeUntil, tap , } from 'rxjs/operators';
 import { VectorProvider } from '../../../../../type/type';
 
@@ -23,16 +24,36 @@ export class TableVectorProviderComponent implements OnInit, OnDestroy {
     /**
    * list of the table colum that can be displayed
    */
-  displayedColumns: string[] = ['choose','name','type_geometrie','state','created_at','edited_at','detail'];
+  displayedColumns: string[] = ['choose','name','geometry_type','state','created_at','updated_at','detail'];
   
   @Input() data:Observable<VectorProvider[]>;
   @Output() deleteVectorProvider: EventEmitter<number[]> = new EventEmitter<number[]>()
+    /**
+  * Emit when user change the sort of the table 
+  */
+  @Output() onSortChangeInstance: EventEmitter<Sort> = new EventEmitter<Sort>()
 
   dataValue: Observable<VectorProvider[]>;
   
   dataSource:Observable <VectorProvider[]> =  of([]);
+  public destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
+  sortSubscription:Subscription
+  @ViewChild(MatSort) set asd(sort: MatSort) {
+    if (this.sortSubscription) {
+      this.sortSubscription.unsubscribe()
+    }
+   this.sortSubscription = sort.sortChange.pipe(
+      takeUntil(this.destroyed$),
+      tap((e: Sort) => {
+        this.onSortChangeInstance.emit(sort)
+      })
+    ).subscribe()
+    
+  };
+  
   constructor() { 
+    
 
     const onInit: Subject<void> = new ReplaySubject<void>(1);
     this.onInitInstance = () => {
@@ -61,6 +82,7 @@ export class TableVectorProviderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() : void {
     this.ngOnDestroyInstance();
+    this.destroyed$.complete()
   }
 
   /**

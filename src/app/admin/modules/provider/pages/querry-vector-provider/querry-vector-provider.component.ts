@@ -98,7 +98,12 @@ export class QuerryVectorProviderComponent implements OnInit {
             catchError((value:HttpErrorResponse)=>{
               this.form.enable()
               this.notifierService.notify("error", "An error occured while adding the querry")
-              alert(value.error)
+              try {
+                alert(value.error.message)
+              } catch (error) {
+                
+              }
+              
               return EMPTY
             }),
           )
@@ -121,7 +126,11 @@ export class QuerryVectorProviderComponent implements OnInit {
             catchError((value:HttpErrorResponse)=>{
               this.form.enable()
               this.notifierService.notify("error", "An error occured while adding the querry")
-              alert(value.error)
+              try {
+                alert(value.error.message)
+              } catch (error) {
+                
+              }
               return EMPTY
             }),
           )

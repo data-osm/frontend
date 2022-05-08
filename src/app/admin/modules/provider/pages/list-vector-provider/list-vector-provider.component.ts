@@ -3,7 +3,7 @@ import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms'
 import { NotifierService } from 'angular-notifier';
 import { BehaviorSubject, EMPTY, merge, Observable, of, ReplaySubject, Subject, throwError } from 'rxjs';
 import { catchError } from 'rxjs/internal/operators/catchError';
-import { filter, finalize, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { filter, finalize, map, shareReplay, startWith, switchMap, tap, withLatestFrom } from 'rxjs/operators';
 import { environment } from '../../../../../../environments/environment';
 import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { VectorProvider } from '../../../../../type/type';
@@ -15,6 +15,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { AddVectorProviderComponent } from '../add-vector-provider/add-vector-provider.component';
 import { Router } from '@angular/router';
+import { Sort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-list-vector-provider',
@@ -47,6 +48,11 @@ export class ListVectorProviderComponent implements OnInit {
    * paginator of the table of vector providor
    */
   @ViewChild(MatPaginator) paginator: MatPaginator;
+
+   /**
+  * Emit when user change the sort of the table 
+  */
+    onSortChangeInstance: (e: Sort) => void;
  
   searchtVectorProviderForm:FormGroup = this.fb.group({})
   searchResultVectorProvider:Observable<VectorProvider[]> 
@@ -73,6 +79,11 @@ export class ListVectorProviderComponent implements OnInit {
       onAdd.next();
     }
 
+    const onSortChange: Subject<Sort> = new Subject<Sort>()
+    this.onSortChangeInstance = (e: Sort) => {
+      onSortChange.next(e)
+    }
+
     let searchControl = new FormControl(null, Validators.min(3))
 
     this.searchResultVectorProvider = searchControl.valueChanges.pipe(
@@ -91,14 +102,8 @@ export class ListVectorProviderComponent implements OnInit {
     }  
 
     this.data = merge(
-      onInit.pipe(
-        switchMap(() => {
-          return this.VectorProviderService.fetchAndStoreListVectorProvider().pipe(
-            tap(() => this.loading = false),
-            catchError(()=>{this.notifier.notify("error", "An error occured while loading vector provider");return EMPTY})
-          );
-        })
-      ),
+      onInit,
+      onSortChange,
       onDelete.pipe(
         switchMap((ids: number[]) => {
           return  this.manageCompHelper.openConfirmationDialog([],{
@@ -114,14 +119,7 @@ export class ListVectorProviderComponent implements OnInit {
                   this.notifier.notify("error", "An error occured while deleting vector provider");
                   this.loading = false;
                   return EMPTY;
-              }),
-                switchMap(() => {
-                  return this.VectorProviderService.fetchAndStoreListVectorProvider().pipe(
-                    tap(() => this.loading = false),
-                    catchError(()=>{this.notifier.notify("error", "An error occured while loading vector provider");return EMPTY})
-
-                  )
-                })
+              })
               )
             })
             )
@@ -137,20 +135,25 @@ export class ListVectorProviderComponent implements OnInit {
       
          return  this.dialog.open(AddVectorProviderComponent, proprietes).afterClosed().pipe(
             filter((response:VectorProvider)=> response != undefined ),
-            tap(() => this.loading = true),
-            switchMap((response) => {
-              return this.VectorProviderService.fetchAndStoreListVectorProvider().pipe(
-                tap(() => {
-                  this.loading = false
-                  this.router.navigate(['/admin/vector-provider', response.provider_vector_id]);
-                }),
-                catchError(()=>{this.loading = false;this.notifier.notify("error", "An error occured while loading vector provider");return EMPTY})
-              );
-            })
+            tap(() => this.loading = true)
           )
         })
       ),
     ).pipe(
+      withLatestFrom(onSortChange.pipe(
+        startWith({
+        active: 'name',
+        direction: 'asc'
+      }))
+      ),
+      map((e)=>e[1]),
+      switchMap((sort) => {
+        let ordering = sort.direction == 'asc' ? '' : '-'
+        return this.VectorProviderService.fetchAndStoreListVectorProvider('ordering=' + ordering + sort.active).pipe(
+          tap(() => this.loading = false),
+          catchError(()=>{this.notifier.notify("error", "An error occured while loading vector provider");return EMPTY})
+        );
+      }),
      shareReplay(1)
     );
 

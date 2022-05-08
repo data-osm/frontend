@@ -224,7 +224,11 @@ export class OsmQuerryComponent implements OnInit {
     this.notifier.notify("error", "An unexpected error occured when saving the osm querry");
     if (err.status == 400 && err.error.error ) {
       setTimeout(() => {
-        alert(err.error.msg)
+        try {
+          alert(err.error.message)
+        } catch (error) {
+          
+        }
       }, 500);
     }
   }
