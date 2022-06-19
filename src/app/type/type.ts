@@ -540,6 +540,10 @@ export interface VectorProvider {
    * Source that defined this provider
    */
   source:'osm'|'querry'
+  /**
+   * primary key field of the table
+   */
+  primary_key_field:string
 }
 
 /**
