@@ -44,7 +44,7 @@ export class AddVectorProviderComponent implements OnInit {
    */
   initialiseVectorProviderForm(){
     this.form.addControl('name',new FormControl(null, [Validators.required]))
-    this.form.addControl('geometry_type',new FormControl(null, [Validators.required]))
+    this.form.addControl('geometry_type',new FormControl(null, []))
   }
 
   /**

@@ -2,8 +2,8 @@
     <div fxLayout="column" fxLayoutGap="24px" style="padding: 24px;" >
         <h3 class="text-center">Comment voulez vous définir cette source de données ?</h3>
         <button mat-flat-button color="primary" class="white" (click)="sourceType='osm'" > Avec les données OpenStreetMap </button>
-        <button mat-flat-button color="primary" class="white"(click)="sourceType='querry'" > Avec une requête SQL personnalisée </button>
-        <button mat-flat-button disabled> Avec un fichier SIG (shapefile, géopackage, etc...) </button>
+        <button mat-flat-button color="primary" class="white" (click)="sourceType='querry'" > Avec une requête SQL personnalisée </button>
+        <button mat-flat-button color="primary" class="white" (click)="sourceType='sigfile'"> Avec un fichier SIG (shapefile, géopackage, etc...) </button>
     </div>
 </ng-container>
 
@@ -17,4 +17,10 @@
     <app-querry-vector-provider (reloadVectorProvider)="reloadVectorProvider.emit()"
     [provider_vector_id]="vectorProvider.provider_vector_id">
     </app-querry-vector-provider>
+</ng-container>
+
+<ng-container  *ngIf="vectorProvider.source == 'sigfile' || sourceType=='sigfile' " >
+    <app-sig-file-provider (reloadVectorProvider)="reloadVectorProvider.emit()"
+    [provider_vector_id]="vectorProvider.provider_vector_id">
+    </app-sig-file-provider>
 </ng-container>

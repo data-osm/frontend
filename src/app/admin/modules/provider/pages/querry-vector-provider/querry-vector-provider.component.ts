@@ -7,12 +7,16 @@ import { catchError, filter, shareReplay, switchMap, tap } from 'rxjs/operators'
 import { Querry } from '../../../../../type/type';
 import { OsmQuerryService } from '../../../../administration/service/osm-querry.service';
 
+/**
+ * Fill a provider with a full querry
+ */
 @Component({
   selector: 'app-querry-vector-provider',
   templateUrl: './querry-vector-provider.component.html',
   styleUrls: ['./querry-vector-provider.component.scss']
 })
 export class QuerryVectorProviderComponent implements OnInit {
+
 
   onInitInstance:()=>void
   /**

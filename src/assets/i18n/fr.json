@@ -444,6 +444,12 @@
       "edit_sql_querry": "Editer la requête SQL",
       "choose_connection": "Choisisser votre base de données",
       "required_field_msg": " Attention : les champs osm_id (valeurs uniques) , geom (champ de géométries) et name sont obligatoires"
+    },
+    "sig_file": {
+      "edit_file": "Changer le fichier",
+      "add": "Uploader le fichier",
+      "update": "Uploader et mettre à jour le fichier",
+      "file": "Fichier"
     }
   },
   "add_icon": {
@@ -469,7 +475,8 @@
     "geometry_type": "Selectionner le type de géometrie",
     "geometry_type_point": "Point et centroid des polygonnes",
     "geometry_type_polygon": "Polygon uniquement",
-    "geometry_type_lineString": "Lignes uniquement"
+    "geometry_type_lineString": "Lignes uniquement",
+    "geometry_type_null": "Inconnu"
   },
   "delete": "Supprimer",
   "list-style": {

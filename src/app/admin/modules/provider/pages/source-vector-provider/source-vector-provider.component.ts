@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { VectorProvider } from '../../../../../type/type';
 
 @Component({
@@ -13,11 +13,19 @@ export class SourceVectorProviderComponent implements OnInit {
    */
   @Output()reloadVectorProvider:EventEmitter<void> = new EventEmitter<void>()
 
-  sourceType:'osm'|'querry'
+  sourceType:'osm'|'querry'|'sigfile'
   
   constructor() { }
 
   ngOnInit(): void {
+  }
+
+  ngOnChanges(changes:SimpleChanges){
+    if (changes.vectorProvider && this.vectorProvider) {
+      if (this.vectorProvider.geometry_type === 'null' && this.sourceType != 'sigfile') {
+        this.sourceType = 'sigfile'
+      }
+    }
   }
 
 }
