@@ -308,28 +308,28 @@
     </button>
     <mat-menu #menuCopy="matMenu">
       <a mat-menu-item
-        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties().osm_id+'&driver=shp'"
+        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties()[selectedFeature.primary_key_field]+'&driver=shp'"
         target="_blanck">
         ShapeFile
   
       </a>
       <a mat-menu-item
-        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties().osm_id+'&driver=geojson'"
+        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties()[selectedFeature.primary_key_field]+'&driver=geojson'"
         target="_blanck">
         GeoJSON
       </a>
       <a mat-menu-item
-        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties().osm_id+'&driver=gpkg'"
+        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties()[selectedFeature.primary_key_field]+'&driver=gpkg'"
         target="_blanck">
         Géopckage
       </a>
       <a mat-menu-item
-        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties().osm_id+'&driver=kml'"
+        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties()[selectedFeature.primary_key_field]+'&driver=kml'"
         target="_blanck">
         KML
       </a>
       <a mat-menu-item
-        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties().osm_id+'&driver=csv'"
+        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties()[selectedFeature.primary_key_field]+'&driver=csv'"
         target="_blanck">
         CSV
       </a>

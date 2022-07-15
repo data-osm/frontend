@@ -1,12 +1,12 @@
 <ng-container >
     <mat-tab-group>
-        <mat-tab  label="Provider">
+        <mat-tab  label="{{'admin.layer.source'|translate}}">
             <ng-template matTabContent>
                 <app-provider [layer]="layer"></app-provider>
             </ng-template>
             
         </mat-tab>
-        <mat-tab label="Metadonnées">
+        <mat-tab label="{{'admin.layer.metadata'|translate}}">
             <ng-template matTabContent>
                 <app-metadata style="display: block;padding: 20px 0px 0px;" [layer]="layer"></app-metadata>
             </ng-template>

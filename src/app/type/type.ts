@@ -503,7 +503,7 @@ export interface VectorProvider {
   table:string
   /** the shema where data are store */
   shema:string
-  geometry_type:'Polygon'|'Point'|'LineString'
+  geometry_type:'Polygon'|'Point'|'LineString'|'null'
   /** url of the carto server */
   url_server:string
   path_qgis:string
@@ -539,7 +539,11 @@ export interface VectorProvider {
   /**
    * Source that defined this provider
    */
-  source:'osm'|'querry'
+  source:'osm'|'querry'|'sigfile'
+  /**
+   * primary key field of the table
+   */
+  primary_key_field:string
 }
 
 /**
@@ -549,6 +553,16 @@ export interface VectorProvider {
   connection:string,
   sql:string
   provider_vector_id:number
+}
+/**
+ * Interface of a SIG File use to fill a provider
+ */
+export interface SigFile{
+  connection:string,
+  sigFile:string
+  provider_vector_id:number
+  created_at:string
+  updated_at:string
 }
 
 /**

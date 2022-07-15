@@ -30,6 +30,9 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20px" style="vertical-align: middle;" viewBox="0 0 20 20" ><path class="blackFill" d="M14.558 3a2.442 2.442 0 00-2.442 2.442c0 .246.045.478.112.702l-6.084 6.084a2.432 2.432 0 00-.702-.112 2.442 2.442 0 102.442 2.442c0-.246-.045-.478-.112-.702l6.084-6.084c.224.067.456.112.702.112a2.442 2.442 0 000-4.884zm0 1.465a.976.976 0 11.001 1.953.976.976 0 01-.001-1.953zm-9.116 9.116a.978.978 0 11-.001 1.955.978.978 0 01.001-1.955z" ></path></svg>
                     {{ 'add_vector_provider.geometry_type_lineString' | translate }}
                 </mat-option>
+                <mat-option [value]="'null'"> 
+                    {{ 'add_vector_provider.geometry_type_null' | translate }}
+                </mat-option>
             </mat-select>
         </mat-form-field>
     </form>
