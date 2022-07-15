@@ -142,8 +142,8 @@ export class ListVectorProviderComponent implements OnInit {
     ).pipe(
       withLatestFrom(onSortChange.pipe(
         startWith({
-        active: 'name',
-        direction: 'asc'
+        active: 'created_at',
+        direction: 'desc'
       }))
       ),
       map((e)=>e[1]),
