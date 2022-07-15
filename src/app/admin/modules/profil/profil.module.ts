@@ -20,10 +20,11 @@ import { UpdateLayerComponent } from './pages/update-layer/update-layer.componen
 import { MetadataComponent } from './pages/detail-layer/metadata/metadata.component';
 import { ProviderComponent } from './pages/detail-layer/provider/provider.component';
 import { ProviderModule } from '../provider/provider.module';
+import { ChangeLayerProviderStyleComponent } from './pages/detail-layer/change-layer-provider-style/change-layer-provider-style.component';
 
 
 @NgModule({
-  declarations: [DetailLayerComponent,UpdateLayerComponent, MetadataComponent,ProviderComponent, EditLayerProviderComponent, AddLayerProviderComponent ,ListGroupComponent, GroupComponent, AddGroupComponent, EditGroupComponent,AddSubGroupComponent, EditSubGroupComponent, UpdateSubGroupComponent, ListSubGroupComponent, ListLayerComponent, DetailLayerComponent, AddLayerComponent, EditLayerProviderComponent],
+  declarations: [DetailLayerComponent,UpdateLayerComponent, MetadataComponent,ProviderComponent, EditLayerProviderComponent, AddLayerProviderComponent ,ListGroupComponent, GroupComponent, AddGroupComponent, EditGroupComponent,AddSubGroupComponent, EditSubGroupComponent, UpdateSubGroupComponent, ListSubGroupComponent, ListLayerComponent, DetailLayerComponent, AddLayerComponent, EditLayerProviderComponent, ChangeLayerProviderStyleComponent],
   imports: [
     CommonModule,
     ProfilRoutingModule,

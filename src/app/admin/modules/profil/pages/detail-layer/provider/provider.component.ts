@@ -12,6 +12,7 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { MapsService } from '../../../../../../data/services/maps.service';
 import { ManageCompHelper } from '../../../../../../../helper/manage-comp.helper';
 import { LayerProviders, Layer, ReorderProvider } from '../../../../../../type/type';
+import { ChangeLayerProviderStyleComponent } from '../change-layer-provider-style/change-layer-provider-style.component';
 
 
 
@@ -25,8 +26,9 @@ export class ProviderComponent implements OnInit, OnChanges {
   onAddInstance:()=>void
   onDeleteInstance:(LayerProviders:LayerProviders)=>void
   onUpdateInstance:(LayerProviders:LayerProviders)=>void
+  onChangeLayerProviderStyleInstance:(LayerProviders:LayerProviders)=>void
   onReorderProvidersInstance:(reorderProviders:Array<ReorderProvider>)=>void
-
+  
   @ViewChild('table') table: MatTable<LayerProviders>;
 
 
@@ -69,6 +71,13 @@ export class ProviderComponent implements OnInit, OnChanges {
       onUpdate.next(layerProviders)
     }
 
+    const onChangeLayerProviderStyle:Subject<LayerProviders> = new Subject<LayerProviders>()
+
+    this.onChangeLayerProviderStyleInstance = (layerProviders:LayerProviders)=>{
+      onChangeLayerProviderStyle.next(layerProviders)
+    }
+
+
     const onReorder:Subject<Array<ReorderProvider>> = new Subject<Array<ReorderProvider>>()
 
     this.onReorderProvidersInstance = (reorderProviders:Array<ReorderProvider>)=>{
@@ -93,6 +102,22 @@ export class ProviderComponent implements OnInit, OnChanges {
         switchMap(()=>{
           return this.dialog.open(AddLayerProviderComponent,{data:this.layer}).afterClosed().pipe(
             filter(response=>response),
+            switchMap(()=>{
+              return this.mapsService.getProviderWithStyleOfLayer(this.layer.layer_id).pipe(
+                catchError(() => { this.notifier.notify("error", "An error occured while loading providers with style "); return EMPTY }),
+                map((providers)=>{
+                  return providers.sort(
+                    (a, b) => a.ordre > b.ordre ? 1 : a.ordre === b.ordre ? 0 : -1
+                  )
+                })
+              )
+            })
+          )
+        })
+      ),
+      onChangeLayerProviderStyle.pipe(
+        switchMap((layerProviders: LayerProviders)=>{
+          return this.dialog.open(ChangeLayerProviderStyleComponent,{data:{layer:this.layer,layerProviders:layerProviders}, maxHeight:"90%",maxWidth:"90%",width:"80%",height:"80%"}).afterClosed().pipe(
             switchMap(()=>{
               return this.mapsService.getProviderWithStyleOfLayer(this.layer.layer_id).pipe(
                 catchError(() => { this.notifier.notify("error", "An error occured while loading providers with style "); return EMPTY }),

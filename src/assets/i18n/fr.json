@@ -264,6 +264,15 @@
     "title": " Connecter vous"
   },
   "admin": {
+    "layer": {
+      "source": "Source",
+      "metadata": "Metadonnées",
+      "change_style_source": "Changer de style",
+      "edit_source": "Afficher la source",
+      "change_style_source_modal": {
+        "title": "Changer le style de la source {{source}} pour la couche"
+      }
+    },
     "generate_icon": {
       "background": "Activer l'arrière plan",
       "icon_color": "Couleur de l'icone",
