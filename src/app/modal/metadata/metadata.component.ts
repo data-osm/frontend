@@ -1,13 +1,14 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormBuilder } from '@angular/forms';
-import { Layer, Metadata, OsmQuerry } from '../../type/type';
+import { Layer, Metadata, OsmQuerry, SigFile } from '../../type/type';
 import { EMPTY, merge, Observable, ReplaySubject } from 'rxjs';
 import { MapsService } from '../../data/services/maps.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { switchMap, catchError, tap, map, mergeMap, toArray, concatMap } from 'rxjs/operators';
 import { NotifierService } from 'angular-notifier';
 import { OsmQuerryService } from '../../admin/administration/service/osm-querry.service';
+import { SigFileService } from '../../admin/administration/service/sig-file.service';
 import { environment } from '../../../environments/environment';
 
 export interface MetaDataInterface {
@@ -30,6 +31,7 @@ export class MetadataLayerComponent implements OnInit {
   onInitInstance:()=>void
   metadata$:Observable<Metadata>
   osmQuerry$:Observable<OsmQuerry[]>
+  sigFiles$:Observable<SigFile[]>
   environment=environment
   
   constructor(
@@ -37,9 +39,10 @@ export class MetadataLayerComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public layer: Layer,
     private mapsService: MapsService,
     private osmQuerryService: OsmQuerryService,
+    private sigFileService: SigFileService,
     public notifier:NotifierService
   ) { 
-
+console.log(this.layer)
     const onInit:ReplaySubject<void> = new ReplaySubject(1)
     this.onInitInstance = ()=>{
       onInit.next()
@@ -75,6 +78,23 @@ export class MetadataLayerComponent implements OnInit {
         
       })
     )
+
+    this.sigFiles$  = onInit.pipe(
+      map(()=>{
+       return this.layer.providers.map((provider)=>{
+          return this.sigFileService.getSigFile(provider.vp_id).pipe(
+            catchError(()=>EMPTY)
+          )
+        }) 
+      }),
+      concatMap((value)=>{
+        return merge(...value).pipe(toArray())
+      }),
+      tap((values)=>{
+        
+      })
+    )
+
 
   }
 

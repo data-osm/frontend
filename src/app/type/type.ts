@@ -559,7 +559,7 @@ export interface VectorProvider {
  */
 export interface SigFile{
   connection:string,
-  file:string
+  sigFile:string
   provider_vector_id:number
   created_at:string
   updated_at:string
