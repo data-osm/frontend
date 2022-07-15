@@ -11,7 +11,14 @@
 }
 
 .style-item{
-    margin-bottom: 10px;border-radius: 5px;border:1px solid #0000001f;align-items: center;padding: 0px 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border:1px solid #0000001f;
+    padding: 0px 10px;
+    .style-item-resume{
+        width: 100%;
+        align-items: center;
+    }
 }
 .style-type{
     font-size: 12px;
