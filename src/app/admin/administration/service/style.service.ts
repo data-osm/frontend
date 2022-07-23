@@ -83,7 +83,7 @@ export class StyleService {
    * list all custom styles of a geometryType
    * @returns Observable<Style>
    */
-    listCustomStylesOfGeometryType(geometryType:'Point'|'Polygon'|'LineString'):Observable<CustomStyle[]>{
+    listCustomStylesOfGeometryType(geometryType:'Point'|'Polygon'|'LineString'|'null'):Observable<CustomStyle[]>{
       return this.http.get<CustomStyle[]>(this.url_prefix+'/api/provider/style/custom?geometry_type='+geometryType,{ headers: this.get_header() })
     }
 

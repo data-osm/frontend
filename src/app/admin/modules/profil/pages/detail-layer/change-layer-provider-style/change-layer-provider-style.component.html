@@ -1,0 +1,65 @@
+<h1 mat-dialog-title>
+    <span class="bold primaryColor " style="font-size: 17px;"> {{ 'admin.layer.change_style_source_modal.title' | translate :{source:selectedProvider.name} }}
+        {{data.layer.name}}
+    </span>
+    <i (click)="close()" class="fa fa-times primaryColor pointer close"></i>
+</h1>
+
+<mat-dialog-content>
+
+    <label>{{ 'select_provider_with_style.choose_style' | translate }} </label>
+
+    <mat-radio-group [formControl]="VectorProviderForm.get('vs_id')" class="example-radio-group">
+        <div *ngFor="let style of selectedProviderStyle|async" fxLayout="column" class="style-item">
+            <div class="style-item-resume" fxFlex="77px" fxLayout fxLayoutGap="10px">
+                <mat-radio-button class="example-radio-button" [value]="style.provider_style_id"
+                    fxFlex="20px" [disableRipple]="true">
+                </mat-radio-button>
+                <img fxFlex="75px" [src]="environment.backend+style.pictogram" alt="">
+                <span fxFlex>{{style.name}}</span>
+                <span class="state-badje style-type" *ngIf="style.custom_style"> {{style.custom_style.name}}
+                </span>
+                <span class="state-badje style-type" *ngIf="!style.custom_style"> Qml File </span>
+            </div>
+            <div fxFlex  *ngIf="style.description" >
+                <md-editor style="display: block;max-height: 100px;"
+                    [mode]="'preview'" [(ngModel)]="style.description" [height]="'100px'"
+                    [options]="{enablePreviewContentClick:true,showBorder:false}">
+                </md-editor>
+            </div>
+        </div>
+    </mat-radio-group>
+
+    <label style="display: block;margin-bottom: 15px;">{{ 'select_provider_with_style.create_new_style' |
+        translate }} </label>
+
+    <button mat-stroked-button *ngFor="let customStyle of customStyles$|async" style="padding: 10px;"
+        (click)="onAddStyleToSource(customStyle)">
+        <div fxLayout style="align-items: center;font-weight: normal;" fxLayoutGap="10px">
+            <img fxFlex="40px" [src]="environment.backend+data.layer.cercle_icon" alt="">
+            <span fxFlex>Créer un style de type {{customStyle.name}} en utilisant les propriétés (icone et
+                couleurs) de votre couche</span>
+            <span class="state-badje style-type"> {{customStyle.name}} </span>
+        </div>
+    </button>
+
+<div class="text-center" style="margin-top: 15px;">
+    {{ 'select_provider_with_style.or' | translate }}
+</div>
+<button (click)="addProviderInNewWindow()" mat-stroked-button class="whiteBG"
+    style="width: 100%;height: 45px;margin: 15px 0px;">
+    <mat-icon>open_in_new</mat-icon>
+    {{ 'select_provider_with_style.add_source' | translate }}
+</button>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <div fxLayout fxLayoutGap="15px" fxLayoutAlign="end">
+        <mat-progress-bar fxFlex="100%" mode="indeterminate" *ngIf="VectorProviderForm.disabled"></mat-progress-bar>
+        <button fxFlex="150px" mat-stroked-button color="primary" [disabled]="VectorProviderForm.disabled"
+            (click)="close()">{{ 'cancel' | translate }}</button>
+        <button fxFlex="150px" mat-flat-button color="accent" class="white" (click)="onChangeStyleInstance()"
+            [disabled]="!VectorProviderForm.valid || VectorProviderForm.disabled"> {{ 'save' | translate }} </button>
+    </div>
+</mat-dialog-actions>

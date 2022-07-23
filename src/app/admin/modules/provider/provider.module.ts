@@ -24,11 +24,12 @@ import { PolygonSimpleComponent } from './pages/ polygon-simple/polygon-simple.c
 import { LineSimpleComponent } from './pages/line-simple/line-simple.component';
 import { SourceVectorProviderComponent } from './pages/source-vector-provider/source-vector-provider.component';
 import { QuerryVectorProviderComponent } from './pages/querry-vector-provider/querry-vector-provider.component';
+import { SigFileProviderComponent } from './pages/sig-file-provider/sig-file-provider.component';
 
 
 
 @NgModule({
-  declarations: [AddStyleComponent, AddVectorProviderComponent, DetailsVectorProviderComponent, EditStyleComponent, EditVectorProviderComponent,ListStyleComponent, ListVectorProviderComponent, OsmQuerryComponent, EditStyleComponent, AddStyleComponent, TableVectorProviderComponent, UpdateProviderComponent, QmlComponent, ClusterComponent, PointIconSimpleComponent,PolygonSimpleComponent,LineSimpleComponent,  UpdateDescriptionStyleComponent, SourceVectorProviderComponent, QuerryVectorProviderComponent],
+  declarations: [AddStyleComponent, AddVectorProviderComponent, DetailsVectorProviderComponent, EditStyleComponent, EditVectorProviderComponent,ListStyleComponent, ListVectorProviderComponent, OsmQuerryComponent, EditStyleComponent, AddStyleComponent, TableVectorProviderComponent, UpdateProviderComponent, QmlComponent, ClusterComponent, PointIconSimpleComponent,PolygonSimpleComponent,LineSimpleComponent,  UpdateDescriptionStyleComponent, SourceVectorProviderComponent, QuerryVectorProviderComponent, SigFileProviderComponent],
   imports: [
     CommonModule,
     SharedModule,

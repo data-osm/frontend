@@ -232,6 +232,13 @@ export class MapsService {
   }
 
   /**
+   * update a provider of a layer
+   */
+   updateProviderWithStyleOfLayer(layerProviders_id,parameter:{layer_id:number, vs_id:number, vp_id:number}):Observable<LayerProviders>{
+    return this.http.put<LayerProviders>(this.url_prefix + '/api/group/layer/provider/'+layerProviders_id,parameter, { headers: this.get_header() })
+  }
+
+  /**
    * get all providers of a map
    */
   getProviderWithStyleOfLayer(layer_id:number):Observable<Array<LayerProviders>>{

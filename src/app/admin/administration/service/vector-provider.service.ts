@@ -40,8 +40,8 @@ export class VectorProviderService {
    * fecth all list vector provider from backend and store it in observable vectorProviderList
    * If error emit boolean value on observable vectorProviderListLoadError
    */
-  fetchAndStoreListVectorProvider(){
-    return this.http.get<VectorProvider[]>(this.url_prefix +'/api/provider/vector',{ headers: this.get_header() })
+  fetchAndStoreListVectorProvider(sort:string){
+    return this.http.get<VectorProvider[]>(this.url_prefix +'/api/provider/vector?'+sort,{ headers: this.get_header() })
   
   }
 

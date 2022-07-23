@@ -91,6 +91,13 @@
 						</P>
 				</ng-container>
 
+				<ng-container *ngFor="let sigFile of sigFiles$|async ">
+					<P>
+						<span class="primary blod" > {{ 'metadata.sig_file' | translate }} :</span>
+						{{sigFile.file}}
+					</P>
+			</ng-container>
+
 			</div>
 		</mat-tab>
 
