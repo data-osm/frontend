@@ -18,6 +18,14 @@ import { retryWhen, tap, delay, take, delayWhen, retry, shareReplay } from 'rxjs
 import Geolocation from 'ol/Geolocation';
 import { Coordinate } from 'ol/coordinate'
 import BaseLayer from 'ol/layer/Base'
+
+import ColorLayer from '@giro3d/giro3d/core/layer/ColorLayer.js';
+import WmtsSource from '@giro3d/giro3d/sources/WmtsSource.js';
+import TiledImageSource from '@giro3d/giro3d/sources/TiledImageSource.js';
+import ImageSource from '@giro3d/giro3d/sources/ImageSource'
+import UrlTile from 'ol/source/UrlTile'
+import { Layer } from '@giro3d/giro3d/core/layer'
+
 /**
  * interface that describe data get by a click on the map
  */
@@ -166,7 +174,7 @@ export class CartoHelper {
   BackendApiService: BackendApiService = AppInjector.get(BackendApiService);
 
   constructor(
-    public map: Map,
+    public map: any,
   ) {
 
   }
@@ -268,11 +276,10 @@ export class CartoHelper {
     try {
       var coord_O_N = this.map.getCoordinateFromPixel([$('.mat-sidenav .sidenav-left').width(), $(window).height()])
       var coord_E_S = this.map.getCoordinateFromPixel([$(window).width(), 0])
-      var extent_vieuw = boundingExtent([coord_O_N, coord_E_S])
-      return extent_vieuw
+      var extent_view = boundingExtent([coord_O_N, coord_E_S])
+      return extent_view
     } catch (error) {
-      var extent_vieuw = this.map.getView().calculateExtent()
-      return extent_vieuw
+      return this.map.getView().calculateExtent()
     }
   }
 
@@ -283,21 +290,37 @@ export class CartoHelper {
    * @param couche geosmLayer the layer to construct
    * @return VectorLayer|ImageLayer the layer costructed
    */
-  constructLayer(couche: DataOSMLayer): TileLayer | LayerGroup | VectorLayer {
-    let layer: TileLayer | LayerGroup | VectorLayer;
+  constructLayer(couche: DataOSMLayer) {
+    let layer: ColorLayer
 
     if (couche.type == "xyz") {
-      layer = new TileLayer({
-        source: new XYZ({
-          url: couche.url,
-          attributions: '<a target="_blank" href="https://www.openstreetmap.org/copyright"> © OpenStreetMap </a> contributors , develop by <a target="_blank" href="https://twitter.com/armeltayou"> @armeltayou </a>',
-        }),
-        /**
-      * so that map.forEachLayerAtPixel work as expected
-      * @see https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html#forEachLayerAtPixel
-      */
-        className: couche.nom + '___' + couche.type_layer
+      
+      let layer = new ColorLayer({
+        name:couche.nom,
+        
+        source: new TiledImageSource({
+          source: new XYZ({
+            url: couche.url,
+            attributions: '<a target="_blank" href="https://www.openstreetmap.org/copyright"> © OpenStreetMap </a> contributors , develop by <a target="_blank" href="https://twitter.com/armeltayou"> @armeltayou </a>',
+          })
+          // new UrlTile({
+          //   // url: couche.url,
+          //   // attributions: '<a target="_blank" href="https://www.openstreetmap.org/copyright"> © OpenStreetMap </a> contributors , develop by <a target="_blank" href="https://twitter.com/armeltayou"> @armeltayou </a>',
+          // })
+        })
       })
+
+      // layer = new TileLayer({
+      //   source: new XYZ({
+      //     url: couche.url,
+      //     attributions: '<a target="_blank" href="https://www.openstreetmap.org/copyright"> © OpenStreetMap </a> contributors , develop by <a target="_blank" href="https://twitter.com/armeltayou"> @armeltayou </a>',
+      //   }),
+      //   /**
+      // * so that map.forEachLayerAtPixel work as expected
+      // * @see https://openlayers.org/en/latest/apidoc/module-ol_PluggableMap-PluggableMap.html#forEachLayerAtPixel
+      // */
+      //   className: couche.nom + '___' + couche.type_layer
+      // })
     } else if (couche.type == "wms") {
       let params: { [key: string]: any; } = {
         'LAYERS': couche.identifiant.join(','),
@@ -340,19 +363,20 @@ export class CartoHelper {
         maxResolution: this.map.getView().getResolutionForZoom(9),
       });
 
-      layer = new LayerGroup({
-        layers: [
-          layerTile,
-          layerImage
-        ]
-      })
+      // layer = new LayerGroup({
+      //   layers: [
+      //     layerTile,
+      //     layerImage
+      //   ]
+      // })
 
     } else if (couche.type == "geojson") {
       var vectorSource = new VectorSource({
         format: new GeoJSON(),
       })
 
-      layer = new VectorLayer({
+      // layer = 
+      new VectorLayer({
         source: vectorSource,
         style: couche.style,
         /**
@@ -369,7 +393,8 @@ export class CartoHelper {
         });
         var styleCache = {};
         var styleCacheCopy = {}
-        layer = new VectorLayer({
+        // layer = 
+        new VectorLayer({
           source: clusterSource,
           style: (feature) => {
             var size = feature.get('features').length;
@@ -473,7 +498,8 @@ export class CartoHelper {
         }
       });
 
-      layer = new VectorLayer({
+      // layer = 
+      new VectorLayer({
         source: source,
         style: new Style({
           image: new Icon({
@@ -495,7 +521,8 @@ export class CartoHelper {
         });
         var styleCache = {};
         var styleCacheCopy = {}
-        layer = new VectorLayer({
+        // layer =
+         new VectorLayer({
           source: clusterSource,
           style: (feature) => {
             var size = feature.get('features').length;
@@ -569,19 +596,17 @@ export class CartoHelper {
     this.setPropertiesToLayer(layer, couche)
 
     if (couche.zindex) {
-      this.setZindexToLayer(layer, couche.zindex)
+      // this.setZindexToLayer(layer, couche.zindex)
     }
 
-    if (couche.minzoom && layer instanceof TileLayer == false) {
-      layer.setMinResolution(this.map.getView().getResolutionForZoom(couche.minzoom))
-    }
+    // if (couche.minzoom && layer instanceof TileLayer == false) {
+    //   layer.setMinResolution(this.map.getView().getResolutionForZoom(couche.minzoom))
+    // }
 
-    if (couche.maxzoom) {
-      layer.setMaxResolution(this.map.getView().getResolutionForZoom(couche.maxzoom))
-
-    }
-
-    layer.setVisible(couche.visible)
+    // if (couche.maxzoom) {
+    //   layer.setMaxResolution(this.map.getView().getResolutionForZoom(couche.maxzoom))
+    // }
+    layer.visible = couche.visible
 
     return layer
 
@@ -592,31 +617,17 @@ export class CartoHelper {
    * @param layer
    * @param couche
    */
-  setPropertiesToLayer(layer: any, couche: DataOSMLayer) {
-    if (layer instanceof LayerGroup) {
-      for (let index = 0; index < layer.getLayers().getArray().length; index++) {
-        const element = layer.getLayers().getArray()[index];
-        element.set('properties', couche.properties)
-        element.set('nom', couche.nom)
-        element.set('type_layer', couche.type_layer)
-        element.set('iconImagette', couche.iconImagette)
-        element.set('identifiant', couche.identifiant ? couche.identifiant.join(',') : undefined)
-        element.set('inToc', couche.inToc)
-        element.set('tocCapabilities', couche.tocCapabilities)
-        element.set('legendCapabilities', couche.legendCapabilities)
-        element.set('descriptionSheetCapabilities', couche.descriptionSheetCapabilities)
-      }
-    }
+  setPropertiesToLayer(layer: Layer, couche: DataOSMLayer) {
 
-    layer.set('properties', couche.properties)
-    layer.set('nom', couche.nom)
-    layer.set('type_layer', couche.type_layer)
-    layer.set('iconImagette', couche.iconImagette)
-    layer.set('identifiant', couche.identifiant ? couche.identifiant.join(',') : undefined)
-    layer.set('inToc', couche.inToc)
-    layer.set('tocCapabilities', couche.tocCapabilities)
-    layer.set('legendCapabilities', couche.legendCapabilities)
-    layer.set('descriptionSheetCapabilities', couche.descriptionSheetCapabilities)
+    layer.userData.properties =  couche.properties
+    layer.userData.nom =  couche.nom
+    layer.userData.type_layer =  couche.type_layer
+    layer.userData.iconImagette =  couche.iconImagette
+    layer.userData.identifiant =  couche.identifiant ? couche.identifiant.join(',') : undefined
+    layer.userData.inToc =  couche.inToc
+    layer.userData.tocCapabilities =  couche.tocCapabilities
+    layer.userData.legendCapabilities =  couche.legendCapabilities
+    layer.userData.descriptionSheetCapabilities =  couche.descriptionSheetCapabilities
 
   }
 
@@ -625,26 +636,26 @@ export class CartoHelper {
    * @param layer layer to add
    * @param group string name of layerGroup where we want to add the layer.
    */
-  addLayerToMap(layer: TileLayer | LayerGroup | VectorLayer, group: string = 'principal') {
-    if (!layer.get('nom')) {
+  addLayerToMap(layer: Layer, group: string = 'principal') {
+    if (!layer.userData.nom) {
       throw new Error("Layer must have a 'nom' properties");
     }
 
-    if (!layer.get('type_layer')) {
+    if (!layer.userData.type_layer) {
       throw new Error("Layer must have a 'type_layer' properties");
     }
 
-    if (typeLayer.indexOf(layer.get('type_layer')) == -1) {
+    if (typeLayer.indexOf(layer.userData.type_layer as string) == -1) {
       throw new Error("Layer must have a 'type_layer' properties among " + typeLayer.join(','));
     }
 
     var zIndex = this.getMaxZindexInMap() + 1
 
-    if (layer.get('nom') && layer.get('type_layer')) {
+    if ((layer.userData.nom) && layer.userData.type_layer) {
 
-      if (!layer.getZIndex()) {
-        this.setZindexToLayer(layer, zIndex)
-      }
+      // if (!layer.getZIndex()) {
+      //   this.setZindexToLayer(layer, zIndex)
+      // }
 
       // var groupLayer = this.getLayerGroupByNom(group)
 

@@ -22,6 +22,7 @@ import { ListGroupThematiqueComponent } from '../sidenave-left-secondaire/list-g
 import { DataOsmLayersServiceService } from '../../../../services/data-som-layers-service/data-som-layers-service.service';
 import { fromOpenLayerEvent } from '../../../../shared/class/fromOpenLayerEvent';
 import { ObjectEvent } from 'ol/Object';
+import { GroupsService } from '../../../../data/services/groups.service';
 
 
 /**
@@ -65,14 +66,15 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   private readonly notifier: NotifierService;
-
+  selected_group$:Observable<Group> = this.groups_service.selected_active_group$
   constructor(
     public dataOsmLayersServiceService: DataOsmLayersServiceService,
     public baseMapsService: BaseMapsService,
     public manageCompHelper:ManageCompHelper,
     public notifierService: NotifierService,
     public translate: TranslateService,
-    public dialog:MatDialog
+    public dialog:MatDialog,
+    private groups_service:GroupsService
   ) {
     this.notifier = notifierService;
 
@@ -94,7 +96,7 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
             return basemaps
           }),
           tap((baseMaps)=>{
-            this.dataOsmLayersServiceService.baseMaps.next(baseMaps)
+            // this.dataOsmLayersServiceService.baseMaps$.next(baseMaps)
           })
         )
       }),
@@ -111,6 +113,7 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
         }else{
           this.removePrincipalMapLayer(value[1].find((item)=>item.principal))
         }
+        this.openGroup(this.groups[9])
       }),
       takeUntil(this.destroyed$)
     ).subscribe()
@@ -213,22 +216,28 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
    */
   openGroup(group: Group) {
     
-    this.dialog.open(ListGroupThematiqueComponent,{
+    let dialog = this.dialog.open(ListGroupThematiqueComponent,{
       data:{
         group:group,
         map:this.map
       },
       position:{
-        left:'0px',
+        left:'65px',
         bottom:'0px',
-        top:'60px',
+        top:'0px',
       },
-      width:'260px',
-      height:'calc(100% - 60px)',
+      width:'300px',
+      height:'100%',
       hasBackdrop:false,
       disableClose:true,
       panelClass:['dialog-no-shadow','dialog-no-padding'],
     })
+    this.groups_service.setActiveGroup(group)
+
+    dialog.afterClosed().pipe(
+      tap(()=>this.groups_service.setActiveGroup(null)),
+      takeUntil(this.destroyed$)
+    ).subscribe()
   }
 
   /**
@@ -246,8 +255,8 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
         bottom:'0px',
         top:'60px',
       },
-      width:'260px',
-      height:'calc(100% - 60px)',
+      width:'300px',
+      height:'100%',
       hasBackdrop:false,
       disableClose:true,
       panelClass:['dialog-no-shadow','dialog-no-padding'],

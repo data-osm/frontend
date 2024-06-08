@@ -1,4 +1,4 @@
-<mat-card class="base-map-card">
+<!-- <mat-card class="base-map-card">
   <div mat-card-image #ghostMap id="ghostMap"></div>
 
   <mat-card-actions>
@@ -7,15 +7,18 @@
     </mat-checkbox>
   </mat-card-actions>
 
-</mat-card>
+</mat-card> -->
 
-<ng-container *ngIf="baseMaps$|async as baseMaps" >
+<!-- <ng-container *ngIf="baseMaps$|async as baseMaps" >
   <button mat-raised-button (click)="openGroupCarteSlide(baseMaps)" class="white base-group-carte-btn" color="primary">
     Fonds de cartes
   </button>
+</ng-container> -->
+<ng-container *ngIf="{selected_group:selected_group$|async} as context">
+  <div fxLayout="column" fxLayoutGap="30px" class="list-group-thematique primaryColorBG">
+    <div class="arborescence-group-thematique" *ngFor="let group of groups"
+      [ngStyle]="{ 'background-color': context.selected_group?.group_id==group.group_id? group.color : 'inherit' }">
+      <app-group-thematique (click)="openGroup(group)" class="pointer" [group]="group"></app-group-thematique>
+    </div>
+  </div>
 </ng-container>
-
-
-<div class="arborescence-group-thematique" *ngFor="let group of groups">
-  <app-group-thematique (click)="openGroup(group)" class="pointer" [group]="group"></app-group-thematique>
-</div>

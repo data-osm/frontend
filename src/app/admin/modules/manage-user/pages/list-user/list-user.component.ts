@@ -21,7 +21,7 @@ export class ListUserComponent implements OnInit {
   listUsers$:Observable<User[]>
   private readonly notifier: NotifierService;
 
-  displayedColumns: string[] = ['name', 'email'];
+  displayedColumns: string[] = ['name'];
 
   constructor(
     public userService:UserService,

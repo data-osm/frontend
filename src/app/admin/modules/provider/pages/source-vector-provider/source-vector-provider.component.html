@@ -1,26 +1,29 @@
-<ng-container *ngIf="vectorProvider.source == undefined && sourceType==undefined" >
-    <div fxLayout="column" fxLayoutGap="24px" style="padding: 24px;" >
+<ng-container *ngIf="vectorProvider.type == undefined && type==undefined">
+    <div fxLayout="column" fxLayoutGap="24px" style="padding: 24px;">
         <h3 class="text-center">Comment voulez vous définir cette source de données ?</h3>
-        <button mat-flat-button color="primary" class="white" (click)="sourceType='osm'" > Avec les données OpenStreetMap </button>
-        <button mat-flat-button color="primary" class="white" (click)="sourceType='querry'" > Avec une requête SQL personnalisée </button>
-        <button mat-flat-button color="primary" class="white" (click)="sourceType='sigfile'"> Avec un fichier SIG (shapefile, géopackage, etc...) </button>
+        <button mat-flat-button color="primary" class="white" (click)="type='osm'"> Avec les données OpenStreetMap
+        </button>
+        <button mat-flat-button color="primary" class="white" (click)="type='querry'"> Avec une requête SQL
+            personnalisée </button>
+        <button mat-flat-button color="primary" class="white" (click)="type='sigfile'"> Avec un fichier SIG (shapefile,
+            géopackage, etc...) </button>
     </div>
 </ng-container>
 
-<ng-container *ngIf="vectorProvider.source == 'osm' || sourceType=='osm' " >
+<ng-container *ngIf="vectorProvider.type == 'osm' || type=='osm' ">
     <app-osm-querry (reloadVectorProvider)="reloadVectorProvider.emit()"
         [provider_vector_id]="vectorProvider.provider_vector_id">
     </app-osm-querry>
 </ng-container>
 
-<ng-container  *ngIf="vectorProvider.source == 'querry' || sourceType=='querry' " >
+<ng-container *ngIf="vectorProvider.type == 'querry' || type=='querry' ">
     <app-querry-vector-provider (reloadVectorProvider)="reloadVectorProvider.emit()"
-    [provider_vector_id]="vectorProvider.provider_vector_id">
+        [provider_vector_id]="vectorProvider.provider_vector_id">
     </app-querry-vector-provider>
 </ng-container>
 
-<ng-container  *ngIf="vectorProvider.source == 'sigfile' || sourceType=='sigfile' " >
+<ng-container *ngIf="vectorProvider.type == 'sigfile' || type=='sigfile' ">
     <app-sig-file-provider (reloadVectorProvider)="reloadVectorProvider.emit()"
-    [provider_vector_id]="vectorProvider.provider_vector_id">
+        [provider_vector_id]="vectorProvider.provider_vector_id">
     </app-sig-file-provider>
 </ng-container>

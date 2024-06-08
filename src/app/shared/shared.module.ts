@@ -33,9 +33,10 @@ import { SafeUrlPipe } from './pipe/safe-url/safe-url.pipe';
 import { CardDownloadLayerComponent } from './pages/card-download-layer/card-download-layer.component';
 import { ColorPickerComponent } from './pages/color-picker/color-picker.component';
 import { ColorPickerModule } from 'ngx-color-picker';
+import { HttpErrorComponent } from './pages/http-error/http-error.component';
 
 @NgModule({
-  declarations: [FileUploadComponent,ColorPickerComponent, SearchProviderComponent, SearchMapComponent, SvgIconDirective, PreviewDataComponent, SafeStylePipe, SafeUrlPipe, CardDownloadLayerComponent],
+    declarations: [FileUploadComponent,ColorPickerComponent, SearchProviderComponent, SearchMapComponent, SvgIconDirective, PreviewDataComponent, SafeStylePipe, SafeUrlPipe, CardDownloadLayerComponent, HttpErrorComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -74,7 +75,8 @@ import { ColorPickerModule } from 'ngx-color-picker';
     CardDownloadLayerComponent,
     MarkdownEditorComponent,
     ColorPickerComponent,
-    ColorPickerModule
+    ColorPickerModule,
+    HttpErrorComponent
   ],
   providers:[_CoalescedStyleScheduler,
     {provide: _VIEW_REPEATER_STRATEGY, useClass: _DisposeViewRepeaterStrategy},

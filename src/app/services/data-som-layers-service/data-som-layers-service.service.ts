@@ -20,10 +20,11 @@ export class DataOsmLayersServiceService {
   public destroyLayer : (layer_id:number)=>void
 
   public getBasemap :(id:number)=>BaseMap
+  public addBasemaps :(basemaps:Array<BaseMap>)=>void
 
   private readonly notifier: NotifierService;
 
-  public baseMaps:BehaviorSubject<Array<BaseMap>> = new BehaviorSubject<Array<BaseMap>>([])
+  private  baseMaps$:BehaviorSubject<Array<BaseMap>> = new BehaviorSubject<Array<BaseMap>>([])
   public groupsLayerInMap:BehaviorSubject<Array<{
     group:Group,
     layer:Layer
@@ -35,10 +36,13 @@ export class DataOsmLayersServiceService {
   constructor(
     notifierService: NotifierService,
   ) {
+    this.addBasemaps = (basemaps:Array<BaseMap>) =>{
+      this.baseMaps$.next(basemaps)
+    }
     this.notifier = notifierService;
 
     this.getBasemap = (id:number):BaseMap =>{
-      return this.baseMaps.getValue().find((basemap)=>basemap.id == id)
+      return this.baseMaps$.getValue().find((basemap)=>basemap.id == id)
     }
 
     this.getLayerInMap = (layer_id:number):{group:Group,layer:Layer} =>{

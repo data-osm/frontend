@@ -1,3 +1,80 @@
+@import '../../../../../theme.scss';
+
+.group-select-form-option{
+    color: white;
+    .mat-selected{
+      background-color: #00ada7;
+      color: white;
+    }
+}
+.group-select-form-option:hover{
+  background-color: #00ada75e !important;
+}
+
+.group-select-form-option.mat-selected{
+  background-color: #00ada7 !important;
+  color: white !important;
+}
+::ng-deep .group-select-form-option-panel{
+  margin-left: 5.5px;
+  margin-top: 39px;
+  min-width: calc(100% + 21px) !important;
+  box-shadow: none !important;
+  background-color: #023f5ff7;
+  border-radius: 0px !important;
+  border-width: 0px !important;
+}
+
+.group-select-form-ghost{
+  height: 40px;
+}
+.group-select-form{
+  width: 400px;
+    position: fixed;
+    margin-left: -5px;
+    z-index: 9;
+    margin-top: -25px;
+
+    border-radius: 30px 30px 0px 0px;
+
+  mat-form-field{
+    width: 100%;
+  }
+
+  .group-select-form-select-trigger{
+    color: white;
+    padding-left: 10px;
+    span{
+      font-size: 19px;
+    font-weight: bold;
+    }
+  }
+
+  ::ng-deep .mat-form-field-wrapper{
+    padding-bottom: 0px;
+  }
+
+  ::ng-deep .mat-form-field-underline{
+    display: none;
+  }
+  ::ng-deep .mat-form-field-infix{
+    border: none;
+  }
+  ::ng-deep .mat-select-arrow-wrapper{
+    transform: none;
+    .mat-select-arrow{
+      color: white;
+    }
+  }
+}
+.cdk-overlay-container .cdk-overlay-pane .group-select{
+  height: 45px;
+}
+.list-sub-group{
+  overflow: auto;
+    height: calc(100% - 10px);
+
+}
 .couche-thematique {
   ::ng-deep .mat-expansion-panel-body {
     padding: 10px 5px 16px !important;
@@ -7,15 +84,22 @@
 
   .couche-thematique-panel {
     margin-bottom: 20px;
+    border: 0.5px solid #023f5f3d;
+    box-shadow: none;
   }
 
   mat-panel-title{
-    color: #fff !important;
+    // color: #fff !important;
     font-size: 16px;
+    font-weight: 400;
   }
   
   ::ng-deep .mat-expansion-indicator::after{
-    color: #fff !important;
+    // color: #fff !important;
+  }
+
+  ::ng-deep mat-expansion-panel-header{
+    // background-color: $color_prim_300 !important;
   }
 
 }

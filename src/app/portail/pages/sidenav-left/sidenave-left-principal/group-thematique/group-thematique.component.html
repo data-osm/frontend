@@ -4,21 +4,16 @@
   [ngStyle]="{ 'background-color': group.color }"
   [matTooltip]="group.name"
 > -->
-
-  <img
-  class="border_red menu-thematiques-child text-center"
-  [ngClass]="{ primaryColorBG: !group.color }"
-  [ngStyle]="{ 'background-color': group.color }"
-  [matTooltip]="group.name"
-    src="{{ environment.backend + group.icon_path }}"
-    class="img-responsive menu-thematiques-child-logo"
-  />
+<!-- [ngStyle]="{ 'background-color': group.color }"  -->
+<img class="border_red menu-thematiques-child text-center" [ngClass]="{ primaryColorBG: !group.color }"
+  [matTooltip]="group.name" src="{{ environment.backend + group.icon.path }}"
+  class="img-responsive menu-thematiques-child-logo" />
 <!-- </div> -->
 
-<div class="text-center menu-thematiques-child-title">
+<!-- <div class="text-center menu-thematiques-child-title">
   <mat-list-item>
     <p class="black" mat-line>
       {{ group.name }}
     </p>
   </mat-list-item>
-</div>
+</div> -->

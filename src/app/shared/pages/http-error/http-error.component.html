@@ -1,0 +1,11 @@
+<mat-error>
+    <span *ngIf="form.hasError(key) == true">
+        {{form.getError(key)}}
+    </span>
+    <span *ngIf="form.hasError('required') == true">
+        {{ 'add_icon.category_error' | translate }}
+    </span>
+    <span *ngIf="form.hasError('email') == true">
+        {{ 'login.error_email' | translate }}
+    </span>
+</mat-error>

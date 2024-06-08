@@ -32,6 +32,8 @@ export class AddUserComponent implements OnInit {
     this.notifier = notifierService;
 
     this.form.addControl('password',new FormControl(null, [Validators.required, Validators.minLength(5)]))
+    this.form.addControl('password_2',new FormControl(null, [Validators.required, Validators.minLength(5)]))
+    this.form.addControl('first_name',new FormControl(null, [Validators.required]))
     this.form.addControl('last_name',new FormControl(null, [Validators.required]))
     this.form.addControl('email',new FormControl(null, [Validators.required, Validators.email]))
 
@@ -48,14 +50,30 @@ export class AddUserComponent implements OnInit {
         
         let parameters = {
           password:this.form.get('password').value.toString(),
+          password_2:this.form.get('password_2').value.toString(),
           last_name:this.form.get('last_name').value.toString(),
+          first_name:this.form.get('first_name').value.toString(),
           email:this.form.get('email').value.toString(),
           username:this.form.get('email').value.toString().split('@')[0].replace(/[^a-zA-Z0-9]/g,'_'),
           is_superuser:true
         }
 
         return this.userService.createUser(parameters).pipe(
-          catchError( (err)=> { this.notifier.notify("error", "An error occured when adding user");this.form.enable();return EMPTY } ),
+          catchError( (err)=> { 
+            this.form.enable();
+            if (err.error.status_code == 400){
+              for (const key in err.error) {
+                const element = err.error[key];
+                if (Object.keys(this.form.controls).indexOf(key)>-1){
+                    this.form.get(key).setErrors({"invalid":element.join(" ")}, {emitEvent:true})
+                  }
+              }
+            }else{
+              this.notifier.notify("error", "An error occurred when adding user");
+            }
+
+            return EMPTY
+           } ),
           tap(_=> this.dialogRef.close(true))
         )
 

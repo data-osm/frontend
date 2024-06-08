@@ -412,7 +412,9 @@
         "title": "Ajouter un utilisateur",
         "email": "E-mail",
         "psw": "Mot de passe",
-        "name": "Nom"
+        "first_name": "Prénom",
+        "last_name": "Nom",
+        "psw_2": "Entrez le même mot de passe"
       }
     },
     "parameter": {

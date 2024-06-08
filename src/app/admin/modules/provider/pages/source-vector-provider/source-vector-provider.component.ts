@@ -13,7 +13,7 @@ export class SourceVectorProviderComponent implements OnInit {
    */
   @Output()reloadVectorProvider:EventEmitter<void> = new EventEmitter<void>()
 
-  sourceType:'osm'|'querry'|'sigfile'
+  type:'osm'|'querry'|'sigfile'
   
   constructor() { }
 
@@ -22,8 +22,8 @@ export class SourceVectorProviderComponent implements OnInit {
 
   ngOnChanges(changes:SimpleChanges){
     if (changes.vectorProvider && this.vectorProvider) {
-      if (this.vectorProvider.geometry_type === 'null' && this.sourceType != 'sigfile') {
-        this.sourceType = 'sigfile'
+      if (this.vectorProvider.geometry_type === 'null' && this.type != 'sigfile') {
+        this.type = 'sigfile'
       }
     }
   }

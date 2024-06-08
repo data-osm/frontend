@@ -1,6 +1,7 @@
 @import "../../theme.scss";
 
-$height: calc(100% - 60px);
+// $height: calc(100% - 60px);
+$height: 100%;
 
 .loading-apps {
   position: fixed;
@@ -18,15 +19,15 @@ $height: calc(100% - 60px);
 }
 
 .sidenav-left {
-  width: 265px;
-  padding: 5px;
+  width: 320px;
+  // padding: 5px;
   border: none !important;
   app-sidenave-left-secondaire {
     position: absolute;
-    left: -265px;
+    left: -320px;
     top: 0px;
     bottom: 0px;
-    width: 265px;
+    width: 320px;
     transition: 0.5s;
     background: #fff;
     z-index: 9;
@@ -36,25 +37,60 @@ $height: calc(100% - 60px);
 .sidenav-right-legend {
   width: 270px !important;
 }
+.sidenav-right-toc {
+  width: 250px !important;
+}
+.sidenav-right-download {
+  width: 230px !important;
+}
+.toogle-sidenav-right-button{
+  min-width: 50px;
+  width: 50px !important;
+  border-radius: 0px;
+  padding: 0px;
+  mat-icon{
+    font-size: 20px;
+  }
+  i{
+    font-size: 15px;
+  }
+}
+.toogle-sidenav-right-button-toc{
+  border-radius: 10px 10px 0px 0px;
+}
+.toogle-sidenav-right-button-legend{
+  border-radius: 0px 0px 10px 10px;
+}
 .sidenav-right {
-  width: 219px;
+  width: 0px;
+  top: 5%;
+  right: 0px;
+  visibility: hidden;
+  position: absolute;
+  background-color: white;
+  height: 100%;
+  border-radius: 10px 10px 0px 0px;
   .sidenav-right-content {
     padding: 5px;
     padding-top: 20px;
+    height: 100%;
+    overflow-y: scroll;
   }
   .sidenav-right-title {
-    color: $primary_color;
+    background-color: $primary_color;
+    color: #fff;
     font-size: 13px;
     text-transform: uppercase;
     text-align: center;
-    padding: 5px 0px;
+    padding: 7px 0px;
     font-weight: bold;
-    position: fixed;
-    width: 218px;
+    border-radius: 10px 10px 0px 0px;
+    // position: fixed;
+    width: 100%;
     z-index: 2;
-    top: 60px;
-    right: 0px;
-    height: 20px;
+    // top: 60px;
+    // right: 0px;
+    // height: 20px;
   }
   .sidenav-right-title-fake {
     height: 20px;
@@ -63,9 +99,21 @@ $height: calc(100% - 60px);
   app-download {
     padding-bottom: 140px;
   }
+  .toogle-sidenav-right {
+    position: absolute;
+    left: -45px;
+    top: 70px;
+    width: 50px;
+    visibility: visible;
+    ::ng-deep .mat-badge-content {
+      left: 39px !important;
+      top: -6px !important;
+    }
+  }
 }
 
 .sidenav-content {
+  overflow: clip;
   #map {
     position: absolute;
     top: 0;
@@ -120,14 +168,5 @@ $height: calc(100% - 60px);
     left: 0px;
     overflow: hidden;
   }
-  .toogle-sidenav-right {
-    position: absolute;
-    right: 0px;
-    top: 40px;
-    width: 65px;
-    ::ng-deep .mat-badge-content {
-      left: 39px !important;
-      top: -6px !important;
-    }
-  }
+ 
 }

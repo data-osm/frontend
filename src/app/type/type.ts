@@ -539,7 +539,7 @@ export interface VectorProvider {
   /**
    * Source that defined this provider
    */
-  source:'osm'|'querry'|'sigfile'
+  type:'osm'|'querry'|'sigfile'
   /**
    * primary key field of the table
    */

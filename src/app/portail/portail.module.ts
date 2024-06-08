@@ -13,7 +13,7 @@ import { SearchComponent } from './pages/header/search/search.component';
 import { SelectRoiComponent } from './pages/header/select-roi/select-roi.component';
 import { GroupCarteComponent } from './pages/sidenav-left/sidenave-left-principal/group-carte/group-carte.component';
 import { GroupThematiqueComponent } from './pages/sidenav-left/sidenave-left-principal/group-thematique/group-thematique.component';
-import { SidenaveLeftPrincipalComponent } from './pages/sidenav-left/sidenave-left-principal/sidenave-left-principal.component';
+// import { SidenaveLeftPrincipalComponent } from './pages/sidenav-left/sidenave-left-principal/sidenave-left-principal.component';
 import { CoucheThematiqueComponent } from './pages/sidenav-left/sidenave-left-secondaire/list-group-thematique/couche-thematique/couche-thematique.component';
 import { ListGroupThematiqueComponent } from './pages/sidenav-left/sidenave-left-secondaire/list-group-thematique/list-group-thematique.component';
 import { LegendComponent } from './pages/sidenav-right/legend/legend.component';
@@ -45,7 +45,7 @@ import { DownloadModule } from '../download/download.module';
     MapToolsComponent,
     RoutingComponent,
     LegendComponent,
-    SidenaveLeftPrincipalComponent,
+    // SidenaveLeftPrincipalComponent,
     DrawComponent,
     MeasureComponent,
     AltimetryComponent,

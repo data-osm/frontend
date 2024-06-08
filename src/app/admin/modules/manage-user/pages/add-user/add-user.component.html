@@ -12,22 +12,47 @@
 <mat-dialog-content>
     <form [formGroup]="form">
 
+        <mat-form-field appearance="outline" *ngIf="form.get('first_name')" style="width: 100%;">
+            <mat-label> {{ 'admin.user.add_user_comp.first_name' | translate }}</mat-label>
+            <input matInput formControlName="first_name">
+            <mat-error>
+                <app-http-error [form]="form.get('first_name')"> </app-http-error>
+            </mat-error>
+
+        </mat-form-field>
+
         <mat-form-field appearance="outline" *ngIf="form.get('last_name')" style="width: 100%;">
-            <mat-label> {{ 'admin.user.add_user_comp.name' | translate }}</mat-label>
+            <mat-label> {{ 'admin.user.add_user_comp.last_name' | translate }}</mat-label>
             <input matInput formControlName="last_name">
-            <mat-error> {{ 'add_icon.category_error' | translate }} </mat-error>
+            <mat-error>
+                <app-http-error [form]="form.get('last_name')"> </app-http-error>
+            </mat-error>
+
         </mat-form-field>
 
         <mat-form-field appearance="outline" *ngIf="form.get('email')" style="width: 100%;">
             <mat-label> {{ 'admin.user.add_user_comp.email' | translate }}</mat-label>
             <input matInput type="email" formControlName="email">
-            <mat-error> {{ 'add_icon.category_error' | translate }} </mat-error>
+            <mat-error>
+                <app-http-error [form]="form.get('email')" [key]="'invalid'"> </app-http-error>
+            </mat-error>
+
         </mat-form-field>
 
         <mat-form-field appearance="outline" *ngIf="form.get('password')" style="width: 100%;">
             <mat-label> {{ 'admin.user.add_user_comp.psw' | translate }}</mat-label>
             <input matInput type="password" formControlName="password">
-            <mat-error> {{ 'add_icon.category_error' | translate }} </mat-error>
+            <mat-error>
+                <app-http-error [form]="form.get('password')"> </app-http-error>
+            </mat-error>
+
+        </mat-form-field>
+        <mat-form-field appearance="outline" *ngIf="form.get('password_2')" style="width: 100%;">
+            <mat-label> {{ 'admin.user.add_user_comp.psw_2' | translate }}</mat-label>
+            <input matInput type="password" formControlName="password_2">
+            <mat-error>
+                <app-http-error [form]="form.get('password_2')"> </app-http-error>
+            </mat-error>
         </mat-form-field>
 
     </form>

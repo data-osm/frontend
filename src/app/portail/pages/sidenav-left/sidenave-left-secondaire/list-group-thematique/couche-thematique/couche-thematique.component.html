@@ -1,16 +1,7 @@
-<mat-list-option
-  [matTooltip]="layer.name"
-  matTooltipClass="couche-toolipt"
-  matTooltipPosition="right"
-  [selected]="isLayerInMap(layer)"
-  [disabled]="shouldDisabled(layer)"
-  [value]="layer"
->
-  <img class="couche-img"
-    src="{{ environment.backend + layer.square_icon }}"
-    mat-list-icon
-  />
+<mat-list-option [matTooltip]="layer.name" matTooltipClass="couche-toolipt" matTooltipPosition="right"
+  [selected]="isLayerInMap(layer)" [disabled]="shouldDisabled(layer)" [value]="layer">
+  <img class="couche-img" src="{{ environment.backend + layer.cercle_icon }}" mat-list-icon />
 
   <div mat-line class="couche-title">{{ layer.name }}</div>
 </mat-list-option>
-<mat-divider style="margin-left: 50px" [inset]="true"></mat-divider>
+<!-- <mat-divider style="margin-left: 50px" [inset]="true"></mat-divider> -->

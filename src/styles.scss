@@ -45,6 +45,10 @@ input{
 	padding-left: 5px !important;
     padding-right: 5px !important;
 }
+.group-modal .mat-dialog-container{
+	border-radius: 30px 30px 20px 20px;
+	overflow: hidden;
+  }
 /* ///// spinner ////////////// */
 
 .lds-ripple {

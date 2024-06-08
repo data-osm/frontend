@@ -7,7 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { Map } from 'ol';
 import { EMPTY, merge, Observable, ReplaySubject, Subject } from 'rxjs';
-import { catchError, map, shareReplay, switchMap, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, map, shareReplay, startWith, switchMap, tap, withLatestFrom } from 'rxjs/operators';
 import { environment } from '../../../../../../environments/environment';
 import { CartoHelper } from '../../../../../../helper/carto.helper';
 import { MapsService } from '../../../../../data/services/maps.service';
@@ -27,6 +27,8 @@ export class ListGroupThematiqueComponent implements OnInit {
 
   subGroupList$: Observable<SubGroupWithLayers[]>
 
+  groupSelectForm:FormControl = new FormControl()
+
   private readonly notifier: NotifierService;
   environment = environment
 
@@ -44,7 +46,7 @@ export class ListGroupThematiqueComponent implements OnInit {
   
             if (isOptionSelected) {
               try {
-                this.dataOsmLayersServiceService.addLayer(layer, this.parameters.map, this.parameters.group)
+                this.dataOsmLayersServiceService.addLayer(layer, this.parameters.map, this.parameters.selected_group)
               } catch (error) {
                 parameters[0].option.toggle()
               }
@@ -71,12 +73,10 @@ export class ListGroupThematiqueComponent implements OnInit {
     notifierService: NotifierService,
     public dialogRef: MatDialogRef<ListGroupThematiqueComponent>,
     public dataOsmLayersServiceService : DataOsmLayersServiceService,
-    @Inject(MAT_DIALOG_DATA) public parameters: {group:Group, map:Map}
+    @Inject(MAT_DIALOG_DATA) public parameters: {selected_group:Group, map:Map, groups:Array<Group>}
   ) {
     this.notifier = notifierService;
-
-   
-
+    this.groupSelectForm.setValue(this.parameters.selected_group)
     const onInit: Subject<void> = new ReplaySubject<void>(1)
     this.onInitInstance = () => {
       onInit.next()
@@ -84,14 +84,13 @@ export class ListGroupThematiqueComponent implements OnInit {
 
     this.subGroupList$ =
     merge(
-      onInit.pipe(
-        switchMap(()=>{
-          return this.mapsService.getAllSubGroupWithLayersOfGroup(parameters.group.group_id).pipe(
-            catchError(() => { this.notifier.notify("error", "An error occured while loading sub groups"); return EMPTY }),
-          )
-        })
-      )
+      this.groupSelectForm.valueChanges.pipe(startWith(this.groupSelectForm.value))
     ).pipe(
+      switchMap((group)=>{
+        return this.mapsService.getAllSubGroupWithLayersOfGroup(group.group_id).pipe(
+          catchError(() => { this.notifier.notify("error", "An error occured while loading sub groups"); return EMPTY }),
+        )
+      }),
       shareReplay(1),
     )
 

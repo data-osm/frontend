@@ -112,7 +112,7 @@ $color_prim: (
   50: #000,
   100: $primary,
   200: $primary,
-  300: $primary,
+  300: #36708e,
   400: $primary,
   500: $primary,
   600: $primary,
@@ -158,6 +158,7 @@ $color_accent: (
   ),
 );
 $accent_color: #00ada7;
+$color_prim_300: #36708e;
 
 $theme-primary: mat-palette($color_prim, 500);
 $theme-accent: mat-palette($color_accent, 600);

@@ -39,7 +39,7 @@ export class TableOfContentsComponent implements OnInit {
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   constructor(
-    public dataOsmLayersServiceService: DataOsmLayersServiceService,
+    private dataOsmLayersServiceService: DataOsmLayersServiceService,
     public dialog: MatDialog,
     public ShareServiceService: ShareServiceService,
     public manageCompHelper: ManageCompHelper

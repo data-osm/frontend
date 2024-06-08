@@ -33,16 +33,27 @@ app-group-carte {
   margin-bottom: 15px;
 }
 
+.list-group-thematique{
+  width: 65px;
+  padding: 60px 12px;
+  overflow-y: auto;
+  height: 100%;
+}
+
 .arborescence-group-thematique {
-  float: left;
+  text-align: center;
   display: block;
   position: relative;
-  width: 33.33333333%;
-  margin-bottom: 31px;
-  margin-top: 20px;
+  border: 2px solid white;
+  border-radius: 100%;
+  padding: 3px;
+  box-shadow: 0 0 3px 1px rgba(193, 179, 179, 0.48);
+  // width: 33.33333333%;
+  // margin-bottom: 31px;
+  // margin-top: 20px;
   app-group-thematique {
     display: block;
-    padding-right: 15px;
-    padding-left: 15px;
+    // padding-right: 15px;
+    // padding-left: 15px;
   }
 }

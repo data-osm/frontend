@@ -40,6 +40,7 @@ import { MetadataLayerComponent } from './modal/metadata/metadata.component';
 import { MatomoConsentMode, NgxMatomoTrackerModule } from '@ngx-matomo/tracker';
 
 import { environment } from '../environments/environment';
+import { DataOsmLayersServiceService } from './services/data-som-layers-service/data-som-layers-service.service';
 @NgModule({
   declarations: [
     AppComponent,
@@ -48,7 +49,7 @@ import { environment } from '../environments/environment';
     InfoComponent,
 
     ConfirmationDialogComponent,
-    MetadataLayerComponent
+    MetadataLayerComponent,
   ],
   imports: [
     ShareButtonsModule.withConfig({
@@ -80,7 +81,7 @@ import { environment } from '../environments/environment';
       requireConsent:MatomoConsentMode.COOKIE
     }),
   ],
-  providers: [BackendApiService, ManageCompHelper, AuthGuard, AuthGuard],
+  providers: [BackendApiService,DataOsmLayersServiceService, ManageCompHelper, AuthGuard, AuthGuard],
   bootstrap: [AppComponent],
 })
 export class AppModule {
