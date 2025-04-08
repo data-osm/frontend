@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { UntypedFormGroup, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, ReplaySubject, Subject } from 'rxjs';
@@ -20,24 +20,24 @@ export class AddBaseMapComponent implements OnInit {
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
   baseMap:BaseMap
 
-  form: FormGroup = this.formBuilder.group({})
+  form: UntypedFormGroup = this.formBuilder.group({})
   private readonly notifier: NotifierService;
 
   constructor(
     public dialogRef: MatDialogRef<AddBaseMapComponent>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public translate: TranslateService,
     public baseMapsService:BaseMapsService
   ) { 
     this.notifier = notifierService;
 
-    this.form.addControl('name',new FormControl(null, [Validators.required]))
-    this.form.addControl('attribution',new FormControl(null, [Validators.required]))
-    this.form.addControl('protocol_carto',new FormControl(null, [Validators.required]))
-    this.form.addControl('raster_icon',new FormControl(null, [Validators.required]))
-    this.form.addControl('url',new FormControl(null, [Validators.required]))
-    this.form.addControl('identifiant',new FormControl(null))
+    this.form.addControl('name',new UntypedFormControl(null, [Validators.required]))
+    this.form.addControl('attribution',new UntypedFormControl(null, [Validators.required]))
+    this.form.addControl('protocol_carto',new UntypedFormControl(null, [Validators.required]))
+    this.form.addControl('raster_icon',new UntypedFormControl(null, [Validators.required]))
+    this.form.addControl('url',new UntypedFormControl(null, [Validators.required]))
+    this.form.addControl('identifiant',new UntypedFormControl(null))
 
     const onAdd:Subject<void> = new Subject<void>()
     this.onAddInstance = () =>{

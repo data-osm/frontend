@@ -1,6 +1,6 @@
 import { Component, Inject, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UntypedFormGroup, UntypedFormBuilder, UntypedFormControl, Validators, AbstractControl } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { AddStyleComponent } from '../add-style/add-style.component';
 import { StyleService } from '../../../../administration/service/style.service'
@@ -26,12 +26,12 @@ export class QmlComponent implements OnInit, OnDestroy {
   private readonly notifier: NotifierService;
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
-  form: FormGroup
+  form: UntypedFormGroup
   loading: boolean = false
 
   constructor(
     public dialogRef: MatDialogRef<AddStyleComponent, Style>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public StyleService: StyleService,
   ) {
@@ -39,7 +39,7 @@ export class QmlComponent implements OnInit, OnDestroy {
 
     this.form = this.formBuilder.group({
       name: this.styleName,
-      qml_file: new FormControl(null, [Validators.required]),
+      qml_file: new UntypedFormControl(null, [Validators.required]),
     })
 
     const onAdd: Subject<void> = new Subject<void>()

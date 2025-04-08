@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-http-error',
@@ -9,7 +9,7 @@ import { FormControl } from '@angular/forms';
 export class HttpErrorComponent implements OnInit {
 
   @Input()key:string='invalid'
-  @Input()form:FormControl
+  @Input()form:UntypedFormControl
 
   constructor() { }
 

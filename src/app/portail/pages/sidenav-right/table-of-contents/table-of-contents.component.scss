@@ -1,32 +1,69 @@
 .table-of-contents-card {
-  height: 150px;
+  height: 133px;
+  padding: 0px;
   box-shadow: 0 0 3px 1px #3030307a;
-  margin-bottom: 30px;
+  margin-bottom: 45px;
   position: relative;
   mat-card-content{
     margin:  0 !important;
+    height: 30px;
     width: calc(100% + 25px);
     margin-left: -15px !important;
     p{
       float: right;
       margin-bottom: -7px;
-      margin-top: 10px;
+      margin-top: 2px;
+      margin-right: 15px;
     }
 
   }
-  mat-card-actions {
-    padding-top: 0px;
+  .actions{
+    i{
+      box-shadow: 0 0 3px 1px rgba(193, 179, 179, 0.48);
+  border-radius: 100%;
+  padding: 1px;
+    }
   }
-  .table-of-contents-card-img{
+  mat-card-actions {
+    margin: 0px;
+  background-color: #023d5b;
+  color: white;
+  border-radius: 0 0 4px 4px;
+  padding-left: 6px;
+  padding-top: 5px;
+  height: 28px;
+  }
+  ::ng-deep .mat-checkbox-frame{
+    border-color: #fff9;
+  }
+  .table-of-contents-card-img-round{
     text-align: center;
     margin-bottom: 0px;
     img{
       height: 60px;
-      // width: auto;
+      width: auto;
       // max-width: 100px;
-      margin-bottom: 0px !important;
+      margin-bottom: 5px !important;
+      border-radius: 100%;
+      box-shadow: 0 0 3px 1px rgba(193, 179, 179, 0.48);
+      margin-top: 15px;
+      padding: 3px;
     }
-
+  }
+  .table-of-contents-card-img-square{
+    text-align: center;
+  margin-bottom: 0px;
+  width: 100%;
+  margin-left: 0px;
+    img{
+      height: 78px;
+  width: 100%;
+  margin-bottom: 5px !important;
+  box-shadow: 0 0 3px 1px rgba(193, 179, 179, 0.48);
+  // margin-top: 15px;
+  padding-bottom: 3px;
+  padding-top: 0px;
+    }
   }
 }
 
@@ -88,4 +125,5 @@
     width: 250px;
     right: 0px;
     height: 45px;
+    background-color: black;
 }

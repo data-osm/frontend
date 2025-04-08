@@ -2,13 +2,18 @@ import { filterOptionInterface } from './search.component'
 import { responseOfSerachLimitInterface } from './interface-search'
 import { configProjetInterface } from '../../../../type/type';
 import { AppInjector } from '../../../../../helper/app-injector.helper'
-import {BackendApiService} from '../../../../services/backend-api/backend-api.service'
-import { GeoJSON, Feature, Map, getArea } from '../../../../ol-module'
+import { BackendApiService } from '../../../../services/backend-api/backend-api.service'
+import { GeoJSON, Feature, getArea, getCenter } from '../../../../ol-module'
 import { CartoHelper } from '../../../../../helper/carto.helper';
 import { AdminBoundaryRespone } from '../../../../data/models/parameters';
 import { ParametersService } from '../../../../data/services/parameters.service';
 import { catchError, take, tap } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
+import {
+  Map,
+  VectorSource
+} from "../../../../giro-3d-module"
+import { Vector3 } from 'three';
 
 /**
  * class for handle administrative response search:
@@ -28,18 +33,18 @@ export class handleEmpriseSearch {
    * @param responseDB any
    */
   formatDataForTheList(responseDB: AdminBoundaryRespone[]): Array<filterOptionInterface> {
-   
-    let response: Array<filterOptionInterface> = 
-    responseDB.map((item)=>{
-      return {
-        name:item.feature.name,
-        id:item.feature.table_id,
-        table_id:item.feature.table_id,
-        vector_id:item.adminBoundary.vector,
-        adminBoundary_name:item.adminBoundary.name,
-        typeOption: 'limites'
-      }
-    })
+
+    let response: Array<filterOptionInterface> =
+      responseDB.map((item) => {
+        return {
+          name: item.feature.name,
+          id: item.feature.table_id,
+          table_id: item.feature.table_id,
+          vector_id: item.adminBoundary.vector,
+          adminBoundary_name: item.adminBoundary.name,
+          typeOption: 'limites'
+        }
+      })
     return response
   }
 
@@ -64,29 +69,29 @@ export class handleEmpriseSearch {
    *  call when an option is select by the user
    * @param emprise searchLayerToDownlodModelInterface
    */
-  optionSelected(emprise: filterOptionInterface,  map:Map) {
+  optionSelected(emprise: filterOptionInterface, map: Map) {
     this.parametersService.getAdminBoundaryFeature(emprise.vector_id, emprise.table_id).pipe(
       take(1),
       catchError(() => {
         return EMPTY
       }),
-      tap((response)=>{
-        console.log(response)
+      tap((response) => {
+
         this._addGeometryAndZoomTO({
-          geometry:JSON.parse(response.geometry),
-          name:response.name
+          geometry: JSON.parse(response.geometry),
+          name: response.name
         }, map)
       })
     ).subscribe()
   }
 
- 
+
 
   /**
    * add geometry to searchResultLayer and zoom to the geometry
    * @param emprise: filterOptionInterface
    */
-  _addGeometryAndZoomTO(emprise:{geometry:any, ref?:string, name:string} , map:Map) {
+  _addGeometryAndZoomTO(emprise: { geometry: any, ref?: string, name: string }, map: Map) {
 
     let formatArea = function (polygon) {
       let area = getArea(polygon);
@@ -107,28 +112,40 @@ export class handleEmpriseSearch {
 
         let feature = new GeoJSON().readFeature(
           emprise.geometry,
-          {
-            dataProjection: "EPSG:3857",
-            featureProjection: "EPSG:3857",
-          }
+          // {
+          //   dataProjection: "EPSG:3857",
+          //   featureProjection: "EPSG:3857",
+          // }
         );
 
-        let textLabel:string
+        let textLabel: string
         if (emprise.ref) {
-          textLabel = emprise.name+'('+emprise.ref +") \n" +formatArea(feature.getGeometry())
-        }else{
-          textLabel = emprise.name+" \n" +formatArea(feature.getGeometry())
+          textLabel = emprise.name + '(' + emprise.ref + ") \n" + formatArea(feature.getGeometry())
+        } else {
+          textLabel = emprise.name + " \n" + formatArea(feature.getGeometry())
         }
 
-        feature.set('textLabel',textLabel)
+        feature.set('textLabel', textLabel)
 
-        searchResultLayer.getSource().clear()
+        const source = searchResultLayer.source as VectorSource
 
-        searchResultLayer.getSource().addFeature(feature)
+        source.source.clear()
+        source.source.addFeature(feature)
 
-        let extent = feature.getGeometry().getExtent()
+        if (feature.getGeometry().getType() == "Point" || feature.getGeometry().getType() == "MultiPoint") {
+          const center = getCenter(feature.getGeometry().getExtent())
+          cartoClass.panTo(
+            new Vector3(
+              center[0],
+              center[1],
+              0
+            )
+          )
+        } else {
 
-        cartoClass.fit_view(extent, 16)
+          cartoClass.zoomToExtent(CartoHelper.olGeometryToGiroExtent(feature.getGeometry()), 16)
+        }
+
 
       }
     }

@@ -1,9 +1,9 @@
 import { ENTER, COMMA } from '@angular/cdk/keycodes';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { MatChipInputEvent } from '@angular/material/chips';
+import { UntypedFormControl, FormGroup } from '@angular/forms';
+import { MatLegacyAutocompleteSelectedEvent as MatAutocompleteSelectedEvent } from '@angular/material/legacy-autocomplete';
+import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
 import { NotifierService } from 'angular-notifier';
 import { BehaviorSubject, EMPTY, iif, Observable, ReplaySubject } from 'rxjs';
 import { catchError, filter, mergeMap, map, takeUntil, tap, startWith } from 'rxjs/operators';
@@ -25,9 +25,9 @@ export class UpdateTagsComponent implements OnInit {
   separatorKeysCodes: number[] = [ENTER, COMMA];
   choosenTags:BehaviorSubject<Array<string>> = new BehaviorSubject([])
   filteredTags:Observable<Tag[]|TagsIcon[]>
-  tags_temp = new FormControl(null)
+  tags_temp = new UntypedFormControl(null)
 
-  @Input() tagsForm:FormControl
+  @Input() tagsForm:UntypedFormControl
   @Input() type:'icons'|'layer'
 
   @ViewChild('tagInput') tagInput: ElementRef;

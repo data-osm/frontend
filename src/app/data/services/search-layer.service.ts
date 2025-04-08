@@ -29,7 +29,7 @@ export class SearchLayerService {
     return this.headers
   }
 
-  searchLayer(querry:string):Observable<Layer[]>{
-    return this.http.post<Layer[]>(this.url_prefix+'/api/group/layer/search',{search_word:querry},{headers: this.get_header()})
+  searchLayer(querry: string): Observable<Layer[]> {
+    return this.http.get<Layer[]>(this.url_prefix + '/api/group/layer/search?search=' + querry, { headers: this.get_header() })
   }
 }

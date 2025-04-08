@@ -1,6 +1,6 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UntypedFormGroup, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { ReplaySubject, Subject } from 'rxjs';
 import { EMPTY } from 'rxjs/internal/observable/empty';
@@ -22,20 +22,20 @@ export class AddSubGroupComponent implements OnInit, OnDestroy {
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
   
 
-  form: FormGroup = this.formBuilder.group({})
+  form: UntypedFormGroup = this.formBuilder.group({})
   private readonly notifier: NotifierService;
   
   constructor(
     public dialogRef: MatDialogRef<AddSubGroupComponent>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public mapsService:MapsService,
     @Inject(MAT_DIALOG_DATA) public group_id: number,
   ) { 
     this.notifier = notifierService;
 
-    this.form.addControl('name',new FormControl(null, [Validators.required]))
-    this.form.addControl('group',new FormControl(this.group_id, [Validators.required]))
+    this.form.addControl('name',new UntypedFormControl(null, [Validators.required]))
+    this.form.addControl('group',new UntypedFormControl(this.group_id, [Validators.required]))
 
     const onAdd:Subject<void> = new Subject<void>()
     this.onAddInstance = ()=>{

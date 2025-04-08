@@ -12,84 +12,65 @@
 <mat-dialog-content>
 
 
-        <mat-form-field appearance="outline" *ngIf="nameStyle" style="width: 100%;">
-            <mat-label> {{ 'add_style.name' | translate }} </mat-label>
-            <input matInput [formControl]="nameStyle" >
-            <mat-error> {{ 'add_icon.category_error' | translate }} </mat-error>
-        </mat-form-field>
+    <mat-form-field appearance="outline" *ngIf="nameStyle" style="width: 100%;">
+        <mat-label> {{ 'add_style.name' | translate }} </mat-label>
+        <input matInput [formControl]="nameStyle">
+        <mat-error> {{ 'add_icon.category_error' | translate }} </mat-error>
+    </mat-form-field>
 
-        <ng-container *ngIf="provider$|async as provider">
-            <div class="select-type-style">
-                <mat-button-toggle-group multiple="false" [value]="styleType|async"
-                    (change)="styleTypeChanged($event.value)">
-                    
-                    <mat-button-toggle [checked]="(styleType|async) == undefined" [value]="undefined"> QML</mat-button-toggle>
+    <ng-container *ngIf="provider$|async as provider">
+        <div class="select-type-style">
+            <mat-button-toggle-group multiple="false" [value]="styleType|async"
+                (change)="styleTypeChanged($event.value)">
 
-                    <ng-container *ngIf="customStyles$|async as customStyles">
-                        <mat-button-toggle *ngFor="let customStyle of customStyles" [hidden]="provider.geometry_type != customStyle.geometry_type " [value]="customStyle">
-                            {{customStyle.name}}
-                        </mat-button-toggle>
-                    </ng-container>
-                    
-                </mat-button-toggle-group>
-            </div>
-        </ng-container>
+                <mat-button-toggle [checked]="(styleType|async) == undefined" [value]="undefined">
+                    QML</mat-button-toggle>
 
-        
-        <ng-container *ngIf="{customStyle:(styleType|async) } as context">
-            <app-qml [hidden]="context.customStyle != undefined " [provider_vector_id]="data.provider_vector_id"
+                <ng-container *ngIf="customStyles$|async as customStyles">
+                    <mat-button-toggle *ngFor="let customStyle of customStyles"
+                        [hidden]="provider.geometry_type != customStyle.geometry_type " [value]="customStyle">
+                        {{customStyle.name}}
+                    </mat-button-toggle>
+                </ng-container>
+
+            </mat-button-toggle-group>
+        </div>
+    </ng-container>
+
+
+    <ng-container *ngIf="{customStyle:(styleType|async) } as context">
+        <app-qml [hidden]="context.customStyle != undefined " [provider_vector_id]="data.provider_vector_id"
             [styleName]="nameStyle"></app-qml>
 
-            <app-cluster 
-            [hidden]="context.customStyle?.fucntion_name != 'pointCluster'" 
-            [customStyle]="context.customStyle" 
-            [provider_vector_id]="data.provider_vector_id"
-            [color]="data.color"
-            [icon_color]="data.icon_color"
-            [icon]="data.icon"
-            [icon_background]="data.icon_background"
-            [styleName]="nameStyle"
-            >
-            </app-cluster>
+        <!-- [hidden]="context.customStyle?.fucntion_name != 'pointCluster'"  -->
+        <app-cluster [customStyle]="context.customStyle" [provider_vector_id]="data.provider_vector_id"
+            [color]="data.color" [icon_color]="data.icon_color" [icon]="data.icon"
+            [icon_background]="data.icon_background" [styleName]="nameStyle">
+        </app-cluster>
 
-            <app-point-icon-simple 
-            [hidden]="context.customStyle?.fucntion_name != 'point_icon_simple'" 
-            [customStyle]="context.customStyle" 
-            [provider_vector_id]="data.provider_vector_id"
-            [color]="data.color"
-            [icon_color]="data.icon_color"
-            [icon]="data.icon"
-            [icon_background]="data.icon_background"
-            [styleName]="nameStyle"
-            >
-            </app-point-icon-simple>
+        <app-point-icon-simple [hidden]="context.customStyle?.fucntion_name != 'point_icon_simple'"
+            [customStyle]="context.customStyle" [provider_vector_id]="data.provider_vector_id" [color]="data.color"
+            [icon_color]="data.icon_color" [icon]="data.icon" [icon_background]="data.icon_background"
+            [styleName]="nameStyle">
+        </app-point-icon-simple>
 
-            <app-polygon-simple 
-            [hidden]="context.customStyle?.fucntion_name != 'polygon_simple'" 
-            [customStyle]="context.customStyle" 
-            [provider_vector_id]="data.provider_vector_id"
-            [strokeColor]="data.color"
-            [fillColor]="data.icon_color"
-            [styleName]="nameStyle"
-            >
-            </app-polygon-simple>
+        <app-polygon-simple [hidden]="context.customStyle?.fucntion_name != 'polygon_simple'"
+            [customStyle]="context.customStyle" [provider_vector_id]="data.provider_vector_id"
+            [strokeColor]="data.color" [fillColor]="data.icon_color" [styleName]="nameStyle">
+        </app-polygon-simple>
 
-            <app-line-simple 
-            [hidden]="context.customStyle?.fucntion_name != 'line_simple'" 
-            [customStyle]="context.customStyle" 
-            [provider_vector_id]="data.provider_vector_id"
-            [lineColor]="data.color"
-            [styleName]="nameStyle"
-            >
-            </app-line-simple>
+        <app-line-simple [hidden]="context.customStyle?.fucntion_name != 'line_simple'"
+            [customStyle]="context.customStyle" [provider_vector_id]="data.provider_vector_id" [lineColor]="data.color"
+            [styleName]="nameStyle">
+        </app-line-simple>
 
-        </ng-container>
-        
+    </ng-container>
+
 
 </mat-dialog-content>
 
 <mat-dialog-actions>
-    <div fxLayout fxLayoutGap="15px" fxLayoutAlign="end" *ngIf="formAddStyle" >
+    <div fxLayout fxLayoutGap="15px" fxLayoutAlign="end" *ngIf="formAddStyle">
         <mat-progress-bar fxFlex="100%" mode="indeterminate" *ngIf="formAddStyle.disabled"></mat-progress-bar>
         <button fxFlex="150px" mat-stroked-button color="primary" [disabled]="formAddStyle.disabled"
             (click)="close()">{{ 'cancel' | translate }}</button>

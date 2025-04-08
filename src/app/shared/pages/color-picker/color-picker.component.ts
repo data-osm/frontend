@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { ReplaySubject } from 'rxjs';
 
 @Component({
@@ -9,7 +9,7 @@ import { ReplaySubject } from 'rxjs';
 })
 export class ColorPickerComponent implements OnInit {
 
-  @Input()colorForm:FormControl
+  @Input()colorForm:UntypedFormControl
   @Input()colorLabel:String
   @Input()colorOutputFormat:String='rgba'
 

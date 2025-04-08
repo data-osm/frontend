@@ -5,11 +5,15 @@
   <mat-card-header>
     <img mat-card-avatar [src]="  environment.backend + layer.square_icon " alt="{{layer_name}}">
     <mat-card-title>{{layer_name}}</mat-card-title>
-    <mat-card-subtitle > 
-      <span *ngIf="layer.providers.length == 1 "> {{layer.providers[0].vp.count}} {{ 'dowloadLayers.entities' | translate }} ;  </span>
-      <span> {{ 'dowloadLayers.updated_at'  |translate}} {{layer.providers[0].vp.updated_at | date:'medium'}} </span>
+    <mat-card-subtitle>
+      ({{boundary_name}})
     </mat-card-subtitle>
-    
+    <mat-card-subtitle>
+      <span *ngIf="layer.providers.length == 1 "> {{layer.providers[0].vp.count}} {{ 'dowloadLayers.entities' |
+        translate }} ; </span>
+      <span> {{ 'dowloadLayers.updated_at' |translate}} {{layer.providers[0].vp.updated_at | date:'medium'}} </span>
+    </mat-card-subtitle>
+
   </mat-card-header>
   <mat-card-content>
     <mat-card *ngFor="let provider of layer.providers" class="card-provider" style="margin: 10px 0px;">
@@ -17,15 +21,16 @@
         <mat-card-title>
           <span *ngIf="layer.providers.length > 1"> {{provider.vp.name}} ({{provider.vp.count}}) </span>
         </mat-card-title>
+
         <mat-card-subtitle *ngIf="layer.providers.length > 1">
-          <span> {{ 'dowloadLayers.updated_at'  |translate}} {{provider.vp.updated_at | date:'medium'}} </span>
+          <span> {{ 'dowloadLayers.updated_at' |translate}} {{provider.vp.updated_at | date:'medium'}} </span>
         </mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-actions style="text-align: right;">
-        <button mat-flat-button style="margin-right: 10px;background: #0d47a1;" class="white" [matMenuTriggerFor]="menuCopy"
-          [disabled]="provider.vp.count==0">
-          <mat-icon style="width: 20px;font-size: 20px;height: 20px;" >content_copy</mat-icon>
+        <button mat-flat-button style="margin-right: 10px;background: #0d47a1;" class="white"
+          [matMenuTriggerFor]="menuCopy" [disabled]="provider.vp.count==0">
+          <mat-icon style="width: 20px;font-size: 20px;height: 20px;">content_copy</mat-icon>
           {{ 'dowloadLayers.copy_link' | translate }}
           <i class="fa fa-chevron-down white" aria-hidden="true"></i>
         </button>
@@ -34,7 +39,7 @@
             [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_style_id_target='+provider.vs_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=shp'"
             target="_blanck">
             ShapeFile
-            
+
           </a>
           <a mat-menu-item
             [cdkCopyToClipboard]="environment.backend+'/api/group/download/?provider_vector_id='+provider_vector_id+'&table_id='+table_id+'&provider_style_id_target='+provider.vs_id+'&provider_vector_id_target='+provider.vp.provider_vector_id+'&driver=geojson'"
@@ -56,12 +61,12 @@
             target="_blanck">
             CSV
           </a>
-         
+
         </mat-menu>
 
         <button mat-flat-button color="accent" class="white" [matMenuTriggerFor]="menu"
           [disabled]="provider.vp.count==0">
-          <mat-icon style="width: 20px;font-size: 20px;height: 20px;" >file_download</mat-icon>
+          <mat-icon style="width: 20px;font-size: 20px;height: 20px;">file_download</mat-icon>
           {{ 'dowloadLayers.download' | translate }}
           <i class="fa fa-chevron-down white" aria-hidden="true"></i>
         </button>

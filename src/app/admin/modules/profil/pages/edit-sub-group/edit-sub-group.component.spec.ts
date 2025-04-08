@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { EditSubGroupComponent } from './edit-sub-group.component';
 
@@ -6,7 +6,7 @@ describe('EditSubGroupComponent', () => {
   let component: EditSubGroupComponent;
   let fixture: ComponentFixture<EditSubGroupComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ EditSubGroupComponent ]
     })

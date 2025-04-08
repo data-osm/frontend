@@ -1,8 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { Map } from 'ol';
 import { InfoComponent } from '../../../modal/info/info.component';
 import { ChangeProfilComponent } from '../change-profil/change-profil.component';
+import { Instance } from '../../../giro-3d-module';
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -10,10 +11,11 @@ import { ChangeProfilComponent } from '../change-profil/change-profil.component'
 })
 export class HeaderComponent implements OnInit {
 
-  @Input()map:Map
-  
+  @Input() map: Map
+  @Input() instance: Instance
+
   constructor(
-    public dialog:MatDialog
+    public dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -22,18 +24,21 @@ export class HeaderComponent implements OnInit {
   /**
    * open info modal
    */
-  openModalInfo(){
-    var proprietes = {
+  openModalInfo() {
+
+    const modal = this.dialog.open(InfoComponent, {
       disableClose: false,
       minWidth: 400,
-    }
-
-   
-    const modal = this.dialog.open(InfoComponent, proprietes);
+      height: "80%",
+      maxHeight: "80%",
+      position: {
+        bottom: "5%"
+      }
+    });
   }
 
-  changeProfil(){
-    this.dialog.open(ChangeProfilComponent,{minWidth: 400})
+  changeProfil() {
+    this.dialog.open(ChangeProfilComponent, { minWidth: 400 })
   }
 
 }

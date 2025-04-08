@@ -40,9 +40,9 @@ export class VectorProviderService {
    * fecth all list vector provider from backend and store it in observable vectorProviderList
    * If error emit boolean value on observable vectorProviderListLoadError
    */
-  fetchAndStoreListVectorProvider(sort:string){
-    return this.http.get<VectorProvider[]>(this.url_prefix +'/api/provider/vector?'+sort,{ headers: this.get_header() })
-  
+  fetchAndStoreListVectorProvider(sort: string) {
+    return this.http.get<VectorProvider[]>(this.url_prefix + '/api/provider/vector?' + sort, { headers: this.get_header() })
+
   }
 
   /**
@@ -50,18 +50,18 @@ export class VectorProviderService {
    * @param group 
    * @returns Observable<VectorProvider>
    */
-  addVectorProvider(vectorProvicer: VectorProvider):Observable<VectorProvider> {
+  addVectorProvider(vectorProvicer: VectorProvider): Observable<VectorProvider> {
 
-    return this.http.post<VectorProvider>(this.url_prefix + '/api/provider/vector', vectorProvicer, {headers: this.get_header(), reportProgress: true,})
+    return this.http.post<VectorProvider>(this.url_prefix + '/api/provider/vector', vectorProvicer, { headers: this.get_header(), reportProgress: true, })
   }
 
   /**
    * Search an vector provider
    * @param search_word string
    */
-  searchVectorProvider(search_word:string):Observable<VectorProvider[]>{
-    return this.http.post(this.url_prefix + '/api/provider/vector/search', {'search_word':search_word}, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
-      map((value: HttpResponse<any>):VectorProvider[] => { return value.body })
+  searchVectorProvider(search_word: string): Observable<VectorProvider[]> {
+    return this.http.get(this.url_prefix + '/api/provider/vector/search?search=' + search_word, { headers: this.get_header(), reportProgress: true, observe: 'events' }).pipe(
+      map((value: HttpResponse<any>): VectorProvider[] => { return value.body })
     )
   }
 
@@ -70,7 +70,7 @@ export class VectorProviderService {
    * @param provider_vector_ids Array<number>
    * @returns Observable<HttpResponse<any>>
    */
-  deleteVectorProvider(provider_vector_ids:Array<number>):Observable<HttpResponse<any>>{
+  deleteVectorProvider(provider_vector_ids: Array<number>): Observable<HttpResponse<any>> {
     const options = {
       headers: this.get_header(),
       body: {
@@ -79,7 +79,7 @@ export class VectorProviderService {
     };
 
     return this.http.delete<HttpResponse<any>>(this.url_prefix + '/api/provider/vector', options)
-   
+
   }
 
 
@@ -88,8 +88,8 @@ export class VectorProviderService {
    * @param provider_vector_ids Vec
    * @returns Observable<HttpResponse<any>>
    */
-  updateVectorProvider(provider:VectorProvider):Observable<VectorProvider>{
-    return this.http.put<VectorProvider>(this.url_prefix + '/api/provider/vector/'+provider.provider_vector_id,provider, { headers: this.get_header() })
+  updateVectorProvider(provider: VectorProvider): Observable<VectorProvider> {
+    return this.http.put<VectorProvider>(this.url_prefix + '/api/provider/vector/' + provider.provider_vector_id, provider, { headers: this.get_header() })
   }
 
   /**
@@ -97,8 +97,8 @@ export class VectorProviderService {
    * @param id number 
    * @returns Observable<VectorProvider|HttpErrorResponse>
    */
-  getVectorProvider(id:number):Observable<VectorProvider>{
-    return this.http.get<VectorProvider>(this.url_prefix +'/api/provider/vector/'+id,{ headers: this.get_header() })
+  getVectorProvider(id: number): Observable<VectorProvider> {
+    return this.http.get<VectorProvider>(this.url_prefix + '/api/provider/vector/' + id, { headers: this.get_header() })
   }
 
 

@@ -1,10 +1,10 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { Subject, ReplaySubject, Observable, merge, EMPTY, of } from 'rxjs';
 import { catchError, filter, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { Router } from '@angular/router';
 import { MapsService } from '../../../../../../data/services/maps.service';
 import { VectorProvider, Layer, Style, CustomStyle, AddStyle } from '../../../../../../type/type';
@@ -30,7 +30,7 @@ export class AddLayerProviderComponent implements OnInit {
   private readonly notifier: NotifierService;
   displayedColumns: string[] = ['option', 'provider', 'style'];
 
-  searchtVectorProviderForm: FormGroup = this.fb.group({})
+  searchtVectorProviderForm: UntypedFormGroup = this.fb.group({})
   searchResultVectorProvider: Observable<VectorProvider[]>
 
   selectedProvider: Subject<VectorProvider> = new ReplaySubject<VectorProvider>(1)
@@ -41,12 +41,12 @@ export class AddLayerProviderComponent implements OnInit {
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   environment=environment
-  VectorProviderForm: FormGroup
+  VectorProviderForm: UntypedFormGroup
 
   constructor(
     public vectorProviderService: VectorProviderService,
     notifierService: NotifierService,
-    public fb: FormBuilder,
+    public fb: UntypedFormBuilder,
     public translate: TranslateService,
     public styleService: StyleService,
     public mapsService: MapsService,
@@ -59,12 +59,12 @@ export class AddLayerProviderComponent implements OnInit {
     this.notifier = notifierService;
 
     this.VectorProviderForm = this.fb.group({
-      layer_id: new FormControl(this.layer.layer_id, [Validators.required]),
-      vp_id: new FormControl(null, [Validators.required]),
-      vs_id: new FormControl(null, [Validators.required]),
+      layer_id: new UntypedFormControl(this.layer.layer_id, [Validators.required]),
+      vp_id: new UntypedFormControl(null, [Validators.required]),
+      vs_id: new UntypedFormControl(null, [Validators.required]),
     })
 
-    let searchControl = new FormControl(null, Validators.min(3))
+    let searchControl = new UntypedFormControl(null, Validators.min(3))
 
     this.searchResultVectorProvider = searchControl.valueChanges.pipe(
       filter((search_word) => typeof search_word === 'string' && search_word.length > 2),

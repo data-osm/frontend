@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { MatLegacyAutocompleteSelectedEvent as MatAutocompleteSelectedEvent } from '@angular/material/legacy-autocomplete';
 import { EMPTY, Observable } from 'rxjs';
 import { catchError, debounceTime, filter, map, switchMap } from 'rxjs/operators';
 import { AdminBoundaryRespone } from '../../../data/models/parameters';
@@ -14,15 +14,15 @@ import { SearchLayerService } from '../../../data/services/search-layer.service'
 })
 export class SearchAdminBoundaryComponent implements OnInit {
 
-  @Input() selected:FormControl
+  @Input() selected:UntypedFormControl
 
-  formSearch:FormGroup = this.formBuilder.group({
-    'searchWord':new FormControl(undefined,[Validators.required, Validators.minLength(2)])
+  formSearch:UntypedFormGroup = this.formBuilder.group({
+    'searchWord':new UntypedFormControl(undefined,[Validators.required, Validators.minLength(2)])
   })
   resultSearchAdminBoundary$:Observable<ReadonlyArray<AdminBoundaryRespone>>
 
   constructor(
-    public formBuilder:FormBuilder,
+    public formBuilder:UntypedFormBuilder,
     public parametersService:ParametersService
   ) { 
     

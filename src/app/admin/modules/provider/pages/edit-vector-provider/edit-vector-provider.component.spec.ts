@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { EditVectorProviderComponent } from './edit-vector-provider.component';
 
@@ -6,7 +6,7 @@ describe('EditVectorProviderComponent', () => {
   let component: EditVectorProviderComponent;
   let fixture: ComponentFixture<EditVectorProviderComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ EditVectorProviderComponent ]
     })

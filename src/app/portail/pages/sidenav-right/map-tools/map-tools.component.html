@@ -1,6 +1,6 @@
 <mat-accordion class="accordion-map-tools">
   <mat-expansion-panel class="no_shadow" [expanded]="true"
-    style="margin-bottom: 15px; border-radius: 4px;position: relative;" (closed)="expansionClose('draw')" >
+    style="margin-bottom: 15px; border-radius: 4px;position: relative;" (closed)="expansionClose('draw')">
 
     <div class="accordion-draw-loading">
       <div style="position:absolute;top:calc(50% - 30px);left:30%">
@@ -28,7 +28,7 @@ M10.2,9v2.4h2.4l7-7L17.1,2L10.2,9z" />
         </span>
       </mat-panel-title>
     </mat-expansion-panel-header>
-    <app-draw [map]="map"></app-draw>
+    <!-- <app-draw [map]="map"></app-draw> -->
   </mat-expansion-panel>
 
   <mat-expansion-panel class="back_white no_shadow" [expanded]="false" (closed)="expansionClose('measure')"
@@ -49,7 +49,7 @@ c0.5,0,0.8-0.4,0.9-0.8c0,0,0,0,0,0V0.9C24.4,0.4,24.1,0,23.6,0C23.6,0,23.6,0,23.6
         <span class="primaryColor"> {{ 'right_menu.tools.mesure.title' | translate }} </span>
       </mat-panel-title>
     </mat-expansion-panel-header>
-    <app-measure [map]="map"></app-measure>
+    <!-- <app-measure [map]="map"></app-measure> -->
   </mat-expansion-panel>
 
   <mat-expansion-panel class="back_white no_shadow" style="margin-bottom: 15px; border-radius: 4px;position: relative;">

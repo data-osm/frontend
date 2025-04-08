@@ -1,5 +1,6 @@
-<mat-list-option [matTooltip]="layer.name" matTooltipClass="couche-toolipt" matTooltipPosition="right"
-  [selected]="isLayerInMap(layer)" [disabled]="shouldDisabled(layer)" [value]="layer">
+<mat-list-option [matTooltip]="layer.name" matTooltipClass="couche-toolipt" class="couche-option"
+  matTooltipPosition="right" [selected]="isLayerInMap(layer)" [disabled]="shouldDisabled(layer)" [value]="layer">
+
   <img class="couche-img" src="{{ environment.backend + layer.cercle_icon }}" mat-list-icon />
 
   <div mat-line class="couche-title">{{ layer.name }}</div>

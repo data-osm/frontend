@@ -1,16 +1,64 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
-  <title>OSMdata</title>
+  <meta name="google-site-verification" content="fozHW7WvHl5a8ooiB0hbyzxcsu6FI34rCUiH1VaN1ls" />
+  <title>Portail des données OpenStreetMap en France</title>
+
+  <meta name="description"
+    content="Explorez les données d'OpenStreetMap en France avec des outils de géo-informatique avancés, modélisation 3D et exporter les en ShapeFile, GeoPackage, CSV, etc...">
+  <meta name="keywords"
+    content="OpenStreetMap, télécharger les données OSM, OSM, WEB SIG, données géospatiales, cartographie numérique, ressources de topographe, modélisation 3D, levé de terrain, OpenStreetMap France, logiciel de Géo-Informatique open-source, analyse spatiale, logiciels de cartographie, planification urbaine, cartographie de construction, QGIS, Géotraitements.">
+  <meta name="author" content="OpenStreetMap France">
+  <link rel="canonical" href="https://demo.openstreetmap.fr">
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Portail des données OpenStreetMap en France">
+  <meta name="twitter:description"
+    content="Explorez les données d'OpenStreetMap en France avec des outils de géo-informatique avancés, modélisation 3D et exporter les en ShapeFile, GeoPackage, CSV, etc...">
+  <meta name="twitter:image" content="https://demo.openstreetmap.fr/assets/thumbnail.png">
+  <meta name="twitter:site" content="@OSMdata">
+  <meta name="twitter:creator" content="@armeltayou">
+
+  <!-- Link to a preview image for the shared link -->
+  <meta property="og:image" content="https://demo.openstreetmap.fr/assets/thumbnail.png">
+  <meta property="og:url" content="https://demo.openstreetmap.fr">
+
+
+  <!-- Favicon in .ico format -->
+  <link rel="icon" href="/assets/favicon_io/favicon.ico" type="image/x-icon">
+
+  <!-- Favicon in PNG format (for modern browsers) -->
+  <link rel="icon" href="/assets/favicon_io/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="/assets/favicon_io/favicon-16x16.png" type="image/png" sizes="64x64">
+
+  <!-- For Apple devices -->
+  <link rel="apple-touch-icon" href="/assets/favicon_io/apple-touch-icon.png">
+
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
   <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tarteaucitronjs/1.19.0/css/tarteaucitron.min.css"
+    integrity="sha512-sQ0yzDTwA3HBcD5BCByeoo5XlpsmCk6wzg93aP0bo/xzN89DQs7FrEsVPJE1O4jHAgu07ImONDYMVdn6ccz28g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tarteaucitronjs/1.19.0/tarteaucitron.min.js"
+    integrity="sha512-t2M7A5ZOG4by/M0I6xyIiTHPADzToOlnGOU99SDH+WdMmvX1gPuOe5+dl57t52cCiKxs2g2b4cUHyoNJ9PxuYw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tarteaucitronjs/1.19.0/lang/tarteaucitron.fr.min.js"
+    integrity="sha512-UmRJbofjTXDDcClRanV9SHr5VZvELdYEhlo+d55aGBpTr8uL4i0jHUD0G6HeJTAgi7/m2+d4zPJ79vRVZIXe0A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
   <script src="/assets/ace-builds/ace.js"></script>
 </head>
+
 <body class="mat-typography">
+  <p style="z-index:10; position:fixed;" id="besideMouse"></p>
   <app-root></app-root>
 </body>
+
 </html>

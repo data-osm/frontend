@@ -1,0 +1,25 @@
+@import '../../../modal-style.scss';
+
+.request-feedback-header{
+    position: relative;
+    background-color: white !important;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    margin-top: -30px !important;
+}
+
+.request-feedback-header-close{
+    margin-top: 22px;
+    color: #5f5b5b;
+}
+
+::ng-deep .mat-radio-label{
+    display: block !important;
+    .mat-radio-label-content{
+        margin-bottom: 0px;
+        padding-left: 0px;
+        margin-top: 0px;
+        text-align: center;
+        display: block;
+    }
+}

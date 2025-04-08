@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
@@ -26,7 +26,7 @@ export class ChangeLayerProviderStyleComponent implements OnInit {
 
   private readonly notifier: NotifierService;
 
-  searchtVectorProviderForm: FormGroup = this.fb.group({})
+  searchtVectorProviderForm: UntypedFormGroup = this.fb.group({})
   searchResultVectorProvider: Observable<VectorProvider[]>
 
   customStyles$: Observable<CustomStyle[]>
@@ -34,7 +34,7 @@ export class ChangeLayerProviderStyleComponent implements OnInit {
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   environment=environment
-  VectorProviderForm: FormGroup
+  VectorProviderForm: UntypedFormGroup
   
   selectedProviderStyle: Observable<Style[]>
 
@@ -43,7 +43,7 @@ export class ChangeLayerProviderStyleComponent implements OnInit {
   constructor(
     public vectorProviderService: VectorProviderService,
     notifierService: NotifierService,
-    public fb: FormBuilder,
+    public fb: UntypedFormBuilder,
     public translate: TranslateService,
     public styleService: StyleService,
     public mapsService: MapsService,
@@ -57,9 +57,9 @@ export class ChangeLayerProviderStyleComponent implements OnInit {
     this.selectedProvider = this.data.layerProviders.vp
 
     this.VectorProviderForm = this.fb.group({
-      layer_id: new FormControl(this.data.layer.layer_id, [Validators.required]),
-      vp_id: new FormControl(this.data.layerProviders.vp_id, [Validators.required]),
-      vs_id: new FormControl(this.data.layerProviders.vs_id, [Validators.required]),
+      layer_id: new UntypedFormControl(this.data.layer.layer_id, [Validators.required]),
+      vp_id: new UntypedFormControl(this.data.layerProviders.vp_id, [Validators.required]),
+      vs_id: new UntypedFormControl(this.data.layerProviders.vs_id, [Validators.required]),
     })
 
     

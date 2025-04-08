@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import * as moment from 'moment'
 import { environment } from '../../../environments/environment';
 import { ParametersService } from '../../data/services/parameters.service';

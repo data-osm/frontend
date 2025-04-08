@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
 import { EMPTY, Observable, of } from 'rxjs';
 import { filter, catchError, switchMap } from 'rxjs/operators';
 import { VectorProviderService } from '../../../admin/administration/service/vector-provider.service';
@@ -13,16 +13,16 @@ import { VectorProvider } from '../../../type/type';
 })
 export class SearchProviderComponent implements OnInit, OnChanges {
 
-  searchtVectorProviderForm: FormGroup = this.fb.group({})
+  searchtVectorProviderForm: UntypedFormGroup = this.fb.group({})
   searchResultVectorProvider: Observable<VectorProvider[]>
 
-  @Input()selectedProvider:FormControl = new FormControl(null)
+  @Input()selectedProvider:UntypedFormControl = new UntypedFormControl(null)
 
   constructor(
     public vectorProviderService: VectorProviderService,
-    public fb: FormBuilder,
+    public fb: UntypedFormBuilder,
   ) { 
-    let searchControl = new FormControl(null, Validators.min(3))
+    let searchControl = new UntypedFormControl(null, Validators.min(3))
 
     this.searchResultVectorProvider = searchControl.valueChanges.pipe(
       filter((search_word) => typeof search_word === 'string' && search_word.length > 2),

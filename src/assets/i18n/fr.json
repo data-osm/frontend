@@ -35,27 +35,6 @@
     "tout_partager_toolpit": "Partager ce catalogue",
     "tout_supprimer": "Tout supprimer"
   },
-  "dowload_data": {
-    "error_count": "Une érreur est survenu lors du calcul d'entités",
-    "error_fetching_adminboundary": "Une érreur est survenu lors du chargement de la géométrie ",
-    "all": "tout",
-    "by": "Par",
-    "calculate": "Calculer",
-    "description": "Extraire des données spécifiques selon une emprise",
-    "draw": "Dessiner une emprise",
-    "loading": "Chargement des ",
-    "title_choose_emprise": "Choisir une emprise",
-    "title_choose_layer": "Pharmacie, bars, Cinéma",
-    "lable_choose_one_emprise": "Rechercher une limite",
-    "title_choose_one_emprise": "Nom d'une commune, région, etc...",
-    "title_choose_thematique": "Choisir une thématique",
-    "title_choose_type_emprise": "Votre emprise spatiale",
-    "title_data_in": "Données d'entrées",
-    "toolTipLoadLayersInTOC": "Charger les couches en cours",
-    "toolTipAddInput": "Ajouter une nouvelle couche",
-    "toolTipDownloadGpkg": "Afficher les GPKG en téléchargements",
-    "toolTipDownloadImage": "Télécharger cette image"
-  },
   "draw_in_map": {
     "apply_draw": "APPLIQUER",
     "save": "SAUVEGARDER"
@@ -155,7 +134,29 @@
     "download_data": {
       "title": "Téléchargement de données",
       "downloadCompleteDataTooltip": "Télécharger les données completes (sans intersection géographiques)",
-      "downloadCompleteData": "Export total des couches"
+      "downloadCompleteData": "Télécharger sur toute la France ?",
+      "error_count": "Une érreur est survenu lors du calcul d'entités",
+      "error_fetching_adminboundary": "Une erreur est survenu lors du chargement de la géométrie ",
+      "all": "tout",
+      "by": "Par",
+      "calculate": "Calculer",
+      "download": "Télécharger",
+      "description": "Extraire des données selon une emprise ou sur toute la France",
+      "draw": "Dessiner une emprise",
+      "loading": "Chargement des ",
+      "title_choose_emprise": "2) Choisir une emprise",
+      "description_choose_emprise": "Rechercher une limite administrative, ou choisissez un Téléchargement sur toute la France",
+      "title_choose_layer": "Pharmacie, bars, Cinéma",
+      "lable_choose_one_emprise": "Rechercher une limite",
+      "title_choose_one_emprise": "Nom d'une commune, région, etc...",
+      "title_choose_thematique": "Choisir une thématique",
+      "title_choose_type_emprise": "Votre emprise spatiale",
+      "title_data_in": "1) Selection des couches",
+      "description_data_in": "Ajouter une couche dans la carte ou rechercher directement une couche",
+      "toolTipLoadLayersInTOC": "Charger les couches en cours",
+      "toolTipAddInput": "Ajouter une nouvelle couche",
+      "toolTipDownloadGpkg": "Afficher les GPKG en téléchargements",
+      "toolTipDownloadImage": "Télécharger cette image"
     },
     "legend": {
       "title": "Légende"
@@ -412,9 +413,7 @@
         "title": "Ajouter un utilisateur",
         "email": "E-mail",
         "psw": "Mot de passe",
-        "first_name": "Prénom",
-        "last_name": "Nom",
-        "psw_2": "Entrez le même mot de passe"
+        "name": "Nom"
       }
     },
     "parameter": {

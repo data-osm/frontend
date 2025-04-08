@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, NgZone, Inject } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
-import { FormGroup, FormControl, FormBuilder, FormArray, Validators } from '@angular/forms';
+import { FormGroup, FormControl, UntypedFormBuilder, FormArray, Validators } from '@angular/forms';
 import * as $ from 'jquery';
 import {geosignetInterface,geosignets} from '../geoSignets'
 import { Map } from 'ol';
@@ -26,7 +26,7 @@ export class ListGeosignetComponent implements OnInit {
     private bottomSheetRef: MatBottomSheetRef<ListGeosignetComponent>,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: {map:Map, signets: geosignetInterface[]},
     private ngZone: NgZone,
-    private builder: FormBuilder
+    private builder: UntypedFormBuilder
   ) { }
 
 

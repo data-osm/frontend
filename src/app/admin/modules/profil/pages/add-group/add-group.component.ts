@@ -1,6 +1,6 @@
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators,ValidationErrors, ValidatorFn } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators,ValidationErrors, ValidatorFn } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { combineLatest, EMPTY, Observable, ReplaySubject, Subject } from 'rxjs';
 import { catchError, filter, map, startWith, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
@@ -46,12 +46,12 @@ export class AddGroupComponent implements OnInit, OnDestroy {
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
   
 
-  form: FormGroup = this.formBuilder.group({})
+  form: UntypedFormGroup = this.formBuilder.group({})
   private readonly notifier: NotifierService;
   
   constructor(
     public dialogRef: MatDialogRef<AddGroupComponent>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public mapsService:MapsService,
     @Inject(MAT_DIALOG_DATA) public map_id: number,
@@ -59,13 +59,13 @@ export class AddGroupComponent implements OnInit, OnDestroy {
     this.notifier = notifierService;
     this.presetValues = this.getColorValues();
 
-    this.form.addControl('name',new FormControl(null, [Validators.required]))
-    this.form.addControl('color',new FormControl("#02aca7", [Validators.required]))
-    this.form.addControl('icon_id',new FormControl(null))
-    this.form.addControl('svg_as_text',new FormControl(null))
+    this.form.addControl('name',new UntypedFormControl(null, [Validators.required]))
+    this.form.addControl('color',new UntypedFormControl("#02aca7", [Validators.required]))
+    this.form.addControl('icon_id',new UntypedFormControl(null))
+    this.form.addControl('svg_as_text',new UntypedFormControl(null))
     
-    this.form.addControl('type_group',new FormControl('thematiques', [Validators.required]))
-    this.form.addControl('map_id',new FormControl(this.map_id, [Validators.required]))
+    this.form.addControl('type_group',new UntypedFormControl('thematiques', [Validators.required]))
+    this.form.addControl('map_id',new UntypedFormControl(this.map_id, [Validators.required]))
 
 
     const onAdd:Subject<void> = new Subject<void>()
@@ -105,7 +105,7 @@ export class AddGroupComponent implements OnInit, OnDestroy {
 
 }
 export const atLeastOne = (validator: ValidatorFn, controls:string[] = null) => (
-  group: FormGroup,
+  group: UntypedFormGroup,
 ): ValidationErrors | null => {
   if(!controls){
     controls = Object.keys(group.controls)

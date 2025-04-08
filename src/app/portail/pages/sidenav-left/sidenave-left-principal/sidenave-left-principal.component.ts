@@ -14,8 +14,8 @@ import { BaseMapsService } from '../../../../data/services/base-maps.service';
 import { NotifierService } from 'angular-notifier';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { FormControl } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { UntypedFormControl } from '@angular/forms';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { ListBaseMapComponent } from '../sidenave-left-secondaire/list-base-map/list-base-map.component';
 import { ViewContainerRef } from '@angular/core';
 import { ListGroupThematiqueComponent } from '../sidenave-left-secondaire/list-group-thematique/list-group-thematique.component';
@@ -61,7 +61,7 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
 
   principalMap:BaseMap
 
-  principalMapForm:FormControl = new FormControl(true)
+  principalMapForm:UntypedFormControl = new UntypedFormControl(true)
 
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
@@ -124,7 +124,7 @@ export class SidenaveLeftPrincipalComponent implements OnInit {
   }
 
   ngOnDestroy(){
-    this.destroyed$.next()
+    this.destroyed$.next(true)
     this.destroyed$.complete()
   }
 

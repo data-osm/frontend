@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { SidenaveLeftPrincipalComponent } from './sidenave-left-principal.component';
 
@@ -6,7 +6,7 @@ describe('SidenaveLeftPrincipalComponent', () => {
   let component: SidenaveLeftPrincipalComponent;
   let fixture: ComponentFixture<SidenaveLeftPrincipalComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ SidenaveLeftPrincipalComponent ]
     })

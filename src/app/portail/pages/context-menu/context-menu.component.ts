@@ -3,7 +3,7 @@ import { CartoHelper } from '../../../../helper/carto.helper';
 import { ManageCompHelper } from '../../../../helper/manage-comp.helper';
 import { geosignetInterface, geosignets } from './geoSignets'
 import { TranslateService } from '@ngx-translate/core';
-import {ShContextMenuComponent} from 'ng2-right-click-menu'
+// import {ShContextMenuComponent} from 'ng2-right-click-menu'
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import {ListGeosignetComponent} from './list-geosignet/list-geosignet.component'
 import { Map } from 'ol';
@@ -23,7 +23,7 @@ export class ContextMenuComponent implements OnInit {
   /**
    * menu of the context menu
    */
-  @ViewChild(ShContextMenuComponent, { static: true }) menu: ShContextMenuComponent;
+  // @ViewChild(ShContextMenuComponent, { static: true }) menu: ShContextMenuComponent;
 
   /**
    * list of items in the context menu

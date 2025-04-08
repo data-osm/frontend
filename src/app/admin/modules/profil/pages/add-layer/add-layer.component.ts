@@ -1,6 +1,6 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UntypedFormGroup, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { ReplaySubject, Subject } from 'rxjs';
 import { EMPTY } from 'rxjs/internal/observable/empty';
@@ -42,12 +42,12 @@ export class AddLayerComponent implements OnInit, OnDestroy {
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
   
 
-  form: FormGroup = this.formBuilder.group({})
+  form: UntypedFormGroup = this.formBuilder.group({})
   private readonly notifier: NotifierService;
   
   constructor(
     public dialogRef: MatDialogRef<AddLayerComponent>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public mapsService:MapsService,
     @Inject(MAT_DIALOG_DATA) public sub: number,
@@ -55,15 +55,15 @@ export class AddLayerComponent implements OnInit, OnDestroy {
     this.notifier = notifierService;
     this.presetValues = this.getColorValues()
 
-    this.form.addControl('name',new FormControl(null, [Validators.required]))
-    this.form.addControl('protocol_carto',new FormControl('wms', [Validators.required]))
-    this.form.addControl('color',new FormControl(null, [Validators.required]))
-    this.form.addControl('icon_color',new FormControl(null, [Validators.required]))
-    this.form.addControl('icon',new FormControl(null, [Validators.required]))
-    this.form.addControl('icon_background', new FormControl(true))
-    this.form.addControl('svg_as_text',new FormControl([]))
-    this.form.addControl('svg_as_text_square',new FormControl([]))
-    this.form.addControl('sub',new FormControl(this.sub, [Validators.required]))
+    this.form.addControl('name',new UntypedFormControl(null, [Validators.required]))
+    this.form.addControl('protocol_carto',new UntypedFormControl('wms', [Validators.required]))
+    this.form.addControl('color',new UntypedFormControl(null, [Validators.required]))
+    this.form.addControl('icon_color',new UntypedFormControl(null, [Validators.required]))
+    this.form.addControl('icon',new UntypedFormControl(null, [Validators.required]))
+    this.form.addControl('icon_background', new UntypedFormControl(true))
+    this.form.addControl('svg_as_text',new UntypedFormControl([]))
+    this.form.addControl('svg_as_text_square',new UntypedFormControl([]))
+    this.form.addControl('sub',new UntypedFormControl(this.sub, [Validators.required]))
 
     const onAdd:Subject<void> = new Subject<void>()
     this.onAddInstance = ()=>{

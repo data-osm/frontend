@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { ListGeosignetComponent } from './list-geosignet.component';
 
@@ -6,7 +6,7 @@ describe('ListGeosignetComponent', () => {
   let component: ListGeosignetComponent;
   let fixture: ComponentFixture<ListGeosignetComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ListGeosignetComponent ]
     })

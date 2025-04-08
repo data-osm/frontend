@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { EditLayerProviderComponent } from './edit-layer-provider.component';
 
@@ -6,7 +6,7 @@ describe('EditLayerProviderComponent', () => {
   let component: EditLayerProviderComponent;
   let fixture: ComponentFixture<EditLayerProviderComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ EditLayerProviderComponent ]
     })

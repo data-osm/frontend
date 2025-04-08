@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { SearchAdminBoundaryComponent } from './search-admin-boundary.component';
 
@@ -6,7 +6,7 @@ describe('SearchAdminBoundaryComponent', () => {
   let component: SearchAdminBoundaryComponent;
   let fixture: ComponentFixture<SearchAdminBoundaryComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ SearchAdminBoundaryComponent ]
     })

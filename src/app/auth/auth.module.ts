@@ -4,16 +4,22 @@ import { CommonModule } from '@angular/common';
 import { AuthRoutingModule } from './auth-routing.module';
 import { LoginComponent } from './login/login.component';
 import { ComponentMaterialModule } from '../shared/material-module';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { MultiTranslateHttpLoader } from 'ngx-translate-multi-http-loader';
-export function HttpLoaderFactory(httpClient: HttpClient) {
-  return new MultiTranslateHttpLoader(httpClient, [
+
+import { HttpBackend, HttpClientModule } from '@angular/common/http';
+
+import { ShareButton } from 'ngx-sharebuttons/button';
+import { ShareIconsModule } from 'ngx-sharebuttons/icons';
+
+// AoT requires an exported function for factories
+export function HttpLoaderFactory(_httpBackend: HttpBackend) {
+  return new MultiTranslateHttpLoader(_httpBackend, [
     { prefix: "./assets/i18n/", suffix: ".json" },
-    {prefix: './assets/i18n/tags-', suffix: '.json'}
-  ]);
+  {prefix: './assets/i18n/tags-', suffix: '.json'}]);
 }
+
 
 
 @NgModule({
@@ -29,7 +35,7 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,
-        deps: [HttpClient],
+        deps: [HttpBackend],
       }
     }),
   ]

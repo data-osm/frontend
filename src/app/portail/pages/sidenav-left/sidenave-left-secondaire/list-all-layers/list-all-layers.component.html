@@ -1,0 +1,6 @@
+<ng-container *ngIf="layers$ |async as layers">
+    <mat-selection-list>
+        <app-couche-thematique *ngFor="let layer of layers" id="{{ 'couche_' + layer.layer_id }}" [layer]="layer"
+            [map]="parameters.map"></app-couche-thematique>
+    </mat-selection-list>
+</ng-container>

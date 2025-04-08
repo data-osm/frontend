@@ -1,13 +1,13 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { UntypedFormBuilder } from '@angular/forms';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { combineLatest, EMPTY, merge, Observable, ReplaySubject, Subject } from 'rxjs';
 import { catchError, filter, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { AddLayerProviderComponent } from '../add-layer-provider/add-layer-provider.component';
 import { TranslateService } from '@ngx-translate/core';
 import { EditLayerProviderComponent } from '../edit-layer-provider/edit-layer-provider.component';
-import { MatTable } from '@angular/material/table';
+import { MatLegacyTable as MatTable } from '@angular/material/legacy-table';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { MapsService } from '../../../../../../data/services/maps.service';
 import { ManageCompHelper } from '../../../../../../../helper/manage-comp.helper';
@@ -40,7 +40,7 @@ export class ProviderComponent implements OnInit, OnChanges {
   private readonly notifier: NotifierService;
 
   constructor(
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public mapsService:MapsService,
     public dialog: MatDialog,

@@ -1,0 +1,28 @@
+<h1 mat-dialog-title class="request-feedback-header black">
+    <i class="fa fa-times-circle close request-feedback-header-close" (click)="closeModal()"></i>
+    🤔 Que pensez-vous de notre application ?
+</h1>
+
+<div mat-dialog-content class=" black ">
+    <h4>
+        Votre avis compte beaucoup pour améliorer l'application ! 😊
+        Quelle note donneriez-vous à l' application ?
+    </h4>
+
+    <mat-radio-group aria-labelledby="example-radio-group-label" class="example-radio-group"
+        [formControl]="feedbackForm.get('notes')" (change)="submitFeedback()">
+
+        <mat-radio-button style="margin-right: 20px;" *ngFor="let note of notes" [value]="note">
+            {{note}}
+        </mat-radio-button>
+    </mat-radio-group>
+
+    <p></p>
+
+    <h5>
+        Aucune donnée personnelle n’est collectée et ce questionnaire ne vous sera proposé que pendant quelques mois.
+        Veuillez nous excuser par avance si vous le recevez plusieurs fois, cela est dû à l’absence de collecte de
+        données personnelles.
+        <p></p>Merci pour votre précieux retour ! 💙
+    </h5>
+</div>

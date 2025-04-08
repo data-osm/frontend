@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { SidenavLeftAdminComponent } from './sidenav-left-admin.component';
 
@@ -6,7 +6,7 @@ describe('SidenavLeftAdminComponent', () => {
   let component: SidenavLeftAdminComponent;
   let fixture: ComponentFixture<SidenavLeftAdminComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ SidenavLeftAdminComponent ]
     })

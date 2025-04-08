@@ -1,17 +1,25 @@
 import { Injectable } from '@angular/core';
 import { DataOsmLayersServiceService } from '../data-som-layers-service/data-som-layers-service.service'
 import { BackendApiService } from '../backend-api/backend-api.service'
-import { CartoHelper, layersInMap } from '../../../helper/carto.helper'
-import { Point, VectorLayer, Cluster, Feature, GeoJSON, Transform, Coordinate, Map } from '../../../app/ol-module';
+import { CartoHelper } from '../../../helper/carto.helper'
+import { Point, VectorLayer, Cluster, Feature, GeoJSON, Transform, Coordinate } from '../../../app/ol-module';
 import { parse } from '@fortawesome/fontawesome-svg-core';
 import * as $ from 'jquery'
 import { coucheInterface } from '../../type/type';
 import { ManageCompHelper } from '../../../helper/manage-comp.helper';
+import { Location, LocationStrategy } from '@angular/common';
+import { MatomoTracker } from 'ngx-matomo-client';
 import { ParametersService } from '../../data/services/parameters.service';
-
-export interface DataToShareLayer{
-  id_layer: number, group_id:number, type:'map'|'layer'
+import {
+  Map,
+} from "../../giro-3d-module"
+import { Router } from '@angular/router';
+export interface DataToShareLayer {
+  id_layer: number, group_id: number, type: 'map' | 'layer'
 }
+
+export const VIEW_QUERY_PARAM = "pos"
+
 @Injectable({
   providedIn: 'root'
 })
@@ -25,7 +33,12 @@ export class ShareServiceService {
   constructor(
     public parametersService: ParametersService,
     public backendApiService: BackendApiService,
-    public manageCompHelper: ManageCompHelper
+    public manageCompHelper: ManageCompHelper,
+    private location: Location,
+    private router: Router,
+    private locationStrategy: LocationStrategy,
+    private dataOsmLayersServiceService: DataOsmLayersServiceService,
+    private readonly tracker: MatomoTracker
   ) { }
 
   /**
@@ -40,11 +53,59 @@ export class ShareServiceService {
     return 'feature=' + typeLayer + ',' + id_layer + ',' + group_id + ',' + coordinates.join(',') + ',' + featureId
   }
 
+  updateUrlWithPointOfView(map: Map) {
+    const pov = CartoHelper.getCurrentPointOfView(map)
+    const queryParams = this.shareLayersInToc(map)
+    queryParams[VIEW_QUERY_PARAM] = pov
+    this.location.replaceState(
+      this.router.createUrlTree(
+        [this.locationStrategy.path().split('?')[0]], // Get uri
+        { queryParams: queryParams } // Pass all parameters inside queryParamsObj
+      ).toString()
+    );
+
+    setTimeout(() => {
+      this.tracker.setCustomUrl(window.location.href)
+      this.tracker.trackPageView()
+    }, 500);
+  }
+
+  shareLayersInToc(map: Map) {
+
+    let pteLayerToGetParams: Array<DataToShareLayer> = new CartoHelper(map).getAllLayersInToc()
+      .filter((item) => item.tocCapabilities.share)
+      .map((item) => {
+        if (item.properties['type'] == 'couche') {
+          let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(item.properties.couche_id)
+          return {
+            id_layer: item.properties.couche_id,
+            group_id: groupLayer.group.group_id,
+            type: 'layer'
+          }
+        } else if (item.properties['type'] == 'carte') {
+          return {
+            id_layer: item.properties.couche_id,
+            group_id: null,
+            type: 'map'
+          }
+        }
+
+      })
+
+    return {
+      "profil": this.parametersService.map_id,
+      "layers": pteLayerToGetParams.map((item) => item.id_layer + ',' + item.group_id + ',' + item.type).reverse().join(';')
+    }
+
+    // return this.shareLayers(pteLayerToGetParams)
+
+  }
+
   /**
    * Display feature shared in link of the app
    * @param parametersShared
    */
-  displayFeatureShared(parametersShared: Array<any>, map:Map) {
+  displayFeatureShared(parametersShared: Array<any>, map: Map) {
 
     for (let index = 0; index < parametersShared.length; index++) {
       const parameterOneFeature = parametersShared[index].split(',');
@@ -80,7 +141,7 @@ export class ShareServiceService {
           }
 
           var geom = new Point([parseFloat(parameterOneFeature[3]), parseFloat(parameterOneFeature[4])])
-          cartoClass.fit_view(geom, 12)
+          // cartoClass.fit_view(geom, 12)
 
           if (layer.length > 0) {
 
@@ -120,7 +181,7 @@ export class ShareServiceService {
    */
   getFeatureOSMFromCartoServer(couche: coucheInterface, osmId: number): Promise<Feature> {
     var url = couche.url + '&SERVICE=WFS&VERSION=1.1.0&REQUEST=GETFEATURE&outputFormat=GeoJSON&typeName=' + couche.identifiant + '&EXP_FILTER=osm_id=' + osmId;
-    
+
     return this.backendApiService.getRequestFromOtherHost(url).then(
       (response) => {
         var features = new GeoJSON().readFeatures(response, {
@@ -144,9 +205,9 @@ export class ShareServiceService {
    * @param number id_layer id of the layer
    * @return string
    */
-  shareLayer(layer:DataToShareLayer): string {
-    
-    return 'profil='+this.parametersService.map_id+'&layers='+ layer.id_layer+ ',' + layer.group_id+','+layer.type
+  shareLayer(layer: DataToShareLayer): string {
+
+    return 'profil=' + this.parametersService.map_id + '&layers=' + layer.id_layer + ',' + layer.group_id + ',' + layer.type
   }
 
   /**
@@ -159,7 +220,8 @@ export class ShareServiceService {
    * @return string
    */
   shareLayers(layers: Array<DataToShareLayer>): string {
-    return 'profil='+this.parametersService.map_id+'&layers=' + layers.map((item)=>item.id_layer+','+item.group_id+','+item.type).reverse().join(';')
+
+    return 'profil=' + this.parametersService.map_id + '&layers=' + layers.map((item) => item.id_layer + ',' + item.group_id + ',' + item.type).reverse().join(';')
   }
 
 

@@ -1,0 +1,4 @@
+<ng-container *ngIf="profilId$|async as profilId">
+    <app-portail-map *ngIf="profilId==1"></app-portail-map>
+    <app-psr *ngIf="profilId==15"></app-psr>
+</ng-container>

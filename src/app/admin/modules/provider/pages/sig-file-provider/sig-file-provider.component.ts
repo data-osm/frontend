@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output, Query } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { NotifierService } from 'angular-notifier';
 import { Subject, ReplaySubject, Observable, merge, EMPTY } from 'rxjs';
 import { catchError, filter, shareReplay, switchMap, tap } from 'rxjs/operators';
@@ -38,9 +38,9 @@ export class SigFileProviderComponent implements OnInit {
   /**
    * form for the SIG file
    */
-  form:FormGroup = this.fb.group({
-    file:new FormControl(undefined,[Validators.required]),
-    connection:new FormControl(undefined,[]),
+  form:UntypedFormGroup = this.fb.group({
+    file:new UntypedFormControl(undefined,[Validators.required]),
+    connection:new UntypedFormControl(undefined,[]),
   })
 
   connections$:Observable<Array<string>>
@@ -53,7 +53,7 @@ export class SigFileProviderComponent implements OnInit {
     public sigFileService:SigFileService,
     public osmQuerryService:OsmQuerryService,
     public notifierService: NotifierService,
-    public fb: FormBuilder,
+    public fb: UntypedFormBuilder,
   ) {
 
     const onInit:ReplaySubject<void> = new ReplaySubject<void>(1)

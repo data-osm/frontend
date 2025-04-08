@@ -1,6 +1,6 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UntypedFormGroup, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { iif, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { EMPTY } from 'rxjs/internal/observable/empty';
@@ -44,14 +44,14 @@ export class UpdateLayerComponent implements OnInit {
 
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
   icon:Observable<Icon>
-  iconForm:FormControl = new FormControl()
+  iconForm:UntypedFormControl = new UntypedFormControl()
 
-  form: FormGroup = this.formBuilder.group({})
+  form: UntypedFormGroup = this.formBuilder.group({})
   private readonly notifier: NotifierService;
 
   constructor(
     public dialogRef: MatDialogRef<UpdateLayerComponent>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public mapsService: MapsService,
     public iconService:IconService, 
@@ -61,16 +61,16 @@ export class UpdateLayerComponent implements OnInit {
 
     this.presetValues = this.getColorValues()
 
-    this.form.addControl('name', new FormControl(this.layer.name, [Validators.required]))
-    this.form.addControl('layer_id', new FormControl(this.layer.layer_id, [Validators.required]))
-    this.form.addControl('protocol_carto', new FormControl('wms', [Validators.required]))
-    this.form.addControl('icon_color', new FormControl(this.layer.icon_color, [Validators.required]))
-    this.form.addControl('color', new FormControl(this.layer.color, [Validators.required]))
-    this.form.addControl('icon_background', new FormControl(this.layer.icon_background))
-    this.form.addControl('icon', new FormControl(this.layer.icon, [Validators.required]))
-    this.form.addControl('svg_as_text', new FormControl([Validators.required]))
-    this.form.addControl('svg_as_text_square', new FormControl([Validators.required]))
-    this.form.addControl('sub', new FormControl(this.layer.sub, [Validators.required]))
+    this.form.addControl('name', new UntypedFormControl(this.layer.name, [Validators.required]))
+    this.form.addControl('layer_id', new UntypedFormControl(this.layer.layer_id, [Validators.required]))
+    this.form.addControl('protocol_carto', new UntypedFormControl('wms', [Validators.required]))
+    this.form.addControl('icon_color', new UntypedFormControl(this.layer.icon_color, [Validators.required]))
+    this.form.addControl('color', new UntypedFormControl(this.layer.color, [Validators.required]))
+    this.form.addControl('icon_background', new UntypedFormControl(this.layer.icon_background))
+    this.form.addControl('icon', new UntypedFormControl(this.layer.icon, [Validators.required]))
+    this.form.addControl('svg_as_text', new UntypedFormControl([Validators.required]))
+    this.form.addControl('svg_as_text_square', new UntypedFormControl([Validators.required]))
+    this.form.addControl('sub', new UntypedFormControl(this.layer.sub, [Validators.required]))
 
     this.icon = this.iconService.getIcon(this.layer.icon).pipe(
       mergeMap(icon => 

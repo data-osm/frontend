@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { TableVectorProviderComponent } from './table-vector-provider.component';
 
@@ -6,7 +6,7 @@ describe('TableVectorProviderComponent', () => {
   let component: TableVectorProviderComponent;
   let fixture: ComponentFixture<TableVectorProviderComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ TableVectorProviderComponent ]
     })

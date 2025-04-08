@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
-import { AbstractControl, FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { AbstractControl, UntypedFormGroup, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { ReplaySubject, Subject, EMPTY } from 'rxjs';
 import { filter, tap, switchMap, catchError, takeUntil } from 'rxjs/operators';
@@ -31,7 +31,7 @@ export class PolygonSimpleComponent implements OnInit {
   private readonly notifier: NotifierService;
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
   environment = environment
-  form: FormGroup
+  form: UntypedFormGroup
   loading: boolean = false
   public colorList = [
     { key: 'red', value: '#FF3A33' },
@@ -59,7 +59,7 @@ export class PolygonSimpleComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<AddStyleComponent, Style>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public StyleService: StyleService,
   ) {
@@ -68,10 +68,10 @@ export class PolygonSimpleComponent implements OnInit {
     this.presetValues = this.getColorValues()
     this.form = this.formBuilder.group({
       name: this.styleName,
-      fillColor: new FormControl(this.fillColor, [Validators.required]),
-      strokeColor: new FormControl(this.strokeColor, [Validators.required]),
-      strokeWidth: new FormControl(this.strokeWidth, [Validators.required]),
-      type: new FormControl('polygon_simple',[Validators.required]),
+      fillColor: new UntypedFormControl(this.fillColor, [Validators.required]),
+      strokeColor: new UntypedFormControl(this.strokeColor, [Validators.required]),
+      strokeWidth: new UntypedFormControl(this.strokeWidth, [Validators.required]),
+      type: new UntypedFormControl('polygon_simple',[Validators.required]),
     })
 
     const onAdd: Subject<void> = new Subject<void>()

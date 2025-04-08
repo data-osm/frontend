@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { ListDownloadLayersComponent } from './list-download-layers.component';
 
@@ -6,7 +6,7 @@ describe('ListDownloadLayersComponent', () => {
   let component: ListDownloadLayersComponent;
   let fixture: ComponentFixture<ListDownloadLayersComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ListDownloadLayersComponent ]
     })

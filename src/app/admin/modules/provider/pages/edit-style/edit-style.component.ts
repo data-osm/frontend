@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, Subject } from 'rxjs';
 import { catchError, filter, shareReplay, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -32,27 +32,27 @@ export class EditStyleComponent implements OnInit, OnDestroy {
   /**
    * Form to edit a style
    */
-  formEditStyle: FormGroup 
+  formEditStyle: UntypedFormGroup 
 
   constructor(
     public dialogRef: MatDialogRef<EditStyleComponent>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public StyleService:StyleService,
     @Inject(MAT_DIALOG_DATA) public style: Style
   ) { 
     this.notifier = notifierService;
     this.formEditStyle = this.formBuilder.group({
-      name: new FormControl(this.style.name),
-      qml_file: new FormControl(null),
+      name: new UntypedFormControl(this.style.name),
+      qml_file: new UntypedFormControl(null),
     })
  
-    const onEdit:Subject<any> = new Subject()
+    const onEdit:Subject<void> = new Subject()
     this.onEditInstance = ()=>{
       onEdit.next()
     }
 
-    const onDestroy:Subject<any> = new Subject()
+    const onDestroy:Subject<void> = new Subject()
     this.onDestroyInstance = ()=>{
       onDestroy.next()
       onDestroy.complete()

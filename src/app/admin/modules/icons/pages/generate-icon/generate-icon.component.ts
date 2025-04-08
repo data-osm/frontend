@@ -1,6 +1,6 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { UntypedFormControl } from '@angular/forms';
+import { MatLegacySlideToggle as MatSlideToggle, MatLegacySlideToggleChange as MatSlideToggleChange } from '@angular/material/legacy-slide-toggle';
 import { SVG } from '@svgdotjs/svg.js';
 import { NotifierService } from 'angular-notifier';
 import { combineLatest, EMPTY, Observable, ReplaySubject } from 'rxjs';
@@ -21,23 +21,23 @@ export class GenerateIconComponent implements OnInit {
    * @optional
    * use this icon to start an icon
    */
-  @Input() icon: FormControl
+  @Input() icon: UntypedFormControl
   /**
    * The icon id used to generate the icon 
    */
-  @Input() icon_id?: FormControl
+  @Input() icon_id?: UntypedFormControl
   /**
    * The background color of the icon
    */
-  @Input() backgroundColor: FormControl = new FormControl(environment.primaryColor)
+  @Input() backgroundColor: UntypedFormControl = new UntypedFormControl(environment.primaryColor)
   /**
    * the circle svg icon as text
    */
-  @Input() circleSvgAsText: FormControl
+  @Input() circleSvgAsText: UntypedFormControl
   /**
    * the circle svg icon as text
    */
-  @Input() squareSvgAsText?: FormControl
+  @Input() squareSvgAsText?: UntypedFormControl
   /**
    *  Icon selected in data from data osm gallery
    */
@@ -49,7 +49,7 @@ export class GenerateIconComponent implements OnInit {
   /**
    * Should the icon have a background ?
    */
-  @Input() background: FormControl = new FormControl(true)
+  @Input() background: UntypedFormControl = new UntypedFormControl(true)
 
   /**
    * Should the icon have a background ?
@@ -59,7 +59,7 @@ export class GenerateIconComponent implements OnInit {
   /**
     * The background color of the icon
     */
-  @Input() iconColorForm: FormControl = new FormControl('#fff')
+  @Input() iconColorForm: UntypedFormControl = new UntypedFormControl('#fff')
 
   @ViewChild(MatSlideToggle) matSlideToggleBackground: MatSlideToggle
   @ViewChild(IconsComponent) iconComponent: IconsComponent;

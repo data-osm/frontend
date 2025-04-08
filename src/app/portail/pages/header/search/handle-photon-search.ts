@@ -2,8 +2,12 @@ import { filterOptionInterface } from './search.component'
 import { responseOfSerachLimitInterface } from './interface-search'
 import { configProjetInterface } from '../../../../type/type';
 import { AppInjector } from '../../../../../helper/app-injector.helper'
-import { GeoJSON, Feature, Map } from '../../../../ol-module'
+import { GeoJSON, Feature } from '../../../../ol-module'
 import { CartoHelper } from '../../../../../helper/carto.helper';
+import {
+  Map,
+  VectorSource
+} from "../../../../giro-3d-module"
 /**
  * class for handle photon search:
  * - format data from server to display list od response
@@ -30,14 +34,14 @@ export class handlePhotonSearch {
       });
 
       if (features.length > 0) {
-        var  details = []
+        var details = []
         if (this._formatType(element)) {
           details.push(this._formatType(element))
         }
 
         if (element.properties.city && element.properties.city !== element.properties.name) {
           details.push(element.properties.city);
-         }
+        }
 
         if (element.properties.country) {
           // details.push(element.properties.country)
@@ -48,7 +52,7 @@ export class handlePhotonSearch {
           id: features[0].get('osm_id'),
           geometry: features[0].getGeometry(),
           typeOsm: this._formatType(element),
-          details:details.join(', '),
+          details: details.join(', '),
           typeOption: 'photon',
           ...features[0].getProperties()
         })
@@ -66,7 +70,7 @@ export class handlePhotonSearch {
  */
   displayWith(data: filterOptionInterface): string {
     if (data) {
-      return data.name +' ('+data.details+')'
+      return data.name + ' (' + data.details + ')'
     } else {
       return ''
     }
@@ -89,11 +93,11 @@ export class handlePhotonSearch {
       : option.properties.osm_value;
   }
 
-   /**
-   *  call when an option is select by the user
-   * @param emprise searchLayerToDownlodModelInterface
-   */
-  optionSelected(emprise: filterOptionInterface, map:Map) {
+  /**
+  *  call when an option is select by the user
+  * @param emprise searchLayerToDownlodModelInterface
+  */
+  optionSelected(emprise: filterOptionInterface, map: Map) {
     if (!emprise.geometry) {
 
     } else {
@@ -101,11 +105,11 @@ export class handlePhotonSearch {
     }
   }
 
-    /**
-   * add geometry to searchResultLayer and zoom to the geometry
-   * @param emprise: filterOptionInterface
-   */
-  _addGeometryAndZoomTO(emprise: filterOptionInterface, map:Map) {
+  /**
+ * add geometry to searchResultLayer and zoom to the geometry
+ * @param emprise: filterOptionInterface
+ */
+  _addGeometryAndZoomTO(emprise: filterOptionInterface, map: Map) {
     if (emprise.geometry) {
       var cartoClass = new CartoHelper(map)
       if (cartoClass.getLayerByName('searchResultLayer').length > 0) {
@@ -114,17 +118,16 @@ export class handlePhotonSearch {
         var feature = new Feature()
         var textLabel = emprise.name
 
-        feature.set('textLabel',textLabel)
+        feature.set('textLabel', textLabel)
         feature.setGeometry(emprise.geometry)
         feature.setGeometry(emprise.geometry)
 
-        searchResultLayer.getSource().clear()
+        const source = searchResultLayer.source as VectorSource
 
-        searchResultLayer.getSource().addFeature(feature)
+        source.source.clear()
+        source.source.addFeature(feature)
 
-        var extent = emprise.geometry.getExtent()
-
-        cartoClass.fit_view(extent, 16)
+        cartoClass.zoomToExtent(CartoHelper.olGeometryToGiroExtent(emprise.geometry), 16)
 
       }
     }

@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { ClusterComponent } from './cluster.component';
 
@@ -6,7 +6,7 @@ describe('ClusterComponent', () => {
   let component: ClusterComponent;
   let fixture: ComponentFixture<ClusterComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ClusterComponent ]
     })

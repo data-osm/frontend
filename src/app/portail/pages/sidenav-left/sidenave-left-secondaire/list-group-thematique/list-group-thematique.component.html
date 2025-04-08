@@ -1,10 +1,8 @@
-<!-- <app-sidenav-header [title]="parameters.group.name" [backgroundColor]="parameters.group.color" [dialogRef]="dialogRef"
-  [logo]="environment.backend + parameters.group.icon_path"></app-sidenav-header> -->
-<!-- [ngStyle]="{'background-color':groupSelectForm.value.color}" -->
-<div class="group-select-form primaryColorBG">
+<div class="group-select-form">
   <mat-form-field appearance="fill" style="width: 100%;">
 
-    <mat-select [formControl]="groupSelectForm" disableOptionCentering panelClass="group-select-form-option-panel">
+    <mat-select (opened)="trackGroupSelectTriggered()" [formControl]="groupSelectForm" disableOptionCentering
+      panelClass="group-select-form-option-panel">
       <mat-select-trigger>
         <div fxLayout fxLayoutGap="15px" fxLayoutAlign="start center" class="group-select-form-select-trigger">
           <img style="height: 25px;" [src]="environment.backend + groupSelectForm.value.icon.path" srcset="">
@@ -19,20 +17,18 @@
         </div>
       </mat-option>
     </mat-select>
-    <!-- <span matPrefix>
-      <img [src]="environment.backend + groupSelectForm.value.icon_path" srcset="">
-    </span> -->
-    <!-- <span matSuffix>.00</span> -->
+
   </mat-form-field>
 </div>
-<div class="group-select-form-ghost "></div>
+
 <div class="list-sub-group">
   <ng-container *ngIf="subGroupList$ |async as subGroupList">
     <mat-accordion multi="true" togglePosition="before" class="couche-thematique">
       <ng-container *ngFor="let subGroup of subGroupList">
         <mat-expansion-panel class="couche-thematique-panel" expanded="true" *ngIf="subGroup.layers.length > 0">
-          <mat-expansion-panel-header class="whiteBG" collapsedHeight="45px" expandedHeight="45px">
-            <mat-panel-title class="primaryColor">
+          <mat-expansion-panel-header class="couche-thematique-panel-header" collapsedHeight="45px"
+            expandedHeight="45px">
+            <mat-panel-title class="white">
               {{ subGroup.name }}
             </mat-panel-title>
           </mat-expansion-panel-header>

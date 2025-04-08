@@ -1,10 +1,20 @@
 /* You can add global styles to this file, and also import other style files */
-@import '~@angular/material/theming';
-@import "~@angular/cdk/overlay-prebuilt.css";
-@import '~ngx-sharebuttons/themes/circles/circles-dark-theme';
+@use '@angular/material' as mat;
+@import "@angular/cdk/overlay-prebuilt.css";
+// @import 'ngx-sharebuttons/themes/circles/circles-dark-theme';
+@import 'ngx-sharebuttons/themes/circles';
 @import './app/theme';
 @import './style-ol.scss';
-@include mat-core();
+// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
+//  The following line adds:
+//    1. Default typography styles for all components
+//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
+//  If you specify typography styles for the components you use elsewhere, you should delete this line.
+//  If you don't need the default component typographies but still want the hierarchy styles,
+//  you can delete this line and instead use:
+//    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
+@include mat.all-legacy-component-typographies();
+@include mat.legacy-core();
 @import './assets/font/avenir-next-rounded-pro-cufonfonts-webfont/style.scss';
 
 html, body { height: 100%;overflow: hidden; }
@@ -45,9 +55,17 @@ input{
 	padding-left: 5px !important;
     padding-right: 5px !important;
 }
-.group-modal .mat-dialog-container{
-	border-radius: 30px 30px 20px 20px;
+
+.feedback-modal .mat-dialog-container{
+	background-color: #eee;
+}
+
+.group-modal .mdc-dialog__container {
+	.mat-mdc-dialog-surface{
+		border-radius: 30px 30px 20px 20px;
+	background-color: #001725;
 	overflow: hidden;
+	}
   }
 /* ///// spinner ////////////// */
 

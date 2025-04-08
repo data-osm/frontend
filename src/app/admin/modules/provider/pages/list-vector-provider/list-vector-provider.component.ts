@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
 import { NotifierService } from 'angular-notifier';
 import { BehaviorSubject, EMPTY, merge, Observable, of, ReplaySubject, Subject, throwError } from 'rxjs';
 import { catchError } from 'rxjs/internal/operators/catchError';
@@ -8,10 +8,10 @@ import { environment } from '../../../../../../environments/environment';
 import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { VectorProvider } from '../../../../../type/type';
 import { VectorProviderService } from '../../../../administration/service/vector-provider.service'
-import {MatPaginator} from '@angular/material/paginator';
-import {MatTableDataSource} from '@angular/material/table';
+import {MatLegacyPaginator as MatPaginator} from '@angular/material/legacy-paginator';
+import {MatLegacyTableDataSource as MatTableDataSource} from '@angular/material/legacy-table';
 import { HttpResponse } from '@angular/common/http';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { AddVectorProviderComponent } from '../add-vector-provider/add-vector-provider.component';
 import { Router } from '@angular/router';
@@ -54,14 +54,14 @@ export class ListVectorProviderComponent implements OnInit {
   */
     onSortChangeInstance: (e: Sort) => void;
  
-  searchtVectorProviderForm:FormGroup = this.fb.group({})
+  searchtVectorProviderForm:UntypedFormGroup = this.fb.group({})
   searchResultVectorProvider:Observable<VectorProvider[]> 
 
   constructor(
     public VectorProviderService:VectorProviderService,
     public manageCompHelper:ManageCompHelper,
     notifierService: NotifierService,
-    public fb: FormBuilder,
+    public fb: UntypedFormBuilder,
     public translate: TranslateService,
     private router: Router,
     public dialog:MatDialog
@@ -84,7 +84,7 @@ export class ListVectorProviderComponent implements OnInit {
       onSortChange.next(e)
     }
 
-    let searchControl = new FormControl(null, Validators.min(3))
+    let searchControl = new UntypedFormControl(null, Validators.min(3))
 
     this.searchResultVectorProvider = searchControl.valueChanges.pipe(
       filter((search_word) => typeof search_word === 'string' &&  search_word.length > 2),

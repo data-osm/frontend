@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { AbstractControl, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { requiredFileType } from '../../../../../validators/upload-file-validators';
 import {VectorProviderService} from '../../../../administration/service/vector-provider.service'
@@ -19,12 +19,12 @@ import { VectorProvider } from '../../../../../type/type';
  */
 export class AddVectorProviderComponent implements OnInit {
 
-  form: FormGroup = this.formBuilder.group({})
+  form: UntypedFormGroup = this.formBuilder.group({})
   private readonly notifier: NotifierService;
 
   constructor(
     public dialogRef: MatDialogRef<AddVectorProviderComponent>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public VectorProviderService:VectorProviderService
   ) { 
@@ -43,8 +43,8 @@ export class AddVectorProviderComponent implements OnInit {
    * initialise form to add a vector provider 
    */
   initialiseVectorProviderForm(){
-    this.form.addControl('name',new FormControl(null, [Validators.required]))
-    this.form.addControl('geometry_type',new FormControl(null, []))
+    this.form.addControl('name',new UntypedFormControl(null, [Validators.required]))
+    this.form.addControl('geometry_type',new UntypedFormControl(null, []))
   }
 
   /**

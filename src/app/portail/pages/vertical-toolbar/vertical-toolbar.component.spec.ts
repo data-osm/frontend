@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { VerticalToolbarComponent } from './vertical-toolbar.component';
 
@@ -6,7 +6,7 @@ describe('VerticalToolbarComponent', () => {
   let component: VerticalToolbarComponent;
   let fixture: ComponentFixture<VerticalToolbarComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ VerticalToolbarComponent ]
     })

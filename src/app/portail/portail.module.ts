@@ -27,12 +27,16 @@ import { RoutingComponent } from './pages/sidenav-right/routing/routing.componen
 import { TableOfContentsComponent } from './pages/sidenav-right/table-of-contents/table-of-contents.component';
 import { VerticalToolbarComponent } from './pages/vertical-toolbar/vertical-toolbar.component';
 import { SharedModule } from '../shared/shared.module';
-import { ShContextMenuModule } from 'ng2-right-click-menu';
+// import { ShContextMenuModule } from 'ng2-right-click-menu';
 import { ListBaseMapComponent } from './pages/sidenav-left/sidenave-left-secondaire/list-base-map/list-base-map.component';
 import { PortailBaseMapComponent } from './pages/sidenav-left/sidenave-left-secondaire/list-base-map/portail-base-map/portail-base-map.component';
 import { SidenavHeaderComponent } from './pages/sidenav-left/sidenave-left-secondaire/sidenav-header/sidenav-header.component';
 import { ChangeProfilComponent } from './pages/change-profil/change-profil.component';
 import { DownloadModule } from '../download/download.module';
+import { HomeComponent } from './home/home.component';
+import { PsrComponent } from './psr/psr.component';
+import { ListAllLayersComponent } from './pages/sidenav-left/sidenave-left-secondaire/list-all-layers/list-all-layers.component';
+import { RequestFeedbackComponent } from './pages/request-feedback/request-feedback.component';
 
 
 
@@ -66,12 +70,17 @@ import { DownloadModule } from '../download/download.module';
     PortailBaseMapComponent,
     SidenavHeaderComponent,
     ChangeProfilComponent,
+    HomeComponent,
+    PsrComponent,
+    ListAllLayersComponent,
+    RequestFeedbackComponent,
+
   ],
   imports: [
     CommonModule,
     SharedModule,
     PortailRoutingModule,
-    ShContextMenuModule,
+    // ShContextMenuModule,
     DownloadModule
   ],
 })

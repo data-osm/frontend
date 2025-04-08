@@ -1,21 +1,17 @@
 <h1 mat-dialog-title class="primaryColorBG white">
-  <mat-icon class="icon_header" style="font-size: 23px;" >download</mat-icon>
+  <mat-icon class="icon_header" style="font-size: 23px;">download</mat-icon>
   <i class="fa fa-times-circle close" (click)="closeModal()"></i>
-  {{ 'dowloadLayers.title' | translate }}
+  {{ 'dowloadLayers.title' | translate }} sur {{parameter.name}}
 </h1>
 
-<div mat-dialog-content style="background: #eeeeee;align-items: stretch;" fxLayout="row wrap" fxLayoutGap="15px" >
+<div mat-dialog-content style="background: #eeeeee;align-items: stretch;" fxLayout="row wrap" fxLayoutGap="15px">
 
-  <app-card-download-layer 
-  *ngFor="let layer_name of objectKeys.keys(data)" 
-  [layer]="data[layer_name]" 
-  [layer_name]="layer_name" 
-  [provider_vector_id]="parameter.provider_vector_id" 
-  [table_id]="parameter.table_id" 
-  >
+  <app-card-download-layer *ngFor="let layer_name of objectKeys.keys(data)" [layer]="data[layer_name]"
+    [layer_name]="layer_name" [provider_vector_id]="parameter.provider_vector_id" [table_id]="parameter.table_id"
+    [boundary_name]="parameter.name">
   </app-card-download-layer>
 
-  <div style="margin:10px 0px">
+  <div style="margin-top: 15px;">
     <div>Un point licence important… donc nous soulignons et repètons:</div>
     <div>ces données sont sous Licence ODbL,</div>
     <div>elles doivent rester en ODbL, même si elles sont republiées ailleurs,
@@ -26,5 +22,5 @@
 <div mat-dialog-actions>
   <img src="assets/icones/osm.svg" width="25px" alt="" style="    vertical-align: middle;">
   {{ 'geosm.text' | translate }} <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">
-    {{ 'geosm.text1' | translate }}  OpenStreetMap </a>
-</div> 
+    {{ 'geosm.text1' | translate }} OpenStreetMap </a>
+</div>

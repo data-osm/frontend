@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { AddSubGroupComponent } from './add-sub-group.component';
 
@@ -6,7 +6,7 @@ describe('AddSubGroupComponent', () => {
   let component: AddSubGroupComponent;
   let fixture: ComponentFixture<AddSubGroupComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ AddSubGroupComponent ]
     })

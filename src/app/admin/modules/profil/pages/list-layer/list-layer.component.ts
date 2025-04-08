@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { ActivatedRoute, ActivatedRouteSnapshot, NavigationEnd, Params, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
@@ -24,48 +24,55 @@ import { ChangeDetectorRef } from '@angular/core';
  * list all layers of a sub group
  */
 export class ListLayerComponent implements OnInit {
-  
-  onAddInstance:()=>void
-  onSelectInstance:(layer:Layer)=>void
-  onDeleteInstance:(layer:Layer)=>void
-  onUpdateInstance:(layer:Layer)=>void
-  onPreviewInstance:(layer:Layer)=>void
 
-  layerList:Observable<Layer[]>
+  onAddInstance: () => void
+  onSelectInstance: (layer: Layer) => void
+  onDeleteInstance: (layer: Layer) => void
+  onUpdateInstance: (layer: Layer) => void
+  onPreviewInstance: (layer: Layer) => void
+  onChangeLayerPrincipalInstance: (layer: Layer) => void
 
-  sub_id:ReplaySubject<number>= new ReplaySubject(1)
 
-  displayedColumns:Array<string> =['square_icon','name','detail']
+  layerList: Observable<Layer[]>
+
+  sub_id: ReplaySubject<number> = new ReplaySubject(1)
+
+  displayedColumns: Array<string> = ['square_icon', 'name', 'detail']
   environment = environment
 
   private readonly notifier: NotifierService;
   constructor(
     public mapsService: MapsService,
     public route: ActivatedRoute,
-    public router:Router,
+    public router: Router,
     notifierService: NotifierService,
     public dialog: MatDialog,
-    public manageCompHelper:ManageCompHelper,
+    public manageCompHelper: ManageCompHelper,
     public translate: TranslateService,
-    private cdRef:ChangeDetectorRef
+    private cdRef: ChangeDetectorRef
   ) {
     this.notifier = notifierService;
-    const onAdd:Subject<void> = new Subject<void>()
-    this.onAddInstance = ()=>{
+    const onAdd: Subject<void> = new Subject<void>()
+    this.onAddInstance = () => {
       onAdd.next()
     }
 
-    const onDelete:Subject<Layer> = new Subject<Layer>()
-    this.onDeleteInstance = (layer:Layer)=>{
+    const onDelete: Subject<Layer> = new Subject<Layer>()
+    this.onDeleteInstance = (layer: Layer) => {
       onDelete.next(layer)
     }
 
-    const onUpdate:Subject<Layer> = new Subject<Layer>()
-    this.onUpdateInstance = (layer:Layer)=>{
+    const onUpdate: Subject<Layer> = new Subject<Layer>()
+    this.onUpdateInstance = (layer: Layer) => {
       onUpdate.next(layer)
     }
 
-    const onSelect:Subject<Layer>=new Subject<Layer>()
+    const onChangeLayerPrincipal: Subject<Layer> = new Subject<Layer>()
+    this.onChangeLayerPrincipalInstance = (layer: Layer) => {
+      onChangeLayerPrincipal.next(layer)
+    }
+
+    const onSelect: Subject<Layer> = new Subject<Layer>()
 
     this.layerList = merge(
       this.router.events.pipe(
@@ -73,14 +80,14 @@ export class ListLayerComponent implements OnInit {
         filter(e => e instanceof NavigationEnd || e == undefined),
         map(() => this.route.snapshot),
         map(route => {
-          
+
           while (route.firstChild) {
             route = route.firstChild;
           }
           return route;
         }),
         // filter((route)=>route.component["name"]==="ListLayerComponent"),
-        filter((route) =>route.params['sub-id'] != undefined),
+        filter((route) => route.params['sub-id'] != undefined),
         // distinct((parameters)=>parameters['sub-id']),
         switchMap((route: ActivatedRouteSnapshot) => {
           let parameters = route.params
@@ -93,10 +100,24 @@ export class ListLayerComponent implements OnInit {
       ),
       onAdd.pipe(
         withLatestFrom(this.sub_id),
-        switchMap((parameters:[void,number])=>{
-          return this.dialog.open(AddLayerComponent,{data:parameters[1],width: '90%', maxWidth: '90%', maxHeight: '90%',}).afterClosed().pipe(
-            filter(response=>response),
-            switchMap(()=>{
+        switchMap((parameters: [void, number]) => {
+          return this.dialog.open(AddLayerComponent, { data: parameters[1], width: '90%', maxWidth: '90%', maxHeight: '90%', }).afterClosed().pipe(
+            filter(response => response),
+            switchMap(() => {
+              return this.mapsService.getAllLayersFromSubGroup(parameters[1]).pipe(
+                catchError(() => { this.notifier.notify("error", "An error occured while loading layers "); return EMPTY }),
+              )
+            })
+          )
+        })
+      ),
+      onChangeLayerPrincipal.pipe(
+        switchMap((layer: Layer) => {
+          return this.mapsService.changeLayerPrincipal(layer, !layer.principal).pipe(
+            catchError(() => { this.notifier.notify("error", "An error occured while updating principal layer "); return EMPTY }),
+            // filter(response=>response),
+            withLatestFrom(this.sub_id),
+            switchMap((parameters) => {
               return this.mapsService.getAllLayersFromSubGroup(parameters[1]).pipe(
                 catchError(() => { this.notifier.notify("error", "An error occured while loading layers "); return EMPTY }),
               )
@@ -105,11 +126,11 @@ export class ListLayerComponent implements OnInit {
         })
       ),
       onUpdate.pipe(
-        switchMap((layer: Layer) => { 
-          return this.dialog.open(UpdateLayerComponent,{data:layer,width: '90%', maxWidth: '90%', maxHeight: '90%'}).afterClosed().pipe(
-            filter(response=>response),
+        switchMap((layer: Layer) => {
+          return this.dialog.open(UpdateLayerComponent, { data: layer, width: '90%', maxWidth: '90%', maxHeight: '90%' }).afterClosed().pipe(
+            filter(response => response),
             withLatestFrom(this.sub_id),
-            switchMap((parameters)=>{
+            switchMap((parameters) => {
               return this.mapsService.getAllLayersFromSubGroup(parameters[1]).pipe(
                 catchError(() => { this.notifier.notify("error", "An error occured while loading layers "); return EMPTY }),
               )
@@ -128,11 +149,11 @@ export class ListLayerComponent implements OnInit {
             }
           ).pipe(
             filter(resultConfirmation => resultConfirmation),
-            switchMap(()=>{
+            switchMap(() => {
               return this.mapsService.deleteLayer(layer.layer_id).pipe(
                 catchError(() => { this.notifier.notify("error", "An error occured while deleting a layer "); return EMPTY }),
                 withLatestFrom(this.sub_id),
-                switchMap((parameters)=>{
+                switchMap((parameters) => {
                   return this.mapsService.getAllLayersFromSubGroup(parameters[1]).pipe(
                     catchError(() => { this.notifier.notify("error", "An error occured while loading layers "); return EMPTY }),
                   )
@@ -146,52 +167,52 @@ export class ListLayerComponent implements OnInit {
       shareReplay(1)
     )
 
-    this.onSelectInstance = (layer:Layer)=>{
+    this.onSelectInstance = (layer: Layer) => {
       onSelect.next(layer)
     }
 
     onSelect.pipe(
-      tap((layer:Layer)=>{
-        this.dialog.open(DetailLayerComponent,{data:layer.layer_id,width: '90%', maxWidth: '90%', maxHeight: '90%',})
+      tap((layer: Layer) => {
+        this.dialog.open(DetailLayerComponent, { data: layer.layer_id, width: '90%', maxWidth: '90%', maxHeight: '90%', })
       })
     ).subscribe()
 
-    const onPreview:Subject<Layer>=new Subject<Layer>()
-    this.onPreviewInstance = (layer:Layer) =>{
+    const onPreview: Subject<Layer> = new Subject<Layer>()
+    this.onPreviewInstance = (layer: Layer) => {
       onPreview.next(layer)
     }
 
     onPreview.pipe(
-      switchMap((layer)=>{
+      switchMap((layer) => {
         return this.mapsService.getProviderWithStyleOfLayer(layer.layer_id).pipe(
           catchError(() => { this.notifier.notify("error", "An error occured while loading providers with style "); return EMPTY }),
-          map((providers)=>{
+          map((providers) => {
             return providers.sort(
               (b, a) => a.ordre > b.ordre ? 1 : a.ordre === b.ordre ? 0 : -1
             )
           }),
-          tap((providers)=>{
-            let dataForPreview:Array<DataForPreview> = providers.map((provider)=>{
+          tap((providers) => {
+            let dataForPreview: Array<DataForPreview> = providers.map((provider) => {
               return {
-                name:provider.vp.name,
-                style:[provider.vs.name],
-                id_server:provider.vp.id_server,
-                url_server:environment.url_carto+provider.vp.path_qgis,
-                extent:provider.vp.extent,
-                type:'wms'
+                name: provider.vp.name,
+                style: [provider.vs.name],
+                id_server: provider.vp.id_server,
+                url_server: environment.url_carto + provider.vp.path_qgis,
+                extent: provider.vp.extent,
+                type: 'wms'
               }
             })
-           
-            this.dialog.open(PreviewDataComponent,{
-              data:dataForPreview,
-              minWidth:400,
-              disableClose:false,
-              width:( window.innerWidth-200)+'px',
-              maxWidth:( window.innerWidth-200)+'px',
-              height:( window.innerHeight -150)+'px',
-              maxHeight:( window.innerHeight -150)+'px',
+
+            this.dialog.open(PreviewDataComponent, {
+              data: dataForPreview,
+              minWidth: 400,
+              disableClose: false,
+              width: (window.innerWidth - 200) + 'px',
+              maxWidth: (window.innerWidth - 200) + 'px',
+              height: (window.innerHeight - 150) + 'px',
+              maxHeight: (window.innerHeight - 150) + 'px',
             })
-            
+
           })
         )
       })

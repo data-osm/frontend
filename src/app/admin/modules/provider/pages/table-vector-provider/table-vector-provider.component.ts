@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { MatSort, Sort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
 import { Observable, of, ReplaySubject, Subject, combineLatest, BehaviorSubject, Subscription } from 'rxjs';
 import { switchMap, takeUntil, tap , } from 'rxjs/operators';
 import { VectorProvider } from '../../../../../type/type';

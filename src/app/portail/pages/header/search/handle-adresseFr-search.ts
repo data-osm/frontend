@@ -1,8 +1,13 @@
 import { filterOptionInterface } from './search.component'
 import { configProjetInterface } from '../../../../type/type';
 import { AppInjector } from '../../../../../helper/app-injector.helper'
-import { GeoJSON, Feature, Style, Icon, Map } from '../../../../ol-module'
+import { GeoJSON, Feature, Style, Icon, getCenter } from '../../../../ol-module'
 import { CartoHelper } from '../../../../../helper/carto.helper';
+import {
+  Map,
+  VectorSource
+} from "../../../../giro-3d-module"
+import { Vector3 } from 'three';
 /**
  * @see https://geo.api.gouv.fr/adresse
  * class for handle adresse Fr  search:
@@ -62,7 +67,7 @@ export class handleAdresseFrSearch {
    *  call when an option is select by the user
    * @param emprise searchLayerToDownlodModelInterface
    */
-  optionSelected(emprise: filterOptionInterface, map:Map) {
+  optionSelected(emprise: filterOptionInterface, map: Map) {
     if (!emprise.geometry) {
 
     } else {
@@ -74,7 +79,8 @@ export class handleAdresseFrSearch {
  * add geometry to searchResultLayer and zoom to the geometry
  * @param emprise: filterOptionInterface
  */
-  _addGeometryAndZoomTO(emprise: filterOptionInterface, map:Map) {
+  _addGeometryAndZoomTO(emprise: filterOptionInterface, map: Map) {
+
     if (emprise.geometry) {
       var cartoClass = new CartoHelper(map)
       if (cartoClass.getLayerByName('searchResultLayer').length > 0) {
@@ -83,16 +89,21 @@ export class handleAdresseFrSearch {
         var feature = new Feature()
         var textLabel = emprise.name
 
-        feature.set('textLabel',textLabel)
+        feature.set('textLabel', textLabel)
         feature.setGeometry(emprise.geometry)
+        const source = searchResultLayer.source as VectorSource
 
-        searchResultLayer.getSource().clear()
+        source.source.clear()
+        source.source.addFeature(feature)
 
-        searchResultLayer.getSource().addFeature(feature)
-
-        var extent = emprise.geometry.getExtent()
-
-        cartoClass.fit_view(extent, 16)
+        const center = getCenter(feature.getGeometry().getExtent())
+        cartoClass.panTo(
+          new Vector3(
+            center[0],
+            center[1],
+            0
+          )
+        )
 
       }
     }

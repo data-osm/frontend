@@ -1,6 +1,6 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UntypedFormGroup, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, ReplaySubject, Subject } from 'rxjs';
 import { catchError, filter, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -18,20 +18,20 @@ export class EditMapComponent implements OnInit {
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
 
-  form: FormGroup = this.formBuilder.group({})
+  form: UntypedFormGroup = this.formBuilder.group({})
   private readonly notifier: NotifierService;
 
   constructor(
     public dialogRef: MatDialogRef<EditMapComponent>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public mapsService:MapsService,
     @Inject(MAT_DIALOG_DATA) public map: Map,
   ) { 
     this.notifier = notifierService;
     
-    this.form.addControl('name',new FormControl(this.map.name, [Validators.required]))
-    this.form.addControl('map_id',new FormControl(this.map.map_id, [Validators.required]))
+    this.form.addControl('name',new UntypedFormControl(this.map.name, [Validators.required]))
+    this.form.addControl('map_id',new UntypedFormControl(this.map.map_id, [Validators.required]))
 
     const onUpdate:Subject<void> = new Subject<void>()
     this.onUpdateInstance = () =>{

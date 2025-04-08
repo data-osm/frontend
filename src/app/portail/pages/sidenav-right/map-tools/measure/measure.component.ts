@@ -1,17 +1,17 @@
 import { Component, OnInit, Input, NgZone, SimpleChanges } from '@angular/core';
 import {
-  Map, Draw, VectorSource, VectorLayer, Style, Fill, Stroke, CircleStyle, Modify, Feature, unByKey, Overlay, Select, Text, GeoJSON, Polygon, LineString, getLength, getArea, Circle
+  Map, Draw, VectorSource, VectorLayer, Style, Fill, Stroke, CircleStyle, Modify, Feature, unByKey, Overlay, Select, Text, GeoJSON, Polygon, LineString, getLength, getArea, Circle,
+  GeometryType,
+  OverlayPositioning
 } from '../../../../../ol-module';
 import * as $ from 'jquery'
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { UntypedFormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { manageDataHelper } from '../../../../../../helper/manage-data.helper'
 import { CartoHelper } from '../../../../../../helper/carto.helper'
 import { NotifierService } from "angular-notifier";
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../../../../environments/environment';
-import GeometryType from 'ol/geom/GeometryType';
 import { Coordinate } from 'ol/coordinate';
-import OverlayPositioning from 'ol/OverlayPositioning';
 @Component({
   selector: 'app-measure',
   templateUrl: './measure.component.html',
@@ -19,7 +19,7 @@ import OverlayPositioning from 'ol/OverlayPositioning';
 })
 export class MeasureComponent implements OnInit {
 
-  @Input() map: Map
+  @Input() map: any
 
   environment
 
@@ -37,7 +37,7 @@ export class MeasureComponent implements OnInit {
   /**
    * VectorLayer of draw interaction
    */
-  vector: VectorLayer = new VectorLayer({
+  vector = new VectorLayer({
     source: this.source,
     style: (feature) => {
       var color = this.primaryColor
@@ -72,7 +72,7 @@ export class MeasureComponent implements OnInit {
         })
       })
     },
-   
+
   });
 
   /**
@@ -133,32 +133,32 @@ export class MeasureComponent implements OnInit {
 
   constructor(
     public _ngZone: NgZone,
-    public fb: FormBuilder,
+    public fb: UntypedFormBuilder,
     notifierService: NotifierService,
     public translate: TranslateService,
   ) {
     this.environment = environment
 
-    this.vector.set('type','measure')
-    this.vector.set('name','measure')
+    this.vector.set('type', 'measure')
+    this.vector.set('name', 'measure')
   }
 
   ngOnInit(): void {
     // this.map.addLayer(this.vector)
-   
+
   }
 
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     var cartoHelperClassMap = new CartoHelper(this.map)
     this.vector.setZIndex(1000)
     try {
       var groupLayerShadow = cartoHelperClassMap.getLayerGroupByNom('group-layer-shadow')
       groupLayerShadow.getLayers().getArray().unshift(this.vector)
     } catch (error) {
-      
+
     }
-   
+
 
     this.translate.get('right_menu').subscribe((res: any) => {
       console.log(res)
@@ -198,7 +198,7 @@ export class MeasureComponent implements OnInit {
 
     if (this.sketch) {
       var geom = this.sketch.getGeometry();
-      if (geom instanceof Polygon || geom instanceof Circle ) {
+      if (geom instanceof Polygon || geom instanceof Circle) {
         helpMsg = this.continuePolygonMsg;
       } else if (geom instanceof LineString) {
         helpMsg = this.continueLineMsg;
@@ -253,29 +253,29 @@ export class MeasureComponent implements OnInit {
     return output;
   };
 
-  public measureModel:{
-    Polygon:{active:boolean}
-    LineString:{active:boolean}
-    Circle:{active:boolean}
-  }={
-    Polygon:{active:false},
-    LineString:{active:false},
-    Circle:{active:false},
-  }
+  public measureModel: {
+    Polygon: { active: boolean }
+    LineString: { active: boolean }
+    Circle: { active: boolean }
+  } = {
+      Polygon: { active: false },
+      LineString: { active: false },
+      Circle: { active: false },
+    }
 
   /**
    * Remove all interaction and other object to the apps
    * NB this function does not cleqnd features and toolpit, use clearDraw for that purpose
    */
-  removeMeasureToApps(){
+  removeMeasureToApps() {
     if (this.draw) {
       this.map.removeInteraction(this.draw);
     }
 
     this.sketch = null;
-        // unset tooltip so that a new one can be created
-        this.helpTooltipElement = null;
-        this.measureTooltipElement = null;
+    // unset tooltip so that a new one can be created
+    this.helpTooltipElement = null;
+    this.measureTooltipElement = null;
     unByKey(this.listener);
     unByKey(this.event_measure);
 
@@ -299,7 +299,7 @@ export class MeasureComponent implements OnInit {
   /**
    * Remove all interaction and other object to the apps
    */
-  clearDraw(){
+  clearDraw() {
     this.removeMeasureToApps();
     if (document.querySelectorAll('.tooltip.tooltip-measure').length > 0) {
       $('.tooltip.tooltip-measure').hide()
@@ -311,12 +311,12 @@ export class MeasureComponent implements OnInit {
    * Activate/desactivate measure tools
    * @param type
    */
-  toogleMeasureInteraction(type: 'Polygon' | 'LineString'| 'Circle'){
+  toogleMeasureInteraction(type: 'Polygon' | 'LineString' | 'Circle') {
 
-    if(this.measureModel[type].active){
+    if (this.measureModel[type].active) {
       this.measureModel[type].active = false
       this.clearDraw()
-    }else{
+    } else {
       for (const key in this.measureModel) {
         if (this.measureModel.hasOwnProperty(key) && key != type) {
           const element = this.measureModel[key];
@@ -332,23 +332,23 @@ export class MeasureComponent implements OnInit {
    * Add interaction for measure
    * @param type
    */
-  addInteraction(type: 'Polygon' | 'LineString'| 'Circle') {
+  addInteraction(type: 'Polygon' | 'LineString' | 'Circle') {
     this.removeMeasureToApps();
     this.measureModel[type].active = true
-    this.event_measure  = this.map.on('pointermove', (evt) => {
+    this.event_measure = this.map.on('pointermove', (evt) => {
       this._ngZone.run(() => {
         this.pointerMoveHandler(evt)
       })
     });
 
-    let geomType :GeometryType;
-    if (type =='Circle') {
+    let geomType;
+    if (type == 'Circle') {
       geomType = GeometryType.CIRCLE
-    } else if (type =='LineString') {
+    } else if (type == 'LineString') {
       geomType = GeometryType.LINE_STRING
-    } else if (type =='Polygon') {
+    } else if (type == 'Polygon') {
       geomType = GeometryType.POLYGON
-    } 
+    }
     // this.map.getViewport().addEventListener('mouseout', () => {
     //   this._ngZone.run(() => {
     //     this.helpTooltipElement.classList.add('hidden');
@@ -389,10 +389,10 @@ export class MeasureComponent implements OnInit {
       (evt) => {
         // set sketch
         this.sketch = evt.feature;
-       
-        let tooltipCoord:Coordinate
 
-        this.listener = this.sketch.getGeometry().on('change',  (evt) =>{
+        let tooltipCoord: Coordinate
+
+        this.listener = this.sketch.getGeometry().on('change', (evt) => {
           var geom = evt.target;
           var output;
           if (geom instanceof Polygon) {
@@ -425,38 +425,38 @@ export class MeasureComponent implements OnInit {
   }
 
 
-/**
- * Creates a new help tooltip
- */
- createHelpTooltip() {
-  if (this.helpTooltipElement) {
-    this.helpTooltipElement.parentNode.removeChild(this.helpTooltipElement);
+  /**
+   * Creates a new help tooltip
+   */
+  createHelpTooltip() {
+    if (this.helpTooltipElement) {
+      this.helpTooltipElement.parentNode.removeChild(this.helpTooltipElement);
+    }
+    this.helpTooltipElement = document.createElement('div');
+    this.helpTooltipElement.className = 'tooltip hidden';
+    this.helpTooltip = new Overlay({
+      element: this.helpTooltipElement,
+      offset: [15, 0],
+      positioning: OverlayPositioning.CENTER_LEFT
+    });
+    this.map.addOverlay(this.helpTooltip);
   }
-  this.helpTooltipElement = document.createElement('div');
-  this.helpTooltipElement.className = 'tooltip hidden';
-  this.helpTooltip = new Overlay({
-    element: this.helpTooltipElement,
-    offset: [15, 0],
-    positioning: OverlayPositioning.CENTER_LEFT
-  });
-  this.map.addOverlay(this.helpTooltip);
-}
 
-/**
- * Creates a new measure tooltip
- */
- createMeasureTooltip() {
-  if (this.measureTooltipElement) {
-    this.measureTooltipElement.parentNode.removeChild(this.measureTooltipElement);
+  /**
+   * Creates a new measure tooltip
+   */
+  createMeasureTooltip() {
+    if (this.measureTooltipElement) {
+      this.measureTooltipElement.parentNode.removeChild(this.measureTooltipElement);
+    }
+    this.measureTooltipElement = document.createElement('div');
+    this.measureTooltipElement.className = 'tooltip tooltip-measure';
+    this.measureTooltip = new Overlay({
+      element: this.measureTooltipElement,
+      offset: [0, -15],
+      positioning: OverlayPositioning.BOTTOM_CENTER
+    });
+    this.map.addOverlay(this.measureTooltip);
   }
-  this.measureTooltipElement = document.createElement('div');
-  this.measureTooltipElement.className = 'tooltip tooltip-measure';
-  this.measureTooltip = new Overlay({
-    element: this.measureTooltipElement,
-    offset: [0, -15],
-    positioning: OverlayPositioning.BOTTOM_CENTER
-  });
-  this.map.addOverlay(this.measureTooltip);
-}
 
 }

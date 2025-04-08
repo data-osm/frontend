@@ -2,13 +2,17 @@ import { filterOptionInterface } from './search.component'
 import { configProjetInterface, Layer } from '../../../../type/type';
 import { AppInjector } from '../../../../../helper/app-injector.helper'
 import { ManageCompHelper } from '../../../../../helper/manage-comp.helper'
-import { GeoJSON, Feature, Style, Icon, Map } from '../../../../ol-module'
+import { GeoJSON, Feature, Style, Icon } from '../../../../ol-module'
 import * as $ from 'jquery'
 import { environment } from '../../../../../environments/environment';
 import { DataOsmLayersServiceService } from '../../../../services/data-som-layers-service/data-som-layers-service.service';
 import { MapsService } from '../../../../data/services/maps.service';
 import { catchError, take, tap } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
+import {
+  Map,
+  VectorSource
+} from "../../../../giro-3d-module"
 
 /**
  * class for handle couche thematique   search:

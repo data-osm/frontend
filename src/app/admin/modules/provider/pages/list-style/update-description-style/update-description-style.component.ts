@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, Subject } from 'rxjs';
 import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -34,11 +34,11 @@ export class UpdateDescriptionStyleComponent implements OnInit {
     this.description = this.style.description
     this.descriptionInitial = this.style.description
 
-    const onEdit:Subject<any> = new Subject()
+    const onEdit:Subject<void> = new Subject()
     this.onEditInstance = ()=>{
       onEdit.next()
     }
-    const onDestroy:Subject<any> = new Subject()
+    const onDestroy:Subject<void> = new Subject()
     this.onDestroyInstance = ()=>{
       onDestroy.next()
       onDestroy.complete()

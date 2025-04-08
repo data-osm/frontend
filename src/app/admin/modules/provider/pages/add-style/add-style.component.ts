@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { BehaviorSubject, combineLatest, EMPTY, Observable, ReplaySubject, Subject } from 'rxjs';
 import { catchError, filter, shareReplay, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -40,13 +40,13 @@ export class AddStyleComponent implements OnInit, OnDestroy {
   styleType:BehaviorSubject<CustomStyle> = new BehaviorSubject<CustomStyle>(this.data.customStyle)
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
   
-  nameStyle = new FormControl(this.data.name,[Validators.required])
+  nameStyle = new UntypedFormControl(this.data.name,[Validators.required])
 
   provider$:Observable<VectorProvider>
   customStyles$:Observable<CustomStyle[]>
 
   private readonly notifier: NotifierService;
-  formAddStyle: FormGroup 
+  formAddStyle: UntypedFormGroup 
 
   @ViewChild(QmlComponent) qmlComponent:QmlComponent
   @ViewChild(ClusterComponent) clusterComponent:ClusterComponent
@@ -57,7 +57,7 @@ export class AddStyleComponent implements OnInit, OnDestroy {
 
   constructor(
     public dialogRef: MatDialogRef<AddStyleComponent>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public StyleService:StyleService,
     public VectorProviderService: VectorProviderService,

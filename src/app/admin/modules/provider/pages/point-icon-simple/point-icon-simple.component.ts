@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
-import { AbstractControl, FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { AbstractControl, UntypedFormGroup, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { ReplaySubject, Subject, EMPTY } from 'rxjs';
 import { filter, tap, switchMap, catchError, takeUntil } from 'rxjs/operators';
@@ -32,7 +32,7 @@ export class PointIconSimpleComponent implements OnInit {
   private readonly notifier: NotifierService;
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
   environment = environment
-  form: FormGroup
+  form: UntypedFormGroup
   loading: boolean = false
   public colorList = [
     { key: 'red', value: '#FF3A33' },
@@ -60,7 +60,7 @@ export class PointIconSimpleComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<AddStyleComponent, Style>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public StyleService: StyleService,
   ) {
@@ -69,12 +69,12 @@ export class PointIconSimpleComponent implements OnInit {
     this.presetValues = this.getColorValues()
     this.form = this.formBuilder.group({
       name: this.styleName,
-      icon: new FormControl(this.icon, [Validators.required]),
-      color: new FormControl(this.color, []),
-      icon_color: new FormControl(this.icon_color, []),
-      svg_as_text: new FormControl(null, []),
-      type: new FormControl('point_icon_simple',[Validators.required]),
-      icon_background: new FormControl(this.icon_background != undefined?this.icon_background:false,[]),
+      icon: new UntypedFormControl(this.icon, [Validators.required]),
+      color: new UntypedFormControl(this.color, []),
+      icon_color: new UntypedFormControl(this.icon_color, []),
+      svg_as_text: new UntypedFormControl(null, []),
+      type: new UntypedFormControl('point_icon_simple',[Validators.required]),
+      icon_background: new UntypedFormControl(this.icon_background != undefined?this.icon_background:false,[]),
     })
 
     const onAdd: Subject<void> = new Subject<void>()

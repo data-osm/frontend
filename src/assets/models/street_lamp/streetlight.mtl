@@ -1,0 +1,19 @@
+# Blender MTL File: 'streetlight.blend'
+# Material Count: 1
+
+newmtl streetlight
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\Alex\\Desktop\\Streetlight\\Textures\\normals.png
+map_Kd C:\\Users\\Alex\\Desktop\\Streetlight\\Textures\\diffuse.png
+map_Ke C:\\Users\\Alex\\Desktop\\Streetlight\\Textures\\Emit.png
+map_Ks C:\\Users\\Alex\\Desktop\\Streetlight\\Textures\\glossy.png
+map_Ns C:\\Users\\Alex\\Desktop\\Streetlight\\Textures\\roughness.png
+map_d C:\\Users\\Alex\\Desktop\\Streetlight\\Textures\\diffuse.png
+refl C:\\Users\\Alex\\Desktop\\Streetlight\\Textures\\metallness.png

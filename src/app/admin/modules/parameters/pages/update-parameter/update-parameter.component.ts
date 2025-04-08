@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, inject, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UntypedFormGroup, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, Observable, ReplaySubject, Subject } from 'rxjs';
@@ -22,12 +22,12 @@ export class UpdateParameterComponent implements OnInit {
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
   appExtents$:Observable<Array<AppExtent>>
 
-  form: FormGroup = this.formBuilder.group({})
+  form: UntypedFormGroup = this.formBuilder.group({})
   private readonly notifier: NotifierService;
 
   constructor(
     public dialogRef: MatDialogRef<UpdateParameterComponent>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public translate: TranslateService,
     public parametersService:ParametersService,
@@ -35,9 +35,9 @@ export class UpdateParameterComponent implements OnInit {
   ) { 
     this.notifier = notifierService;
     
-    this.form.addControl('map',new FormControl(null, [Validators.required]))
-    this.form.addControl('extent',new FormControl(null, [Validators.required]))
-    this.form.addControl('extent_pk',new FormControl(null))
+    this.form.addControl('map',new UntypedFormControl(null, [Validators.required]))
+    this.form.addControl('extent',new UntypedFormControl(null, [Validators.required]))
+    this.form.addControl('extent_pk',new UntypedFormControl(null))
 
     if (this.parameter && this.parameter.map) {
       this.form.get('map').setValue(this.parameter.map)

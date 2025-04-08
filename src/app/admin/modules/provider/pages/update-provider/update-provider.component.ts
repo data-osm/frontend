@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UntypedFormGroup, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, ReplaySubject, Subject } from 'rxjs';
 import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -14,22 +14,22 @@ import {VectorProviderService} from '../../../../administration/service/vector-p
 })
 export class UpdateProviderComponent implements OnInit {
   onUpdateInstance:()=>void
-  form: FormGroup = this.formBuilder.group({})
+  form: UntypedFormGroup = this.formBuilder.group({})
   private readonly notifier: NotifierService;
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
 
   constructor(
     public dialogRef: MatDialogRef<UpdateProviderComponent>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public VectorProviderService:VectorProviderService,
     @Inject(MAT_DIALOG_DATA) public provider: VectorProvider,
 
   ) { 
     this.notifier = notifierService;
-    this.form.addControl( 'provider_vector_id', new FormControl(provider.provider_vector_id,[Validators.required]) )
-    this.form.addControl( 'name', new FormControl(provider.name,[Validators.required]) )
+    this.form.addControl( 'provider_vector_id', new UntypedFormControl(provider.provider_vector_id,[Validators.required]) )
+    this.form.addControl( 'name', new UntypedFormControl(provider.name,[Validators.required]) )
     const onUpdate:Subject<void> = new Subject<void>()
 
     this.onUpdateInstance = ()=>{

@@ -1,9 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { MatChipInputEvent } from '@angular/material/chips';
-import { MatDialog } from '@angular/material/dialog';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { MatLegacyAutocompleteSelectedEvent as MatAutocompleteSelectedEvent } from '@angular/material/legacy-autocomplete';
+import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, merge, Observable, ReplaySubject, Subject } from 'rxjs';
@@ -38,7 +38,7 @@ export class MetadataComponent implements OnInit {
   separatorKeysCodes: number[] = [ENTER, COMMA];
   choosenTags:Array<string> = []
   filteredTags:Observable<Tag[]>
-  metadataForm:FormGroup
+  metadataForm:UntypedFormGroup
 
   @ViewChild('tagInput') tagInput: ElementRef;
 
@@ -50,16 +50,16 @@ export class MetadataComponent implements OnInit {
     public mapsService:MapsService,
     public dialog: MatDialog,
     public translate: TranslateService,
-    public fb:FormBuilder
+    public fb:UntypedFormBuilder
   ) { 
 
     this.notifier = notifierService;
 
     this.metadataForm = this.fb.group({
-      layer:new FormControl(null,[Validators.required]),
-      description:new FormControl(null,[Validators.required]),
-      tags_temp:new FormControl(null),
-      id:new FormControl(null),
+      layer:new UntypedFormControl(null,[Validators.required]),
+      description:new UntypedFormControl(null,[Validators.required]),
+      tags_temp:new UntypedFormControl(null),
+      id:new UntypedFormControl(null),
     })
 
     const onInit:Subject<void> = new ReplaySubject<void>(1)

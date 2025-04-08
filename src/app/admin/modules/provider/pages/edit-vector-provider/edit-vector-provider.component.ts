@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { NotifierService } from 'angular-notifier';
 import { Observable, Subject, ReplaySubject, combineLatest, EMPTY, merge } from 'rxjs';
 import { DataForPreview, VectorProvider } from '../../../../../type/type';
@@ -8,7 +8,7 @@ import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { StyleService } from '../../../../administration/service/style.service';
 import { switchMap, catchError, shareReplay, takeUntil, tap, filter } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { UpdateProviderComponent } from '../update-provider/update-provider.component';
 import { environment } from '../../../../../../environments/environment';
 
@@ -36,7 +36,7 @@ export class EditVectorProviderComponent implements OnInit, OnChanges {
     public StyleService: StyleService,
     public manageCompHelper: ManageCompHelper,
     notifierService: NotifierService,
-    public fb: FormBuilder,
+    public fb: UntypedFormBuilder,
     public router:Router,
     public dialog:MatDialog
   ) {
@@ -47,7 +47,7 @@ export class EditVectorProviderComponent implements OnInit, OnChanges {
       onInit.next();
     }
 
-    const onDestroy: Subject<any> = new Subject()
+    const onDestroy: Subject<void> = new Subject()
     this.onDestroyInstance = () => {
       onDestroy.next()
       onDestroy.complete()

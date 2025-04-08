@@ -14,7 +14,7 @@ c0,0,0,0,0,0C28.1,6.3,21.8,0,14.1,0z" />
 
 
         <span class="bold primaryColor " style="font-size: 17px;" *ngIf="environment.nom_instance">
-                {{ environment.nom_instance  }}
+                {{ environment.nom_instance }}
         </span>
 
 
@@ -41,17 +41,13 @@ c0,0,0,0,0,0C28.1,6.3,21.8,0,14.1,0z" />
 <mat-dialog-content style="background:rgba(255, 255, 255, 0.8);padding: 34px;">
 
         <!-- <div class="example-container text_infos" style="text-align:justify;background-color: #fff; width: 600px;"> -->
-                
-                <md-editor name="Content" 
-                    [mode]="'preview'"
-                    [(ngModel)]="parameterService.parameter.info"
-                    [height]="'calc(100% - 100px)'" 
-                    [options]="{enablePreviewContentClick:true, showBorder:false}"
-                >
-                </md-editor>
+        <!-- [height]="'calc(100% - 100px)'" -->
+
+        <md-editor name="Content" [mode]="'preview'" [height]="'100%'" [(ngModel)]="parameterService.parameter.info"
+                [options]="{enablePreviewContentClick:true, showBorder:false}">
+        </md-editor>
         <!-- </div> -->
 
 
 
 </mat-dialog-content>
-

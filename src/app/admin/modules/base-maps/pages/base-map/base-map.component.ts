@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { environment } from '../../../../../../environments/environment';
 import { BaseMap } from '../../../../../data/models/base-maps';
 import { DataForPreview } from '../../../../../type/type';
 import { PreviewDataComponent } from '../../../../../shared/pages/preview-data/preview-data.component';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-base-map',
@@ -14,7 +14,7 @@ import { FormControl } from '@angular/forms';
 export class BaseMapComponent implements OnInit {
 
   @Input() baseMap: BaseMap
-  @Input() princiaplControl: FormControl
+  @Input() princiaplControl: UntypedFormControl
 
   @Output() delete: EventEmitter<BaseMap> = new EventEmitter()
   @Output() update: EventEmitter<BaseMap> = new EventEmitter()

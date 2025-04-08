@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { Observable, Subject, ReplaySubject, merge, EMPTY, of } from 'rxjs';
@@ -7,9 +7,9 @@ import { switchMap, tap, catchError, filter, takeUntil, distinct, startWith, map
 import { Map } from '../../../../type/type';
 import { ManageCompHelper } from '../../../../../helper/manage-comp.helper'
 import { MapsService } from '../../../../data/services/maps.service'
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import {MatSelectionList, MatSelectionListChange} from '@angular/material/list';
+import {MatLegacySelectionList as MatSelectionList, MatLegacySelectionListChange as MatSelectionListChange} from '@angular/material/legacy-list';
 import { AddMapComponent } from '../add-map/add-map.component';
 import { EditMapComponent } from '../edit-map/edit-map.component';
 
@@ -52,7 +52,7 @@ export class SidenavLeftAdminComponent implements OnInit {
     public MapsService: MapsService,
     public manageCompHelper: ManageCompHelper,
     notifierService: NotifierService,
-    public fb: FormBuilder,
+    public fb: UntypedFormBuilder,
     public translate: TranslateService,
     public dialog: MatDialog,
     public router:Router,
@@ -178,7 +178,7 @@ export class SidenavLeftAdminComponent implements OnInit {
 
   ngAfterViewInit(){
     this.mapSelectionList.selectionChange.pipe(
-      tap((value:MatSelectionListChange)=>{ this.router.navigate(['/admin','profil',value.option.value]) }),
+      tap((value:MatSelectionListChange)=>{ this.router.navigate(['/admin','profil',value.options[0].value]) }),
       takeUntil(this.destroyed$),
     ).subscribe()
   }

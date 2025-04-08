@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { ChartOverlayComponent } from './chart-overlay.component';
 
@@ -6,7 +6,7 @@ describe('ChartOverlayComponent', () => {
   let component: ChartOverlayComponent;
   let fixture: ComponentFixture<ChartOverlayComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ ChartOverlayComponent ]
     })

@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { SigFileProviderComponent } from './sig-file-provider.component';
 
@@ -6,7 +6,7 @@ describe('SigFileProviderComponent', () => {
   let component: SigFileProviderComponent;
   let fixture: ComponentFixture<SigFileProviderComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ SigFileProviderComponent ]
     })

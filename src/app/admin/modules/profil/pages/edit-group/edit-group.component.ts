@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, ValidationErrors, ValidatorFn, FormControl, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UntypedFormGroup, UntypedFormBuilder, ValidationErrors, ValidatorFn, UntypedFormControl, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, iif, Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { takeUntil, switchMap, catchError, tap, map, mergeMap } from 'rxjs/operators';
@@ -44,15 +44,15 @@ export class EditGroupComponent implements OnInit {
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
   
 
-  form: FormGroup = this.formBuilder.group({})
+  form: UntypedFormGroup = this.formBuilder.group({})
   icon$:Observable<Icon>
-  iconForm:FormControl = new FormControl()
+  iconForm:UntypedFormControl = new UntypedFormControl()
 
   private readonly notifier: NotifierService;
   
   constructor(
     public dialogRef: MatDialogRef<EditGroupComponent>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public mapsService:MapsService,
     public iconService:IconService, 
@@ -61,14 +61,14 @@ export class EditGroupComponent implements OnInit {
     this.notifier = notifierService;
     this.presetValues = this.getColorValues();
     
-    this.form.addControl('name',new FormControl(this.group.name, [Validators.required]))
-    this.form.addControl('color',new FormControl(this.group.color, [Validators.required]))
-    this.form.addControl('icon_id',new FormControl(this.group.icon.icon_id))
-    this.form.addControl('svg_as_text',new FormControl(null))
+    this.form.addControl('name',new UntypedFormControl(this.group.name, [Validators.required]))
+    this.form.addControl('color',new UntypedFormControl(this.group.color, [Validators.required]))
+    this.form.addControl('icon_id',new UntypedFormControl(this.group.icon.icon_id))
+    this.form.addControl('svg_as_text',new UntypedFormControl(null))
     
-    this.form.addControl('type_group',new FormControl(this.group.type_group, [Validators.required]))
+    this.form.addControl('type_group',new UntypedFormControl(this.group.type_group, [Validators.required]))
     // this.form.addControl('map_id',new FormControl(this.group.map_id, [Validators.required]))
-    this.form.addControl('group_id',new FormControl(this.group.group_id, [Validators.required]))
+    this.form.addControl('group_id',new UntypedFormControl(this.group.group_id, [Validators.required]))
 
     this.icon$ = this.iconService.getIcon(this.group.icon.icon_id).pipe(
       mergeMap(icon => 
@@ -127,7 +127,7 @@ export class EditGroupComponent implements OnInit {
 
 }
 export const atLeastOne = (validator: ValidatorFn, controls:string[] = null) => (
-  group: FormGroup,
+  group: UntypedFormGroup,
 ): ValidationErrors | null => {
   if(!controls){
     controls = Object.keys(group.controls)

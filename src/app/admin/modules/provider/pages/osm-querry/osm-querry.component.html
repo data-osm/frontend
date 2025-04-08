@@ -2,61 +2,89 @@
 
 <div class="card-querry">
     <pre *ngIf="!osmQuerryState.where.activated">{{(osmQuerry | async)?.where}}</pre>
-    <form [formGroup]="osmFormWhere"  *ngIf="osmQuerryState.where.activated" >
-        <mat-form-field appearance="outline" style="width: 100%;" *ngIf="osmFormWhere.get('where')" >
-            <mat-spinner style=" position: absolute;left: 50%;" *ngIf="osmFormWhere.get('where').disabled" ></mat-spinner>
-            <textarea matInput formControlName="where" style="height: 100px;" ></textarea>
+    <form [formGroup]="osmFormWhere" *ngIf="osmQuerryState.where.activated">
+        <mat-form-field appearance="outline" style="width: 100%;" *ngIf="osmFormWhere.get('where')">
+            <mat-spinner style=" position: absolute;left: 50%;"
+                *ngIf="osmFormWhere.get('where').disabled"></mat-spinner>
+            <textarea matInput formControlName="where" style="height: 100px;"></textarea>
         </mat-form-field>
     </form>
 </div>
 <div class="card-querry-footer" fxLayout>
-    <button mat-flat-button fxFlex="100%" class="active-edit-btn" [fxHide]="osmQuerryState.where.activated" (click)="toggleStateOSMQuerry('where')" >
+    <button mat-flat-button fxFlex="100%" class="active-edit-btn" [fxHide]="osmQuerryState.where.activated"
+        (click)="toggleStateOSMQuerry('where')">
         <span> {{ 'admin.osm_querry.edit_where_querry' | translate }} </span>
-        
-        <svg height="25" width="25" viewBox="0 0 50 49.543" ><path d="M47.815 6.6l-4.47-4.42L41.208.044 39.073 2.18 2.893 38l-.66.66-.2.916-1.118 5.538-.916 4.5 4.47-.864 5.59-1.067.91-.152.66-.66L47.812 11l2.184-2.185L47.81 6.63zm-40.7 31.555L35.67 9.852l4.472 4.472-28.557 28.303-4.47-4.472zm-3.202 7.57L5.03 40.34l4.32 4.32-5.437 1.066zM42.277 12.14l-4.472-4.472 3.405-3.354 4.47 4.42-3.403 3.405z"></path></svg>
+
+        <svg height="25" width="25" viewBox="0 0 50 49.543">
+            <path
+                d="M47.815 6.6l-4.47-4.42L41.208.044 39.073 2.18 2.893 38l-.66.66-.2.916-1.118 5.538-.916 4.5 4.47-.864 5.59-1.067.91-.152.66-.66L47.812 11l2.184-2.185L47.81 6.63zm-40.7 31.555L35.67 9.852l4.472 4.472-28.557 28.303-4.47-4.472zm-3.202 7.57L5.03 40.34l4.32 4.32-5.437 1.066zM42.277 12.14l-4.472-4.472 3.405-3.354 4.47 4.42-3.403 3.405z">
+            </path>
+        </svg>
     </button>
 
-    <button mat-flat-button fxFlex [fxHide]="!osmQuerryState.where.activated" class="active-cancel-btn"  (click)="toggleStateOSMQuerry('where')"  >
+    <button mat-flat-button fxFlex [fxHide]="!osmQuerryState.where.activated" class="active-cancel-btn"
+        (click)="toggleStateOSMQuerry('where')">
         <span> {{ 'cancel'| translate }} </span>
-        <svg height="25" width="25" viewBox="0 0 50 50"  ><path d="M47.475 49.952L50 47.427 27.475 24.953 50 2.478 47.475-.047 25 22.478 2.525-.047 0 2.478l22.525 22.475L0 47.427l2.525 2.525L25 27.427"></path></svg>
+        <svg height="25" width="25" viewBox="0 0 50 50">
+            <path
+                d="M47.475 49.952L50 47.427 27.475 24.953 50 2.478 47.475-.047 25 22.478 2.525-.047 0 2.478l22.525 22.475L0 47.427l2.525 2.525L25 27.427">
+            </path>
+        </svg>
     </button>
 
-    <button mat-flat-button fxFlex class="active-save-btn" [fxHide]="!osmQuerryState.where.activated" (click)="submitForms()" >
-        <span *ngIf="!osmQuerryExist" > {{ 'admin.osm_querry.execute_querry' | translate }} </span>
-        <span *ngIf="osmQuerryExist" > {{ 'admin.osm_querry.reexecute_querry' | translate }} </span>
-        <svg height="25" width="25" viewBox="0 0 50 37.072" ><path d="M50 2.46L47.485-.058 15.443 31.986 2.515 19.058 0 21.573l15.443 15.443"></path></svg>    </button>
+    <button mat-flat-button fxFlex class="active-save-btn" [fxHide]="!osmQuerryState.where.activated"
+        (click)="submitForms()">
+        <span *ngIf="!osmQuerryExist"> {{ 'admin.osm_querry.execute_querry' | translate }} </span>
+        <span *ngIf="osmQuerryExist"> {{ 'admin.osm_querry.reexecute_querry' | translate }} </span>
+        <svg height="25" width="25" viewBox="0 0 50 37.072">
+            <path d="M50 2.46L47.485-.058 15.443 31.986 2.515 19.058 0 21.573l15.443 15.443"></path>
+        </svg> </button>
 
 </div>
 <mat-divider style="margin-top: 35px;margin-bottom: 35px;"></mat-divider>
 
-<div *ngIf="(osmQuerry | async)?.where" >
+<div *ngIf="(osmQuerry | async)?.where">
     <!-- <h2  > {{ 'admin.osm_querry.select' | translate }} </h2> -->
 
     <div class="card-querry">
         <pre *ngIf="!osmQuerryState.select.activated">{{(osmQuerry | async)?.select}}</pre>
-        <form [formGroup]="osmFormSelect"  *ngIf="osmQuerryState.select.activated" >
-            <mat-form-field appearance="outline" style="width: 100%;" *ngIf="osmFormSelect.get('select')" >
-                <mat-spinner style=" position: absolute;left: 50%;" *ngIf="osmFormWhere.get('select').disabled" ></mat-spinner>
-                <textarea matInput formControlName="select" style="height: 100px;" ></textarea>
+        <form [formGroup]="osmFormSelect" *ngIf="osmQuerryState.select.activated">
+            <mat-form-field appearance="outline" style="width: 100%;" *ngIf="osmFormSelect.get('select')">
+                <mat-spinner style=" position: absolute;left: 50%;"
+                    *ngIf="osmFormSelect.get('select').disabled"></mat-spinner>
+                <textarea matInput formControlName="select" style="height: 100px;"></textarea>
             </mat-form-field>
         </form>
     </div>
 
     <div class="card-querry-footer" fxLayout>
-        <button mat-flat-button fxFlex="100%" class="active-edit-btn" [fxHide]="osmQuerryState.select.activated" (click)="toggleStateOSMQuerry('select')" >
+        <button mat-flat-button fxFlex="100%" class="active-edit-btn" [fxHide]="osmQuerryState.select.activated"
+            (click)="toggleStateOSMQuerry('select')">
             <span> {{ 'admin.osm_querry.edit_select_querry' | translate }} </span>
-            
-            <svg height="25" width="25" viewBox="0 0 50 49.543" ><path d="M47.815 6.6l-4.47-4.42L41.208.044 39.073 2.18 2.893 38l-.66.66-.2.916-1.118 5.538-.916 4.5 4.47-.864 5.59-1.067.91-.152.66-.66L47.812 11l2.184-2.185L47.81 6.63zm-40.7 31.555L35.67 9.852l4.472 4.472-28.557 28.303-4.47-4.472zm-3.202 7.57L5.03 40.34l4.32 4.32-5.437 1.066zM42.277 12.14l-4.472-4.472 3.405-3.354 4.47 4.42-3.403 3.405z"></path></svg>
+
+            <svg height="25" width="25" viewBox="0 0 50 49.543">
+                <path
+                    d="M47.815 6.6l-4.47-4.42L41.208.044 39.073 2.18 2.893 38l-.66.66-.2.916-1.118 5.538-.916 4.5 4.47-.864 5.59-1.067.91-.152.66-.66L47.812 11l2.184-2.185L47.81 6.63zm-40.7 31.555L35.67 9.852l4.472 4.472-28.557 28.303-4.47-4.472zm-3.202 7.57L5.03 40.34l4.32 4.32-5.437 1.066zM42.277 12.14l-4.472-4.472 3.405-3.354 4.47 4.42-3.403 3.405z">
+                </path>
+            </svg>
         </button>
 
-        <button mat-flat-button fxFlex [fxHide]="!osmQuerryState.select.activated" class="active-cancel-btn"  (click)="toggleStateOSMQuerry('select')"  >
+        <button mat-flat-button fxFlex [fxHide]="!osmQuerryState.select.activated" class="active-cancel-btn"
+            (click)="toggleStateOSMQuerry('select')">
             <span> {{ 'cancel'| translate }} </span>
-            <svg height="25" width="25" viewBox="0 0 50 50"  ><path d="M47.475 49.952L50 47.427 27.475 24.953 50 2.478 47.475-.047 25 22.478 2.525-.047 0 2.478l22.525 22.475L0 47.427l2.525 2.525L25 27.427"></path></svg>
+            <svg height="25" width="25" viewBox="0 0 50 50">
+                <path
+                    d="M47.475 49.952L50 47.427 27.475 24.953 50 2.478 47.475-.047 25 22.478 2.525-.047 0 2.478l22.525 22.475L0 47.427l2.525 2.525L25 27.427">
+                </path>
+            </svg>
         </button>
 
-        <button mat-flat-button fxFlex class="active-save-btn" [fxHide]="!osmQuerryState.select.activated" (click)="submitForms()"  >
+        <button mat-flat-button fxFlex class="active-save-btn" [fxHide]="!osmQuerryState.select.activated"
+            (click)="submitForms()">
             <span> {{ 'save'| translate }} </span>
-            <svg height="25" width="25" viewBox="0 0 50 37.072" ><path d="M50 2.46L47.485-.058 15.443 31.986 2.515 19.058 0 21.573l15.443 15.443"></path></svg>    </button>
+            <svg height="25" width="25" viewBox="0 0 50 37.072">
+                <path d="M50 2.46L47.485-.058 15.443 31.986 2.515 19.058 0 21.573l15.443 15.443"></path>
+            </svg> </button>
 
     </div>
 </div>

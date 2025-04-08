@@ -16,7 +16,7 @@ import { QmlComponent } from './pages/qml/qml.component';
 import { ClusterComponent } from './pages/cluster/cluster.component';
 import { _VIEW_REPEATER_STRATEGY, _DisposeViewRepeaterStrategy } from '@angular/cdk/collections';
 import { _CoalescedStyleScheduler, CdkTable, CDK_TABLE } from '@angular/cdk/table';
-import { MatTable } from '@angular/material/table';
+import { MatLegacyTable as MatTable } from '@angular/material/legacy-table';
 import { IconsModule } from '../icons/icons.module';
 import { UpdateDescriptionStyleComponent } from './pages/list-style/update-description-style/update-description-style.component';
 import { PointIconSimpleComponent } from './pages/point-icon-simple/point-icon-simple.component';

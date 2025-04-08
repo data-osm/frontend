@@ -475,9 +475,9 @@ export interface ResponseOfSerachLimitInterface {
   geometry?: any
 }
 
-export interface TagsIcon{
-  id:number,
-  name:string
+export interface TagsIcon {
+  id: number,
+  name: string
 }
 
 /**
@@ -490,221 +490,223 @@ export interface Icon {
   category: string
   icon?: File
   attribution: string,
-  svgContent?:string,
-  tags:Array<TagsIcon>
+  svgContent?: string,
+  tags: Array<TagsIcon>
 }
 /**
  * interface of a vector provider
  */
 export interface VectorProvider {
   provider_vector_id: number
-  name:string
+  name: string
   /** the table where data are store */
-  table:string
+  table: string
   /** the shema where data are store */
-  shema:string
-  geometry_type:'Polygon'|'Point'|'LineString'|'null'
+  shema: string
+  geometry_type: 'Polygon' | 'Point' | 'LineString' | 'null'
   /** url of the carto server */
-  url_server:string
-  path_qgis:string
+  url_server: string
+  path_qgis: string
   /** identifiant of this ressource in the carto server */
-  id_server:string
+  id_server: string
   /**extent of this ressource  */
-  extent:[number,number,number,number]
-  z_min:number
-  z_max:number
+  extent: [number, number, number, number]
+  z_min: number
+  z_max: number
   /**
    * number of feature of this ressources 
    */
-  count:number
+  count: number
   /**
    * total lenght of the ressource if geometry type is LineString 
    */
-  total_lenght:number
+  total_lenght: number
   /**
    * total area of the ressource if geometry type is Polygon 
    */
-  total_area:number
-  epsg:number
+  total_area: number
+  epsg: number
   /**
    * state of the data
    */
-  state:'good'|'not_working'|'action_require'|'unknow'
-  created_at:string
-  updated_at:string
+  state: 'good' | 'not_working' | 'action_require' | 'unknow'
+  created_at: string
+  updated_at: string
   /**
    * number of download
    */
-  download_number:number
+  download_number: number
   /**
    * Source that defined this provider
    */
-  type:'osm'|'querry'|'sigfile'
+  type: 'osm' | 'querry' | 'sigfile'
   /**
    * primary key field of the table
    */
-  primary_key_field:string
+  primary_key_field: string
 }
 
 /**
  * interface of an osm querry
  */
- export interface Querry{
-  connection:string,
-  sql:string
-  provider_vector_id:number
+export interface Querry {
+  connection: string,
+  sql: string
+  provider_vector_id: number
 }
 /**
  * Interface of a SIG File use to fill a provider
  */
-export interface SigFile{
-  connection:string,
-  sigFile:string
-  provider_vector_id:number
-  created_at:string
-  updated_at:string
+export interface SigFile {
+  connection: string,
+  sigFile: string
+  provider_vector_id: number
+  created_at: string
+  updated_at: string
 }
 
 /**
  * interface of an osm querry
  */
-export interface OsmQuerry{
-  select:string,
-  where:string,
-  sql?:string
-  provider_vector_id:number
+export interface OsmQuerry {
+  select: string,
+  where: string,
+  sql?: string
+  provider_vector_id: number
 }
 
 /**
  * interface of a style
  */
-export interface Style{
-  name:string
-  provider_style_id:number
-  provider_vector_id:number
-  custom_style_id:number
-  pictogram:string
-  qml_file:string
-  custom_style:CustomStyle
-  description:string
-  parameters: {[key:string]:string|number}
+export interface Style {
+  name: string
+  provider_style_id: number
+  provider_vector_id: number
+  custom_style_id: number
+  pictogram: string
+  qml_file: string
+  custom_style: CustomStyle
+  description: string
+  parameters: { [key: string]: string | number }
 }
 
 /**
  * Interface of a response from DB
  */
-export interface HttpResponse{
-  error:boolean
-  msg:string
-  data:any
+export interface HttpResponse {
+  error: boolean
+  msg: string
+  data: any
 }
 
 /**
  * Model to send a data in the preview modal
  */
-export interface DataForPreview{
-  name:string
-  url_server:string
-  id_server:string
-  extent:[number,number,number,number],
-  type:'wms'|'wmts'
-  style:Array<string>,
-  attributions?:string|Array<string>
+export interface DataForPreview {
+  name: string
+  url_server: string
+  id_server: string
+  extent: [number, number, number, number],
+  type: 'wms' | 'wmts'
+  style: Array<string>,
+  attributions?: string | Array<string>
 }
 
 /**
  * interface of a map or profil
  */
-export interface Map{
-  map_id:number
-  name:string
+export interface Map {
+  map_id: number
+  name: string
 }
 
 
-export interface Group{
+export interface Group {
   group_id: number
-  name:string
-  color:string
-  icon_path:string
-  icon:Icon
-  type_group:string
-  map_id:number[]
+  name: string
+  color: string
+  icon_path: string
+  icon: Icon
+  type_group: string
+  principal: boolean
+  map_id: number[]
 }
 
-export interface SubGroup{
-  group_sub_id:number
-  name:string
-  group:number
+export interface SubGroup {
+  group_sub_id: number
+  name: string
+  group: number
 }
-export interface SubGroupWithLayers extends SubGroup{
-  layers:Array<Layer>
+export interface SubGroupWithLayers extends SubGroup {
+  layers: Array<Layer>
 }
 export interface SubGroupWithGroup {
-  group_sub_id:number
-  name:string
-  group:Group
+  group_sub_id: number
+  name: string
+  group: Group
 }
 
-export interface Layer{
-  layer_id:number
-  name:string
-  protocol_carto: 'wms'|'wfs'|'wmts'
-  color:string
-  icon_color:string
-  icon:number
-  icon_background:boolean
-  cercle_icon :string
-  square_icon :string
-  description :string
-  opacity :boolean
-  metadata :boolean
-  share :boolean
-  sub :number,
-  providers:Array<LayerProviders>
+export interface Layer {
+  layer_id: number
+  name: string
+  protocol_carto: 'wms' | 'wfs' | 'wmts'
+  color: string
+  icon_color: string
+  icon: number
+  icon_background: boolean
+  cercle_icon: string
+  square_icon: string
+  description: string
+  opacity: boolean
+  metadata: boolean
+  share: boolean
+  sub: number,
+  principal: boolean
+  providers: Array<LayerProviders>
 }
 
 export interface LayerProviders {
-  id:number
-  layer_id:number,
-  vs_id:number,
-  vp_id:number,
-  vp:VectorProvider,
-  vs:Style,
-  ordre:number
+  id: number
+  layer_id: number,
+  vs_id: number,
+  vp_id: number,
+  vp: VectorProvider,
+  vs: Style,
+  ordre: number
 }
 
-export  interface ReorderProvider{
-  id:number
-  ordre:number
+export interface ReorderProvider {
+  id: number
+  ordre: number
 }
 
-export interface Tag{
-  id:number,
-  name:string
+export interface Tag {
+  id: number,
+  name: string
 }
 
-export interface Metadata{
-  id?:number
-  tags:Array<Tag>
-  description:string
-  layer:number
+export interface Metadata {
+  id?: number
+  tags: Array<Tag>
+  description: string
+  layer: number
 }
 
-export interface CustomStyle{
-  custom_style_id:number
-  name:string
-  description:string
-  fucntion_name:string
-  geometry_type:'Polygon'|'Point'|'LineString'
-  icon:string
+export interface CustomStyle {
+  custom_style_id: number
+  name: string
+  description: string
+  fucntion_name: string
+  geometry_type: 'Polygon' | 'Point' | 'LineString'
+  icon: string
 }
 
-export interface AddStyle{
-  name?:string
+export interface AddStyle {
+  name?: string
   provider_vector_id: number
   color?: string
-  icon_color?: string 
-  icon?: Icon 
-  icon_background?: boolean 
-  customStyle?:CustomStyle
+  icon_color?: string
+  icon?: Icon
+  icon_background?: boolean
+  customStyle?: CustomStyle
 }

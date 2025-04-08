@@ -1,7 +1,7 @@
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 
 export function requiredFileType( type: string ) {
-  return function ( control: FormControl ) {
+  return function ( control: UntypedFormControl ) {
     const listFile:FileList = control.value;
     if ( listFile ) {
       let response = true

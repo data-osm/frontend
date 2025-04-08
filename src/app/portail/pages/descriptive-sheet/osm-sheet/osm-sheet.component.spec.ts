@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { OsmSheetComponent } from './osm-sheet.component';
 
@@ -6,7 +6,7 @@ describe('OsmSheetComponent', () => {
   let component: OsmSheetComponent;
   let fixture: ComponentFixture<OsmSheetComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ OsmSheetComponent ]
     })

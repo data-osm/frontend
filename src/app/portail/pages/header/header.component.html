@@ -1,6 +1,25 @@
 <div class="app-header" fxLayout fxLayoutAlign="end center">
-  <app-search [map]="map" fxFlex></app-search>
-  <div class="header-button" fxFlex="50px">
+  <app-search [map]="map" [instance]="instance" fxFlex></app-search>
+  <button mat-icon-button (click)="openModalInfo()" style="
+  height: 24px;
+  width: 24px;
+  border-radius: 100%;
+  background-color: white;
+  margin-right: 10px;
+  line-height: 0px;
+  ">
+    <mat-icon style="
+    border-radius: 100%;
+  font-size: 30px;
+  /* margin-top: -8px; */
+  margin-left: -3px;
+  color: black;
+  /* width: 53px; */
+  /* height: 24px; */
+  width: 30px;
+    " color="primary">info</mat-icon>
+  </button>
+  <div class="header-button" fxFlex="50px" style="display: none;">
     <button mat-icon-button matTooltip="{{ 'header.toolpit_info' | translate }}" [matMenuTriggerFor]="info_menu" style="width: 20px;
     height: 20px;
     margin-right: 13px;

@@ -3,12 +3,17 @@ import { Observable, fromEvent, merge as observerMerge, ReplaySubject } from 'rx
 import { debounceTime, map, takeUntil, tap } from 'rxjs/operators';
 import { DomSanitizer } from '@angular/platform-browser';
 import * as $ from 'jquery'
-import { Map } from 'ol';
-import { CartoHelper, layersInMap } from '../../../../../helper/carto.helper';
+import {
+  Map,
+
+} from "../../../../giro-3d-module"
+import { CartoHelper } from '../../../../../helper/carto.helper';
 import { DataOsmLayersServiceService } from '../../../../services/data-som-layers-service/data-som-layers-service.service';
 import { fromOpenLayerEvent } from '../../../../shared/class/fromOpenLayerEvent';
 import { ObjectEvent } from 'ol/Object';
 import { environment } from '../../../../../environments/environment';
+import { fromMapGiroEvent } from '../../../../shared/class/fromGiroEvent';
+import { LayersInMap } from '../../../../../helper/type';
 
 @Component({
   selector: 'app-legend',
@@ -22,7 +27,7 @@ export class LegendComponent implements OnInit {
 
   @Input() map: Map
 
-  layersInTocWithLegend: Array<layersInMap> = []
+  layersInTocWithLegend: Array<LayersInMap> = []
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
 
@@ -34,8 +39,8 @@ export class LegendComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  ngOnDestroy(){
-    this.destroyed$.next()
+  ngOnDestroy() {
+    this.destroyed$.next(true)
     this.destroyed$.complete()
   }
 
@@ -43,16 +48,15 @@ export class LegendComponent implements OnInit {
     if (changes.map) {
       if (this.map) {
 
-        fromOpenLayerEvent<ObjectEvent>(this.map.getLayers(), 'propertychange').pipe(
-          takeUntil(this.destroyed$),
+        fromMapGiroEvent<"layer-order-changed">(this.map, "layer-order-changed").pipe(
           tap(() => {
             this.layersInTocWithLegend = new CartoHelper(this.map).getAllLayersInToc()
               .filter((layerProp) => layerProp.type_layer == 'geosmCatalogue' && layerProp.properties['type'] == 'couche')
-              .filter((value, index, self)=>{
+              .filter((value, index, self) => {
                 /**
                  * unique layer ^^
                  */
-                 return self.map((item)=>item.properties['couche_id']+item.properties['type']).indexOf(value.properties['couche_id']+value.properties['type']) === index;
+                return self.map((item) => item.properties['couche_id'] + item.properties['type']).indexOf(value.properties['couche_id'] + value.properties['type']) === index;
 
               })
               .map((layerProp) => {
@@ -61,12 +65,11 @@ export class LegendComponent implements OnInit {
                 layer.providers
                   .filter((provider) => { return provider.vp.state == 'good' && provider.vp.id_server != undefined })
                   .map((provider) => {
-                    
-                    
+
                     layerProp.legendCapabilities.push(
                       {
-                        description:provider.vs.description,
-                        urlImg: $.trim(environment.url_carto+provider.vp.url_server + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=" + provider.vp.id_server + "&STYLE=" + provider.vs.name + "&SLD_VERSION=1.1.0&LAYERTITLE=false&RULELABEL=true")
+                        description: provider.vs.description,
+                        urlImg: $.trim(environment.url_carto + provider.vp.path_qgis + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=" + provider.vp.id_server + "&STYLE=" + provider.vs.name + "&SLD_VERSION=1.1.0&LAYERTITLE=false&RULELABEL=true")
                       }
                     )
 
@@ -77,18 +80,20 @@ export class LegendComponent implements OnInit {
 
               })
 
-              function compare(a, b) {
-                if (a.zIndex < b.zIndex) {
-                  return 1;
-                }
-                if (a.zIndex > b.zIndex) {
-                  return -1;
-                }
-                return 0;
+            function compare(a, b) {
+              if (a.zIndex < b.zIndex) {
+                return 1;
               }
-              this.layersInTocWithLegend.sort(compare);
-          })
+              if (a.zIndex > b.zIndex) {
+                return -1;
+              }
+              return 0;
+            }
+            this.layersInTocWithLegend.sort(compare);
+          }),
+          takeUntil(this.destroyed$)
         ).subscribe()
+
 
       }
     }

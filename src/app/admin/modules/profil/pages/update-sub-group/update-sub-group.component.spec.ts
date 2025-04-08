@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { UpdateSubGroupComponent } from './update-sub-group.component';
 
@@ -6,7 +6,7 @@ describe('UpdateSubGroupComponent', () => {
   let component: UpdateSubGroupComponent;
   let fixture: ComponentFixture<UpdateSubGroupComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ UpdateSubGroupComponent ]
     })

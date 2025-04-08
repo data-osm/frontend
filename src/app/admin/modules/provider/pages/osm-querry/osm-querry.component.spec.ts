@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { OsmQuerryComponent } from './osm-querry.component';
 
@@ -6,7 +6,7 @@ describe('OsmQuerryComponent', () => {
   let component: OsmQuerryComponent;
   let fixture: ComponentFixture<OsmQuerryComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ OsmQuerryComponent ]
     })

@@ -12,85 +12,63 @@
 </div> -->
 
 
-
 <mat-sidenav-container class="sidenav-container" #sidenavContainer [autosize]="true" [hasBackdrop]="false">
 
   <mat-sidenav-content class="sidenav-content">
-    <app-header [map]="map"></app-header>
-    <div id="map" #mapDiv (contextmenu)="
+    <app-header [instance]="instance" [map]="map"></app-header>
+    <!-- (contextmenu)="
           ContextMenuComp ? ContextMenuComp.setRightClickPixel($event) : undefined
         " [shAttachMenu]="ContextMenuComp ? ContextMenuComp.menu : undefined"
-      [shMenuData]="ContextMenuComp ? ContextMenuComp.listItems : []">
+      [shMenuData]="ContextMenuComp ? ContextMenuComp.listItems : []" -->
+    <div id="map" #mapDiv>
+      <div id="giro3d-inspector"></div>
       <div id="scale-map"></div>
       <div id="mouse-position-map"></div>
 
-      <div class="geolocate-user pointer" (click)="toggleGeolocation()">
-        <svg x="0px" y="0px" viewBox="0 0 384 384">
-          <g>
-            <g>
-              <path class="primaryColorFill" d="M192,136c-30.872,0-56,25.12-56,56s25.128,56,56,56s56-25.12,56-56S222.872,136,192,136z M192,216
-              c-13.232,0-24-10.768-24-24s10.768-24,24-24s24,10.768,24,24S205.232,216,192,216z" />
-            </g>
-          </g>
-          <g>
-            <g>
-              <path class="primaryColorFill" d="M368,176h-32.944C327.648,109.368,274.632,56.352,208,48.944V16c0-8.832-7.168-16-16-16c-8.832,0-16,7.168-16,16v32.944
-              C109.368,56.352,56.352,109.368,48.944,176H16c-8.832,0-16,7.168-16,16c0,8.832,7.168,16,16,16h32.944
-              C56.352,274.632,109.368,327.648,176,335.056V368c0,8.832,7.168,16,16,16c8.832,0,16-7.168,16-16v-32.944
-              c66.632-7.408,119.648-60.424,127.056-127.056H368c8.832,0,16-7.168,16-16C384,183.168,376.832,176,368,176z M192,304
-              c-61.76,0-112-50.24-112-112S130.24,80,192,80s112,50.24,112,112S253.76,304,192,304z" />
-            </g>
-          </g>
-        </svg>
-      </div>
+      <mat-icon (click)="setMapOrientationToNord()" class="compass pointer"> navigation </mat-icon>
+
     </div>
+
+
+    <div style="display: none;" id="container"></div>
 
     <!-- <app-vertical-toolbar [map]="map" [sidenavContainer]="sidenavContainer" class="sidenav-content-toolbar whiteBG">
     </app-vertical-toolbar> -->
+    <div class="toggle-group-dialog pointer" [ngClass]="{
+      customBlackBG: isGroupDialogOpen(),
+      primaryColorBG: !isGroupDialogOpen()
+    }" (click)="toggleGroupDialog()">
+      <mat-icon class="white" *ngIf="!isGroupDialogOpen()">home</mat-icon>
+      <mat-icon class="white" *ngIf="isGroupDialogOpen()">close</mat-icon>
+    </div>
 
     <div #sidenav_right class="sidenav-right sidenav-right-{{getRightMenuActive()?.name}}">
       <div class="toogle-sidenav-right">
-        <ng-container *ngFor="let ritghtMenu_i of ritghtMenus">
-          <button class="toogle-sidenav-right-button toogle-sidenav-right-button-{{ritghtMenu_i.name}}"
-            *ngIf="ritghtMenu_i.enable" (click)="openRightMenu(ritghtMenu_i.name)" [matTooltip]="
-              'right_menu.button.' + [ritghtMenu_i.tooltip] | translate
-            " mat-raised-button color="primary" style="width: 100%;" [ngClass]="{
-              primaryColorBG: !ritghtMenu_i.active,
-              whiteBG: ritghtMenu_i.active
+        <ng-container *ngFor="let rightMenu of rightMenus">
+          <button id="sidenav_right_icon"
+            class="toogle-sidenav-right-button toogle-sidenav-right-button-{{rightMenu.name}}" *ngIf="rightMenu.enable"
+            (click)="openRightMenu(rightMenu.name)" [matTooltip]="
+              'right_menu.button.' + [rightMenu.tooltip] | translate
+            " mat-raised-button style="width: 100%;" [ngClass]="{
+              primaryColorBG: !rightMenu.active,
+              whiteBG: rightMenu.active
             }">
-
-            <mat-icon *ngIf="ritghtMenu_i.name == 'toc'" [ngClass]="{
-            white: !ritghtMenu_i.active,
-            primaryColor: ritghtMenu_i.active
+            <mat-icon *ngIf="rightMenu.name == 'toc'" [ngClass]="{
+            white: !rightMenu.active,
+            primaryColor: rightMenu.active
           }">layers</mat-icon>
 
-            <!-- <svg
-              x="0px"
-              y="0px"
-              viewBox="0 0 23.4 24.8"
-              style="width: 21px"
-              *ngIf="ritghtMenu_i.name == 'toc'"
-            >
-              <path
-                [ngClass]="{
-                  primaryColorFill: ritghtMenu_i.active
-                }"
-                d="M11.7,0L0,9.1l2.1,1.7l9.6,7.5l9.6-7.5l2.1-1.7L11.7,0z M11.7,21.5l-9.6-7.5L0,15.7l11.7,9.1
-  l11.7-9.1l-2.1-1.7L11.7,21.5z"
-                fill="#fff"
-              />
-            </svg> -->
 
-            <svg x="0px" y="0px" viewBox="0 0 20.8 20.8" style="width: 21px" *ngIf="ritghtMenu_i.name == 'edition'">
+            <svg x="0px" y="0px" viewBox="0 0 20.8 20.8" style="width: 21px" *ngIf="rightMenu.name == 'edition'">
               <path [ngClass]="{
-                  primaryColorFill: ritghtMenu_i.active
+                  primaryColorFill: rightMenu.active
                 }" d="M0,16.5v4.3h4.3L17.1,8l-4.3-4.3L0,16.5z M20.5,4.7c0.4-0.4,0.5-1.2,0-1.6c0,0,0,0,0,0
   l-2.7-2.7c-0.4-0.4-1.2-0.5-1.6,0c0,0,0,0,0,0L14,2.5l4.3,4.3L20.5,4.7L20.5,4.7z" fill="#fff" />
             </svg>
 
-            <svg style="width: 22px" x="0px" y="0px" viewBox="0 0 23.1 23.4" *ngIf="ritghtMenu_i.name == 'routing'">
+            <svg style="width: 22px" x="0px" y="0px" viewBox="0 0 23.1 23.4" *ngIf="rightMenu.name == 'routing'">
               <path [ngClass]="{
-                  primaryColorFill: ritghtMenu_i.active
+                  primaryColorFill: rightMenu.active
                 }" fill="#fff" d="M3.9,15.6c-2.2,0-3.9,1.7-3.9,3.9s1.7,3.9,3.9,3.9s3.9-1.7,3.9-3.9c0,0,0,0,0,0
   C7.8,17.3,6,15.6,3.9,15.6z M3.9,21.1c-0.9,0-1.6-0.7-1.6-1.6s0.7-1.6,1.6-1.6c0.9,0,1.6,0.7,1.6,1.6c0,0,0,0,0,0
   C5.5,20.4,4.8,21.1,3.9,21.1L3.9,21.1z M19.2,0.4c-2.2,0-3.9,1.7-3.9,3.9s1.7,3.9,3.9,3.9c2.2,0,3.9-1.7,3.9-3.9
@@ -100,44 +78,31 @@
   c1.3-0.1,2.3-1.2,2.5-2.5l0-6.8L20.6,11.5z" />
             </svg>
 
-            <i class="fas fa-th-list fa-lg" *ngIf="ritghtMenu_i.name == 'legend'" [ngClass]="{
-                white: !ritghtMenu_i.active,
-                primaryColor: ritghtMenu_i.active
+            <i class="fas fa-th-list fa-lg" *ngIf="rightMenu.name == 'legend'" [ngClass]="{
+                white: !rightMenu.active,
+                primaryColor: rightMenu.active
               }"></i>
 
-            <mat-icon *ngIf="ritghtMenu_i.name == 'download'" [ngClass]="{
-              white: !ritghtMenu_i.active,
-              primaryColor: ritghtMenu_i.active
+            <mat-icon *ngIf="rightMenu.name == 'download'" [ngClass]="{
+              white: !rightMenu.active,
+              primaryColor: rightMenu.active
             }">file_download</mat-icon>
-            <!-- <i
-              class="fa fa-download fa-lg"
-              *ngIf="ritghtMenu_i.name == 'download'"
-              [ngClass]="{
-                white: !ritghtMenu_i.active,
-                primaryColor: ritghtMenu_i.active
-              }"
-            ></i> -->
+
           </button>
         </ng-container>
       </div>
 
-      <!-- <div fxFlex> -->
       <div class="sidenav-right-title" *ngIf="getRightMenuActive()">
         {{ "right_menu." + getRightMenuActive().title + ".title" | translate }}
-        <span [hidden]="!getRightMenu('toc').active">
+        <!-- <span [hidden]="!getRightMenu('toc').active">
           ({{ layersInToc.length }})
-        </span>
+        </span> -->
       </div>
-      <!-- <div class="sidenav-right-title-fake"></div> -->
       <div class="sidenav-right-content">
         <app-table-of-contents [map]="map" [hidden]="!getRightMenu('toc').active"></app-table-of-contents>
-        <app-map-tools [map]="map" [hidden]="!getRightMenu('edition').active"></app-map-tools>
-        <app-routing [map]="map" [hidden]="!getRightMenu('routing').active"></app-routing>
         <app-legend [map]="map" [hidden]="!getRightMenu('legend').active"></app-legend>
         <app-download [map]="map" [hidden]="!getRightMenu('download').active"></app-download>
       </div>
-      <!-- </div> -->
-      <!-- </div> -->
     </div>
   </mat-sidenav-content>
 

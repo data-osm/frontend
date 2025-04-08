@@ -13,7 +13,7 @@ import { AddMapComponent } from './administration/pages/add-map/add-map.componen
 import { EditMapComponent } from './administration/pages/edit-map/edit-map.component';
 import { _VIEW_REPEATER_STRATEGY, _DisposeViewRepeaterStrategy } from '@angular/cdk/collections';
 import { _CoalescedStyleScheduler, CdkTable, CDK_TABLE } from '@angular/cdk/table';
-import { MatTable } from '@angular/material/table';
+import { MatLegacyTable as MatTable } from '@angular/material/legacy-table';
 
 @NgModule({
   declarations: [ AdministrationComponent, SidenavLeftAdminComponent, NavBarComponent, AddMapComponent, EditMapComponent],

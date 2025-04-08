@@ -1,19 +1,19 @@
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SocialShareComponent } from '../app/social-share/social-share.component'
 import { Injectable, ComponentFactoryResolver, ApplicationRef, Injector, EmbeddedViewRef, ComponentRef } from '@angular/core';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
 import { AddGeosignetComponent } from '../app/portail/pages/context-menu/add-geosignet/add-geosignet.component'
 import { AddStyle, DataForPreview, groupCarteInterface, groupThematiqueInterface, Style, VectorProvider } from '../app/type/type';
 import { AddVectorProviderComponent } from '../app/admin/modules/provider/pages/add-vector-provider/add-vector-provider.component';
-import {  AddStyleComponent } from '../app/admin/modules/provider/pages/add-style/add-style.component';
-import {ConfirmationDialogComponent, ConfirmationDialogData} from '../app/modal/confirmation-dialog/confirmation-dialog.component'
+import { AddStyleComponent } from '../app/admin/modules/provider/pages/add-style/add-style.component';
+import { ConfirmationDialogComponent, ConfirmationDialogData } from '../app/modal/confirmation-dialog/confirmation-dialog.component'
 import { map } from 'rxjs/internal/operators/map';
 import { Observable } from 'rxjs';
 import { EditStyleComponent } from '../app/admin/modules/provider/pages/edit-style/edit-style.component';
 import { PreviewDataComponent } from '../app/shared/pages/preview-data/preview-data.component';
 import * as $ from 'jquery'
 import { Map } from 'ol';
-import { CartoHelper, layersInMap } from './carto.helper';
+import { CartoHelper } from './carto.helper';
 import LayerGroup from 'ol/layer/Group';
 import { DescriptiveSheetComponent, DescriptiveSheetData } from '../app/portail/pages/descriptive-sheet/descriptive-sheet.component';
 /**
@@ -66,19 +66,19 @@ export class ManageCompHelper {
      */
     let position = {
       top: '60px',
-      left: window.innerWidth < 500 ? '0px' : (window.innerWidth / 2 - 400 / 2) + 'px'
+      left: (window.innerWidth / 2 - 400 / 2) + 'px'
     }
     for (let index = 0; index < this.dialog.openDialogs.length; index++) {
       const elementDialog = this.dialog.openDialogs[index];
 
-      if (elementDialog.componentInstance instanceof DescriptiveSheetComponent && document.getElementById(elementDialog.id) && document.getElementById(elementDialog.id).parentElement ) {
-            position.top = document.getElementById(elementDialog.id).parentElement.getBoundingClientRect().top + 'px'
-            position.left = document.getElementById(elementDialog.id).parentElement.getBoundingClientRect().left + 'px'
-          elementDialog.close()
+      if (elementDialog.componentInstance instanceof DescriptiveSheetComponent && document.getElementById(elementDialog.id) && document.getElementById(elementDialog.id).parentElement) {
+        position.top = document.getElementById(elementDialog.id).parentElement.getBoundingClientRect().top + 'px'
+        position.left = document.getElementById(elementDialog.id).parentElement.getBoundingClientRect().left + 'px'
+        elementDialog.close()
       }
     }
 
-    let proprietes: MatDialogConfig = {
+    let properties: MatDialogConfig = {
       disableClose: false,
       minWidth: 450,
       maxHeight: 460,
@@ -89,13 +89,19 @@ export class ManageCompHelper {
       position: position
     }
 
-    if (size.length > 0) {
-      // proprietes['width']=size[0]
-      proprietes['height'] = size[1]
+    if (CartoHelper.isMobile()) {
+      properties.width = (window.innerWidth - 50) + "px"
+      properties.minWidth = (window.innerWidth - 50) + "px"
+      properties.position.left = "25px"
     }
-    
-    return this.dialog.open(DescriptiveSheetComponent, proprietes);
-   
+
+    if (size.length > 0) {
+      // properties['width']=size[0]
+      properties['height'] = size[1]
+    }
+
+    return this.dialog.open(DescriptiveSheetComponent, properties);
+
   }
 
 
@@ -147,23 +153,23 @@ export class ManageCompHelper {
    * Open confirmation dialog
    * @return Observable<boolean>
    */
-  openConfirmationDialog(size: Array<string> | [], confirmationDialogData:ConfirmationDialogData):Observable<boolean>{
+  openConfirmationDialog(size: Array<string> | [], confirmationDialogData: ConfirmationDialogData): Observable<boolean> {
 
     let proprietes = {
-      minWidth:400,
-      disableClose:true,
-      data:confirmationDialogData
+      minWidth: 400,
+      disableClose: true,
+      data: confirmationDialogData
     }
-    
+
     if (size.length > 0) {
       proprietes['width'] = size[0]
       proprietes['height'] = size[1]
     }
-    
+
     const modal = this.dialog.open(ConfirmationDialogComponent, proprietes);
-  
+
     return modal.afterClosed().pipe(
-      map((value:boolean)=>value)
+      map((value: boolean) => value)
     )
   }
 
@@ -171,21 +177,21 @@ export class ManageCompHelper {
    * Open add style dialog
    * @return Observable<boolean>
    */
-  openAddStyleDialog(size: Array<string> | [], data:AddStyle):Observable<Style>{
+  openAddStyleDialog(size: Array<string> | [], data: AddStyle): Observable<Style> {
 
     let proprietes = {
-      minWidth:400,
-      disableClose:true,
-      data:data
+      minWidth: 400,
+      disableClose: true,
+      data: data
     }
-    
+
     if (size.length > 0) {
       proprietes['width'] = size[0]
       proprietes['height'] = size[1]
     }
-    
+
     const modal = this.dialog.open<AddStyleComponent, AddStyle, Style>(AddStyleComponent, proprietes);
-  
+
     return modal.afterClosed()
   }
 
@@ -194,22 +200,22 @@ export class ManageCompHelper {
    * @param Style style
    * @return Observable<boolean>
    */
-  openUpdateStyleDialog(size:Array<string> | [], style:Style):Observable<boolean>{
+  openUpdateStyleDialog(size: Array<string> | [], style: Style): Observable<boolean> {
     let proprietes = {
-      minWidth:400,
-      disableClose:true,
-      data:style
+      minWidth: 400,
+      disableClose: true,
+      data: style
     }
-    
+
     if (size.length > 0) {
       proprietes['width'] = size[0]
       proprietes['height'] = size[1]
     }
-    
+
     const modal = this.dialog.open(EditStyleComponent, proprietes);
-  
+
     return modal.afterClosed().pipe(
-      map((value:boolean)=>value)
+      map((value: boolean) => value)
     )
   }
 
@@ -217,17 +223,17 @@ export class ManageCompHelper {
    * Open preview data dialog
    * @param Array<DataForPreview> data 
    */
-  openDataPreviewDialog(size:Array<string> | [], data:Array<DataForPreview>){
-    let proprietes:MatDialogConfig= {
-      minWidth:400,
-      disableClose:false,
-      width:($( window ).width()-200)+'px',
-      maxWidth:($( window ).width()-200)+'px',
-      height:($( window ).height() -150)+'px',
-      maxHeight:($( window ).height() -150)+'px',
-      data:data
+  openDataPreviewDialog(size: Array<string> | [], data: Array<DataForPreview>) {
+    let proprietes: MatDialogConfig = {
+      minWidth: 400,
+      disableClose: false,
+      width: ($(window).width() - 200) + 'px',
+      maxWidth: ($(window).width() - 200) + 'px',
+      height: ($(window).height() - 150) + 'px',
+      maxHeight: ($(window).height() - 150) + 'px',
+      data: data
     }
-    
+
     if (size.length > 0) {
       proprietes['width'] = size[0]
       proprietes['height'] = size[1]

@@ -7,10 +7,10 @@ import { catchError, filter, shareReplay, startWith, switchMap, tap } from 'rxjs
 import { BaseMap } from '../../../../../data/models/base-maps';
 import { BaseMapsService } from '../../../../../data/services/base-maps.service';
 import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { AddBaseMapComponent } from '../add-base-map/add-base-map.component';
 import { UpdateBaseMapComponent } from '../update-base-map/update-base-map.component';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-list-base-map',
@@ -27,8 +27,8 @@ export class ListBaseMapComponent implements OnInit {
   readonly listBaseMaps$:Observable<ReadonlyArray<BaseMap>>
   private readonly notifier: NotifierService;
 
-  principalMapForm:FormGroup = this.fb.group({
-    principal:new FormControl('')
+  principalMapForm:UntypedFormGroup = this.fb.group({
+    principal:new UntypedFormControl('')
   })
   constructor(
     public  baseMapsService : BaseMapsService,
@@ -36,7 +36,7 @@ export class ListBaseMapComponent implements OnInit {
     public translate: TranslateService,
     public manageCompHelper : ManageCompHelper,
     public dialog: MatDialog,
-    public fb:FormBuilder
+    public fb:UntypedFormBuilder
   ) {
     this.notifier = notifierService;
 

@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import {TranslateService} from '@ngx-translate/core';
-import { MatomoTracker } from '@ngx-matomo/tracker';
+import { TranslateService } from '@ngx-translate/core';
+import { MatomoTracker } from 'ngx-matomo-client';
+import { environment } from '../environments/environment';
+declare var tarteaucitron: any;
 
 @Component({
   selector: 'app-root',
@@ -13,13 +15,15 @@ export class AppComponent implements OnInit {
   constructor(
     public translate: TranslateService,
     private readonly tracker: MatomoTracker
-    ){
+  ) {
     translate.setDefaultLang('fr');
     translate.use('fr');
   }
 
   ngOnInit(): void {
-    this.tracker.trackPageView('App component');
+
+    this.tracker.disableCookies()
+    this.tracker.requireCookieConsent()
   }
 
 }

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, QueryList, ViewChild } from '@angular/core';
 import {Location} from '@angular/common'; 
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { ActivatedRoute, NavigationEnd, Params, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
@@ -8,7 +8,7 @@ import { combineLatest, EMPTY, iif, merge, Observable, of, ReplaySubject, Subjec
 import { filter, switchMap, catchError, tap, startWith, withLatestFrom, map, mergeMap, takeUntil, shareReplay, debounceTime, distinct, distinctUntilKeyChanged, retryWhen } from 'rxjs/operators';
 import { AddSubGroupComponent } from '../add-sub-group/add-sub-group.component';
 import { EditSubGroupComponent } from '../edit-sub-group/edit-sub-group.component';
-import { MatTabChangeEvent, MatTabGroup } from '@angular/material/tabs';
+import { MatLegacyTabChangeEvent as MatTabChangeEvent, MatLegacyTabGroup as MatTabGroup } from '@angular/material/legacy-tabs';
 import { ViewChildren } from '@angular/core';
 import { MapsService } from '../../../../../data/services/maps.service';
 import { Group, SubGroup } from '../../../../../type/type';

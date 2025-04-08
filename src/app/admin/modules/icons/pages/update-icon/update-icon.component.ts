@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { inject } from '@angular/core/testing';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UntypedFormGroup, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { EMPTY, ReplaySubject, Subject } from 'rxjs';
 import { catchError, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -16,7 +16,7 @@ import {IconService} from '../../../../administration/service/icon.service'
 })
 export class UpdateIconComponent implements OnInit {
   onUpdateInstance:()=>void
-  form: FormGroup = this.formBuilder.group({})
+  form: UntypedFormGroup = this.formBuilder.group({})
   private readonly notifier: NotifierService;
   progress:number = 0
   url_prefix = environment.backend
@@ -25,17 +25,17 @@ export class UpdateIconComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<UpdateIconComponent>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public IconService:IconService,
     @Inject(MAT_DIALOG_DATA) public icon: Icon,
 
   ) { 
     this.notifier = notifierService;
-    this.form.addControl('category',new FormControl(this.icon.category, [Validators.required]))
-    this.form.addControl('attribution',new FormControl(this.icon.attribution))
-    this.form.addControl('icon_id',new FormControl(this.icon.icon_id))
-    this.form.addControl('tags',new FormControl( this.icon.tags.map(tag => tag.name) ))
+    this.form.addControl('category',new UntypedFormControl(this.icon.category, [Validators.required]))
+    this.form.addControl('attribution',new UntypedFormControl(this.icon.attribution))
+    this.form.addControl('icon_id',new UntypedFormControl(this.icon.icon_id))
+    this.form.addControl('tags',new UntypedFormControl( this.icon.tags.map(tag => tag.name) ))
     // this.form.addControl('path',new FormControl(null,[Validators.required]))
 
     const onUpdate:Subject<void> = new Subject<void>()

@@ -1,4 +1,4 @@
-<div mat-dialog-content style="padding-top: 5px;max-height: 250px !important;" class="scroll">
+<div mat-dialog-content class="scroll white descriptive-sheet-content">
 
   <div class="text-center">
     <mat-chip-list id="asd" style="display: inline-table;" #featuresList [multiple]="false" color="accent" selectable>
@@ -295,13 +295,13 @@
 
 </div>
 
-<div mat-dialog-actions class="text-center">
+<div mat-dialog-actions class="text-center descriptive-sheet-actions ">
 
-  <button mat-raised-button [hidden]="!extent" (click)="zoomOnFeatureExtent()"  >
+  <button mat-raised-button [hidden]="!extent" (click)="zoomOnFeatureExtent()">
     <i class="fa fa-search-plus"> </i> {{'descriptive_sheet.zoomTo' | translate}}
-  </button> 
+  </button>
   <ng-container *ngIf="selectedFeature">
-    <button mat-raised-button  [matMenuTriggerFor]="menuCopy">
+    <button mat-raised-button [matMenuTriggerFor]="menuCopy">
       <mat-icon style="width: 20px;font-size: 20px;height: 20px;">file_download</mat-icon>
       {{ 'dowloadLayers.download' | translate }}
       <i class="fa fa-chevron-down" aria-hidden="true"></i>
@@ -311,7 +311,7 @@
         [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties()[selectedFeature.primary_key_field]+'&driver=shp'"
         target="_blanck">
         ShapeFile
-  
+
       </a>
       <a mat-menu-item
         [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties()[selectedFeature.primary_key_field]+'&driver=geojson'"
@@ -333,9 +333,9 @@
         target="_blanck">
         CSV
       </a>
-  
+
     </mat-menu>
   </ng-container>
- 
+
 
 </div>

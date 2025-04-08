@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { AddBoundaryComponent } from './add-boundary.component';
 
@@ -6,7 +6,7 @@ describe('AddBoundaryComponent', () => {
   let component: AddBoundaryComponent;
   let fixture: ComponentFixture<AddBoundaryComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ AddBoundaryComponent ]
     })

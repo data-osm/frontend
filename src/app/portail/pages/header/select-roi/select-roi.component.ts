@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { GeoJSON, Map } from '../../../../ol-module';
 import { catchError, filter, sampleTime, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { geosignetsProjectInterface } from '../../../../type/type';
@@ -18,13 +18,13 @@ import { AppExtent } from '../../../../data/models/parameters';
  */
 export class SelectRoiComponent implements OnInit {
   public onInitInstance: () => void
-  @Input() map: Map
+  @Input() map: any
 
 
   /**
    * Control to manage user interaction while he change ROI
    */
-  controlSelectRoi: FormControl = new FormControl()
+  controlSelectRoi: UntypedFormControl = new UntypedFormControl()
 
   lisAppExtent$: Observable<AppExtent[]>
 
@@ -42,7 +42,7 @@ export class SelectRoiComponent implements OnInit {
     this.lisAppExtent$ = onInit.pipe(
       switchMap(() => {
         return this.parameterService.lisAppExtent$.pipe(
-          filter((value)=> value && value.length >0),
+          filter((value) => value && value.length > 0),
           catchError(() => {
             return EMPTY
           })
@@ -50,7 +50,7 @@ export class SelectRoiComponent implements OnInit {
       }),
       tap((listAppExten) => {
         if (this.parameterService.parameter && this.parameterService.parameter.extent_pk) {
-          this.controlSelectRoi.setValue(listAppExten.find((appExtent)=>appExtent.id ==this.parameterService.parameter.extent_pk), {emitEvent:false})
+          this.controlSelectRoi.setValue(listAppExten.find((appExtent) => appExtent.id == this.parameterService.parameter.extent_pk), { emitEvent: false })
         }
       })
     )
@@ -58,7 +58,7 @@ export class SelectRoiComponent implements OnInit {
     this.controlSelectRoi.valueChanges.pipe(
       filter(value => typeof value == 'object'),
       tap((value: AppExtent) => {
-        new CartoHelper(this.map).fit_view([value.a, value.b, value.c, value.d], 10)
+        // new CartoHelper(this.map).fit_view([value.a, value.b, value.c, value.d], 10)
       }),
       takeUntil(this.destroyed$)
     ).subscribe()
@@ -71,7 +71,7 @@ export class SelectRoiComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.destroyed$.next()
+    this.destroyed$.next(true)
     this.destroyed$.complete()
   }
 

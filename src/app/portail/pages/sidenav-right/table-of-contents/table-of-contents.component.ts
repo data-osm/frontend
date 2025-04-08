@@ -1,26 +1,39 @@
 import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Observable, fromEvent, merge as observerMerge, Subscriber, ReplaySubject } from 'rxjs';
+import { Observable, fromEvent, merge as observerMerge, Subscriber, ReplaySubject, merge } from 'rxjs';
 
-import { CartoHelper, layersInMap } from '../../../../../helper/carto.helper'
+import { CartoHelper } from '../../../../../helper/carto.helper'
 import { ManageCompHelper } from '../../../../../helper/manage-comp.helper'
 import {
   LayerGroup,
-  Map, Transform, unByKey
+  Transform, unByKey
 } from '../../../../ol-module';
-import { DataToShareLayer, ShareServiceService } from '../../../../services/share-service/share-service.service'
-import { MatSliderChange } from '@angular/material/slider';
-import { MatCheckboxChange } from '@angular/material/checkbox';
+import { DataToShareLayer, ShareServiceService, VIEW_QUERY_PARAM } from '../../../../services/share-service/share-service.service'
+import { MatLegacySliderChange as MatSliderChange } from '@angular/material/legacy-slider';
+import { MatLegacyCheckboxChange as MatCheckboxChange } from '@angular/material/legacy-checkbox';
 import { map, catchError, debounceTime, tap, startWith, takeUntil } from 'rxjs/operators';
 import { coucheInterface, carteInterface } from '../../../../type/type';
 import { environment } from '../../../../../environments/environment';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MetadataLayerComponent } from '../../../../modal/metadata/metadata.component';
 import { DataOsmLayersServiceService } from '../../../../services/data-som-layers-service/data-som-layers-service.service';
 import BaseLayer from 'ol/layer/Base';
 import BaseEvent from 'ol/events/Event';
 import { ObjectEvent } from 'ol/Object';
 import { fromOpenLayerEvent } from '../../../../shared/class/fromOpenLayerEvent';
+
+import { fromLayerGiroEvent, fromMapGiroEvent } from '../../../../shared/class/fromGiroEvent';
+
+import {
+  Map,
+  Layer,
+  ColorLayer,
+  OrbitControls,
+  Instance
+} from "../../../../giro-3d-module"
+import { Group, Mesh } from 'three';
+import { MatomoTracker } from 'ngx-matomo-client';
+import { LayersInMap } from '../../../../../helper/type';
 
 @Component({
   selector: 'app-table-of-contents',
@@ -34,32 +47,38 @@ export class TableOfContentsComponent implements OnInit {
 
   @Input() map: Map
 
-  layersInToc: Array<layersInMap> = []
-  
+  layersInToc: Array<LayersInMap> = []
+
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   constructor(
     private dataOsmLayersServiceService: DataOsmLayersServiceService,
     public dialog: MatDialog,
     public ShareServiceService: ShareServiceService,
-    public manageCompHelper: ManageCompHelper
+    public manageCompHelper: ManageCompHelper,
+    private readonly tracker: MatomoTracker
   ) { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
-  ngOnDestroy(){
-    this.destroyed$.next()
+  ngOnDestroy() {
+    this.destroyed$.next(true)
     this.destroyed$.complete()
   }
 
-  ngOnChanges(changes:SimpleChanges){
+  ngOnChanges(changes: SimpleChanges) {
     if (changes.map.currentValue) {
       if (this.map) {
-        fromOpenLayerEvent<ObjectEvent>(this.map.getLayers(),'propertychange').pipe(
-          tap(()=>{this.getAllLayersForTOC()}),
+        // this.map.addEventListener("")
+
+        merge(
+          fromMapGiroEvent<"layer-order-changed">(this.map, "layer-order-changed"),
+        ).pipe(
+          debounceTime(500),
+          tap(() => { this.getAllLayersForTOC() }),
           takeUntil(this.destroyed$)
         ).subscribe()
-       
+
       }
     }
   }
@@ -68,68 +87,64 @@ export class TableOfContentsComponent implements OnInit {
    * Construct the array this.layersInToc array.
    */
   getAllLayersForTOC() {
-
-    let allObservableOFLayers: Array<Observable<BaseEvent>> = []
-    
+    let allObservableOFLayers: Array<Observable<any>> = []
     this.layersInToc = new CartoHelper(this.map).getAllLayersInToc().
-    filter((layerProp)=>layerProp.type_layer =='geosmCatalogue' )
-    .filter((layerProp, index, self)=>{
-      /**
-       * unique layer ^^
-       */
-      return self.map((item)=>item.properties.couche_id+item.properties['type']).indexOf(layerProp.properties.couche_id+layerProp.properties['type']) === index;
-   
-    })
-    .map((layerProp)=>{
-      if (layerProp.properties['type']=='couche') {
-        let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(layerProp.properties.couche_id)
+      filter((layerProp) => layerProp.type_layer == 'geosmCatalogue')
+      .filter((layerProp, index, self) => {
+        /**
+         * unique layer ^^
+         */
+        return self.map((item) => item.properties.couche_id + item.properties['type']).indexOf(layerProp.properties.couche_id + layerProp.properties['type']) === index;
 
-        layerProp.badge = {
-          text: groupLayer.group.name,
-          bgColor: groupLayer.group.color
-        }
-        layerProp.data = groupLayer
-      } else if (layerProp.properties['type']=='carte')  {
-        let baseMap = this.dataOsmLayersServiceService.getBasemap(layerProp.properties.couche_id)
-        layerProp.badge = {
-          text: baseMap.name,
-          bgColor: baseMap.pictogramme.color
-        }
-        layerProp.data = baseMap
-      }
-      layerProp.layer.map((ll)=>{
-        allObservableOFLayers.push(fromOpenLayerEvent<BaseEvent>(ll, 'change:visible').pipe(map((value) => value)))
-        allObservableOFLayers.push(fromOpenLayerEvent<BaseEvent>(ll, 'change:zIndex').pipe(map((value) => value)))
-        allObservableOFLayers.push(fromOpenLayerEvent<BaseEvent>(ll, 'change:opacity').pipe(map((value) => value)))
       })
-     
+      .map((layerProp) => {
 
-      return layerProp
-    })
+        if (layerProp.properties['type'] == 'couche') {
+          let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(layerProp.properties.couche_id)
 
-    function compare(a, b) {
-      if (a.zIndex < b.zIndex) {
+          layerProp.badge = {
+            text: groupLayer.group.name,
+            bgColor: groupLayer.group.color
+          }
+          layerProp.data = groupLayer
+        } else if (layerProp.properties['type'] == 'carte') {
+          let baseMap = this.dataOsmLayersServiceService.getBasemap(layerProp.properties.couche_id)
+          layerProp.badge = {
+            text: baseMap.name,
+            bgColor: baseMap.pictogramme.color
+          }
+          layerProp.data = baseMap
+        }
+        // layerProp.layer.map((ll) => {
+        //   // allObservableOFLayers.push(fromLayerGiroEvent<"visible-property-changed">(ll, "visible-property-changed").pipe(map((value) => value)))
+        // })
+
+        // let threeLayers = this.map["_instance"]
+        //   .getObjects(
+        //     (obj) =>
+        //       obj instanceof Group && obj.userData.isLayer && obj.userData.name == layerProp.nom
+        //   ) as Array<Group>
+
+
+        // layerProp.visible = layerProp.layer[0].visible || threeLayers.find((obj) => obj.visible) != undefined
+
+
+        return layerProp
+      }).sort(compare.bind(this))
+
+
+
+    function compare(a: LayersInMap, b: LayersInMap) {
+      if (this.map.getIndex(a.layer[0]) < this.map.getIndex(b.layer[0])) {
         return 1;
       }
-      if (a.zIndex > b.zIndex) {
+      if (this.map.getIndex(a.layer[0]) > this.map.getIndex(b.layer[0])) {
         return -1;
       }
       return 0;
     }
 
-    if (allObservableOFLayers.length > 0) {
-      observerMerge(
-        ...allObservableOFLayers
-      ).
-        pipe(
-          startWith(undefined),
-          tap(()=>{
-            this.layersInToc.sort(compare);
-          }),
-          takeUntil(this.destroyed$)
-        )
-        .subscribe()
-    }
+
 
   }
 
@@ -140,8 +155,21 @@ export class TableOfContentsComponent implements OnInit {
   drop(event: CdkDragDrop<string[]>) {
     let cartoHelperClass = new CartoHelper(this.map)
     var layer = this.layersInToc[event.previousIndex]
-    layer.layer.map((ll)=> cartoHelperClass.editZindexOfLayer(ll, this.layersInToc[event.currentIndex].zIndex))
-   
+    let delta_index = event.previousIndex - event.currentIndex
+    if (delta_index < 0) {
+      while (delta_index < 0) {
+        this.map.moveLayerDown(layer.layer[0] as any)
+        delta_index = delta_index + 1
+      }
+    }
+    else if (delta_index > 0) {
+      while (delta_index > 0) {
+        this.map.moveLayerUp(layer.layer[0] as any)
+        delta_index = delta_index - 1
+      }
+    }
+    // layer.layer.map((ll) => cartoHelperClass.s(ll, this.layersInToc[event.currentIndex].zIndex))
+
     moveItemInArray(this.layersInToc, event.previousIndex, event.currentIndex);
 
     this.getAllLayersForTOC()
@@ -150,37 +178,56 @@ export class TableOfContentsComponent implements OnInit {
   /**
    * Set opacity of a layer
    * @param event MatSliderChange
-   * @param layer layersInMap
+   * @param layer LayersInMap
    */
-  setOpactiyOfLayer(event: MatSliderChange, layer: layersInMap) {
-  
-    layer.layer.map((lay)=>lay.setOpacity(event.value / 100))
+  setOpactiyOfLayer(event: MatSliderChange, layer: LayersInMap) {
+
+    (layer.layer as Array<any>).filter((layer) => layer instanceof ColorLayer == true).map((lay: ColorLayer) => lay.opacity = event.value / 100)
+    this.map["_instance"].notifyChange(this.map)
   }
 
   /**
    * Toogle visible of a layer
    * @param event MatCheckboxChange
-   * @param layer layersInMap
+   * @param layer LayersInMap
    */
-  setVisibleOfLayer(event: MatCheckboxChange, layer: layersInMap) {
-    layer.layer.map((lay)=>lay.setVisible(event.checked))
-   console.log(layer, event.checked)
+  setVisibleOfLayer(event: MatCheckboxChange, layer: LayersInMap) {
+    const instance: Instance = this.map["_instance"]
+    instance.scene
+      .traverse(
+        (obj) => {
+          if (obj instanceof Group && obj.userData.isLayer && obj.userData.name == layer.nom) {
+            obj.visible = event.checked
+          }
+        }
+      )
+    // .map((obj: Mesh) => {
+    //   obj.visible = event.checked
+    //   return obj
+    // })
+    layer.layer.map((lay) => {
+      lay.visible = event.checked
+    })
+    layer.visible = event.checked
+
+    this.map["_instance"].notifyChange(this.map)
+
   }
 
-  
+
   /**
    * Remove layer of type cataogue from map
    * @param layer layersInMap
    */
-   removeLayer(layer: layersInMap) {
+  removeLayer(layer: LayersInMap) {
     if (layer['properties']['type'] == 'carte') {
       this.dataOsmLayersServiceService.removeBaseMap(layer['properties']['couche_id'], this.map)
     } else if (layer['properties']['type'] == 'couche') {
       console.log(layer)
       this.dataOsmLayersServiceService.removeLayer(layer['properties']['couche_id'], this.map)
-    }else{
-      layer.layer.map((lay)=> new CartoHelper(this.map).removeLayerToMap(lay))
-     
+    } else {
+      layer.layer.map((lay) => new CartoHelper(this.map).removeLayerToMap(lay))
+
     }
 
   }
@@ -189,26 +236,32 @@ export class TableOfContentsComponent implements OnInit {
    * remove all layer of type layersInMap in map
    */
   clearMap() {
-    new CartoHelper(this.map).getAllLayersInToc().filter((layerProp)=>layerProp.tocCapabilities.removable).map((layerProp)=>{this.removeLayer(layerProp) })
+    new CartoHelper(this.map).getAllLayersInToc().filter((layerProp) => layerProp.tocCapabilities.removable).map((layerProp) => { this.removeLayer(layerProp) })
   }
 
   /**
    * Share a layer
    * @param layer
    */
-  shareLayer(layer: layersInMap) {
-    if (layer.properties.type=='couche') {
+  shareLayer(layer: LayersInMap) {
+
+    const pov = CartoHelper.getCurrentPointOfView(this.map)
+
+    var coordinateSharedLink = VIEW_QUERY_PARAM + '=' + pov
+
+    if (layer.properties.type == 'couche') {
       let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(layer.properties.couche_id)
-      var params = this.ShareServiceService.shareLayer({id_layer:layer.properties.couche_id,group_id:groupLayer.group.group_id, type:'layer' })
-      var url_share = environment.url_frontend + '/map?' + params
+      var params = this.ShareServiceService.shareLayer({ id_layer: layer.properties.couche_id, group_id: groupLayer.group.group_id, type: 'layer' })
+      var url_share = environment.url_frontend + '/map?' + params + '&' + coordinateSharedLink
+      this.tracker.trackEvent("Share", "layer", layer.nom, layer.properties.couche_id)
       this.manageCompHelper.openSocialShare(url_share, 7)
-    }else{
-      var params = this.ShareServiceService.shareLayer({id_layer:layer.properties.couche_id,group_id:null, type:'map' })
-      var url_share = environment.url_frontend + '/map?' + params
+    } else {
+      var params = this.ShareServiceService.shareLayer({ id_layer: layer.properties.couche_id, group_id: null, type: 'map' })
+      var url_share = environment.url_frontend + '/map?' + params + '&' + coordinateSharedLink
       this.manageCompHelper.openSocialShare(url_share, 7)
 
     }
-    
+
 
   }
 
@@ -216,38 +269,36 @@ export class TableOfContentsComponent implements OnInit {
    * Share all layers in the toc
    */
   shareAllLayersInToc() {
-    let pteLayerToGetParams:Array<DataToShareLayer> =  this.layersInToc
-    .filter((item)=>item.tocCapabilities.share)
-    .map((item)=>{
-      if (item.properties['type']=='couche') {
-        let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(item.properties.couche_id)
-        return {
-          id_layer:item.properties.couche_id,
-          group_id:groupLayer.group.group_id,
-          type:'layer'
+    let pteLayerToGetParams: Array<DataToShareLayer> = this.layersInToc
+      .filter((item) => item.tocCapabilities.share)
+      .map((item) => {
+        if (item.properties['type'] == 'couche') {
+          let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(item.properties.couche_id)
+          return {
+            id_layer: item.properties.couche_id,
+            group_id: groupLayer.group.group_id,
+            type: 'layer'
+          }
+        } else if (item.properties['type'] == 'carte') {
+          return {
+            id_layer: item.properties.couche_id,
+            group_id: null,
+            type: 'map'
+          }
         }
-      }else if (item.properties['type']=='carte') {
-        return {
-          id_layer:item.properties.couche_id,
-          group_id:null,
-          type:'map'
-        }
-      }
-      
-    })
 
-    //Retrieve center's coordinates
-    var center = this.map.getView().getCenter();
-    var lonlat = Transform(center, 'EPSG:3857', 'EPSG:4326');
-    var lon = lonlat[0];
-    var lat = lonlat[1];
-    var zoom = this.map.getView().getZoom()
+      })
 
-    var coordinateSharedLink = 'pos=' + lon.toFixed(4) + ',' + lat.toFixed(4) + ',' + Math.floor(zoom)
+
+    const pov = CartoHelper.getCurrentPointOfView(this.map)
+
+    var coordinateSharedLink = VIEW_QUERY_PARAM + '=' + pov
 
     var params = this.ShareServiceService.shareLayers(pteLayerToGetParams)
 
     var url_share = environment.url_frontend + '/map?' + params + '&' + coordinateSharedLink
+
+    this.tracker.trackEvent("Share", "all")
 
     this.manageCompHelper.openSocialShare(url_share, 7)
   }
@@ -269,9 +320,9 @@ export class TableOfContentsComponent implements OnInit {
    * open metadata
    * @param layer layersInMap
    */
-  openMetadata(layer: layersInMap) {
+  openMetadata(layer: LayersInMap) {
     let data = this.dataOsmLayersServiceService.getLayerInMap(layer.properties.couche_id)
-    this.dialog.open(MetadataLayerComponent,{data:data.layer})
+    this.dialog.open(MetadataLayerComponent, { data: data.layer })
 
   }
 

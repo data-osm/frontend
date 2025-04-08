@@ -1,6 +1,6 @@
 import { ElementRef, QueryList, SimpleChanges, ViewChildren } from '@angular/core';
 import { Component, OnInit, Directive, Input } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { ActivatedRoute, NavigationEnd, Router , Params} from '@angular/router';
 import { SVG } from '@svgdotjs/svg.js';
 import { NotifierService } from 'angular-notifier';

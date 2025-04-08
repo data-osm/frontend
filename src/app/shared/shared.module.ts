@@ -1,23 +1,24 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {FileUploadComponent} from './pages/file-upload/file-upload.component'
 
-import { FlexLayoutModule } from '@angular/flex-layout';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { FlexLayoutModule } from 'ngx-flexible-layout';
+import { HttpBackend, HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';
 import { MultiTranslateHttpLoader } from 'ngx-translate-multi-http-loader';
 
 import { LMarkdownEditorModule, MarkdownEditorComponent } from 'ngx-markdown-editor';
-// import { LMarkdownEditorModule } from 'ngx-markdown-editor';
+import { ShareButton } from 'ngx-sharebuttons/button';
+import { ShareIconsModule } from 'ngx-sharebuttons/icons';
 
-
-export function HttpLoaderFactory(httpClient: HttpClient) {
-  return new MultiTranslateHttpLoader(httpClient, [
+// AoT requires an exported function for factories
+export function HttpLoaderFactory(_httpBackend: HttpBackend) {
+  return new MultiTranslateHttpLoader(_httpBackend, [
     { prefix: "./assets/i18n/", suffix: ".json" },
-    {prefix: './assets/i18n/tags-', suffix: '.json'}
-  ]);
+  {prefix: './assets/i18n/tags-', suffix: '.json'}]);
 }
+
+
 import {ComponentMaterialModule} from './material-module';
 import { NotifierModule } from "angular-notifier";
 import { RouterModule } from '@angular/router';
@@ -28,12 +29,13 @@ import { SafeStylePipe } from './pipe/safe-style.pipe';
 import { PreviewDataComponent } from './pages/preview-data/preview-data.component';
 import { _VIEW_REPEATER_STRATEGY, _DisposeViewRepeaterStrategy } from '@angular/cdk/collections';
 import { _CoalescedStyleScheduler, CdkTable, CDK_TABLE } from '@angular/cdk/table';
-import { MatTable } from '@angular/material/table';
+import { MatLegacyTable as MatTable } from '@angular/material/legacy-table';
 import { SafeUrlPipe } from './pipe/safe-url/safe-url.pipe';
 import { CardDownloadLayerComponent } from './pages/card-download-layer/card-download-layer.component';
 import { ColorPickerComponent } from './pages/color-picker/color-picker.component';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { HttpErrorComponent } from './pages/http-error/http-error.component';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
     declarations: [FileUploadComponent,ColorPickerComponent, SearchProviderComponent, SearchMapComponent, SvgIconDirective, PreviewDataComponent, SafeStylePipe, SafeUrlPipe, CardDownloadLayerComponent, HttpErrorComponent],
@@ -46,13 +48,14 @@ import { HttpErrorComponent } from './pages/http-error/http-error.component';
     TranslateModule,
     FlexLayoutModule,
     NotifierModule,
+    ShareIconsModule,
     LMarkdownEditorModule,
     ColorPickerModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,
-        deps: [HttpClient],
+        deps: [HttpBackend],
       }
     }),
   ],
@@ -73,6 +76,7 @@ import { HttpErrorComponent } from './pages/http-error/http-error.component';
     SafeStylePipe,
     SafeUrlPipe,
     CardDownloadLayerComponent,
+    ShareIconsModule,
     MarkdownEditorComponent,
     ColorPickerComponent,
     ColorPickerModule,

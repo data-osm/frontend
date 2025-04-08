@@ -9,7 +9,7 @@ import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper'
 import { TranslateService } from '@ngx-translate/core';
 import { style } from '@angular/animations';
 import { environment } from '../../../../../../environments/environment';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { UpdateDescriptionStyleComponent } from './update-description-style/update-description-style.component';
 
 @Component({
@@ -62,7 +62,7 @@ export class ListStyleComponent implements OnInit {
 
     this.notifier = notifierService;
 
-    const onInit:Subject<any> = new ReplaySubject<any>(1)
+    const onInit:Subject<void> = new ReplaySubject<void>(1)
     this.onInitInstance = ()=>{
       onInit.next()
       onInit.complete()

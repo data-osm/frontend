@@ -1,9 +1,10 @@
-<form  [formGroup]="formSearch" >
-    <mat-form-field appearance="outline" style="width: 100%;" >
+<form [formGroup]="formSearch">
+    <mat-form-field appearance="fill" class="search-layer-form">
         <mat-label> Rechercher une couche </mat-label>
-        <input type="text" matInput formControlName="searchWord" [matAutocomplete]="auto" >
-      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayAutocompleFn" (optionSelected)="optionAutocomplteSelected($event)" >
-          <mat-option [value]="layer" *ngFor="let layer of resultSearchLayer$ | async " > {{layer.name}} </mat-option>
-      </mat-autocomplete>
+        <input type="text" matInput formControlName="searchWord" [matAutocomplete]="auto">
+        <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayAutocompleFn"
+            (optionSelected)="optionAutocomplteSelected($event)">
+            <mat-option [value]="layer" *ngFor="let layer of resultSearchLayer$ | async "> {{layer.name}} </mat-option>
+        </mat-autocomplete>
     </mat-form-field>
 </form>

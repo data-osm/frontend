@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { GroupCarteComponent } from './group-carte.component';
 
@@ -6,7 +6,7 @@ describe('GroupCarteComponent', () => {
   let component: GroupCarteComponent;
   let fixture: ComponentFixture<GroupCarteComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ GroupCarteComponent ]
     })

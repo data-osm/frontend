@@ -1,12 +1,13 @@
 import { Component, OnInit, Input, NgZone } from '@angular/core';
 import {
-  Map, VectorSource, VectorLayer, Style, Icon, Stroke, Draw, Circle, Fill, Feature, Transform, Point, Polyline, CircleStyle, unByKey
+  Map, VectorSource, VectorLayer, Style, Icon, Stroke, Draw, Circle, Fill, Feature, Transform, Point, Polyline, CircleStyle, unByKey,
+  GeometryType,
+  FeatureLike
 } from '../../../../ol-module';
 import { TranslateService } from '@ngx-translate/core';
 import * as $ from 'jquery'
 import * as moment from 'moment'
 import { environment } from '../../../../../environments/environment';
-import GeometryType from 'ol/geom/GeometryType';
 import { Coordinate } from 'ol/coordinate';
 
 @Component({
@@ -23,9 +24,9 @@ export class RoutingComponent implements OnInit {
    * - roads
    * - marker
    */
-  layerRouting: VectorLayer
+  layerRouting: VectorLayer<FeatureLike>
 
-  sourceRouting: VectorSource<Point>
+  sourceRouting: VectorSource<FeatureLike>
 
   drawRouting: Draw
 
@@ -112,72 +113,71 @@ export class RoutingComponent implements OnInit {
       this.map.removeInteraction(this.drawRouting);
     }
 
-
-
-      this.drawRouting = new Draw({
-        source: this.sourceRouting,
-        type: GeometryType.POINT,
-        style: new Style({
-          image: new CircleStyle({
-            radius: 5,
-            fill: new Fill({
-              color: color
-            })
+    this.drawRouting = new Draw({
+      // @ts-expect-error
+      source: this.sourceRouting,
+      type: new GeometryType.POINT([]).getType(),
+      style: new Style({
+        image: new CircleStyle({
+          radius: 5,
+          fill: new Fill({
+            color: color
           })
         })
-      });
+      })
+    });
 
-      this.map.addInteraction(this.drawRouting);
+    this.map.addInteraction(this.drawRouting);
 
 
 
     // this.translate.get('notifications', { value: 'partager' }).subscribe((res: any) => {
-      // var notif = this.notif.open(res.click_on_map_itineraire, 'Fermer', {
-      //   duration: 20000
-      // });
+    // var notif = this.notif.open(res.click_on_map_itineraire, 'Fermer', {
+    //   duration: 20000
+    // });
 
-      this.drawRouting.on("drawend", (e) => {
-        // notif.dismiss()
+    this.drawRouting.on("drawend", (e) => {
+      // notif.dismiss()
 
-        this._ngZone.run(() => {
-          let geometry = e.feature.getGeometry()
+      this._ngZone.run(() => {
+        let geometry = e.feature.getGeometry()
 
-          let coord:Coordinate
+        let coord: Coordinate
 
-          if (geometry instanceof Point) {
-            coord = geometry.getCoordinates()
-            
+        if (geometry instanceof Point) {
+          coord = geometry.getCoordinates()
+
+        }
+
+        var coord_4326 = Transform(coord, 'EPSG:3857', 'EPSG:4326')
+
+        var feat_to_remove;
+
+        for (let index = 0; index < this.layerRouting.getSource().getFeatures().length; index++) {
+          const my_feat = this.layerRouting.getSource().getFeatures()[index];
+          if (my_feat.get('data') == type) {
+            feat_to_remove = my_feat
           }
+        }
 
-          var coord_4326 = Transform(coord, 'EPSG:3857', 'EPSG:4326')
+        if (feat_to_remove) {
+          this.layerRouting.getSource().removeFeature(feat_to_remove)
+        }
+        e.feature.set('data', type)
+        this.data_itineraire[type]['coord'] = coord_4326
+        this.data_itineraire[type]['set'] = true
 
-          var feat_to_remove;
+        var geocodeOsm = "https://nominatim.openstreetmap.org/reverse?format=json&lat=" + coord_4326[1] + "&lon=" + coord_4326[0] + "&zoom=18&addressdetails=1"
 
-          for (let index = 0; index < this.layerRouting.getSource().getFeatures().length; index++) {
-            const my_feat = this.layerRouting.getSource().getFeatures()[index];
-            if (my_feat.get('data') == type) {
-              feat_to_remove = my_feat
-            }
-          }
-
-          if (feat_to_remove) {
-            this.layerRouting.getSource().removeFeature(feat_to_remove)
-          }
-          e.feature.set('data',type)
-          this.data_itineraire[type]['coord'] = coord_4326
-          this.data_itineraire[type]['set'] = true
-
-          var geocodeOsm = "https://nominatim.openstreetmap.org/reverse?format=json&lat=" + coord_4326[1] + "&lon=" + coord_4326[0] + "&zoom=18&addressdetails=1"
-
-          $.get(geocodeOsm, (data) => {
-            var name = data.display_name.split(',')[0]
-            this.data_itineraire[type]['nom'] = name
-          })
-
-          this.calculate_itineraire()
-          this.map.removeInteraction(this.drawRouting);
+        $.get(geocodeOsm, (data) => {
+          var name = data.display_name.split(',')[0]
+          this.data_itineraire[type]['nom'] = name
         })
-      });
+
+        this.calculate_itineraire()
+        this.map.removeInteraction(this.drawRouting);
+      })
+    });
 
     // });
 

@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { AbstractControl, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { requiredFileType } from '../../../../../validators/upload-file-validators';
 import {IconService} from '../../../../administration/service/icon.service'
@@ -19,13 +19,13 @@ import { Icon } from '../../../../../type/type';
  */
 export class AddIconComponent implements OnInit {
 
-  form: FormGroup = this.formBuilder.group({})
+  form: UntypedFormGroup = this.formBuilder.group({})
   private readonly notifier: NotifierService;
   progress:number = 0
 
   constructor(
     public dialogRef: MatDialogRef<AddIconComponent>,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     notifierService: NotifierService,
     public IconService:IconService
   ) { 
@@ -49,9 +49,9 @@ export class AddIconComponent implements OnInit {
   initialiseForm() {
 
     // this.form.addControl('category',new FormControl(null, [Validators.required]))
-    this.form.addControl('attribution',new FormControl(null))
-    this.form.addControl('tags',new FormControl([]))
-    this.form.addControl('path',new FormControl(null,[Validators.required]))
+    this.form.addControl('attribution',new UntypedFormControl(null))
+    this.form.addControl('tags',new UntypedFormControl([]))
+    this.form.addControl('path',new UntypedFormControl(null,[Validators.required]))
     // this.form.addControl('path',new FormControl(null,[Validators.required, requiredFileType('svg')]))
   }
 

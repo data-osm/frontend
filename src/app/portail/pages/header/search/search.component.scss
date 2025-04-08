@@ -58,3 +58,17 @@
     margin-right: 7px;
   }
 }
+.header-search-form-field{
+  display: block;
+  width: 100%;
+  margin-left: 150px;
+}
+
+@media screen and (max-width: 450px){
+  .header-search-form-field{
+    margin-left: 0px;
+    margin: 0 auto !important;
+    width: calc(100% - 100px);
+    
+  }
+}

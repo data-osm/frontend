@@ -15,14 +15,14 @@ export interface geosignetInterface {
 export class geosignets {
 
   constructor(
-    public map:Map
-  ){}
+    public map: any
+  ) { }
   /**
    * get all geosignets
    * @return Array<geosignetInterface>
    */
   getAllGeosignets(): Array<geosignetInterface> {
-    var allGeoSignets:Array<geosignetInterface> = []
+    var allGeoSignets: Array<geosignetInterface> = []
     if (localStorage.getItem("signets")) {
       for (
         let index = 0;
@@ -38,7 +38,7 @@ export class geosignets {
     return allGeoSignets
   }
 
-  getGeoSignet(id:number):geosignetInterface{
+  getGeoSignet(id: number): geosignetInterface {
     for (
       let index = 0;
       index < this.getAllGeosignets().length;
@@ -72,10 +72,10 @@ export class geosignets {
    * go to a geo signet
    * @param id number id of the geosignet
    */
-  goToAGeosignet(id:number){
+  goToAGeosignet(id: number) {
     var geosignet = this.getGeoSignet(id)
     if (geosignet) {
-      new CartoHelper(this.map).fit_view(new Point(geosignet.coord),geosignet.zoom)
+      // new CartoHelper(this.map).fit_view(new Point(geosignet.coord),geosignet.zoom)
     }
   }
 

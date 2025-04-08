@@ -6,12 +6,13 @@ import { CdkStepperModule } from '@angular/cdk/stepper';
 import { CdkTableModule } from '@angular/cdk/table';
 import { CdkTreeModule } from '@angular/cdk/tree';
 import { NgModule } from '@angular/core';
-import { MatMenuModule } from '@angular/material/menu';
-import {MatProgressBarModule} from '@angular/material/progress-bar'
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner'
-import {MatTableModule} from '@angular/material/table'
-import {MatIconModule} from '@angular/material/icon'
-import {ClipboardModule} from '@angular/cdk/clipboard';
+import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
+import { MatLegacyProgressBarModule as MatProgressBarModule } from '@angular/material/legacy-progress-bar'
+import { MatLegacyProgressSpinnerModule as MatProgressSpinnerModule } from '@angular/material/legacy-progress-spinner'
+import { MatLegacyTableModule as MatTableModule } from '@angular/material/legacy-table'
+import { MatIconModule } from '@angular/material/icon'
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { MatDialogModule } from '@angular/material/dialog';
 
 // import {
 //   MatAutocompleteModule,
@@ -52,27 +53,27 @@ import {ClipboardModule} from '@angular/cdk/clipboard';
 // } from '@angular/material';
 
 import { MatSidenavModule } from '@angular/material/sidenav'
-import { MatTooltipModule } from '@angular/material/tooltip'
-import { MatButtonModule } from '@angular/material/button'
-import { MatCardModule } from '@angular/material/card'
-import {MatCheckboxModule} from '@angular/material/checkbox'
-import {MatExpansionModule} from '@angular/material/expansion'
-import {MatInputModule} from '@angular/material/input'
-import {MatSnackBarModule} from '@angular/material/snack-bar'
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatSliderModule} from '@angular/material/slider';
-import {MatChipsModule} from '@angular/material/chips';
-import {MatBadgeModule} from '@angular/material/badge';
-import {MatDialogModule} from '@angular/material/dialog';
-import {MatTabsModule} from '@angular/material/tabs';
-import {MatListModule} from '@angular/material/list';
-import {MatAutocompleteModule} from '@angular/material/autocomplete';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import {MatSelectModule} from '@angular/material/select';
-import {MatBottomSheetModule} from '@angular/material/bottom-sheet'
-import {MatPaginatorModule} from '@angular/material/paginator'
-import {MatRadioModule} from '@angular/material/radio';
-import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip'
+import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
+import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
+import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox'
+import { MatExpansionModule } from '@angular/material/expansion'
+import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input'
+import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar'
+import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatLegacySliderModule as MatSliderModule } from '@angular/material/legacy-slider';
+import { MatLegacyChipsModule as MatChipsModule } from '@angular/material/legacy-chips';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatLegacyDialogModule } from '@angular/material/legacy-dialog';
+import { MatLegacyTabsModule as MatTabsModule } from '@angular/material/legacy-tabs';
+import { MatLegacyListModule as MatListModule } from '@angular/material/legacy-list';
+import { MatLegacyAutocompleteModule as MatAutocompleteModule } from '@angular/material/legacy-autocomplete';
+import { MatLegacySlideToggleModule as MatSlideToggleModule } from '@angular/material/legacy-slide-toggle';
+import { MatLegacySelectModule as MatSelectModule } from '@angular/material/legacy-select';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet'
+import { MatLegacyPaginatorModule as MatPaginatorModule } from '@angular/material/legacy-paginator'
+import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSortModule } from '@angular/material/sort';
 
 @NgModule({
@@ -112,7 +113,8 @@ import { MatSortModule } from '@angular/material/sort';
     MatTableModule,
     MatRadioModule,
     ClipboardModule,
-    MatSortModule
+    MatSortModule,
+    MatLegacyDialogModule
   ]
 })
 export class ComponentMaterialModule { }

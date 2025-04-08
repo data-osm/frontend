@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Observable, of, EMPTY } from 'rxjs';
 import { filter, catchError, switchMap } from 'rxjs/operators';
 import { MapsService } from '../../../data/services/maps.service';
@@ -13,16 +13,16 @@ import { Map } from '../../../type/type';
 })
 export class SearchMapComponent implements OnInit, OnChanges {
 
-  searchtMapForm: FormGroup = this.fb.group({})
+  searchtMapForm: UntypedFormGroup = this.fb.group({})
   searchResultMap: Observable<Map[]>
 
-  @Input()selectedMap:FormControl = new FormControl(null)
+  @Input()selectedMap:UntypedFormControl = new UntypedFormControl(null)
 
   constructor(
     public mapService: MapsService,
-    public fb: FormBuilder,
+    public fb: UntypedFormBuilder,
   ) { 
-    let searchControl = new FormControl(null, Validators.min(3))
+    let searchControl = new UntypedFormControl(null, Validators.min(3))
 
     this.searchResultMap = searchControl.valueChanges.pipe(
       filter((search_word) => typeof search_word === 'string' && search_word.length > 2),

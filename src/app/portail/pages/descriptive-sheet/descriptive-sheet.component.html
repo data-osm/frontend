@@ -1,27 +1,31 @@
-<h1 mat-dialog-title class="accentColorBG white" cdkDrag cdkDragRootElement=".cdk-overlay-pane" style="position: relative;"  >
-  <div class="descriptive-sheet-header-ghost" cdkDragHandle ></div>
-  <img [src]="environment.backend + dataOsmLAyer?.layer.cercle_icon" alt="" srcset="" class="icon_header" style="margin-top: 4px;;height: 25px;">
+<h1 mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" class="descriptive-sheet-header white">
+  <div class="descriptive-sheet-header-ghost" cdkDragHandle></div>
+  <img [src]="environment.backend + dataOsmLAyer?.layer.cercle_icon" alt="" srcset="" class="icon_header"
+    style="margin-top: 4px;;height: 25px;">
   <i class="fa fa-times-circle close" (click)="closeModal()"></i>
-  <i class="fa fa-arrows-alt white" style="font-size:20px" aria-hidden="true"  ></i>
+  <i class="fa fa-arrows-alt white" style="font-size:20px" aria-hidden="true"></i>
 
   {{ dataOsmLAyer?.layer.name}}
 </h1>
 
-<ng-container *ngIf="{ features:features$|async} as context" >
-<div mat-dialog-content style="padding-top: 5px;max-height: 250px !important;" class="scroll" *ngIf="context.features == undefined"  >
-  <div style="position: relative;margin-top: 10px;" *ngIf="featureInfoIsLoading"   >
-    <div style="position:absolute;top:calc(50% - 30px);left:40%">
-      <div class="lds-ripple" style="width: 100px;
+<ng-container *ngIf="{ features:features$|async} as context">
+  <div mat-dialog-content class="descriptive-sheet-content primaryColorBG white scroll"
+    *ngIf="context.features == undefined">
+    <div style="position: relative;margin-top: 10px;" *ngIf="featureInfoIsLoading">
+      <div style="position:absolute;top:calc(50% - 30px);left:40%">
+        <div class="lds-ripple" style="width: 100px;
 height: 100px;">
           <div></div>
           <div></div>
+        </div>
       </div>
+    </div>
   </div>
-  </div>
-</div>
 
-<ng-container *ngIf="context.features != undefined" >
-  <app-osm-sheet *ngIf="data.type == 'osm'" [features]="context.features" [dataOsmLAyer]="dataOsmLAyer"  [coord]="data.coordinates_3857"  [map]="data.map" [highlightLayer]="highlightLayer" (closeDescriptiveSheet)="closeModal()"></app-osm-sheet>
-</ng-container>
+  <ng-container *ngIf="context.features != undefined">
+    <app-osm-sheet *ngIf="data.type == 'osm'" [features]="context.features" [dataOsmLAyer]="dataOsmLAyer"
+      [coord]="data.coordinates_3857" [object]="data.object" [map]="data.map"
+      (closeDescriptiveSheet)="closeModal()"></app-osm-sheet>
+  </ng-container>
 
 </ng-container>

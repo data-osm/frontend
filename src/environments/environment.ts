@@ -6,19 +6,22 @@ export const environment = {
   production: false,
   global_logo: undefined,
   primaryColor: '#023f5f',
-  backend:'http://127.0.0.1:8000',
-  url_carto:'http://127.0.0.1:3000/ows/?map=',
+  // backend: 'https://ws.dataosm.info',
+  // url_carto: 'https://tiles.dataosm.info/ows/?map=',
+  backend: 'http://localhost:8000',
+  url_carto: 'http://localhost:3000/ows/?map=',
   url_frontend: 'http://localhost:4200',
-  nom_instance:"OSMdata",
-  matomoUrl:'https://matomo.geosm.org/',
-  matomoSiteId:1
+  nom_instance: "OSMdata",
+  matomoUrl: 'https://piwik.dataosm.info/',
+  matomoSiteId: 4,
+  building_tile: "https://buildings.dataosm.info/data/data/{z}/{x}/{y}.pbf"
+  // building_tile: "http://localhost:8081/data/data/{z}/{x}/{y}.pbf"
 };
 
 /*
  * For easier debugging in development mode, you can import the following file
  * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
- *"http://adminfrance.geocameroun.xyz/",
  * This import should be commented out in production mode because it will have a negative impact
  * on performance if an error is thrown.
  */
-// import 'zone.js/dist/zone-error';  // Included with Angular CLI.
+// import 'zone.js/plugins/zone-error';  // Included with Angular CLI.

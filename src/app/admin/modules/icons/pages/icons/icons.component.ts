@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { UntypedFormGroup, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { icon } from '@fortawesome/fontawesome-svg-core';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
@@ -32,7 +32,7 @@ export class IconsComponent implements OnInit {
   url_prefix = environment.backend
   onIconSelect:Subject<Icon> = new Subject<Icon>()
   searchResultIcon:Observable<Icon[]> 
-  searchIconForm: FormGroup = this.fb.group({})
+  searchIconForm: UntypedFormGroup = this.fb.group({})
 
   loading_icon:boolean = true
 
@@ -47,13 +47,13 @@ export class IconsComponent implements OnInit {
     public manageCompHelper: ManageCompHelper,
     public IconService: IconService,
     notifierService: NotifierService,
-    public fb: FormBuilder,
+    public fb: UntypedFormBuilder,
     public dialog:MatDialog,
     public translate: TranslateService,
   ) {
     this.notifier = notifierService;
 
-    let searchControl = new FormControl(null, Validators.min(3))
+    let searchControl = new UntypedFormControl(null, Validators.min(3))
     this.searchResultIcon = searchControl.valueChanges.pipe(
       filter((search_word) => typeof search_word === 'string' &&  search_word.length > 2),
       catchError((err) => of([]) ),

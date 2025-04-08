@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output, Query } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { NotifierService } from 'angular-notifier';
 import { Subject, ReplaySubject, Observable, merge, EMPTY } from 'rxjs';
 import { catchError, filter, shareReplay, switchMap, tap } from 'rxjs/operators';
@@ -37,9 +37,9 @@ export class QuerryVectorProviderComponent implements OnInit {
     /**
    * form for the sql querry
    */
-  form:FormGroup = this.fb.group({
-    sql:new FormControl(undefined,[Validators.required]),
-    connection:new FormControl(undefined,[Validators.required]),
+  form:UntypedFormGroup = this.fb.group({
+    sql:new UntypedFormControl(undefined,[Validators.required]),
+    connection:new UntypedFormControl(undefined,[Validators.required]),
   })
 
   /**
@@ -54,7 +54,7 @@ export class QuerryVectorProviderComponent implements OnInit {
   constructor(
     public osmQuerryService:OsmQuerryService,
     public notifierService: NotifierService,
-    public fb: FormBuilder,
+    public fb: UntypedFormBuilder,
   ) { 
     const onInit:ReplaySubject<void> = new ReplaySubject<void>(1)
     this.onInitInstance = ()=>{

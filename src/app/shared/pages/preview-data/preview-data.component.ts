@@ -1,12 +1,12 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { NotifierService } from 'angular-notifier';
 import { from } from 'rxjs';
 import { DataForPreview } from '../../../type/type';
 import {
 Map, TileLayer, TileWMS, RasterSource, VectorSource, VectorLayer,OSM, View, ImageWMS, ImageLayer, LayerGroup, transformExtent
 }from '../../../ol-module'
-import { MatRadioChange } from '@angular/material/radio';
+import { MatLegacyRadioChange as MatRadioChange } from '@angular/material/legacy-radio';
 import { environment } from '../../../../environments/environment';
 import XYZ from 'ol/source/XYZ';
 

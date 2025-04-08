@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder, Validators, UntypedFormControl } from '@angular/forms';
 import { AuthService } from '../auth.service'
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from "angular-notifier";
@@ -13,11 +13,11 @@ import { Router } from '@angular/router';
 export class LoginComponent implements OnInit {
 
   /** form for login */
-  loginForm: FormGroup = this.fb.group({})
+  loginForm: UntypedFormGroup = this.fb.group({})
   private readonly notifier: NotifierService;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public translate: TranslateService,
     public AuthService: AuthService,
     notifierService: NotifierService,
@@ -35,8 +35,8 @@ export class LoginComponent implements OnInit {
    * initilialise login form
    */
   initialiseLoginForm() {
-    this.loginForm.addControl('email', new FormControl('', Validators.compose([Validators.required, Validators.email])))
-    this.loginForm.addControl('password', new FormControl('', Validators.required))
+    this.loginForm.addControl('email', new UntypedFormControl('', Validators.compose([Validators.required, Validators.email])))
+    this.loginForm.addControl('password', new UntypedFormControl('', Validators.required))
   }
 
   /**

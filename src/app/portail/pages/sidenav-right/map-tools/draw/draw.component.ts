@@ -1,9 +1,11 @@
 import { Component, OnInit, Input, NgZone, SimpleChanges } from '@angular/core';
 import {
-  Map, Draw, VectorSource, VectorLayer, Style, Fill, Stroke, CircleStyle, Modify, Feature, unByKey, Overlay, Select,Text, GeoJSON, getCenter, Geometry, Polygon, Point, LineString
+  Map, Draw, VectorSource, VectorLayer, Style, Fill, Stroke, CircleStyle, Modify, Feature, unByKey, Overlay, Select, Text, GeoJSON, getCenter, Geometry, Polygon, Point, LineString,
+  OverlayPositioning, GeometryType,
+  FeatureLike
 } from '../../../../../ol-module';
 import * as $ from 'jquery'
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 import { manageDataHelper } from '../../../../../../helper/manage-data.helper'
 import { CartoHelper } from '../../../../../../helper/carto.helper'
 import { NotifierService } from "angular-notifier";
@@ -11,8 +13,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../../../../environments/environment';
 import { BackendApiService } from '../../../../../services/backend-api/backend-api.service';
 import { ManageCompHelper } from '../../../../../../helper/manage-comp.helper';
-import OverlayPositioning from 'ol/OverlayPositioning';
-import GeometryType from 'ol/geom/GeometryType';
+
 
 export interface drawToolInterace {
   active: boolean,
@@ -41,12 +42,12 @@ export interface propertiesFeatureInterface {
   featureId: string
 }
 
-export interface modelOfDrawDataInDBInterface{
-  comment:string,
-  geom:Object,
-  geometry:Array<any>,
-  hexa_code:string,
-  type:'Point' | 'LineString' | 'Polygon'
+export interface modelOfDrawDataInDBInterface {
+  comment: string,
+  geom: Object,
+  geometry: Array<any>,
+  hexa_code: string,
+  type: 'Point' | 'LineString' | 'Polygon'
 }
 
 /**
@@ -59,7 +60,7 @@ export interface modelOfDrawDataInDBInterface{
 })
 export class DrawComponent implements OnInit {
 
-  @Input() map: Map
+  @Input() map: any
 
   environment
 
@@ -73,13 +74,13 @@ export class DrawComponent implements OnInit {
   /**
    * VectorSource of draw interaction
    */
-  source: VectorSource<Polygon|Point|LineString> = new VectorSource();
+  source: VectorSource<FeatureLike> = new VectorSource();
   /**
    * VectorLayer of draw interaction
    */
-  vector: VectorLayer = new VectorLayer({
+  vector = new VectorLayer({
     source: this.source,
-    style: (feature)=>{
+    style: (feature) => {
       var color = this.primaryColor
       if (feature.get('color')) {
         color = feature.get('color')
@@ -123,7 +124,8 @@ export class DrawComponent implements OnInit {
    * Modify interaction
    */
   modify: Modify = new Modify({
-    source: this.source ,
+    //@ts-expect-error
+    source: this.source,
     style: new Style({
       fill: new Fill({
         color: [255, 0, 255, 0.7]
@@ -172,9 +174,9 @@ export class DrawComponent implements OnInit {
   })
 
 
-   /**
-   * Overlay for edit color of feature
-   */
+  /**
+  * Overlay for edit color of feature
+  */
 
   overlayColor: Overlay = new Overlay({
     position: undefined,
@@ -183,10 +185,10 @@ export class DrawComponent implements OnInit {
     stopEvent: true
   });
 
-   /**
-   * Overlay for edit properties of feature
-   * like a text, comment, etc...
-   */
+  /**
+  * Overlay for edit properties of feature
+  * like a text, comment, etc...
+  */
 
   overlay: Overlay = new Overlay({
     position: undefined,
@@ -197,7 +199,7 @@ export class DrawComponent implements OnInit {
   /**
    * Formgroup for edit properties of feature
    */
-  formulaireText: FormGroup
+  formulaireText: UntypedFormGroup
 
   /**
    * Differents type of draw
@@ -223,33 +225,33 @@ export class DrawComponent implements OnInit {
 
   constructor(
     public _ngZone: NgZone,
-    public fb: FormBuilder,
+    public fb: UntypedFormBuilder,
     notifierService: NotifierService,
     public translate: TranslateService,
-    public backendApiService:BackendApiService,
-    public manageCompHelper:ManageCompHelper
+    public backendApiService: BackendApiService,
+    public manageCompHelper: ManageCompHelper
   ) {
     this.environment = environment
     this.notifier = notifierService;
 
-    this.vector.set('type_layer','draw')
-    this.vector.set('nom','draw')
+    this.vector.set('type_layer', 'draw')
+    this.vector.set('nom', 'draw')
   }
 
   ngOnInit(): void {
-    
+
   }
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     // if (changes.map.currentValue) {
     //   if (this.map) {
-        this.map.addOverlay(this.overlay);
-        this.map.addOverlay(this.overlayColor);
-        var cartoHelperClassMap = new CartoHelper(this.map)
-        this.vector.set('iconImagette',environment.url_frontend+'/assets/icones/draw.svg')
-        this.vector.set('inToc',false)
-    
-        cartoHelperClassMap.addLayerToMap(this.vector)
+    // this.map.addOverlay(this.overlay);
+    // this.map.addOverlay(this.overlayColor);
+    // var cartoHelperClassMap = new CartoHelper(this.map)
+    this.vector.set('iconImagette', environment.url_frontend + '/assets/icones/draw.svg')
+    this.vector.set('inToc', false)
+
+    CartoHelper.addLayerToMap(this.vector as any, this.map)
     //   }
     // }
   }
@@ -271,7 +273,7 @@ export class DrawComponent implements OnInit {
    * VALUE OF THE COLOR PICKER CHANGED
    * @param new_color {value:string}
    */
-  colorChanged(new_color:string){
+  colorChanged(new_color: string) {
     this.formulaireText.controls['color'].setValue(new_color)
   }
 
@@ -306,7 +308,7 @@ export class DrawComponent implements OnInit {
         if (this.formulaireText.controls[key]) {
           this.formulaireText.controls[key].setValue(element)
         } else {
-          this.formulaireText.addControl(key, new FormControl(element))
+          this.formulaireText.addControl(key, new UntypedFormControl(element))
         }
       }
     }
@@ -335,7 +337,7 @@ export class DrawComponent implements OnInit {
   /**
    * Hide overlay of color
    */
-  hideOverlayColor(){
+  hideOverlayColor() {
     $('#overlay-draw-color').hide()
   }
 
@@ -349,6 +351,7 @@ export class DrawComponent implements OnInit {
       for (const key in this.formulaireText.getRawValue()) {
         if (this.formulaireText.getRawValue().hasOwnProperty(key)) {
           const element = this.formulaireText.getRawValue()[key];
+          // @ts-expect-error
           feature.set(key, element)
         }
       }
@@ -362,16 +365,17 @@ export class DrawComponent implements OnInit {
    * @param type 'Point'|'LineString'|'Polygon'
    */
   addInteractions(type: 'Point' | 'LineString' | 'Polygon') {
-    let geomType :GeometryType;
-    if (type =='Point') {
+    let geomType;
+    if (type == 'Point') {
       geomType = GeometryType.POINT
-    } else if (type =='LineString') {
+    } else if (type == 'LineString') {
       geomType = GeometryType.LINE_STRING
-    } else if (type =='Polygon') {
+    } else if (type == 'Polygon') {
       geomType = GeometryType.POLYGON
-    } 
+    }
 
     this.draw = new Draw({
+      // @ts-expect-error
       source: this.source,
       type: geomType
     });
@@ -384,7 +388,7 @@ export class DrawComponent implements OnInit {
         var cartoHelperClassMap = new CartoHelper(this.map)
         var zIndex = cartoHelperClassMap.getMaxZindexInMap()
         if (this.vector.getZIndex() < zIndex) {
-          this.vector.setZIndex(zIndex+1)
+          this.vector.setZIndex(zIndex + 1)
         }
 
       })
@@ -394,8 +398,9 @@ export class DrawComponent implements OnInit {
     var keyEventEnd = this.draw.on('drawend', (DrawEvent: any) => {
       this._ngZone.run(() => {
         var drawFeature: Feature = DrawEvent.feature
-        drawFeature.set('type',type)
+        drawFeature.set('type', type)
         let featureId = manageDataHelper.makeid()
+        // @ts-expect-error
         let allFeatureIds = CartoHelper.listIdFromSource(this.source)
 
         while (allFeatureIds.indexOf(featureId) != -1) {
@@ -403,9 +408,9 @@ export class DrawComponent implements OnInit {
         }
 
         drawFeature.setId(featureId)
-        
-        
-        let positionOfOverlay =getCenter(drawFeature.getGeometry().getExtent())
+
+
+        let positionOfOverlay = getCenter(drawFeature.getGeometry().getExtent())
 
         this.constructFormText({
           comment: '',
@@ -484,7 +489,7 @@ export class DrawComponent implements OnInit {
         this.modifyTool.active = true
       }
 
-    }else{
+    } else {
       this.modifyTool.active = false
       this.desactivateAllModificationTool()
 
@@ -499,7 +504,7 @@ export class DrawComponent implements OnInit {
    * Remove all modification interaction and key event:
    * clear all from from this.modifyTool.interactions and this.modifyTool.key
    */
-  removeAllModifiactionInteraction(){
+  removeAllModifiactionInteraction() {
     for (let index = 0; index < this.modifyTool.interactions.length; index++) {
       this.map.removeInteraction(this.modifyTool.interactions[index])
     }
@@ -515,7 +520,7 @@ export class DrawComponent implements OnInit {
   /**
    * Desactivate all mode of the modification mode
    */
-  desactivateAllModificationTool(){
+  desactivateAllModificationTool() {
     this.modifyTool.geometry.active = false
     this.modifyTool.comment.active = false
     this.modifyTool.color.active = false
@@ -530,13 +535,13 @@ export class DrawComponent implements OnInit {
    */
   modifyDraw(type: 'geometry' | 'comment' | 'color' | 'delete') {
 
-    if (type=='comment') {
+    if (type == 'comment') {
       this.toogleModifyDrawComment()
-    }else if (type=='geometry') {
+    } else if (type == 'geometry') {
       this.toogleModifyDrawGeometry()
-    }else if (type=='delete') {
+    } else if (type == 'delete') {
       this.toogleModifyDeleteFeature()
-    }else if (type == 'color'){
+    } else if (type == 'color') {
       this.toogleModifyDrawColor()
     }
   }
@@ -563,7 +568,7 @@ export class DrawComponent implements OnInit {
           var feature = selectFeatures[0]
 
           let positionOfOverlay = getCenter(feature.getGeometry().getExtent())
-          
+
           this.constructFormText({
             comment: feature.get('comment') ? feature.get('comment') : '',
             color: feature.get('color') ? feature.get('color') : undefined,
@@ -587,7 +592,7 @@ export class DrawComponent implements OnInit {
    * Activate/desactivate geometric edition of features that have been draw
    */
 
-   toogleModifyDrawGeometry(){
+  toogleModifyDrawGeometry() {
     if (this.modifyTool.geometry.active) {
       this.desactivateAllModificationTool()
     } else {
@@ -598,12 +603,12 @@ export class DrawComponent implements OnInit {
       this.map.addInteraction(this.modify)
       this.modifyTool.interactions.push(this.modify)
     }
-   }
+  }
 
-   /**
-   * Activate/desactivate delete feature from freatures that have been draw
-   */
-  toogleModifyDeleteFeature(){
+  /**
+  * Activate/desactivate delete feature from freatures that have been draw
+  */
+  toogleModifyDeleteFeature() {
     if (this.modifyTool.delete.active) {
       this.desactivateAllModificationTool()
     } else {
@@ -616,7 +621,7 @@ export class DrawComponent implements OnInit {
       var keyEventSelect = this.select.on('select', (SelectEvent: any) => {
         let selectFeatures: Array<Feature> = SelectEvent.selected
         if (selectFeatures.length > 0) {
-          var feature:any = selectFeatures[0]
+          var feature: any = selectFeatures[0]
           this.source.removeFeature(feature)
         }
       })
@@ -626,11 +631,11 @@ export class DrawComponent implements OnInit {
     }
   }
 
-    /**
-   * Activate/desactivate color edition of features that have been draw
-   */
+  /**
+ * Activate/desactivate color edition of features that have been draw
+ */
 
-  toogleModifyDrawColor(){
+  toogleModifyDrawColor() {
     if (this.modifyTool.color.active) {
       this.desactivateAllModificationTool()
     } else {
@@ -645,7 +650,7 @@ export class DrawComponent implements OnInit {
         let selectFeatures: Array<Feature> = SelectEvent.selected
         if (selectFeatures.length > 0) {
           var feature = selectFeatures[0]
-          let positionOfOverlay =  getCenter(feature.getGeometry().getExtent())
+          let positionOfOverlay = getCenter(feature.getGeometry().getExtent())
           if (!this.overlayColor.getElement()) {
             this.overlayColor.setElement(document.getElementById('overlay-draw-color'))
           }
@@ -669,25 +674,27 @@ export class DrawComponent implements OnInit {
       this.modifyTool.key.push(keyEventSelect)
 
     }
-   }
+  }
   /**
    * Share all draw :
    * Will save all draw id DB, return the unique ID of the draw
    */
   shareAllDraw() {
     if (this.source.getFeatures().length > 0) {
-      let dataToSendInDB:Array<modelOfDrawDataInDBInterface> = []
+      let dataToSendInDB: Array<modelOfDrawDataInDBInterface> = []
 
       for (let index = 0; index < this.source.getFeatures().length; index++) {
         const feature = this.source.getFeatures()[index];
 
         feature.getGeometry()
         dataToSendInDB.push({
-          type:feature.get('type'),
-          comment:feature.get('comment')?feature.get('comment'):'',
-          hexa_code:feature.get('color')?feature.get('color'):this.primaryColor,
-          geom:new GeoJSON().writeGeometryObject(feature.getGeometry()),
-          geometry:feature.getGeometry().getCoordinates()
+          type: feature.get('type'),
+          comment: feature.get('comment') ? feature.get('comment') : '',
+          hexa_code: feature.get('color') ? feature.get('color') : this.primaryColor,
+          // @ts-expect-error
+          geom: new GeoJSON().writeGeometryObject(feature.getGeometry()),
+          // @ts-expect-error
+          geometry: feature.getGeometry().getCoordinates()
         })
       }
       // $('.accordion-draw-loading').show()
@@ -713,7 +720,7 @@ export class DrawComponent implements OnInit {
       //   }
       // )
 
-    }else{
+    } else {
 
       this.translate.get('draw_in_map').subscribe((res: any) => {
         this.notifier.notify("default", res.no_draw_features);
