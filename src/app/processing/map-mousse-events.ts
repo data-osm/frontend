@@ -183,15 +183,15 @@ export class MapMousseEvents {
 
                 // @ts-expect-error
                 let uv = target.extent.offsetInExtent(map_pick_result[0].coord, tmpVec2);
-                let i, j
-                if (layerTextureInfo) {
-                    const transformed = layerTextureInfo.offsetScale.transform(uv)
-                    const uu = MathUtils.clamp(transformed.x, 0, 1);
-                    const vv = MathUtils.clamp(transformed.y, 0, 1);
+                // let i, j
+                // if (layerTextureInfo) {
+                //     const transformed = layerTextureInfo.offsetScale.transform(uv)
+                //     const uu = MathUtils.clamp(transformed.x, 0, 1);
+                //     const vv = MathUtils.clamp(transformed.y, 0, 1);
 
-                    i = MathUtils.clamp(Math.round(uu * target.width - 1), 0, target.width);
-                    j = MathUtils.clamp(Math.round(vv * target.height - 1), 0, target.height);
-                }
+                //     i = MathUtils.clamp(Math.round(uu * target.width - 1), 0, target.width);
+                //     j = MathUtils.clamp(Math.round(vv * target.height - 1), 0, target.height);
+                // }
 
                 const renderer = layer["_composer"].composer["_renderer"] as WebGLRenderer
 

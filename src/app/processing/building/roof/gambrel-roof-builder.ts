@@ -6,8 +6,8 @@ import { splitSkeletonPolygon } from "./utils";
 
 
 export default class GambrelRoofBuilder extends GabledRoofBuilder {
-    protected splitProgress: number = 0.3;
-    protected edgeBumpFactor: number = 0.3;
+    protected splitProgress: number = 0.1;
+    protected edgeBumpFactor: number = 0.1;
 
     protected override convertSkeletonPolygonToVertices(
         {

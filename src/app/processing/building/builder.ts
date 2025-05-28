@@ -346,7 +346,7 @@ export function createBuildingPolygons(olFeatures: Feature<Polygon>[]) {
                 areas.push({
                     type: 'area',
                     rings: [ring],
-                    osmReference: null,
+                    osmReference: olFeature.getProperties()["osmId"],
                     descriptor: {
                         type: 'building',
                         ombb: getOMBB(olFeature.getProperties() as BuildingProperties),
@@ -379,10 +379,11 @@ export class Builder {
     // rings: Array<Tile3DRing>
     private mercatorScale: number = 1.52122668;
     descriptor: VectorAreaDescriptor
-
+    feature: VectorArea
     constructor(
         feature: VectorArea
     ) {
+        this.feature = feature
         this.descriptor = feature.descriptor;
         this.rings = feature.rings;
     }
@@ -467,6 +468,7 @@ export class Builder {
 
         const facadeMinHeight = this.descriptor.buildingFoundation ? TERRAINMAXHEIGHT : TERRAINMINHEIGHT;
         const foundationHeight = TERRAINMAXHEIGHT - TERRAINMINHEIGHT;
+
 
         const { skirt, facadeHeightOverride } = builder.addRoof({
             terrainHeight: facadeMinHeight,

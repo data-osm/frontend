@@ -366,7 +366,6 @@ export default class WallsBuilder {
         const uvs: number[] = [];
         const textureIds: number[] = [];
         const segmentCount = isClosed ? vertices.length : (vertices.length - 1);
-
         for (let i = 0; i < segmentCount; i++) {
             let vertexHeight: number;
             let nextVertexHeight: number;
@@ -410,7 +409,6 @@ export default class WallsBuilder {
                 textureIds.push(textureId);
             }
         }
-
         return { uvs, textureIds };
     }
 }

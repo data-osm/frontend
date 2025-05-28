@@ -497,7 +497,7 @@ export class BuildingLayer {
         this.noiseTexture = noiseTexture
     }
 
-    getBuildingsTile(coordinate: Vector2) {
+    getBuildingsTile(coordinate: Vector2): [boolean, BuildingsTile] {
 
         // const tilePosition = new Vector2(
         //     Math.ceil(coordinate.x - BUILDING_TILE_SIZE),
@@ -507,8 +507,9 @@ export class BuildingLayer {
 
         const tilePosition = coordinate
         const tile_key = tilePosition.x + "_" + tilePosition.y
-        if (this._tileSets.has(tile_key)) {
-            return this._tileSets.get(tile_key)
+        const isTileAlreadyCreated = this._tileSets.has(tile_key)
+        if (isTileAlreadyCreated) {
+            return [true, this._tileSets.get(tile_key)]
         }
 
         const newBuildingTile = new BuildingsTile()
@@ -523,7 +524,7 @@ export class BuildingLayer {
         this.buildingGroup.add(newBuildingTile)
 
         this._tileSets.set(tile_key, newBuildingTile)
-        return newBuildingTile
+        return [false, newBuildingTile]
     }
 
     currentZoomChanged(zoom: number) {
@@ -681,16 +682,16 @@ export class BuildingLayer {
 
         for (let index = 0; index < tilesToLoad.length; index++) {
             const tile = tilesToLoad[index];
-            const features = getFeaturesFromTileCoord(tile, 16).filter((feat) => feat.getProperties()["layer"] == "buildings" && ["bench", "construction", "streetLamp", "busStop"].indexOf(feat.getProperties()["type"]) == -1)
+            let features = getFeaturesFromTileCoord(tile, 16).filter((feat) => feat.getProperties()["layer"] == "buildings" && ["bench", "construction", "streetLamp", "busStop"].indexOf(feat.getProperties()["type"]) == -1)
 
             if (features.length > 0) {
                 const buildingTileCenter = getBottomLeft(vectorTileSource.tileGrid.getTileCoordExtent(tile.getTileCoord()))
                 const x = buildingTileCenter[0]
                 const y = buildingTileCenter[1]
 
+                const [isTileAlreadyCreated, buildingTile] = this.getBuildingsTile(new Vector2(x, y))
 
 
-                const buildingTile = this.getBuildingsTile(new Vector2(x, y))
                 const worldBuildingPosition = buildingTile.getWorldPosition(new Vector3())
                 const serializableFeatures = features.map((feature) => {
                     return {
@@ -701,9 +702,7 @@ export class BuildingLayer {
                         "properties": feature.getProperties()
                     }
                 })
-                if (tile.getTileCoord()[1] == 33191 && tile.getTileCoord()[2] == 22540) {
-                    console.log(x, y, serializableFeatures[0].flatCoordinates)
-                }
+
                 // console.log(buildingTile.position, "position")
                 if (window.Worker && typeof Worker !== 'undefined') {
                     // Create a new
