@@ -1,31 +1,55 @@
-<h1 mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" class="descriptive-sheet-header white">
+<h1 mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane"
+  style="margin-top: -70px !important;padding-bottom: 15px !important;" class="descriptive-sheet-header white">
   <div class="descriptive-sheet-header-ghost" cdkDragHandle></div>
-  <img [src]="environment.backend + dataOsmLAyer?.layer.cercle_icon" alt="" srcset="" class="icon_header"
-    style="margin-top: 4px;;height: 25px;">
-  <i class="fa fa-times-circle close" (click)="closeModal()"></i>
-  <i class="fa fa-arrows-alt white" style="font-size:20px" aria-hidden="true"></i>
 
-  {{ dataOsmLAyer?.layer.name}}
+  <div fxLayout>
+    <ng-container *ngIf="getModalIcon() as modalIcon">
+      <img fxFlex="25px" [src]="modalIcon" alt="" srcset="" class="icon_header" style="margin-top: 4px;height: 25px;">
+    </ng-container>
+
+    <span fxFlex>
+      <i class="fa fa-arrows-alt white" style="font-size:20px" aria-hidden="true"></i>
+      {{ getModalName()}}
+    </span>
+    <i fxFlexAlign="center" class="fa fa-times-circle " (click)="closeModal()"></i>
+  </div>
+
 </h1>
 
-<ng-container *ngIf="{ features:features$|async} as context">
-  <div mat-dialog-content class="descriptive-sheet-content primaryColorBG white scroll"
-    *ngIf="context.features == undefined">
-    <div style="position: relative;margin-top: 10px;" *ngIf="featureInfoIsLoading">
-      <div style="position:absolute;top:calc(50% - 30px);left:40%">
-        <div class="lds-ripple" style="width: 100px;
+<ng-container *ngIf="{ entities:entities$|async} as context">
+
+  <div style="position: relative;margin-top: 10px;" *ngIf="featureInfoIsLoading">
+    <div style="position:absolute;top:calc(50% - 30px);left:40%">
+      <div class="lds-ripple" style="width: 100px;
 height: 100px;">
-          <div></div>
-          <div></div>
-        </div>
+        <div></div>
+        <div></div>
       </div>
     </div>
   </div>
 
-  <ng-container *ngIf="context.features != undefined">
-    <app-osm-sheet *ngIf="data.type == 'osm'" [features]="context.features" [dataOsmLAyer]="dataOsmLAyer"
-      [coord]="data.coordinates_3857" [object]="data.object" [map]="data.map"
-      (closeDescriptiveSheet)="closeModal()"></app-osm-sheet>
+
+
+  <ng-container *ngIf="context.entities != undefined">
+    <div class="chip-container" [style.display]="context.entities.length == 1 ? 'none' : 'flex'">
+      <mat-chip-listbox [multiple]="false" color="accent" selectable>
+        <mat-chip-option *ngFor="let entity of context.entities ; let index = index" [value]="entity"
+          [selected]="index==0" (selectionChange)="onChipSelectionChange($event, entity)">
+          {{getFeatureName(entity)}}
+        </mat-chip-option>
+      </mat-chip-listbox>
+    </div>
+
+    <ng-container *ngIf="selectedEntity && selectedEntityKey">
+      <app-osm-sheet *ngIf="selectedEntity.data.type == 'osm' " [feature]="selectedEntity.feature"
+        [dataOsmLAyer]="selectedEntity.dataOsmLAyer" [coord]="selectedEntity.data.coordinates_3857"
+        [object]="selectedEntity.data.object" [map]="selectedEntity.data.map"></app-osm-sheet>
+
+      <app-building-sheet *ngIf="selectedEntity.data.type == 'building' " [feature]="selectedEntity.feature"
+        [coord]="selectedEntity.data.coordinates_3857" [object]="selectedEntity.data.object"
+        [map]="selectedEntity.data.map" (closeModal)="closeModal()"> </app-building-sheet>
+    </ng-container>
+
   </ng-container>
 
 </ng-container>

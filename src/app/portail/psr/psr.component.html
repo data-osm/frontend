@@ -4,6 +4,7 @@
     <app-header [instance]="instance" [map]="map"></app-header>
 
     <div id="map" #mapDiv>
+      <div id="giro3d-inspector"></div>
       <div id="scale-map"></div>
       <div id="mouse-position-map"></div>
 
@@ -69,6 +70,11 @@
                 primaryColor: rightMenu.active
               }">file_download</mat-icon>
 
+            <mat-icon *ngIf="rightMenu.name == 'import-data'" [ngClass]="{
+              white: !rightMenu.active,
+              primaryColor: rightMenu.active
+            }">file_download</mat-icon>
+
           </button>
         </ng-container>
       </div>
@@ -81,6 +87,7 @@
         <app-table-of-contents [map]="map" [hidden]="!getRightMenu('toc').active"></app-table-of-contents>
         <app-legend [map]="map" [hidden]="!getRightMenu('legend').active"></app-legend>
         <app-download [map]="map" [hidden]="!getRightMenu('download').active"></app-download>
+        <app-import-data [map]="map" [hidden]="!getRightMenu('import-data').active"></app-import-data>
       </div>
     </div>
   </mat-sidenav-content>

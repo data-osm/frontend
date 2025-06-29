@@ -1,7 +1,7 @@
 import { Coordinate } from "ol/coordinate";
 import { AlwaysDepth, Box3, BufferAttribute, BufferGeometry, Float32BufferAttribute, GreaterEqualDepth, Group, InstancedBufferAttribute, InstancedBufferGeometry, InstancedInterleavedBuffer, InterleavedBuffer, InterleavedBufferAttribute, LessDepth, Line, LineBasicMaterial, Material, Mesh, MeshBasicMaterial, NeverDepth, Object3DEventMap, PerspectiveCamera, PlaneGeometry, Points, ShaderMaterial, Vector2, Vector3 } from "three";
 import { Instance, Map as Giro3DMap, OrbitControls, OLUtils, tile } from "../../giro-3d-module";
-import { CartoHelper, CustomVectorSource } from "../../../helper/carto.helper";
+import { CartoHelper, CustomVectorSource, LinesStringWithZ, MultiLineStringWithZ } from "../../../helper/carto.helper";
 import { filter, ReplaySubject, startWith, Observable, take, takeUntil, tap, map as rxjsMap, retryWhen, delay, debounceTime, of, last } from "rxjs";
 import { fromInstanceGiroEvent } from "../../shared/class/fromGiroEvent";
 import { Projection } from "ol/proj";
@@ -14,12 +14,15 @@ import { getUid } from "ol";
 import { mergeFloat32 } from "../utils";
 import { fromOpenLayerEvent } from "../../shared/class/fromOpenLayerEvent";
 import { NonMorphable } from "@svgdotjs/svg.js";
-import { createPositionBuffer, subdivideLineString, ensureLineStringNotClosed, ensureMultiLineStringNotClosed, divideLineStringByLength, ensureContinuousLineString } from "./utils";
+import { createPositionBuffer, subdivideLineString, ensureLineStringNotClosed, ensureMultiLineStringNotClosed, divideLineStringByLength, ensureContinuousLineString, addElevationToLines, ensureLinesAreClosed } from "./utils";
 import { DataOSMLayer } from "../../../helper/type";
 import Vec2 from "../math/vector2";
 import { projectAndAddGeometry, RoadBuilder } from "./line-builder";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils";
 import { VectorSourceEventTypes } from "ol/source/VectorEventType";
+import WorkerPool from "@giro3d/giro3d/utils/WorkerPool";
+import { createListElevationWorker, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "../elevation/pool";
+import Vec3 from "../math/vector3";
 
 const tmpVec2 = new Vector2()
 const tmpVec3 = new Vector3()
@@ -55,7 +58,7 @@ class LineTile extends Group {
 
 }
 
-export class FlatLineStringLayer {
+export abstract class FlatLineStringLayer {
 
     protected instance: Instance
     protected map: Giro3DMap
@@ -69,6 +72,8 @@ export class FlatLineStringLayer {
     private _tileSets: Map<string, LineTile> = new Map()
     protected lineGroup: Group = new Group()
     protected material: ShaderMaterial | Material
+
+    abstract getLineMaterial(): Observable<Material>
 
     constructor(
         map: Giro3DMap,
@@ -251,158 +256,207 @@ export class FlatLineStringLayer {
         });
     }
 
-    addFeaturesInMesh(new_features: Array<Feature> = []) {
-        let features = this.vectorSource.getFeatures()
-        // .filter((f) => f.getProperties()["name"] == "Ligne 2 : Nation → Porte Dauphine")
-        // let features = this.vectorSource.getFeatures().filter((f) => f.getProperties()["name"] == "Ligne 2 : Nation → Porte Dauphine" && (f.getGeometry() as LineString).getFlatCoordinates().length > 50)
-        // let features = this.vectorSource.getFeatures().filter((f) => f.getProperties()["osm_id"] == -3517961 && (f.getGeometry() as LineString).getFlatCoordinates().length > 50)
-        this.loaded_features_count = features.length
-        // console.log(features)
 
+
+
+
+    addFeaturesInMesh(new_features: Array<Feature> = []) {
+        const features = this.vectorSource.getFeatures() as Feature<LineString | MultiLineString>[]
+        ensureLinesAreClosed(features)
+
+        this.loaded_features_count = features.length
 
         const lineTileFeaturesMap: {
             [key: string]:
             {
-                features: Array<Feature>,
+                features: Array<Feature<LinesStringWithZ | MultiLineStringWithZ>>,
                 instancePositions: Array<Float32Array>
             }
         } = {}
+        addElevationToLines(features, this.map.extent.crs).then((featuresWithZ) => {
+            for (let index = 0; index < featuresWithZ.length; index++) {
+                const featureWithZ = featuresWithZ[index];
+                const geometry = featureWithZ.getGeometry()
+                const lineCentroid = getCenter(geometry.getExtent())
 
+                let pointTile = this.getLineTile(tmpVec2.set(
+                    lineCentroid[0], lineCentroid[1]
+                ))
 
-        for (let index = 0; index < features.length; index++) {
-            const feature = features[index];
-            let geometry = feature.getGeometry() as LineString
-            // | MultiLineString | LinearRing
-            // console.log(new GeoJSON().writeFeatureObject(feature, { featureProjection: "EPSG:3857", dataProjection: "EPSG:4326" }))
-
-            if (geometry.getType() == "MultiLineString") {
-                // @ts-expect-error
-                ensureMultiLineStringNotClosed(geometry)
-            } else {
-                // // @ts-expect-error
-                ensureLineStringNotClosed(geometry)
-            }
-            // geometry = subdivideLineString((geometry as LineString), 6)
-            // geometry = ensureContinuousLineString((geometry as LineString))
-            // geometry = divideLineStringByLength((geometry as LineString), 2)
-            const lineCentroid = getCenter(geometry.getExtent())
-
-            let pointTile = this.getLineTile(tmpVec2.set(
-                lineCentroid[0], lineCentroid[1]
-            ))
-
-            if (!lineTileFeaturesMap[pointTile.key]) {
-                lineTileFeaturesMap[pointTile.key] = {
-                    features: [],
-                    instancePositions: [],
-                }
-            }
-
-
-            lineTileFeaturesMap[pointTile.key].features.push(
-                feature
-            );
-
-            let flatDeep = (arr) => {
-                return arr.reduce((acc, val) => acc.concat(val.length != 2 ? flatDeep(val) : [val]), []);
-            };
-            const instancePosition = createPositionBuffer(
-                // // @ts-expect-error
-                geometry.getCoordinates(),
-                {
-                    ignoreZ: true,
-                    origin: new Vector3(pointTile.position.x, pointTile.position.y, -3),
-                }
-
-            )
-
-            lineTileFeaturesMap[pointTile.key].instancePositions.push(
-                instancePosition
-            )
-        }
-
-        for (const key in lineTileFeaturesMap) {
-            if (Object.prototype.hasOwnProperty.call(lineTileFeaturesMap, key)) {
-                const element = lineTileFeaturesMap[key];
-                const pointTile = this._tileSets.get(key)
-
-                const mesh = pointTile.lineMesh
-                const featureUid = new Int32Array(element.features.length)
-                element.features.map((feature, index) => {
-                    featureUid[index] = parseInt(getUid(feature))
-                })
-
-
-
-                const geometries: Array<BufferGeometry> = []
-
-                for (let index = 0; index < element.instancePositions.length; index++) {
-
-                    const length = element.instancePositions[index].length - 3;
-                    const point = new Float32Array(2 * length);
-                    const vertices: Array<Vec2> = []
-                    for (let i = 0; i < length; i += 3) {
-
-                        point[2 * i] = element.instancePositions[index][i];
-                        point[2 * i + 1] = element.instancePositions[index][i + 1];
-                        point[2 * i + 2] = element.instancePositions[index][i + 2];
-
-                        point[2 * i + 3] = element.instancePositions[index][i + 3];
-                        point[2 * i + 4] = element.instancePositions[index][i + 4];
-                        point[2 * i + 5] = element.instancePositions[index][i + 5];
-
-                        const p1 = new Vec2(
-                            point[2 * i],
-                            point[2 * i + 1],
-                        )
-                        const p2 = new Vec2(
-                            point[2 * i + 3],
-                            point[2 * i + 4],
-                        )
-                        vertices.push(p1, p2)
-
+                if (!lineTileFeaturesMap[pointTile.key]) {
+                    lineTileFeaturesMap[pointTile.key] = {
+                        features: [],
+                        instancePositions: [],
                     }
-                    const roadBuffer = new RoadBuilder(pointTile).build(
-                        {
-                            vertices: vertices,
-                            width: 4.368129562747236,
-                            uvFollowRoad: true,
-                            uvScaleY: 4.368129562747236 * 4,
-                            height: 1,
-                            vertexAdjacentToStart: vertices[0],
-                            vertexAdjacentToEnd: vertices[vertices.length - 1],
+                }
+
+                lineTileFeaturesMap[pointTile.key].features.push(
+                    featureWithZ
+                );
+
+                let coordinates: Array<[number, number, number]> = [];
+                if (geometry instanceof LinesStringWithZ) {
+                    coordinates = geometry.coordinatesWithZ
+                } else if (geometry instanceof MultiLineStringWithZ) {
+                    coordinates = geometry.coordinatesWithZ.reduce((acc, val) => acc.concat(val), [])
+                }
+                // console.log(coordinates)
+                const instancePosition = createPositionBuffer(
+                    coordinates,
+                    {
+                        ignoreZ: false,
+                        origin: new Vector3(pointTile.position.x, pointTile.position.y, -3),
+                    }
+
+                )
+
+                lineTileFeaturesMap[pointTile.key].instancePositions.push(
+                    instancePosition
+                )
+            }
+
+            for (const key in lineTileFeaturesMap) {
+                if (Object.prototype.hasOwnProperty.call(lineTileFeaturesMap, key)) {
+                    const element = lineTileFeaturesMap[key];
+                    const pointTile = this._tileSets.get(key)
+
+                    const mesh = pointTile.lineMesh
+                    const featureUid = new Int32Array(element.features.length)
+                    element.features.map((feature, index) => {
+                        featureUid[index] = parseInt(getUid(feature))
+                    })
+
+
+
+                    const geometries: Array<BufferGeometry> = []
+
+                    for (let index = 0; index < element.instancePositions.length; index++) {
+
+                        const length = element.instancePositions[index].length - 3;
+                        const point = new Float32Array(2 * length);
+                        const vertices: Array<Vec3> = []
+                        for (let i = 0; i < length; i += 3) {
+
+                            point[2 * i] = element.instancePositions[index][i];
+                            point[2 * i + 1] = element.instancePositions[index][i + 1];
+                            point[2 * i + 2] = element.instancePositions[index][i + 2];
+
+                            point[2 * i + 3] = element.instancePositions[index][i + 3];
+                            point[2 * i + 4] = element.instancePositions[index][i + 4];
+                            point[2 * i + 5] = element.instancePositions[index][i + 5];
+
+                            const p1 = new Vec3(
+                                point[2 * i],
+                                point[2 * i + 1],
+                                point[2 * i + 2]
+                            )
+                            const p2 = new Vec3(
+                                point[2 * i + 3],
+                                point[2 * i + 4],
+                                point[2 * i + 5]
+                            )
+                            vertices.push(p1, p2)
 
                         }
-                    )
-                    const roadProjectedGeometry = projectAndAddGeometry({
-                        position: roadBuffer.position,
-                        uv: roadBuffer.uv,
-                        textureId: 1,
-                    })
-                    const geometry = new BufferGeometry()
-                    geometry.setAttribute("position", new BufferAttribute(roadProjectedGeometry.positionBuffer, 3))
-                    geometry.setAttribute("normal", new BufferAttribute(roadProjectedGeometry.normalBuffer, 3))
-                    geometry.setAttribute("uv", new BufferAttribute(roadProjectedGeometry.uvBuffer, 2))
-                    geometries.push(geometry)
+                        const roadBuffer = new RoadBuilder(pointTile).build(
+                            {
+                                vertices: vertices,
+                                width: 4.368129562747236,
+                                uvFollowRoad: true,
+                                uvScaleY: 4.368129562747236 * 4,
+                                vertexAdjacentToStart: vertices[0].xy,
+                                vertexAdjacentToEnd: vertices[vertices.length - 1].xy,
+
+                            }
+                        )
+
+                        const roadProjectedGeometry = projectAndAddGeometry({
+                            position: roadBuffer.position,
+                            uv: roadBuffer.uv,
+                            textureId: 1,
+                        })
+                        // console.log(roadProjectedGeometry.positionBuffer, "roadProjectedGeometry.positionBuffer");
+                        const geometry = new BufferGeometry()
+                        geometry.setAttribute("position", new BufferAttribute(roadProjectedGeometry.positionBuffer, 3))
+                        geometry.setAttribute("normal", new BufferAttribute(roadProjectedGeometry.normalBuffer, 3))
+                        geometry.setAttribute("uv", new BufferAttribute(roadProjectedGeometry.uvBuffer, 2))
+                        geometries.push(geometry)
+
+                    }
+
+                    const newGeometry = mergeGeometries(geometries)
+
+                    mesh.frustumCulled = false
+                    mesh.geometry.dispose()
+                    mesh.geometry = newGeometry
+
+
+                    mesh.updateMatrix()
+                    mesh.updateMatrixWorld()
+
+                    pointTile.updateMatrixWorld();
+                    this.instance.notifyChange(this.camera)
 
                 }
 
-                const instancedGeometry = mergeGeometries(geometries)
-
-                mesh.frustumCulled = false
-                mesh.geometry.dispose()
-                mesh.geometry = instancedGeometry
-
-
-                mesh.updateMatrix()
-
-                pointTile.updateMatrixWorld();
-
             }
 
-        }
 
-        this.instance.notifyChange(this.camera)
+        })
+
+
+        // for (let index = 0; index < features.length; index++) {
+        //     const feature = features[index];
+        //     let geometry = feature.getGeometry() as LineString
+        //     // | MultiLineString | LinearRing
+        //     // console.log(new GeoJSON().writeFeatureObject(feature, { featureProjection: "EPSG:3857", dataProjection: "EPSG:4326" }))
+
+        //     if (geometry.getType() == "MultiLineString") {
+        //         // @ts-expect-error
+        //         ensureMultiLineStringNotClosed(geometry)
+        //     } else {
+        //         // // @ts-expect-error
+        //         ensureLineStringNotClosed(geometry)
+        //     }
+        //     // geometry = subdivideLineString((geometry as LineString), 6)
+        //     // geometry = ensureContinuousLineString((geometry as LineString))
+        //     // geometry = divideLineStringByLength((geometry as LineString), 2)
+        //     const lineCentroid = getCenter(geometry.getExtent())
+
+        //     let pointTile = this.getLineTile(tmpVec2.set(
+        //         lineCentroid[0], lineCentroid[1]
+        //     ))
+
+        //     if (!lineTileFeaturesMap[pointTile.key]) {
+        //         lineTileFeaturesMap[pointTile.key] = {
+        //             features: [],
+        //             instancePositions: [],
+        //         }
+        //     }
+
+
+        //     lineTileFeaturesMap[pointTile.key].features.push(
+        //         feature
+        //     );
+
+        //     let flatDeep = (arr) => {
+        //         return arr.reduce((acc, val) => acc.concat(val.length != 2 ? flatDeep(val) : [val]), []);
+        //     };
+        //     const instancePosition = createPositionBuffer(
+        //         // // @ts-expect-error
+        //         geometry.getCoordinates(),
+        //         {
+        //             ignoreZ: true,
+        //             origin: new Vector3(pointTile.position.x, pointTile.position.y, -3),
+        //         }
+
+        //     )
+
+        //     lineTileFeaturesMap[pointTile.key].instancePositions.push(
+        //         instancePosition
+        //     )
+        // }
+
 
 
     }
@@ -413,26 +467,26 @@ export class FlatLineStringLayer {
         return geometry
     }
 
-    getLineMaterial(): Observable<Material> {
-        return of(
-            new MeshBasicMaterial()
-            // new LineMaterial({
-            //     depthTest: true,
-            //     depthWrite: true,
-            //     // depthFunc: LessDepth,
-            //     color: "red",
-            //     // color: feature.getProperties()["colour"] ? feature.getProperties()["colour"] : "red",
-            //     linewidth: 0.01, // Notice the different case
-            //     // vertexColors: true,
-            //     // resolution: tmpVec2.set(window.innerWidth, window.innerHeight),
-            //     // worldUnits: true,
-            //     opacity: 0.5,
-            //     transparent: true,
-            // })
-        ).pipe(
-            last()
-        )
-    }
+    // getLineMaterial(): Observable<Material> {
+    //     return of(
+    //         new MeshBasicMaterial()
+    //         // new LineMaterial({
+    //         //     depthTest: true,
+    //         //     depthWrite: true,
+    //         //     // depthFunc: LessDepth,
+    //         //     color: "red",
+    //         //     // color: feature.getProperties()["colour"] ? feature.getProperties()["colour"] : "red",
+    //         //     linewidth: 0.01, // Notice the different case
+    //         //     // vertexColors: true,
+    //         //     // resolution: tmpVec2.set(window.innerWidth, window.innerHeight),
+    //         //     // worldUnits: true,
+    //         //     opacity: 0.5,
+    //         //     transparent: true,
+    //         // })
+    //     ).pipe(
+    //         last()
+    //     )
+    // }
 }
 
 

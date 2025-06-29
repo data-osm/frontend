@@ -20,8 +20,8 @@ export class ParametersService {
    * List of app extents with geometry
    */
   lisAppExtent$: BehaviorSubject<AppExtent[]> = new BehaviorSubject<AppExtent[]>([])
+  parameter$: BehaviorSubject<Parameter> = new BehaviorSubject<Parameter>(undefined)
 
-  parameter: Parameter
   /**
    * Polygon of the project 
    */
@@ -37,6 +37,14 @@ export class ParametersService {
     this.headers.append('Content-Type', 'application/x-www-form-urlencoded');
     this.headers.append('Content-Type', 'application/json');
 
+  }
+
+  get parameter() {
+    return this.parameter$.getValue()
+  }
+
+  set parameter(parameter: Parameter) {
+    this.parameter$.next(parameter)
   }
 
   /**
@@ -56,7 +64,9 @@ export class ParametersService {
     return this.http.get<Parameter[]>(this.url_prefix + '/api/parameter/parameter', { headers: this.get_header() }).pipe(
       map((response) => {
         if (response.length > 0) {
+          response[0].can_hide_buildings = false
           this.parameter = response[0]
+
           return response[0]
         }
         return {} as Parameter

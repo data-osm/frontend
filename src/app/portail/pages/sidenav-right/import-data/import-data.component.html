@@ -1,0 +1,97 @@
+<h5 class="bold white primaryColorBG item">
+    IFC
+</h5>
+
+<div fxLayout="column" fxLayoutGap="24px">
+
+
+
+    <div fxLayout="column" fxLayoutGap="15px">
+        <form [formGroup]="importIFCForm" fxFlex="100%">
+
+            <app-file-upload formControlName="ifcFile" [multiple]="false" [accept]="'.ifc'">
+            </app-file-upload>
+
+        </form>
+        <button fxFlex="100%" mat-flat-button color="accent" class="white" (click)="onUploadIFCInstance()"
+            [disabled]="!importIFCForm.valid || importIFCForm.disabled">
+            <div class="ifcLoading" *ngIf="ifcLoading">
+                <div style="position:absolute;top:calc(50% - 15px);left:30%">
+                    <div class="lds-ripple" style="width: 50px;
+  height: 50px;">
+                        <div></div>
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+            Importer
+        </button>
+
+    </div>
+    <mat-list>
+        <ng-container *ngFor="let ifc of ifcList">
+            <mat-list-item style="background-color: aliceblue;">
+                <div fxLayout fxLayoutGap="15px">
+                    <span fxFlex>{{ifc.userData.name}}</span>
+                    <i fxFlex fxFlexAlign="center" class="fa fa-crosshairs pointer" (click)="zoomToIfc(ifc)"></i>
+                </div>
+            </mat-list-item>
+            <mat-divider></mat-divider>
+        </ng-container>
+    </mat-list>
+
+    <div class="text-center">
+        <button mat-stroked-button (click)="featuresStoreService.RemoveAllBuildingsToHide()">
+            Afficher tous les bâtiments cachés
+        </button>
+    </div>
+
+
+</div>
+
+<h5 class="bold white primaryColorBG item">
+    Nuages de points
+</h5>
+<div fxLayout="column" fxLayoutGap="24px">
+
+
+    <div fxLayout="column" fxLayoutGap="15px">
+        <form [formGroup]="importPointCloudForm" fxFlex="100%">
+
+            <app-file-upload formControlName="pointCloudFile" [multiple]="false" [accept]="'.laz'">
+            </app-file-upload>
+
+        </form>
+        <button fxFlex="100%" mat-flat-button color="accent" class="white" (click)="onUploadPointCloudInstance()"
+            [disabled]="!importPointCloudForm.valid || importPointCloudForm.disabled"> Importer </button>
+
+    </div>
+    <ng-container *ngFor="let pointCloud of pointCloudList">
+        <mat-accordion>
+            <mat-expansion-panel hideToggle>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        {{pointCloud.pointCloud.userData.name}}
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        <i fxFlex fxFlexAlign="center" class="fa fa-crosshairs pointer"
+                            (click)="zoomToPointCloud(pointCloud.pointCloud)"></i>
+                    </mat-panel-description>
+
+                </mat-expansion-panel-header>
+                <mat-selection-list [multiple]="false"
+                    (selectionChange)="changePointCloudSelectedAttribute($event,pointCloud)">
+                    <mat-list-option *ngFor="let attribute of pointCloud.metadata.attributes" [value]="attribute"
+                        [selected]="attribute.name == pointCloud.selectedAttribute.name"
+                        [ngClass]=" {'accentColorBG': pointCloud.selectedAttribute?.name===attribute.name}">
+                        {{attribute.name}}
+                    </mat-list-option>
+                </mat-selection-list>
+
+            </mat-expansion-panel>
+
+        </mat-accordion>
+
+    </ng-container>
+
+</div>

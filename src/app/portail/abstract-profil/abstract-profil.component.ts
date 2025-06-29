@@ -23,7 +23,7 @@ import { MapControls } from 'three/examples/jsm/controls/MapControls.js';
 
 import { DataOsmLayersServiceService } from '../../services/data-som-layers-service/data-som-layers-service.service';
 
-import { Group, Layer, rightMenuInterface } from '../../type/type';
+import { Group, Layer, RightMenuInterface } from '../../type/type';
 import { ContextMenuComponent } from '../pages/context-menu/context-menu.component';
 import { DescriptiveSheetData } from '../pages/descriptive-sheet/descriptive-sheet.component';
 import { BaseMapsService } from '../../data/services/base-maps.service';
@@ -36,9 +36,12 @@ import {
   Instance,
   Map,
   OrbitControls,
-
+  Layer as GiroLayer,
+  WmtsSource,
 } from "../../giro-3d-module"
 import Inspector from '@giro3d/giro3d/gui/Inspector.js';
+import DrawToolPanel from '@giro3d/giro3d/gui/DrawToolPanel.js';
+
 import ProcessingInspector from '@giro3d/giro3d/gui/ProcessingInspector'
 import FrameDuration from "@giro3d/giro3d/gui/charts/FrameDuration"
 import { fromInstanceGiroEvent } from '../../shared/class/fromGiroEvent';
@@ -52,6 +55,9 @@ import { AppInjector } from '../../../helper/app-injector.helper';
 import { constructLayer } from './construct-layer';
 import { partial } from '../../../utils/partial';
 import { FrameRenderTime } from '../../../helper/type';
+import { E } from '@angular/cdk/keycodes';
+import BilFormat from '@giro3d/giro3d/formats/BilFormat';
+import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
 
 const extent = new Extent(
   'EPSG:3857',
@@ -61,10 +67,17 @@ const extent = new Extent(
   20048966.1,
 );
 
-
+Instance.registerCRS(
+  "IGNF:WGS84G",
+  'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]',
+);
 const tempVec2 = new Vector2()
 const tempVec3 = new Vector3()
 const temp2Vec3 = new Vector3()
+
+const CAPABILITIES_URL = "https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities";
+const ELEVATION_LAYER = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES"
+const enableTerrain = true
 
 @Injectable()
 export abstract class AbstractProfilComponent implements OnInit {
@@ -72,14 +85,14 @@ export abstract class AbstractProfilComponent implements OnInit {
   /**  
    * Map object 
   */
-  map: Map = new Map({ maxSubdivisionLevel: undefined, extent, terrain: false, showOutline: false, backgroundColor: "gray" });
+  map: Map = new Map({ maxSubdivisionLevel: undefined, extent, terrain: enableTerrain, showOutline: false, backgroundColor: "gray" });
   instance: Instance = null
   controls: MapControls
   frameRenderTime: { [key: number]: FrameRenderTime } = {}
 
   onInitInstance: () => void;
 
-  private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
+  protected destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   /**
    * Context menu component of the app
@@ -106,11 +119,14 @@ export abstract class AbstractProfilComponent implements OnInit {
 
   private readonly notifier: NotifierService;
 
-
+  eventsListener = {
+    "groupsLoaded": new Subject<Array<Group>>(),
+    "controlsAdded": new Subject<void>(),
+  }
   /**
    * All menus of the right sidenav
    */
-  rightMenus: Array<rightMenuInterface> = [
+  rightMenus: Array<RightMenuInterface> = [
     { name: 'toc', active: false, enable: true, tooltip: 'toolpit_toc', title: 'table_of_contents' },
     { name: 'download', active: false, enable: true, tooltip: 'toolpit_download_data', title: 'download_data' },
     { name: 'edition', active: false, enable: false, tooltip: 'toolpit_tools', title: 'tools' },
@@ -175,8 +191,16 @@ export abstract class AbstractProfilComponent implements OnInit {
     ).subscribe()
 
     this.initialiseProfilGroups()
-    this.initialiseBaseMaps()
+
     this.initialiseListAppRegions()
+
+    this.eventsListener.controlsAdded.pipe(
+      takeUntil(this.destroyed$),
+      tap(() => {
+        this.setConstructLayerFunction()
+        this.initialiseBaseMaps()
+      })
+    ).subscribe()
 
     // Retrieve and display shared layers if exist, or default layers of the profil if exist
     combineLatest(this.activatedRoute.queryParams, this.groups$).pipe(
@@ -304,13 +328,45 @@ export abstract class AbstractProfilComponent implements OnInit {
     // scene.fog = new Fog(0x2f3640, 5, 4000);
     scene.fog = new Fog(0x2f3640, 5, 20000);
 
-    this.addStats()
     this.addLights()
 
-    this.setConstructLayerFunction()
+
 
     this.updateCompassRotation()
 
+    if (enableTerrain) {
+      this.addTerrain()
+    }
+
+  }
+
+  addTerrain() {
+    const noDataValue = -1000;
+    WmtsSource.fromCapabilities(CAPABILITIES_URL, {
+      layer: ELEVATION_LAYER,
+      format: new BilFormat(),
+      noDataValue,
+    })
+      .then((elevationWmts) => {
+        this.map.addLayer(
+          new ElevationLayer({
+            extent: this.map.extent,
+            minmax: { min: 0, max: 5000 },
+            resolutionFactor: 1 / 8,
+            preloadImages: false,
+            noDataOptions: {
+              replaceNoData: false,
+            },
+            // colorMap: new ColorMap({
+            //   colors: makeColorRamp("bathymetry"),
+            //   min: 500,
+            //   max: 1800,
+            // }),
+            source: elevationWmts,
+          }),
+        );
+      })
+      .catch(console.error);
   }
 
   registerNewRenderTime(frame: number, render_time: number) {
@@ -351,10 +407,11 @@ export abstract class AbstractProfilComponent implements OnInit {
 
     // Enable Stats in DEv mode
 
-    if (!environment.production) {
+    if (!environment.production || (this.parametersService.map_id == 4 || this.parametersService.map_id == 15)) {
       const inspector = new Inspector("giro3d-inspector", this.instance)
       // inspector.gui.
       // inspector.gui.onFinishChange(() => {
+
       inspector.folders.filter((f) => f instanceof ProcessingInspector).map((f) => {
 
         f["charts"].forEach((c) => {
@@ -366,7 +423,7 @@ export abstract class AbstractProfilComponent implements OnInit {
           }
         })
       })
-      inspector.folders.filter((f) => f instanceof ProcessingInspector == false).map((f) => {
+      inspector.folders.filter((f) => (f instanceof ProcessingInspector == false) && f instanceof DrawToolPanel == false).map((f) => {
         f.dispose()
       })
 
@@ -430,6 +487,9 @@ export abstract class AbstractProfilComponent implements OnInit {
     this.controls.saveState();
     // this.controls.target.set(0, 0, 0)
     this.instance.view.setControls(this.controls);
+
+    this.eventsListener.controlsAdded.next()
+
   }
 
   addLights() {
@@ -489,29 +549,58 @@ export abstract class AbstractProfilComponent implements OnInit {
   }
 
   initialiseClickEvent() {
-    fromEvent<MouseEvent>(this.instance.domElement, "click").pipe(
+
+    const mousedown$ = fromEvent<MouseEvent>(this.instance.domElement, 'mousedown');
+    const mousemove$ = fromEvent<MouseEvent>(document, 'mousemove');
+    const mouseup$ = fromEvent<MouseEvent>(document, 'mouseup');
+    const clickWithoutDrag$ = mousedown$
+      .pipe(
+        switchMap((startEvent) => {
+          const startX = startEvent.clientX;
+          const startY = startEvent.clientY;
+          return mouseup$.pipe(
+            takeUntil(mousemove$),
+            map((endEvent) => {
+              const dx = Math.abs(endEvent.clientX - startX);
+              const dy = Math.abs(endEvent.clientY - startY);
+              return { dx, dy };
+            }),
+            filter(({ dx, dy }) => dx < 5 || dy < 5), // seuil de tolérance
+            map(() => startEvent)
+          );
+        })
+      )
+
+    clickWithoutDrag$.pipe(
       takeUntil(this.destroyed$),
       tap((e) => {
-        let dataFromClickOnMap: dataFromClickOnMapInterface
+        let dataFromClickOnMaps: dataFromClickOnMapInterface[]
         try {
-          dataFromClickOnMap = new MapMousseEvents(this.map).onClicked(e)
+          dataFromClickOnMaps = new MapMousseEvents(this.map).onClicked(e)
         } catch (error) {
-
+          console.error(error)
         }
+        if (dataFromClickOnMaps != undefined && dataFromClickOnMaps.length > 0) {
+          let sheetsData: DescriptiveSheetData[] = []
+          for (let i = 0; i < dataFromClickOnMaps.length; i++) {
+            const dataFromClickOnMap = dataFromClickOnMaps[i]
 
-        if (dataFromClickOnMap) {
-          const layer = dataFromClickOnMap.data.layers.length > 0 ? dataFromClickOnMap.data.layers[0] : undefined
-          let sheetData: DescriptiveSheetData = {
-            type: layer.userData.descriptionSheetCapabilities as string,
-            coordinates_3857: dataFromClickOnMap.data.coord,
-            point: dataFromClickOnMap.data.point,
-            layer_id: layer.userData.properties["couche_id"] as number,
-            map: this.map,
-            feature: dataFromClickOnMap.data.feature,
-            layer: layer,
-            object: dataFromClickOnMap.data.object
+            const layer: GiroLayer | undefined = (dataFromClickOnMap.data.layers && dataFromClickOnMap.data.layers.length > 0) ? dataFromClickOnMap.data.layers[0] : undefined
+
+            let sheetData: DescriptiveSheetData = {
+              type: dataFromClickOnMap.data.descriptionSheetCapabilities,
+              coordinates_3857: dataFromClickOnMap.data.coord,
+              point: dataFromClickOnMap.data.point,
+              layer_id: layer?.userData.properties["couche_id"] as number,
+              map: this.map,
+              feature: dataFromClickOnMap.data.feature,
+              layer: layer,
+              object: dataFromClickOnMap.data.object
+            }
+            sheetsData.push(sheetData)
           }
-          this.manageCompHelper.openDescriptiveSheetModal(sheetData, [])
+
+          this.manageCompHelper.openDescriptiveSheetModal(sheetsData, [])
 
         }
 
@@ -609,6 +698,8 @@ export abstract class AbstractProfilComponent implements OnInit {
       ),
       switchMap((map_id) => {
         this.parametersService.map_id = map_id
+        this.addStats()
+
         return this.mapService.getAllGroupOfMap(map_id).pipe(
           catchError((error: HttpErrorResponse) => {
             this.notifier.notify("error", this.translate.instant('portail.error_loading.parameter'));
@@ -629,7 +720,7 @@ export abstract class AbstractProfilComponent implements OnInit {
               }
 
               this.initialiseActiveGroup(activeProfilGroup, groups)
-
+              this.eventsListener.groupsLoaded.next(groups)
             }
           })
         )
@@ -838,17 +929,17 @@ export abstract class AbstractProfilComponent implements OnInit {
   /**
   * Get a menu from right menu
   * @param name string name of the menu
-  * @return rightMenuInterface|undefined
+  * @return RightMenuInterface|undefined
   */
-  getRightMenu(name: string): rightMenuInterface {
+  getRightMenu(name: string): RightMenuInterface {
     return this.rightMenus.find((item) => item.name == name)
   }
 
   /**
    * Get the active right menu
-   * @return rightMenuInterface
+   * @return RightMenuInterface
    */
-  getRightMenuActive(): rightMenuInterface {
+  getRightMenuActive(): RightMenuInterface {
     return this.rightMenus.find((item) => item.active)
   }
 

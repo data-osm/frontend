@@ -1,18 +1,10 @@
 <div mat-dialog-content class="scroll white descriptive-sheet-content">
 
-  <div class="text-center">
-    <mat-chip-list id="asd" style="display: inline-table;" #featuresList [multiple]="false" color="accent" selectable>
-      <mat-chip #chip="matChip" (click)="toggleSelection(chip)" *ngFor="let feat of features ; let index = index"
-        [value]="feat">
-        {{getNameOfFeature(feat, index+1)}}
-      </mat-chip>
-    </mat-chip-list>
-  </div>
 
-  <ng-container *ngIf="{ configTagsOsm: configTagsOsm$ | async, listAttributes: featureToDisplay$ | async } as context">
+  <ng-container *ngIf="{ configTagsOsm: configTagsOsm$ | async } as context">
 
     <ng-container *ngIf="context.configTagsOsm">
-      <ng-container *ngIf="context.listAttributes">
+      <ng-container *ngIf="featureToDisplay">
 
         <div class="text-center descriptive-sheet-body-header-btn " style="margin-top: 10px;">
 
@@ -22,7 +14,7 @@
               style="margin-top: -6px;height: 25px">
           </button>
 
-          <ng-container *ngFor="let attribute of context.listAttributes;let i = index">
+          <ng-container *ngFor="let attribute of featureToDisplay;let i = index">
             <ng-container
               *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].header">
 
@@ -88,7 +80,7 @@
 
           </ng-container>
 
-          <ng-container *ngFor="let attribute of context.listAttributes;let i = index">
+          <ng-container *ngFor="let attribute of featureToDisplay;let i = index">
             <div style="text-align: center; margin-top: 20px;"
               *ngIf="context.configTagsOsm[attribute.field] && context.configTagsOsm[attribute.field].type == 'mapillary'">
               <iframe [src]="'https://www.mapillary.com/embed?image_key='+attribute.value+'&style=photo' | safe "
@@ -97,7 +89,7 @@
             </div>
           </ng-container>
 
-          <ng-container *ngFor="let attribute of context.listAttributes;let i = index">
+          <ng-container *ngFor="let attribute of featureToDisplay;let i = index">
 
 
 
@@ -178,7 +170,7 @@
     <a href="{{osmUrl}}" target=" _blanck " class="descriptive-sheet-body-url"> Voir cette entité sur OpenStreetMap </a>
   </p> -->
 
-        <div fxLayout class="descriptive-sheet-body" *ngIf="constructAdresse(context.listAttributes) as adresse">
+        <div fxLayout class="descriptive-sheet-body" *ngIf="constructAdresse(featureToDisplay) as adresse">
           <div fxFlex="35%" class="attribute bold">
             {{ 'layer_properties.adresse'| translate }}
             :
@@ -188,7 +180,7 @@
           </div>
         </div>
 
-        <ng-container *ngFor="let attribute of context.listAttributes;let i = index">
+        <ng-container *ngFor="let attribute of featureToDisplay;let i = index">
           <ng-container *ngIf="i <= initialNumberOfAttributes">
             <ng-container
               *ngIf="context.configTagsOsm[attribute.field]? context.configTagsOsm[attribute.field].display && !context.configTagsOsm[attribute.field].header:true ">
@@ -276,15 +268,15 @@
 
 
 
-        <ng-container *ngIf="context.listAttributes.length > 5">
+        <ng-container *ngIf="featureToDisplay.length > 5">
 
           <a class="descriptive-sheet-body-display-attributes-number pointer"
-            (click)="initialNumberOfAttributes = context.listAttributes.length+1"
-            *ngIf="initialNumberOfAttributes < context.listAttributes.length">
+            (click)="initialNumberOfAttributes = featureToDisplay.length+1"
+            *ngIf="initialNumberOfAttributes < featureToDisplay.length">
             {{'descriptive_sheet.displayAllAttributes' | translate}}
           </a>
           <a class="descriptive-sheet-body-display-attributes-number pointer" (click)="initialNumberOfAttributes = 3"
-            *ngIf="initialNumberOfAttributes >= context.listAttributes.length">
+            *ngIf="initialNumberOfAttributes >= featureToDisplay.length">
             {{'descriptive_sheet.displayLesAttributes' | translate}}
           </a>
         </ng-container>
@@ -300,7 +292,7 @@
   <button mat-raised-button [hidden]="!extent" (click)="zoomOnFeatureExtent()">
     <i class="fa fa-search-plus"> </i> {{'descriptive_sheet.zoomTo' | translate}}
   </button>
-  <ng-container *ngIf="selectedFeature">
+  <ng-container *ngIf="feature">
     <button mat-raised-button [matMenuTriggerFor]="menuCopy">
       <mat-icon style="width: 20px;font-size: 20px;height: 20px;">file_download</mat-icon>
       {{ 'dowloadLayers.download' | translate }}
@@ -308,28 +300,28 @@
     </button>
     <mat-menu #menuCopy="matMenu">
       <a mat-menu-item
-        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties()[selectedFeature.primary_key_field]+'&driver=shp'"
+        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+feature.provider_vector_id+'&provider_style_id='+feature.provider_style_id+'&feature_id='+feature.getProperties()[feature.primary_key_field]+'&driver=shp'"
         target="_blanck">
         ShapeFile
 
       </a>
       <a mat-menu-item
-        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties()[selectedFeature.primary_key_field]+'&driver=geojson'"
+        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+feature.provider_vector_id+'&provider_style_id='+feature.provider_style_id+'&feature_id='+feature.getProperties()[feature.primary_key_field]+'&driver=geojson'"
         target="_blanck">
         GeoJSON
       </a>
       <a mat-menu-item
-        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties()[selectedFeature.primary_key_field]+'&driver=gpkg'"
+        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+feature.provider_vector_id+'&provider_style_id='+feature.provider_style_id+'&feature_id='+feature.getProperties()[feature.primary_key_field]+'&driver=gpkg'"
         target="_blanck">
         Géopckage
       </a>
       <a mat-menu-item
-        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties()[selectedFeature.primary_key_field]+'&driver=kml'"
+        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+feature.provider_vector_id+'&provider_style_id='+feature.provider_style_id+'&feature_id='+feature.getProperties()[feature.primary_key_field]+'&driver=kml'"
         target="_blanck">
         KML
       </a>
       <a mat-menu-item
-        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+selectedFeature.provider_vector_id+'&provider_style_id='+selectedFeature.provider_style_id+'&feature_id='+selectedFeature.getProperties()[selectedFeature.primary_key_field]+'&driver=csv'"
+        [href]="environment.backend+'/api/group/download/id/?provider_vector_id='+feature.provider_vector_id+'&provider_style_id='+feature.provider_style_id+'&feature_id='+feature.getProperties()[feature.primary_key_field]+'&driver=csv'"
         target="_blanck">
         CSV
       </a>

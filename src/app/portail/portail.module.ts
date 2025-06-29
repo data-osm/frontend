@@ -37,6 +37,8 @@ import { HomeComponent } from './home/home.component';
 import { PsrComponent } from './psr/psr.component';
 import { ListAllLayersComponent } from './pages/sidenav-left/sidenave-left-secondaire/list-all-layers/list-all-layers.component';
 import { RequestFeedbackComponent } from './pages/request-feedback/request-feedback.component';
+import { ImportDataComponent } from './pages/sidenav-right/import-data/import-data.component';
+import { BuildingSheetComponent } from './pages/descriptive-sheet/building-sheet/building-sheet.component';
 
 
 
@@ -49,6 +51,7 @@ import { RequestFeedbackComponent } from './pages/request-feedback/request-feedb
     MapToolsComponent,
     RoutingComponent,
     LegendComponent,
+    ImportDataComponent,
     // SidenaveLeftPrincipalComponent,
     DrawComponent,
     MeasureComponent,
@@ -74,6 +77,7 @@ import { RequestFeedbackComponent } from './pages/request-feedback/request-feedb
     PsrComponent,
     ListAllLayersComponent,
     RequestFeedbackComponent,
+    BuildingSheetComponent,
 
   ],
   imports: [

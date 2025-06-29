@@ -1,6 +1,7 @@
 import { BufferAttribute, BufferGeometry, Group, MathUtils, Points } from "three";
 import Vec2 from "../math/vector2";
 import { LineGeometry, LineMaterial, LineSegments2 } from "three/examples/jsm/Addons";
+import Vec3 from "../math/vector3";
 
 export enum RoadSide {
     Both,
@@ -27,9 +28,8 @@ export class RoadBuilder {
             side = RoadSide.Both,
             uvMinX = 0,
             uvMaxX = 1,
-            height = 1
         }: {
-            vertices: Vec2[];
+            vertices: Vec3[];
             vertexAdjacentToStart?: Vec2;
             vertexAdjacentToEnd?: Vec2;
             width: number;
@@ -39,7 +39,6 @@ export class RoadBuilder {
             side?: RoadSide;
             uvMinX?: number;
             uvMaxX?: number;
-            height?: number
         }
     ): { position: number[]; uv: number[]; border: Vec2[] } {
 
@@ -63,7 +62,7 @@ export class RoadBuilder {
             uvMinX,
             uvMaxX,
             side,
-            height
+            // height
         );
 
         if (!uvFollowRoad) {
@@ -73,7 +72,7 @@ export class RoadBuilder {
         return {
             position: geometry.position,
             uv: geometry.uv,
-            border: border
+            border: border.map(v => v.xy)
         };
     }
 
@@ -87,9 +86,9 @@ export class RoadBuilder {
     //     return pointB;
     // }
 
-    private getBorderVertices(controlPoints: Vec2[][], isClosed: boolean): Vec2[] {
+    private getBorderVertices(controlPoints: Vec3[][], isClosed: boolean): Vec3[] {
         const segmentCount = controlPoints.length - (isClosed ? 0 : 1);
-        const border: Vec2[] = [];
+        const border: Vec3[] = [];
 
         for (let i = 0; i < segmentCount; i++) {
             const current = controlPoints[i];
@@ -115,7 +114,7 @@ export class RoadBuilder {
     }
 
     private buildConnectionAttributesStart(
-        controlPoint: Vec2[],
+        controlPoint: Vec3[],
         side: RoadSide,
         start: number,
         end: number,
@@ -125,7 +124,7 @@ export class RoadBuilder {
         uvScaleY: number,
         position: number[],
         uv: number[],
-        height
+        // height
     ): void {
         if (side === RoadSide.Both) {
             const c0uv = [uvMinX, end / uvScaleY];
@@ -133,9 +132,9 @@ export class RoadBuilder {
             const c4uv = [isInverse ? uvMinX : uvMinX, start / uvScaleY];
 
             position.push(
-                controlPoint[0].x, controlPoint[0].y, height,
-                controlPoint[1].x, controlPoint[1].y, height,
-                controlPoint[4].x, controlPoint[4].y, height,
+                controlPoint[0].x, controlPoint[0].y, controlPoint[0].z,
+                controlPoint[1].x, controlPoint[1].y, controlPoint[1].z,
+                controlPoint[4].x, controlPoint[4].y, controlPoint[4].z,
             );
             uv.push(
                 ...c0uv,
@@ -147,10 +146,15 @@ export class RoadBuilder {
         }
 
         const uvMidX = (uvMinX + uvMaxX) / 2;
-        const midEnd = Vec2.multiplyScalar(Vec2.add(controlPoint[0], controlPoint[1]), 0.5);
+        // const midEnd = Vec2.multiplyScalar(Vec2.add(controlPoint[0].xy, controlPoint[1].xy), 0.5);
+        const midEnd = Vec3.multiplyScalar(Vec3.add(controlPoint[0], controlPoint[1]), 0.5);
+
+        // const midCenter = isInverse ?
+        //     Vec2.multiplyScalar(Vec2.add(controlPoint[2].xy, controlPoint[4].xy), 0.5) :
+        //     Vec2.multiplyScalar(Vec2.add(controlPoint[1].xy, controlPoint[4].xy), 0.5);
         const midCenter = isInverse ?
-            Vec2.multiplyScalar(Vec2.add(controlPoint[2], controlPoint[4]), 0.5) :
-            Vec2.multiplyScalar(Vec2.add(controlPoint[1], controlPoint[4]), 0.5);
+            Vec3.multiplyScalar(Vec3.add(controlPoint[2], controlPoint[4]), 0.5) :
+            Vec3.multiplyScalar(Vec3.add(controlPoint[1], controlPoint[4]), 0.5);
 
         const midEndUV = [uvMidX, end / uvScaleY];
         const midCenterUV = [uvMidX, ((start + end) / 2) / uvScaleY];
@@ -163,16 +167,16 @@ export class RoadBuilder {
 
         if (clipLeft === isInverse) {
             position.push(
-                midCenter.x, midCenter.y, height,
-                midEnd.x, midEnd.y, height,
-                controlPoint[4].x, controlPoint[4].y, height,
+                midCenter.x, midCenter.y, midCenter.z,
+                midEnd.x, midEnd.y, midEnd.z,
+                controlPoint[4].x, controlPoint[4].y, controlPoint[4].z,
             );
             const t2 = !isInverse ? controlPoint[0] : controlPoint[1];
             const t2uv = !isInverse ? c0uv : c1uv;
             position.push(
-                midEnd.x, midEnd.y, height,
-                t2.x, t2.y, height,
-                controlPoint[4].x, controlPoint[4].y, height,
+                midEnd.x, midEnd.y, midEnd.z,
+                t2.x, t2.y, t2.z,
+                controlPoint[4].x, controlPoint[4].y, controlPoint[4].z,
             );
 
             uv.push(
@@ -188,9 +192,9 @@ export class RoadBuilder {
             const t = !isInverse ? controlPoint[1] : controlPoint[0];
             const tuv = !isInverse ? c1uv : c0uv;
             position.push(
-                midCenter.x, midCenter.y, height,
-                t.x, t.y, height,
-                midEnd.x, midEnd.y, height,
+                midCenter.x, midCenter.y, midCenter.z,
+                t.x, t.y, t.z,
+                midEnd.x, midEnd.y, midEnd.z,
             );
             uv.push(
                 ...midCenterUV,
@@ -201,7 +205,7 @@ export class RoadBuilder {
     }
 
     private buildConnectionAttributesEnd(
-        controlPoint: Vec2[],
+        controlPoint: Vec3[],
         side: RoadSide,
         start: number,
         end: number,
@@ -211,7 +215,7 @@ export class RoadBuilder {
         uvScaleY: number,
         position: number[],
         uv: number[],
-        height: number,
+        // height: number,
     ): void {
         if (side === RoadSide.Both) {
             const c2uv = [uvMinX, start / uvScaleY];
@@ -219,9 +223,9 @@ export class RoadBuilder {
             const c4uv = [isInverse ? uvMaxX : uvMinX, end / uvScaleY];
 
             position.push(
-                controlPoint[2].x, controlPoint[2].y, height,
-                controlPoint[3].x, controlPoint[3].y, height,
-                controlPoint[4].x, controlPoint[4].y, height,
+                controlPoint[2].x, controlPoint[2].y, controlPoint[2].z,
+                controlPoint[3].x, controlPoint[3].y, controlPoint[3].z,
+                controlPoint[4].x, controlPoint[4].y, controlPoint[4].z,
             );
             uv.push(
                 ...c2uv,
@@ -233,10 +237,15 @@ export class RoadBuilder {
         }
 
         const uvMidX = (uvMinX + uvMaxX) / 2;
-        const midStart = Vec2.multiplyScalar(Vec2.add(controlPoint[2], controlPoint[3]), 0.5);
+        const midStart = Vec3.multiplyScalar(Vec3.add(controlPoint[2], controlPoint[3]), 0.5);
+        // const midStart = Vec2.multiplyScalar(Vec2.add(controlPoint[2].xy, controlPoint[3].xy), 0.5);
+        // const midCenter = isInverse ?
+        //     Vec2.multiplyScalar(Vec2.add(controlPoint[2].xy, controlPoint[4].xy), 0.5) :
+        //     Vec2.multiplyScalar(Vec2.add(controlPoint[1].xy, controlPoint[4].xy), 0.5);
+
         const midCenter = isInverse ?
-            Vec2.multiplyScalar(Vec2.add(controlPoint[2], controlPoint[4]), 0.5) :
-            Vec2.multiplyScalar(Vec2.add(controlPoint[1], controlPoint[4]), 0.5);
+            Vec3.multiplyScalar(Vec3.add(controlPoint[2], controlPoint[4]), 0.5) :
+            Vec3.multiplyScalar(Vec3.add(controlPoint[1], controlPoint[4]), 0.5);
 
         const midStartUV = [uvMidX, start / uvScaleY];
         const midCenterUV = [uvMidX, ((start + end) / 2) / uvScaleY];
@@ -249,16 +258,16 @@ export class RoadBuilder {
 
         if (clipLeft === isInverse) {
             position.push(
-                midStart.x, midStart.y, height,
-                midCenter.x, midCenter.y, height,
-                controlPoint[4].x, controlPoint[4].y, height,
+                midStart.x, midStart.y, midStart.z,
+                midCenter.x, midCenter.y, midCenter.z,
+                controlPoint[4].x, controlPoint[4].y, controlPoint[4].z,
             );
             const t1 = !isInverse ? controlPoint[2] : controlPoint[3];
             const t1uv = !isInverse ? c2uv : c3uv;
             position.push(
-                midStart.x, midStart.y, height,
-                controlPoint[4].x, controlPoint[4].y, height,
-                t1.x, t1.y, height,
+                midStart.x, midStart.y, midStart.z,
+                controlPoint[4].x, controlPoint[4].y, controlPoint[4].z,
+                t1.x, t1.y, t1.z,
             );
 
             uv.push(
@@ -274,9 +283,9 @@ export class RoadBuilder {
             const t = !isInverse ? controlPoint[3] : controlPoint[2];
             const tuv = !isInverse ? c3uv : c2uv;
             position.push(
-                midStart.x, midStart.y, height,
-                t.x, t.y, height,
-                midCenter.x, midCenter.y, height,
+                midStart.x, midStart.y, midStart.z,
+                t.x, t.y, t.z,
+                midCenter.x, midCenter.y, midCenter.z,
             );
 
             uv.push(
@@ -288,7 +297,7 @@ export class RoadBuilder {
     }
 
     private buildConnection(
-        controlPoint: Vec2[],
+        controlPoint: Vec3[],
         side: RoadSide,
         uvProgress: number,
         uvMinX: number,
@@ -296,7 +305,7 @@ export class RoadBuilder {
         uvScaleY: number,
         position: number[],
         uv: number[],
-        height: number,
+        // height: number,
         type: 'start' | 'end'
     ): number {
         if (!controlPoint[4]) {
@@ -304,7 +313,7 @@ export class RoadBuilder {
         }
 
         const isInverse = controlPoint[1].equals(controlPoint[0]);
-        const triLength = Vec2.getLength(Vec2.sub(controlPoint[4], !isInverse ? controlPoint[0] : controlPoint[1]));
+        const triLength = Vec2.getLength(Vec2.sub(controlPoint[4].xy, !isInverse ? controlPoint[0].xy : controlPoint[1].xy));
 
         const start = uvProgress;
         const end = start + triLength;
@@ -321,7 +330,7 @@ export class RoadBuilder {
                 uvScaleY,
                 position,
                 uv,
-                height
+                // height
             );
         } else {
             this.buildConnectionAttributesEnd(
@@ -335,7 +344,7 @@ export class RoadBuilder {
                 uvScaleY,
                 position,
                 uv,
-                height
+                // height
             );
         }
 
@@ -343,8 +352,8 @@ export class RoadBuilder {
     }
 
     private buildSegment(
-        controlPointFrom: Vec2[],
-        controlPointTo: Vec2[],
+        controlPointFrom: Vec3[],
+        controlPointTo: Vec3[],
         side: RoadSide,
         uvProgress: number,
         uvMinX: number,
@@ -352,27 +361,27 @@ export class RoadBuilder {
         uvScaleY: number,
         position: number[],
         uv: number[],
-        height: number,
+        // height: number,
     ): number {
         const a = controlPointFrom[0];
         const b = controlPointFrom[1];
         const c = controlPointTo[2];
         const d = controlPointTo[3];
 
-        const segmentLength = Vec2.getLength(Vec2.sub(a, c));
+        const segmentLength = Vec2.getLength(Vec2.sub(a.xy, c.xy));
         const uvStart = uvProgress;
         const uvEnd = uvProgress + segmentLength;
 
         if (side === RoadSide.Both) {
             position.push(
-                a.x, a.y, height,
-                b.x, b.y, height,
-                c.x, c.y, height,
+                a.x, a.y, a.z,
+                b.x, b.y, b.z,
+                c.x, c.y, c.z,
             );
             position.push(
-                b.x, b.y, height,
-                d.x, d.y, height,
-                c.x, c.y, height,
+                b.x, b.y, b.z,
+                d.x, d.y, d.z,
+                c.x, c.y, c.z,
             );
 
             uv.push(
@@ -386,20 +395,22 @@ export class RoadBuilder {
                 uvMinX, uvEnd / uvScaleY
             );
         } else {
-            const midStart = Vec2.multiplyScalar(Vec2.add(c, d), 0.5);
-            const midEnd = Vec2.multiplyScalar(Vec2.add(a, b), 0.5);
+            // const midStart = Vec2.multiplyScalar(Vec2.add(c.xy, d.xy), 0.5);
+            const midStart = Vec3.multiplyScalar(Vec3.add(c, d), 0.5);
+            // const midEnd = Vec2.multiplyScalar(Vec2.add(a.xy, b.xy), 0.5);
+            const midEnd = Vec3.multiplyScalar(Vec3.add(a, b), 0.5);
             const uvMidX = (uvMinX + uvMaxX) / 2;
 
             if (side === RoadSide.Left) {
                 position.push(
-                    b.x, b.y, height,
-                    midEnd.x, midEnd.y, height,
-                    d.x, d.y, height,
+                    b.x, b.y, b.z,
+                    midEnd.x, midEnd.y, midEnd.z,
+                    d.x, d.y, d.z,
                 );
                 position.push(
-                    midEnd.x, midEnd.y, height,
-                    midStart.x, midStart.y, height,
-                    d.x, d.y, height,
+                    midEnd.x, midEnd.y, midEnd.z,
+                    midStart.x, midStart.y, midStart.z,
+                    d.x, d.y, d.z,
                 );
 
                 uv.push(
@@ -414,14 +425,14 @@ export class RoadBuilder {
                 );
             } else {
                 position.push(
-                    a.x, a.y, height,
-                    midEnd.x, midEnd.y, height,
-                    c.x, c.y, height,
+                    a.x, a.y, a.z,
+                    midEnd.x, midEnd.y, midEnd.z,
+                    c.x, c.y, c.z,
                 );
                 position.push(
-                    midEnd.x, midEnd.y, height,
-                    midStart.x, midStart.y, height,
-                    c.x, c.y, height,
+                    midEnd.x, midEnd.y, midEnd.z,
+                    midStart.x, midStart.y, midStart.z,
+                    c.x, c.y, c.z,
                 );
 
                 uv.push(
@@ -441,13 +452,13 @@ export class RoadBuilder {
     }
 
     private buildSegmentsFromControlPoints(
-        controlPoints: Vec2[][],
+        controlPoints: Vec3[][],
         isClosed: boolean,
         uvScaleY: number,
         uvMinX: number,
         uvMaxX: number,
         side: RoadSide,
-        height: number
+        // height: number
     ): { position: number[]; uv: number[] } {
         const position: number[] = [];
         const uv: number[] = [];
@@ -468,7 +479,7 @@ export class RoadBuilder {
                 uvScaleY,
                 position,
                 uv,
-                height,
+                // height,
                 'start'
             );
 
@@ -482,7 +493,7 @@ export class RoadBuilder {
                 uvScaleY,
                 position,
                 uv,
-                height
+                // height
             );
 
             uvProgress = this.buildConnection(
@@ -494,7 +505,7 @@ export class RoadBuilder {
                 uvScaleY,
                 position,
                 uv,
-                height,
+                // height,
                 'end'
             );
         }
@@ -513,15 +524,15 @@ export class RoadBuilder {
     }
 
     private getControlPoints(
-        vertices: Vec2[],
+        vertices: Vec3[],
         isClosed: boolean,
         width: number,
         vertexAdjacentToStart?: Vec2,
         vertexAdjacentToEnd?: Vec2,
 
-    ): Vec2[][] {
+    ): Vec3[][] {
 
-        const controlPoints: Vec2[][] = [];
+        const controlPoints: Vec3[][] = [];
 
         for (let i = 0; i < vertices.length; i++) {
             const current = vertices[i];
@@ -537,20 +548,21 @@ export class RoadBuilder {
                 }
             } else {
                 if (!prev && vertexAdjacentToStart) {
-                    prev = vertexAdjacentToStart;
+                    prev = new Vec3(vertexAdjacentToStart.x, vertexAdjacentToStart.y, 0);
+
                 }
                 if (!next && vertexAdjacentToEnd) {
-                    next = vertexAdjacentToEnd;
+                    next = new Vec3(vertexAdjacentToEnd.x, vertexAdjacentToEnd.y, 0);
                 }
             }
 
             let vA: Vec2, vB: Vec2;
 
             if (prev) {
-                vA = Vec2.sub(current, prev);
+                vA = Vec2.sub(current.xy, prev.xy);
             }
             if (next) {
-                vB = Vec2.sub(next, current);
+                vB = Vec2.sub(next.xy, current.xy);
             }
 
             if (!vA) vA = Vec2.clone(vB);
@@ -577,18 +589,29 @@ export class RoadBuilder {
 
             const inverse = alphaFixed >= Math.PI;
 
-            const pointLeft = Vec2.add(current, Vec2.multiplyScalar(offsetDir, offsetLengthAbs));
-            const pointRight = Vec2.add(current, Vec2.multiplyScalar(offsetDir, -offsetLengthAbs));
+            const pointLeft = Vec2.add(current.xy, Vec2.multiplyScalar(offsetDir, offsetLengthAbs));
+            const pointRight = Vec2.add(current.xy, Vec2.multiplyScalar(offsetDir, -offsetLengthAbs));
 
-            const mirroredA = this.reflectPoint(inverse ? pointRight : pointLeft, current, Vec2.add(current, aNorm));
-            const mirroredB = this.reflectPoint(inverse ? pointRight : pointLeft, current, Vec2.add(current, bNorm));
+            const mirroredA = this.reflectPoint(inverse ? pointRight : pointLeft, current.xy, Vec2.add(current.xy, aNorm));
+            const mirroredB = this.reflectPoint(inverse ? pointRight : pointLeft, current.xy, Vec2.add(current.xy, bNorm));
 
 
-            const p0 = inverse ? mirroredB : pointLeft;
-            const p1 = inverse ? pointRight : mirroredB;
-            const p2 = inverse ? mirroredA : pointLeft;
-            const p3 = inverse ? pointRight : mirroredA;
-            const p4 = inverse ? pointLeft : pointRight;
+            // @ts-expect-error
+            let p0: Vec3 = inverse ? mirroredB : pointLeft;
+            // @ts-expect-error
+            let p1: Vec3 = inverse ? pointRight : mirroredB;
+            // @ts-expect-error
+            let p2: Vec3 = inverse ? mirroredA : pointLeft;
+            // @ts-expect-error
+            let p3: Vec3 = inverse ? pointRight : mirroredA;
+            // @ts-expect-error
+            let p4: Vec3 = inverse ? pointLeft : pointRight;
+
+            p0 = new Vec3(p0.x, p0.y, current.z);
+            p1 = new Vec3(p1.x, p1.y, current.z);
+            p2 = new Vec3(p2.x, p2.y, current.z);
+            p3 = new Vec3(p3.x, p3.y, current.z);
+            p4 = new Vec3(p4.x, p4.y, current.z);
             // if ((Vec2.distance(p0, p4)) > width + 1) {
             //     console.log(
             //         Vec2.distance(p0, p4) - width,
@@ -660,12 +683,10 @@ export function projectAndAddGeometry(
         position,
         uv,
         textureId,
-        height = 0
     }: {
         position: number[];
         uv: number[];
         textureId: number;
-        height?: number;
     }
 ) {
 

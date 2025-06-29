@@ -6,16 +6,17 @@ export const environment = {
   production: false,
   global_logo: undefined,
   primaryColor: '#023f5f',
-  // backend: 'https://ws.dataosm.info',
-  // url_carto: 'https://tiles.dataosm.info/ows/?map=',
-  backend: 'http://localhost:8000',
-  url_carto: 'http://localhost:3000/ows/?map=',
+  backend: 'https://ws.dataosm.info',
+  url_carto: 'https://tiles.dataosm.info/ows/?map=',
+  // backend: 'http://localhost:8000',
+  // url_carto: 'http://localhost:3000/ows/?map=',
   url_frontend: 'http://localhost:4200',
   nom_instance: "OSMdata",
   matomoUrl: 'https://piwik.dataosm.info/',
   matomoSiteId: 4,
-  building_tile: "https://buildings.dataosm.info/data/data/{z}/{x}/{y}.pbf"
+  building_tile: "https://buildings.dataosm.info/data/data/{z}/{x}/{y}.pbf",
   // building_tile: "http://localhost:8081/data/data/{z}/{x}/{y}.pbf"
+  revitURl: ""
 };
 
 /*

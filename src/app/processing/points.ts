@@ -1,10 +1,10 @@
 import { ReplaySubject, takeUntil, tap, map as rxjsMap, filter, delay, retryWhen, debounceTime, BehaviorSubject, take, startWith, of, last, from, map, Observable, interval, takeWhile, timer, concatMap } from "rxjs";
 import { CustomVectorSource } from "../../helper/carto.helper";
 import { Instance, Map as Giro3DMap, OLUtils, OrbitControls, tile, LayerUpdateState } from "../giro-3d-module";
-import { Box3, Box3Helper, BoxGeometry, CylinderGeometry, Fog, Group, InstancedBufferAttribute, InstancedBufferGeometry, Material, Matrix4, Mesh, MeshBasicMaterial, NearestFilter, Object3DEventMap, PerspectiveCamera, PlaneGeometry, Raycaster, ReplaceStencilOp, ShaderMaterial, Sphere, SRGBColorSpace, Texture, TextureLoader, Vector2, Vector3 } from "three";
+import { Box3, Box3Helper, BoxGeometry, Camera, CylinderGeometry, DoubleSide, Fog, Group, InstancedBufferAttribute, InstancedBufferGeometry, Material, Matrix4, Mesh, MeshBasicMaterial, NearestFilter, Object3DEventMap, PerspectiveCamera, PlaneGeometry, Raycaster, ReplaceStencilOp, ShaderMaterial, Sphere, SRGBColorSpace, Texture, TextureLoader, Vector2, Vector3 } from "three";
 import { fromInstanceGiroEvent } from "../shared/class/fromGiroEvent";
 import { CartoHelper } from "../../helper/carto.helper";
-import { Projection } from "ol/proj";
+import { Projection, transform } from "ol/proj";
 import { Feature, GeoJSON, Geometry, Point, VectorSourceEvent } from "../ol-module";
 import { getBottomLeft, type Extent as OLExtent } from 'ol/extent';
 import { createXYZ } from "ol/tilegrid";
@@ -17,6 +17,8 @@ import { CustomInstancedBufferGeometry, PointMesh } from "./custom-mesh";
 import { mergeFloat32 } from "./utils";
 import { DataOSMLayer } from "../../helper/type";
 import { throttleTime, zip } from "rxjs/operators";
+import WorkerPool from "@giro3d/giro3d/utils/WorkerPool";
+import { createListElevationWorker, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "./elevation/pool";
 
 
 export abstract class AbstractPointsTile extends Group {
@@ -25,7 +27,7 @@ export abstract class AbstractPointsTile extends Group {
     couche_id: number
     key: string
 
-    abstract addPointMesh(geometry: CustomInstancedBufferGeometry, material: ShaderMaterial): void
+    abstract addPointMesh(geometry: CustomInstancedBufferGeometry, material: ShaderMaterial, camera: PerspectiveCamera): void
     abstract addStickMesh(geometry: CustomInstancedBufferGeometry, material: ShaderMaterial): void
     abstract dispose(): void
     abstract afterCameraUpdate(camera: PerspectiveCamera): void
@@ -55,9 +57,9 @@ export class PointsTile extends AbstractPointsTile {
     // pointMesh: PointMesh
     // stickMesh: Mesh<CustomInstancedBufferGeometry, ShaderMaterial, Object3DEventMap>
 
-    addPointMesh(geometry: CustomInstancedBufferGeometry, material: ShaderMaterial) {
+    addPointMesh(geometry: CustomInstancedBufferGeometry, material: ShaderMaterial, camera: PerspectiveCamera) {
         for (const key in this.meshes) {
-            this.meshes[key] = new PointMesh(geometry.clone(), material.clone())
+            this.meshes[key] = new PointMesh(geometry.clone(), material.clone(), camera)
             this.meshes[key].updateMatrixWorld()
             this.meshes[key].updateMatrix()
             this.add(this.meshes[key])
@@ -136,7 +138,7 @@ export abstract class AbstractPointsLayer<T extends AbstractPointsTile> {
     featuresStoreService: FeaturesStoreService = AppInjector.get(FeaturesStoreService);
 
     protected instance: Instance
-    private map: Giro3DMap
+    protected map: Giro3DMap
     private controls: OrbitControls
     protected camera: PerspectiveCamera
     private buildingsHeights$: BehaviorSubject<Map<number, number>>
@@ -148,6 +150,8 @@ export abstract class AbstractPointsLayer<T extends AbstractPointsTile> {
     protected loader: TextureLoader = new TextureLoader();
 
     protected vectorSource: CustomVectorSource
+
+    protected elevationWorker: WorkerPool<ListElevationsMessageType, ListElevationMessageMap> | null
 
 
 
@@ -287,7 +291,6 @@ export abstract class AbstractPointsLayer<T extends AbstractPointsTile> {
                 of(event).pipe(
                     delay(100),
                     tap((evt) => {
-                        // console.log("Processing event:");
                         //@ts-expect-error
                         this.addFeaturesInMesh(evt.extent);
                     })
@@ -438,7 +441,7 @@ export abstract class AbstractPointsLayer<T extends AbstractPointsTile> {
 
 
         newBuildingTile.addPointMesh(
-            this.getPointGeometry(), this.material
+            this.getPointGeometry(), this.material, this.camera
         )
 
         newBuildingTile.addStickMesh(
@@ -449,6 +452,38 @@ export abstract class AbstractPointsLayer<T extends AbstractPointsTile> {
 
         this._tileSets.set(tile_key, newBuildingTile)
         return newBuildingTile
+    }
+
+    async addElevation(features: Feature<Point>[]) {
+        const transformCoordinates = features.map((feature, index) => {
+            const transformCoordinate = transform(feature.getGeometry().getCoordinates(), this.map.extent.crs, "IGNF:WGS84G")
+            const coordinate_with_index: [number, number, number] = [transformCoordinate[0], transformCoordinate[1], index]
+            return coordinate_with_index
+        })
+
+
+        if (this.elevationWorker == undefined) {
+            this.elevationWorker = new WorkerPool({ createWorker: createListElevationWorker });
+        }
+
+        return getCapabilities().then(async (capabilities) => {
+            const result = await this.elevationWorker.queue('ListElevation', { "capabilities": capabilities, "coordinates_with_index": transformCoordinates });
+            const elevations: Map<number | string, number> = result.elevations
+            if (transformCoordinates.length != Array.from(elevations.values()).length) {
+                console.warn(
+                    "Toutes élévations n'ont pas été trouvées pour les points",
+                )
+            }
+            for (let index = 0; index < features.length; index++) {
+                const properties = features[index].getProperties()
+                features[index].setProperties({ "elevation": elevations.get(index) })
+                if (properties["elevation"] == undefined || properties["elevation"] == -Infinity) {
+                    console.warn('Elevation de d un point non trouvée')
+                }
+            }
+            return features
+        })
+
     }
 
     abstract updateFeatureZWithBuildingHeight(): void
@@ -491,8 +526,10 @@ export class PointsLayer extends AbstractPointsLayer<PointsTile> {
                         worldFeaturePosition.y
                     ]
                 ))
-                mesh.geometry.attributes.aInstancePosition.setZ(index, z)
-                stickMesh.geometry.attributes.aInstancePosition.setW(index, z)
+                const elevation = mesh.geometry.attributes.aInstanceElevation.getX(index)
+
+                mesh.geometry.attributes.aInstancePosition.setZ(index, z + elevation)
+                stickMesh.geometry.attributes.aInstancePosition.setW(index, z + elevation)
 
                 // featureBox3dList.push(tmpBox3.set(
                 //     tmpVec3.set(
@@ -529,6 +566,7 @@ export class PointsLayer extends AbstractPointsLayer<PointsTile> {
             features: Array<Feature>,
             instancePositions: Array<Float32Array>
             instanceStickPositions: Array<Float32Array>
+            instanceElevations: Array<Float32Array>
         }
     } {
 
@@ -538,6 +576,7 @@ export class PointsLayer extends AbstractPointsLayer<PointsTile> {
                 features: Array<Feature>,
                 instancePositions: Array<Float32Array>
                 instanceStickPositions: Array<Float32Array>
+                instanceElevations: Array<Float32Array>
             }
         }
             = {}
@@ -549,24 +588,27 @@ export class PointsLayer extends AbstractPointsLayer<PointsTile> {
         for (let index = 0; index < features.length; index++) {
             const feature = features[index];
             const geometry = feature.getGeometry() as Point
+            const properties = feature.getProperties()
             const coordinate = geometry.getCoordinates();
+
+            const elevation = properties["elevation"]
 
             if (!pointTileFeaturesMap[pointTile.key]) {
                 pointTileFeaturesMap[pointTile.key] = {
                     features: [],
                     instancePositions: [],
                     instanceStickPositions: [],
+                    instanceElevations: []
                 }
             }
 
             const instancePosition = new Float32Array(3);
             const instanceStickPosition = new Float32Array(4);
+            const instanceElevation = new Float32Array(1);
 
             pointTileFeaturesMap[pointTile.key].features.push(
                 feature
             )
-
-
 
             pointTileFeaturesMap[pointTile.key].instancePositions.push(
                 instancePosition
@@ -575,7 +617,9 @@ export class PointsLayer extends AbstractPointsLayer<PointsTile> {
             pointTileFeaturesMap[pointTile.key].instanceStickPositions.push(
                 instanceStickPosition
             )
-
+            pointTileFeaturesMap[pointTile.key].instanceElevations.push(
+                instanceElevation
+            )
 
             const buildingHeightAtFeature = this.featuresStoreService.getBuildingHeightAtPoint(tmpVec2.fromArray(
                 [
@@ -586,73 +630,83 @@ export class PointsLayer extends AbstractPointsLayer<PointsTile> {
 
             instancePosition[0] = coordinate[0] - pointTile.position.x
             instancePosition[1] = coordinate[1] - pointTile.position.y
-            instancePosition[2] = buildingHeightAtFeature
+            instancePosition[2] = buildingHeightAtFeature + elevation
 
             instanceStickPosition[0] = coordinate[0] - pointTile.position.x
             instanceStickPosition[1] = coordinate[1] - pointTile.position.y
             instanceStickPosition[2] = 0
-            instanceStickPosition[3] = buildingHeightAtFeature
+            instanceStickPosition[3] = buildingHeightAtFeature + elevation
+
+            instanceElevation[0] = elevation
 
         }
 
         return pointTileFeaturesMap
     }
 
+
+
     addFeaturesInMesh(extent: OLExtent) {
         let features = this.vectorSource.getFeaturesInExtent(extent)
         if (features.length == 0) {
             return
         }
-        const pointTileCenter = getBottomLeft(extent)
+        // @ts-expect-error
+        this.addElevation(features).then(() => {
 
-        const pointTileFeaturesMap = this.getAllFeaturesPerTile(features, new Vector2(pointTileCenter[0], pointTileCenter[1]))
-        for (const key in pointTileFeaturesMap) {
-            const element = pointTileFeaturesMap[key];
-            const pointTile = this._tileSets.get(key)
+            const pointTileCenter = getBottomLeft(extent)
 
-            const mesh = pointTile.meshes.pointMesh
-            const stickMesh = pointTile.stickMeshes.stickMesh
-            const featureUid = new Int32Array(element.features.length)
-            element.features.map((feature, index) => {
-                featureUid[index] = parseInt(getUid(feature))
-            })
+            const pointTileFeaturesMap = this.getAllFeaturesPerTile(features, new Vector2(pointTileCenter[0], pointTileCenter[1]))
+            for (const key in pointTileFeaturesMap) {
+                const element = pointTileFeaturesMap[key];
+                const pointTile = this._tileSets.get(key)
 
-            const pointGeometry = this.getPointGeometry()
-            const stickGeometry = this.getStickGeometry()
+                const mesh = pointTile.meshes.pointMesh
+                const stickMesh = pointTile.stickMeshes.stickMesh
+                const featureUid = new Int32Array(element.features.length)
+                element.features.map((feature, index) => {
+                    featureUid[index] = parseInt(getUid(feature))
+                })
 
-            pointGeometry.instanceCount = element.features.length
-            stickGeometry.instanceCount = element.features.length
+                const pointGeometry = this.getPointGeometry()
+                const stickGeometry = this.getStickGeometry()
 
-            pointGeometry.setAttribute("aInstancePosition", new InstancedBufferAttribute(mergeFloat32(element.instancePositions), 3));
-            pointGeometry.setAttribute("aFeatureUid", new InstancedBufferAttribute(featureUid, 1));
-            stickGeometry.setAttribute("aInstancePosition", new InstancedBufferAttribute(mergeFloat32(element.instanceStickPositions), 4));
+                pointGeometry.instanceCount = element.features.length
+                stickGeometry.instanceCount = element.features.length
 
-            tmpBox3.setFromArray(pointGeometry.attributes.aInstancePosition.array)
-            tmpBox3.expandByScalar(200)
-            const tileBox3 = tmpBox3
-            const tileSphere = tileBox3.getBoundingSphere(tmpSphere)
+                pointGeometry.setAttribute("aInstancePosition", new InstancedBufferAttribute(mergeFloat32(element.instancePositions), 3));
+                pointGeometry.setAttribute("aFeatureUid", new InstancedBufferAttribute(featureUid, 1));
+                pointGeometry.setAttribute("aInstanceElevation", new InstancedBufferAttribute(mergeFloat32(element.instanceElevations), 1));
 
-            pointGeometry.boundingBox = tileBox3
-            pointGeometry.boundingSphere = tileSphere
+                stickGeometry.setAttribute("aInstancePosition", new InstancedBufferAttribute(mergeFloat32(element.instanceStickPositions), 4));
 
-            stickGeometry.boundingBox = tileBox3
-            stickGeometry.boundingSphere = tileSphere
+                tmpBox3.setFromArray(pointGeometry.attributes.aInstancePosition.array)
+                tmpBox3.expandByScalar(200)
+                const tileBox3 = tmpBox3
+                const tileSphere = tileBox3.getBoundingSphere(tmpSphere)
 
-            mesh.geometry.dispose()
-            stickMesh.geometry.dispose()
+                pointGeometry.boundingBox = tileBox3
+                pointGeometry.boundingSphere = tileSphere
 
-            mesh.geometry = pointGeometry
-            stickMesh.geometry = stickGeometry
+                stickGeometry.boundingBox = tileBox3
+                stickGeometry.boundingSphere = tileSphere
 
-            mesh.updateMatrix()
-            stickMesh.updateMatrix()
+                mesh.geometry.dispose()
+                stickMesh.geometry.dispose()
 
-            pointTile.updateMatrixWorld();
+                mesh.geometry = pointGeometry
+                stickMesh.geometry = stickGeometry
+
+                mesh.updateMatrix()
+                stickMesh.updateMatrix()
+
+                pointTile.updateMatrixWorld();
 
 
-        }
+            }
 
-        this.instance.notifyChange([this.camera])
+            this.instance.notifyChange([this.camera])
+        })
 
 
     }
@@ -680,26 +734,36 @@ export class PointsLayer extends AbstractPointsLayer<PointsTile> {
                     // depthTest: false,
                     // depthWrite: false,
                     // side: DoubleSide,
-                    fog: true,
+                    // fog: true,
                     vertexShader: `
                         uniform vec4 quaternion;
                         uniform vec3 uGroupPosition;
+                        uniform float uFeatureUidSelected;
+
         
                         attribute vec3 aInstancePosition;
+                        attribute int aFeatureUid;
                 
                         varying vec2 vUv;
-                        // const float rotation = 0.0;
+                        varying float vFeatureUid;
+
                 
                         vec3 qtransform( vec4 q, vec3 v ){ 
                             return v + 2.0*cross(cross(v, q.xyz ) + q.w*v, q.xyz);
                         } 
                 
-                            void main(){
-                
+                        void main(){
+
+                            vFeatureUid = float(aFeatureUid);
+
                             // 60 is the width of the plane geometry here
                             float scaleFactor = (cameraPosition.z * 60.0 * 5.0 / 1000.0 / 1000.0);
                             if (scaleFactor < 0.13){
                             scaleFactor = 0.13;
+                            }
+
+                            if (uFeatureUidSelected == vFeatureUid){
+                                scaleFactor = scaleFactor+scaleFactor/3.0;
                             }
                             
                             vec3 scalePos = position * scaleFactor;
@@ -709,10 +773,14 @@ export class PointsLayer extends AbstractPointsLayer<PointsTile> {
                             gl_Position.z -= 60.0*8.0*scaleFactor;
                             vUv = uv;
                             
-                            }
+                        
+                        }
                         `,
                     fragmentShader: `
                         uniform sampler2D uTexture;
+                        uniform float uFeatureUidSelected;
+
+                        varying float vFeatureUid;
                         varying vec2 vUv;
                         void main(){
                             vec4 textureColor = texture2D(uTexture, vUv);
@@ -720,6 +788,9 @@ export class PointsLayer extends AbstractPointsLayer<PointsTile> {
                             discard;
                             }
                             gl_FragColor = textureColor;
+                            if (uFeatureUidSelected == vFeatureUid){
+                                gl_FragColor = gl_FragColor * vec4(1.0, 0.0, 0.0, 0.4);
+                            }   
                         }
                         `,
                     uniforms: {

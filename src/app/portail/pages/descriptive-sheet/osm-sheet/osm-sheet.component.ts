@@ -121,7 +121,7 @@ export class OsmSheetComponent implements OnInit, OnChanges {
   /**
    * List of features from WMSGetFeatureInfo at pixel where user clicked
    */
-  @Input() features: FeatureForSheet[]
+  @Input() feature: FeatureForSheet
 
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
@@ -145,7 +145,6 @@ export class OsmSheetComponent implements OnInit, OnChanges {
 
   configTagsOsm$: Observable<ConfigTagsOsm>
 
-  @ViewChild(MatChipList) matChipList: MatChipList
 
   /**
    * extent of the current feature, if the user want to zoom on int
@@ -156,12 +155,9 @@ export class OsmSheetComponent implements OnInit, OnChanges {
   /**
    * Feature to display
    */
-  featureToDisplay$: Observable<AttributeInterface[]>
+  featureToDisplay: AttributeInterface[]
 
-  /**
-   * selected/current feature to display
-   */
-  selectedFeature: FeatureForSheet
+
 
   /**
    * Osm url of selected feature
@@ -170,52 +166,90 @@ export class OsmSheetComponent implements OnInit, OnChanges {
 
 
 
-  listenToChipsChanged(matChipList: MatChipList) {
-    this.featureToDisplay$ = matChipList.chipSelectionChanges.pipe(
-      // startWith(matChipList.value),
-      filter((value) => value.selected),
-      map((chipChnaged) => {
-        let feature: FeatureForSheet = chipChnaged.source.value
-        this.selectedFeature = feature
-        if (feature.getGeometry()) {
-          let ol_extent = buffer(feature.getGeometry().getExtent(), feature.getGeometry().getType() == "Point" ? 20 : 20)
-          let ol_extent_center = getCenter(ol_extent)
+  getFeatureToDisplay(feature: FeatureForSheet) {
+    if (feature.getGeometry()) {
+      let ol_extent = buffer(feature.getGeometry().getExtent(), feature.getGeometry().getType() == "Point" ? 20 : 20)
+      let ol_extent_center = getCenter(ol_extent)
 
-          this.extent = Extent.fromCenterAndSize('EPSG:3857', { x: ol_extent_center[0], y: ol_extent_center[1] }, ol_extent[2] - ol_extent[0], ol_extent[3] - ol_extent[1])
-        } else {
-          this.extent = undefined
-        }
-        // var cartoClass = new CartoHelper(this.map)
-        // let highlightLayer = cartoClass.getLayerByName('highlightFeature')[0]
-        // const source = highlightLayer.source as VectorSource
-        // source.source.clear()
-        this.getOsmLink(feature)
+      this.extent = Extent.fromCenterAndSize('EPSG:3857', { x: ol_extent_center[0], y: ol_extent_center[1] }, ol_extent[2] - ol_extent[0], ol_extent[3] - ol_extent[1])
+    } else {
+      this.extent = undefined
+    }
+    // var cartoClass = new CartoHelper(this.map)
+    // let highlightLayer = cartoClass.getLayerByName('highlightFeature')[0]
+    // const source = highlightLayer.source as VectorSource
+    // source.source.clear()
 
-        this.addFeatureToMesh(feature)
-        // setTimeout(() => {
-        //   source.source.addFeature(feature)
-        //   source.update()
-        //   // console.log(source.source.getFeatures())
-        // }, 500);
-        return this.formatFeatureAttributes(feature)
-      }),
-      shareReplay(1)
-    )
+
+    return this.formatFeatureAttributes(feature)
+    // this.featureToDisplay =
+    //   matChipList.chipSelectionChanges.pipe(
+    //     // startWith(matChipList.value),
+    //     filter((value) => value.selected),
+    //     map((chipChnaged) => {
+    //       let feature: FeatureForSheet = chipChnaged.source.value
+    //       this.selectedFeature = feature
+    //       if (feature.getGeometry()) {
+    //         let ol_extent = buffer(feature.getGeometry().getExtent(), feature.getGeometry().getType() == "Point" ? 20 : 20)
+    //         let ol_extent_center = getCenter(ol_extent)
+
+    //         this.extent = Extent.fromCenterAndSize('EPSG:3857', { x: ol_extent_center[0], y: ol_extent_center[1] }, ol_extent[2] - ol_extent[0], ol_extent[3] - ol_extent[1])
+    //       } else {
+    //         this.extent = undefined
+    //       }
+    //       // var cartoClass = new CartoHelper(this.map)
+    //       // let highlightLayer = cartoClass.getLayerByName('highlightFeature')[0]
+    //       // const source = highlightLayer.source as VectorSource
+    //       // source.source.clear()
+    //       this.getOsmLink(feature)
+
+    //       this.addFeatureToMesh(feature)
+    //       // setTimeout(() => {
+    //       //   source.source.addFeature(feature)
+    //       //   source.update()
+    //       //   // console.log(source.source.getFeatures())
+    //       // }, 500);
+    //       return this.formatFeatureAttributes(feature)
+    //     }),
+    //     shareReplay(1)
+    //   )
 
 
 
   }
 
+  removeFeatureInMap(feature: FeatureForSheet) {
+    const instance = this.map.instance
+    // @ts-expect-error
+    if (this.object && this.object.isSelectable) {
+      this.map.instance.notifyChange([this.object])
+      // @ts-expect-error
+      this.object.clearFeatureSelected()
+      return
+    }
+    let coordinate = getCenter(feature.getGeometry().getExtent())
+    const featureCenter = new Vector2(coordinate[0], coordinate[1])
+    const highlight_feature_tile = instance.getObjects((obj) => obj.userData.name == "highlightFeature")[0] as HighlightFeatureTile
+    highlight_feature_tile.reset()
+    // const tile = highlight_feature_tile.getTile(
+    //   featureCenter
+    // )
+    // tile.clear()
+    // highlight_feature_tile.removeAllChildren()
+  }
+
   addFeatureToMesh(feature: FeatureForSheet) {
-    const instance = this.map["_instance"]
+
+    const instance = this.map.instance
 
     // @ts-expect-error
     if (this.object && this.object.isSelectable == true) {
       // @ts-expect-error
       this.object.setFeatureUidSelected(getUid(feature))
-      instance.notifyChange([this.object], true)
+      instance.notifyChange([this.object])
       return
     }
+    console.log(feature, "is not selectable")
 
     let coordinate = getCenter(feature.getGeometry().getExtent())
 
@@ -239,7 +273,6 @@ export class OsmSheetComponent implements OnInit, OnChanges {
       // const newFlatCoordinates = feature.getGeometry().getFlatCoordinates()
       // @ts-expect-error
       const newPolygon = new Polygon(newFlatCoordinates, GeometryLayout.XY, feature.getGeometry().ends_)
-      // console.log(feature, newFlatCoordinates, "feature")
       const { flatCoordinates, holes } = createFloorVertices(
         newPolygon.getCoordinates(),
         newPolygon.getStride(),
@@ -344,7 +377,6 @@ export class OsmSheetComponent implements OnInit, OnChanges {
         featureCenter
       ) + 0.01
 
-      // console.log(instancePosition)
       highlightFeatureMesh.geometry.instanceCount = 1
       highlightFeatureMesh.geometry.setAttribute("aInstancePosition", new InstancedBufferAttribute(instancePosition, 3));
       highlightFeatureMesh.updateMatrix()
@@ -355,7 +387,7 @@ export class OsmSheetComponent implements OnInit, OnChanges {
       setTimeout(() => {
         const camera = instance.view.camera
         camera.translateX(0.000001);
-        instance.notifyChange([camera], true)
+        instance.notifyChange([camera])
       }, 100);
 
       this.featuresStoreService.buildingsHeights$.pipe(
@@ -394,33 +426,20 @@ export class OsmSheetComponent implements OnInit, OnChanges {
 
 
     this.configTagsOsm$ = onInit.pipe(
-      take(1),
+      // take(1),
       switchMap(() => {
         return this.http.get<ConfigTagsOsm>('/assets/config/config_tags.json')
       }),
       tap(() => {
-        this.listenToChipsChanged(this.matChipList)
-        /**
-         * if after 500ms, no chips is selected (idk why this happens)
-         */
-        this.matChipList.chips.changes.pipe(
-          startWith(undefined),
-          // take(1),
-          debounceTime(500),
-          filter(() => this.matChipList.chips.length > 0),
-          tap(() => {
-            this.toggleSelection(this.matChipList.chips.first)
-          }),
-        ).subscribe()
+        this.getOsmLink(this.feature)
+        this.addFeatureToMesh(this.feature)
+        this.featureToDisplay = this.getFeatureToDisplay(this.feature)
+
       })
     )
 
   }
 
-  toggleSelection(chip: MatChip) {
-    chip.toggleSelected();
-    this.cdRef.detectChanges();
-  }
 
   async ngOnInit() {
 
@@ -428,18 +447,26 @@ export class OsmSheetComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    //Called before any other lifecycle hook. Use it to inject dependencies, but avoid any serious work here.
-    //Add '${implements OnChanges}' to the class.
-    if (changes.dataOsmLAyer) {
-      if (this.dataOsmLAyer && this.features.length > 0) {
-        this.onInitInstance()
 
-      }
+    if (changes.feature) {
+      // if (changes.feature.previousValue) {
+
+      //   this.removeFeatureInMap(changes.feature.previousValue)
+      // }
+      this.onInitInstance()
     }
 
   }
 
   ngOnDestroy(): void {
+    // // @ts-expect-error
+    // if (this.object && this.object.isSelectable) {
+    //   this.map.instance.notifyChange([this.object])
+    //   // @ts-expect-error
+    //   this.object.clearFeatureSelected()
+    // }
+    // this.closeDescriptiveSheet.emit()
+    this.removeFeatureInMap(this.feature)
     this.destroyed$.complete()
 
   }
@@ -709,8 +736,8 @@ export class OsmSheetComponent implements OnInit, OnChanges {
   * Zoom on feature extent
   */
   zoomOnFeatureExtent() {
-    if (this.selectedFeature.getGeometry()) {
-      if (this.selectedFeature.getGeometry().getType() == "Point" || this.selectedFeature.getGeometry().getType() == "MultiPoint") {
+    if (this.feature && this.feature.getGeometry()) {
+      if (this.feature.getGeometry().getType() == "Point" || this.feature.getGeometry().getType() == "MultiPoint") {
         const coordinate = this.extent.center()
 
         new CartoHelper(this.map).panTo(new Vector3(
@@ -721,7 +748,7 @@ export class OsmSheetComponent implements OnInit, OnChanges {
 
       } else {
         let cartoClass = new CartoHelper(this.map)
-        cartoClass.zoomToExtent(CartoHelper.olGeometryToGiroExtent(this.selectedFeature.getGeometry()), 16)
+        cartoClass.zoomToExtent(CartoHelper.olGeometryToGiroExtent(this.feature.getGeometry()), 16)
 
       }
     }

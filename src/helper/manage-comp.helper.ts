@@ -59,7 +59,7 @@ export class ManageCompHelper {
    * @param data modelDescriptiveSheet
    * @param size Array<string>|[]
    */
-  openDescriptiveSheetModal(data: DescriptiveSheetData, size: Array<string> | []) {
+  openDescriptiveSheetModal(data: DescriptiveSheetData[], size: Array<string> | []) {
 
     /**
      * close all modal of type DescriptiveSheetComponent before open another

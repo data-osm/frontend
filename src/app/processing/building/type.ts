@@ -117,7 +117,9 @@ export interface VectorNode {
 export interface VectorArea {
     type: 'area';
     osmReference: null;
+    elevation: number;
     descriptor: VectorAreaDescriptor;
     rings: VectorAreaRing[];
     isBuildingPartInRelation?: boolean;
+    featureId: number
 }

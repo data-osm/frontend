@@ -1,0 +1,49 @@
+<div mat-dialog-content class="scroll white descriptive-sheet-content">
+
+    <div class="text-center" *ngIf="selectedFeature$ | async as feat">
+        <div class="text-center descriptive-sheet-body-header-btn " style="margin-top: 10px;">
+
+            <button [matTooltip]="'OpenStreetMap'" mat-mini-fab class="descriptive-sheet-body-header-btn-osm"
+                (click)="openUrl(getOsmLink(feature))">
+                <img src="assets/icones/descriptive-sheet/Logo_mono.svg" alt="" srcset=""
+                    style="margin-top: -6px;height: 25px">
+            </button>
+        </div>
+
+        <ng-container *ngFor="let property of feat;let i = index">
+            <ng-container *ngIf="property.display ">
+                <div fxLayout class="descriptive-sheet-body" style="margin-bottom: 5px;">
+                    <div fxFlex="38%" class="attribute">
+                        <span class="attribute-title"> {{ property.field| translate }} </span>
+                        <span class="attribute-two-points"> : </span>
+                    </div>
+
+                    <div fxFlex class="attribute-value">
+                        <div *ngIf="!(property.field == 'color' || property.field == 'roofColor')"
+                            [innerHTML]="property.value"> </div>
+
+
+                        <div style="padding-left: 5px;display: flex;"
+                            *ngIf="property.field == 'color' || property.field == 'roofColor'">
+                            <span>{{formatColor(property.value)}}</span>
+                            <div style="height: 30px;width: 150px;display: flex;margin-left: 10px;"
+                                [ngStyle]="{'background-color': formatColor(property.value)}"> </div>
+                        </div>
+
+                    </div>
+                </div>
+            </ng-container>
+        </ng-container>
+    </div>
+
+</div>
+
+<div mat-dialog-actions class="text-center descriptive-sheet-actions ">
+    <button mat-raised-button (click)="zoomOnFeatureExtent()">
+        <i class="fa fa-search-plus"> </i> {{'descriptive_sheet.zoomTo' | translate}}
+    </button>
+    <button mat-raised-button *ngIf="canHideBuilding()" (click)="hideBuilding()">
+        Cacher ce bâtiment
+    </button>
+
+</div>

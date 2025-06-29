@@ -1,0 +1,21 @@
+app-file-upload{
+    max-width: 100%;
+  display: block;
+}
+.item {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  padding: 5px;
+  margin-left: -6px;
+  width: 95%;
+  border-radius: 0px 15px 15px 0px;
+  text-align: left;
+  display: flow-root;
+  text-transform: uppercase;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  font-size: 12px;
+}
+.ifcLoading{
+  position: relative;
+  z-index: 1;
+}

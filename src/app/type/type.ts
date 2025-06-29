@@ -1,7 +1,7 @@
 /**
  * Properties of a right menu
  */
-export interface rightMenuInterface {
+export interface RightMenuInterface {
   name: string,
   tooltip: string,
   active: boolean,
@@ -696,7 +696,7 @@ export interface CustomStyle {
   custom_style_id: number
   name: string
   description: string
-  fucntion_name: string
+  function_name: string
   geometry_type: 'Polygon' | 'Point' | 'LineString'
   icon: string
 }

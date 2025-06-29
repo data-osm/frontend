@@ -1,7 +1,7 @@
 import { ReplaySubject } from "rxjs/internal/ReplaySubject";
-import { Instance, Map as Giro3DMap, OLUtils, OrbitControls } from "../giro-3d-module";
+import { Instance, Map as Giro3DMap, OLUtils, OrbitControls, tile } from "../giro-3d-module";
 import { fromInstanceGiroEvent } from "../shared/class/fromGiroEvent";
-import { concatMap, debounceTime, delay, filter, last, map, mergeAll, retryWhen, map as rxjsMap, shareReplay, switchMap, take, takeWhile, tap, withLatestFrom } from "rxjs/operators"
+import { concatMap, debounceTime, delay, filter, last, map, mergeAll, retryWhen, map as rxjsMap, shareReplay, switchMap, take, takeUntil, takeWhile, tap, withLatestFrom } from "rxjs/operators"
 import { Box3, Box3Helper, BoxGeometry, DataArrayTexture, ImageLoader, LinearFilter, LinearMipmapLinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, NearestFilter, PerspectiveCamera, RedFormat, RepeatWrapping, RGBAFormat, SRGBColorSpace, TextureLoader, UnsignedByteType, Vector3 } from "three";
 import { createXYZ } from "ol/tilegrid";
 import { CartoHelper } from "../../helper/carto.helper";
@@ -16,6 +16,10 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { BehaviorSubject, combineLatest, forkJoin, from, interval, merge, Observable, of, Subject, zip, map as MapRxjs } from "rxjs";
 import { SkeletonBuilder } from 'straight-skeleton';
 import VectorRenderTile from "ol/VectorRenderTile";
+import { FeaturesStoreService } from "../data/store/features.store.service";
+import { AppInjector } from "../../helper/app-injector.helper";
+import { TileRange } from "ol";
+import { buffer } from "ol/extent";
 
 const tmpBox3 = new Box3()
 
@@ -215,13 +219,14 @@ const buildingTextures = [
 const noiseTextureUrl = "assets/textures/noise/noise.png"
 
 export class GroundTileProcessing {
-
+    featuresStoreService: FeaturesStoreService = AppInjector.get(FeaturesStoreService);
     // threeGlbLoaded:Sub
     instance: Instance
     map: Giro3DMap
     controls: OrbitControls
 
     vectorTileSource = new VectorTileSource({
+        projection: 'EPSG:3857',
         format: new MVT(),
         url: environment.building_tile,
         tileGrid: createXYZ({ tileSize: 512 })
@@ -232,7 +237,6 @@ export class GroundTileProcessing {
 
     // private loader: TextureLoader = new TextureLoader();
     private loader = new ImageLoader();
-
 
     constructor(
         map: Giro3DMap,
@@ -260,6 +264,27 @@ export class GroundTileProcessing {
                 this.treeLayer = new TreeLayer(map = this.map, gltf)
             }
         )
+
+        this.featuresStoreService.latestChangedBuildingToHide$.pipe(
+            filter(() => threeGlbLoaded),
+            tap(() => {
+                const tile_position = this.featuresStoreService.latestChangedBuildingToHide$.getValue()
+                if (tile_position == undefined) return
+                const hasTile = this.buildingLayer._tileSets.has(tile_position)
+                if (hasTile) {
+                    const [x, y] = tile_position.split("_").map(Number)
+                    const tileCoord = this.vectorTileSource.tileGrid.getTileCoordForCoordAndZ([x, y], 16)
+                    const tileExtent = this.vectorTileSource.tileGrid.getTileCoordExtent(tileCoord);
+                    const tileRange = this.vectorTileSource.tileGrid.getTileRangeForExtentAndZ(buffer(tileExtent, 20), 16);
+
+                    this.vectorTileSource.forEachLoadedTile(this.vectorTileSource.getProjection(), 16, tileRange, (tile) => {
+                        // @ts-expect-error
+                        this.buildingLayer.extentLoadEnd(this.vectorTileSource, [tile], true)
+                    })
+                }
+
+            })
+        ).subscribe()
 
 
         fromInstanceGiroEvent(this.instance, "after-camera-update").pipe(
@@ -366,7 +391,8 @@ export class GroundTileProcessing {
                             //     })
                             // ))
                         ).subscribe(() => {
-                            this.buildingLayer.extentLoadEnd(this.vectorTileSource, tilesToLoad, tilesToLoad[0].tileCoord)
+
+                            this.buildingLayer.extentLoadEnd(this.vectorTileSource, tilesToLoad)
                             this.treeLayer.extentLoadEnd(this.vectorTileSource, tilesToLoad)
                             // for (let index = 0; index < tilesToLoad.length; index++) {
                             //     // if (index >= 3) {

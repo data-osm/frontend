@@ -11,9 +11,21 @@ let moduleReady: Promise<void>;
 
 
 addEventListener('message', async ({ data }) => {
+  // const t0 = performance.now();
   await moduleReady;
-  const result = build3dBuildings(data.features, data.worldBuildingPosition, data.tile_key);
-  postMessage(result);
+  // const t1 = performance.now();
+  // console.log(data, "dtata");
+  const payload = data.payload
+  const result = build3dBuildings(payload.features, payload.worldBuildingPosition, payload.tile_key);
+  // const t2 = performance.now();
+  // console.log(`Temps écoulé build3dBuildings : ${(t1 - t0).toFixed(2)} ms, ${(t2 - t1).toFixed(2)} ms`, payload.features.length);
+
+  postMessage(
+    {
+      requestId: data.id,
+      payload: result,
+    },
+  );
 });
 
 

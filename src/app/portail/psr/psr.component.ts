@@ -12,19 +12,30 @@ import { BaseMapsService } from '../../data/services/base-maps.service';
 import { ShareServiceService } from '../../services/share-service/share-service.service';
 import { MatomoTracker } from 'ngx-matomo-client';
 import { MatSidenavContainer } from '@angular/material/sidenav';
-import { Group } from '../../type/type';
+import { Group, RightMenuInterface } from '../../type/type';
 import { ListAllLayersComponent } from '../pages/sidenav-left/sidenave-left-secondaire/list-all-layers/list-all-layers.component';
 import { CartoHelper } from '../../../helper/carto.helper';
 import { partial } from '../../../utils/partial';
 import { constructPSRLayer } from './construct-psr-layer';
-import { OrbitControls } from '../../giro-3d-module';
+import { OLUtils, OrbitControls, WmtsSource } from '../../giro-3d-module';
 import { fromInstanceGiroEvent } from '../../shared/class/fromGiroEvent';
-import { tap } from 'rxjs';
-import { AdditiveBlending, Box3, Box3Helper, BoxGeometry, BufferGeometry, Clock, Color, DirectionalLight, Euler, Float32BufferAttribute, HemisphereLight, ImageLoader, Line, LineBasicMaterial, LineSegments, MathUtils, Matrix4, Mesh, MeshBasicMaterial, MeshLambertMaterial, PerspectiveCamera, Quaternion, Raycaster, RingGeometry, Scene, SRGBColorSpace, Texture, Vector3, WebGLRenderer } from 'three';
-import { createXYZ } from 'ol/tilegrid';
+import { takeUntil, tap } from 'rxjs';
+import { AdditiveBlending, Box3, Box3Helper, BoxGeometry, BufferGeometry, Clock, Color, DataTexture, DirectionalLight, Euler, Float32BufferAttribute, FloatType, HemisphereLight, ImageLoader, Line, LinearFilter, LineBasicMaterial, LineSegments, MathUtils, Matrix4, Mesh, MeshBasicMaterial, MeshLambertMaterial, PerspectiveCamera, Quaternion, Raycaster, RGFormat, RingGeometry, Scene, SRGBColorSpace, Texture, Vector3, WebGLRenderer } from 'three';
+import { createXYZ, TileGrid } from 'ol/tilegrid';
 import { BoxLineGeometry, XRButton, XRControllerModelFactory, VRButton } from 'three/examples/jsm/Addons';
 import WebXRPolyfill from 'webxr-polyfill';
+import { T } from '@angular/cdk/keycodes';
+import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
+import ColorMap from '@giro3d/giro3d/core/ColorMap';
+import { makeColorRamp } from '../../processing/pointClound/colormap';
 
+import BilFormat from "@giro3d/giro3d/formats/BilFormat.js";
+import { decodeRaster } from "@giro3d/giro3d/formats/bilWorker.js";
+
+import WMTS, { optionsFromCapabilities } from 'ol/source/WMTS.js';
+import WMTSCapabilities from 'ol/format/WMTSCapabilities';
+import { Projection, transformExtent } from 'ol/proj';
+import ReprojTile from 'ol/reproj/Tile';
 
 @Component({
   selector: 'app-psr',
@@ -48,7 +59,13 @@ export class PsrComponent extends AbstractProfilComponent {
     this.initialiseMap(myDiv)
   }
 
-  mesh: Mesh
+  override rightMenus: Array<RightMenuInterface> = [
+    { name: 'toc', active: false, enable: true, tooltip: 'toolpit_toc', title: 'table_of_contents' },
+    { name: 'download', active: false, enable: true, tooltip: 'toolpit_download_data', title: 'download_data' },
+    { name: 'legend', active: false, enable: true, tooltip: 'toolpit_legend', title: 'legend' },
+    { name: 'import-data', active: false, enable: true, tooltip: 'import_data', title: 'import-data' },
+  ]
+
 
   constructor(
     // ngZone: NgZone,
@@ -65,10 +82,22 @@ export class PsrComponent extends AbstractProfilComponent {
     router: Router,
     tracker: MatomoTracker
   ) {
-    // super()
+
     super(manageCompHelper, shareServiceService, notifierService, parametersService, translate, activatedRoute, mapService, router, dialog, baseMapService, dataOsmLayersService, tracker)
 
+    this.eventsListener.groupsLoaded.pipe(
+      takeUntil(this.destroyed$),
+      tap((groups: Array<Group>) => {
+        let parameter = this.parametersService.parameter
+        parameter.can_hide_buildings = true
+        this.parametersService.parameter = parameter
+
+
+      })
+    ).subscribe()
+
   }
+
   // To debug method CartoHelper.getMapExtent
   // extendLoad = undefined
   // addExtent() {

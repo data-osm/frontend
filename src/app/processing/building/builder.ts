@@ -13,6 +13,7 @@ import { Tile3DFeaturesToBuffersConverter } from "./tile3d-features-to-buffers-c
 import { getRoofTypeFromString } from "./roof/utils";
 import Vec2 from "../math/vector2";
 import Vec3 from "../math/vector3";
+import { getUid } from "ol";
 
 
 export enum VectorAreaRingType {
@@ -347,6 +348,8 @@ export function createBuildingPolygons(olFeatures: Feature<Polygon>[]) {
                     type: 'area',
                     rings: [ring],
                     osmReference: olFeature.getProperties()["osmId"],
+                    elevation: olFeature.getProperties()["elevation"],
+                    featureId: parseInt(getUid(olFeature)),
                     descriptor: {
                         type: 'building',
                         ombb: getOMBB(olFeature.getProperties() as BuildingProperties),

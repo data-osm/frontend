@@ -13,7 +13,7 @@ import { MatLegacyTableModule as MatTableModule } from '@angular/material/legacy
 import { MatIconModule } from '@angular/material/icon'
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MatDialogModule } from '@angular/material/dialog';
-
+import { MatChipsModule as NewMatChipsModule } from '@angular/material/chips';
 // import {
 //   MatAutocompleteModule,
 //   MatBadgeModule,
@@ -114,7 +114,8 @@ import { MatSortModule } from '@angular/material/sort';
     MatRadioModule,
     ClipboardModule,
     MatSortModule,
-    MatLegacyDialogModule
+    MatLegacyDialogModule,
+    NewMatChipsModule
   ]
 })
 export class ComponentMaterialModule { }

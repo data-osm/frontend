@@ -1,11 +1,11 @@
 import { AddEquation, AdditiveBlending, AlwaysDepth, AlwaysStencilFunc, Box3, BufferAttribute, BufferGeometry, Color, CustomBlending, DataArrayTexture, DirectionalLight, DoubleSide, Fog, GLSL3, GreaterDepth, Group, InstancedBufferGeometry, LessDepth, Material, Matrix4, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshStandardMaterial, NormalBufferAttributes, Object3D, OneFactor, PerspectiveCamera, ReplaceStencilOp, ShaderLib, ShaderMaterial, Sphere, Texture, TypedArray, UniformsLib, UniformsUtils, Vector2, Vector3, ZeroFactor } from "three";
 import { concatMap, delay, filter, retryWhen, map as rxjsMap, take, tap } from "rxjs/operators"
-import { Instance, Map as Giro3DMap, OLUtils, OrbitControls } from "../giro-3d-module";
-import { Feature, GeometryLayout, MVT, Polygon, TileState, VectorTileSource, GeoJSON, FeatureLike, getCenter } from "../ol-module";
+import { Instance, Map as Giro3DMap, OLUtils, OrbitControls, Coordinates } from "../giro-3d-module";
+import { Feature, GeometryLayout, MVT, Polygon, TileState, VectorTileSource, GeoJSON, FeatureLike, getCenter, VectorSource, Extent, Coordinate } from "../ol-module";
 import { fromInstanceGiroEvent } from "../shared/class/fromGiroEvent";
 import { createXYZ } from "ol/tilegrid";
-import { CartoHelper, getAllFeaturesInVectorTileSource, getFeaturesFromTileCoord } from "../../helper/carto.helper";
-import { Projection } from "ol/proj";
+import { CartoHelper, CustomVectorSource, getAllFeaturesInVectorTileSource, getFeaturesFromTileCoord } from "../../helper/carto.helper";
+import { Projection, transform } from "ol/proj";
 import { BehaviorSubject, of, ReplaySubject } from "rxjs";
 import { TileCoord } from "ol/tilecoord";
 import { BufferGeometryUtils, VertexNormalsHelper } from "three/examples/jsm/Addons";
@@ -22,10 +22,30 @@ import { polygon as turf_polygon, featureCollection } from "@turf/helpers";
 import { bbox } from "@turf/bbox";
 import { LEVEL_HEIGHT } from "./building/building-params";
 import VectorRenderTile from "ol/VectorRenderTile";
-import { Extent, getBottomLeft, getBottomRight, getTopLeft } from "ol/extent";
+import { getBottomLeft, getBottomRight, getTopLeft } from "ol/extent";
 import { BuildingsTile } from "./building/helper";
 import { build3dBuildings } from "./build3dBuilding";
+import { SelectableMesh } from "./custom-mesh";
+import { getUid } from "ol";
+import listElevation from "./elevation/listElevation";
+import WMTSCapabilities from "ol/format/WMTSCapabilities";
+import WorkerPool, { BaseMessageMap } from "@giro3d/giro3d/utils/WorkerPool";
+import { createListElevationWorker, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "./elevation/pool";
 
+// class WorkerPoolL {
+//     current = 0;
+//     workers: Worker[]
+
+//     constructor(filePath:string) {
+//         WorkerPool
+//         this.workers = Array.from({ length: 4 }, () => new Worker(filePath));
+//     }
+
+//     dispatchTask(data) {
+//         this.workers[this.current].postMessage(data);
+//         this.current = (this.current + 1) % this.workers.length;
+//     }
+// }
 
 /**
  * Level in meters
@@ -43,12 +63,31 @@ const tempVec3 = new Vector3()
 const tmpBox3 = new Box3()
 const tmpSphere = new Sphere()
 
+const LAYER_VECTOR_SOURCE_ID = "buildingSource"
+const BUILDING_DESCRIPTION_SHEET = "building"
+const BUILDING_DESCRIPTION_SHEET_TITLE = "Bâtiment"
+
+export type MessageType = 'extrudeBuildings';
+export interface MessageMap extends BaseMessageMap<MessageType> {
+    ExtrudeBuildings: {
+        serializableFeatures: {
+            flatCoordinates: any;
+            ends_: any;
+            properties: {
+                [x: string]: any;
+            };
+            feature_id: number;
+        }[],
+        worldBuildingPosition: Vector3,
+        tile_key: string
+    };
+}
 export class BuildingLayer {
+
     instance: Instance
     map: Giro3DMap
     controls: OrbitControls
     tileLoad$ = new ReplaySubject()
-    buildingMaterial: ShaderMaterial
     buildingGroup: Group = new Group()
     _tileSets: Map<string, BuildingsTile> = new Map()
 
@@ -58,11 +97,19 @@ export class BuildingLayer {
     noiseTexture: Texture
 
     featuresStoreService: FeaturesStoreService = AppInjector.get(FeaturesStoreService);
-    worker: Worker
+    worker: WorkerPool<MessageType, MessageMap> | null
+    elevationWorker: WorkerPool<ListElevationsMessageType, ListElevationMessageMap> | null
+
+    buildingVectorSource: CustomVectorSource = new CustomVectorSource({})
+    uniqueBuildingPerTile: Map<string, TileCoord> = new Map<string, TileCoord>()
+
 
     constructor(
         map: Giro3DMap,
     ) {
+        this.featuresStoreService.addLayerVectorSource(
+            LAYER_VECTOR_SOURCE_ID, this.buildingVectorSource
+        )
 
         this.buildingsHeights$ = this.featuresStoreService.buildingsHeights$
         this.buildingsIndex$ = this.featuresStoreService.buildingsIndex$
@@ -70,13 +117,18 @@ export class BuildingLayer {
         this.map = map
         this.instance = map["_instance"]
         this.controls = this.instance.view.controls as OrbitControls
+        this.buildingGroup.name = "buildings"
         this.buildingGroup.matrixAutoUpdate = false
         this.instance.add(this.buildingGroup)
 
         this.buildingGroup.renderOrder = 3
 
 
-        this.buildingMaterial = new ShaderMaterial({
+
+    }
+
+    getBuildingMaterial() {
+        return new ShaderMaterial({
             // depthTest: false,
             // depthWrite: false,
             // wireframe: true,
@@ -114,18 +166,20 @@ export class BuildingLayer {
                 precision highp sampler2DArray;
                 precision highp sampler3D;
         
-                    attribute vec3 color;
-                    attribute float textureId;
+                attribute vec3 color;
+                attribute float textureId;
+                attribute float aFeatureUid;
         
-                    out vec3 vColor;
-                    out vec2 vUv;
-                    out vec3 vNormal;
-                    out vec3 vNewPosition;
-                    out vec3 vPosition;
-                    out vec4 mvPosition;
+                out vec3 vColor;
+                out vec2 vUv;
+                out vec3 vNormal;
+                out vec3 vNewPosition;
+                out vec3 vPosition;
+                out vec4 mvPosition;
+                out float vFeatureUid;
         
         
-                    flat out int vTextureId;
+                flat out int vTextureId;
                 
                 // uniform sampler2DArray tMap;
         
@@ -135,6 +189,7 @@ export class BuildingLayer {
                     vColor = color;
                     vUv = uv;
                     vTextureId = int(textureId);
+                    vFeatureUid = float(aFeatureUid);
         
                     
                     vNormal = vec3(modelViewMatrix * vec4(normal, 0));
@@ -184,6 +239,7 @@ export class BuildingLayer {
                 in vec3 vNewPosition;
                 in vec3 vPosition;
                 in vec4 mvPosition;
+                in float vFeatureUid;
         
         
                 flat in int vTextureId;
@@ -196,6 +252,7 @@ export class BuildingLayer {
                 uniform float roughness;
                 uniform float metalness;
                 uniform float opacity;
+                uniform float uFeatureUidSelected;
         
                 
                 out vec4 fragColor;
@@ -394,18 +451,10 @@ export class BuildingLayer {
                         // }
                         fragColor.rgb = mix( fragColor.rgb, fogColor, fogFactor );
                     #endif
-                    // gl_FragColor = fragColor;
-                    
-                    // vec4 metalnessCol = vec4(1.0, 0.0, 0.0,  mask.g);
-                    // vec4 roughnessCol = vec4(mask.r, 0.0, 0.0, 1.0);
-                    // outColor *= metalnessCol;
-                    // outColor *= roughnessCol;
-                    // vec4 finalCol = vec4(outColor.rgb * mask.g, outColor.a);
-                    // fragColor = finalCol;
-        
-                    // outColor *= (1.0 - mask.r);
-                    // vec3 metalColor = mix( outColor.rgb, vec3(0.03), mask.g);
-                    // fragColor =  vec4(metalColor,outColor.a );
+
+                    if (uFeatureUidSelected == vFeatureUid){
+                        fragColor = fragColor * vec4(1.0, 0.0, 0.0, 0.4);
+                    }
         
                 }
             `,
@@ -424,69 +473,6 @@ export class BuildingLayer {
             }
         }
         );
-
-
-
-
-
-
-
-
-        // this.buildingMaterial = new MeshBasicMaterial(
-        //     {
-        //         // color: "yellow",
-        //         // depthWrite: false,
-        //         // depthTest: false,
-        //         // depthFunc: LessDepth,
-        //         side: DoubleSide,
-        // })
-
-
-
-
-        // this.buildingMaterial.onBeforeCompile = (shader) => {
-        //     // console.log(shader)
-        //     shader.vertexShader = shader.vertexShader.replace('#include <batching_pars_vertex>', `
-        //       #include <batching_pars_vertex>
-
-        //       attribute vec3 AisPositionRoofOrFloor;
-        //       varying vec3 VisPositionRoofOrFloor;
-
-        //     `)
-        //     shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', `
-        //         #include <begin_vertex>
-
-
-        //         // if (AisPositionRoofOrFloor.x == 0.0){
-        //         //   transformed.z +=100.0;
-        //         // }
-
-        //         VisPositionRoofOrFloor = AisPositionRoofOrFloor;
-
-        //       `)
-
-        //     shader.fragmentShader = shader.fragmentShader.replace('uniform vec3 diffuse;', `
-        //         uniform vec3 diffuse;
-        //         varying vec3 VisPositionRoofOrFloor;
-        //       `)
-
-        //     shader.fragmentShader = shader.fragmentShader.replace('#include <dithering_fragment>', `
-        //         #include <dithering_fragment>
-
-        //         if (VisPositionRoofOrFloor.x == 0.0){
-        //           discard;
-        //         }else if (VisPositionRoofOrFloor.x == 1.0){
-        //           gl_FragColor = vec4(1, 1.0, 1.0, 1);
-
-        //         }else {
-        //             gl_FragColor = vec4(0.46, 0.47, 0.45, 1.0);
-        //         }
-
-
-        //       `)
-        // }
-
-
     }
 
     setBuildingTexture(buildingTexture: DataArrayTexture, noiseTexture: Texture) {
@@ -535,205 +521,58 @@ export class BuildingLayer {
         }
     }
 
-    // addBuildingMap() {
-    //     // let 
-    //     // this.buildingGroup.renderOrder = 3
-
-    //     fromInstanceGiroEvent(this.instance, "after-camera-update").pipe(
-    //         rxjsMap((instanceCamera) => {
-    //             const camera = instanceCamera.view.camera as PerspectiveCamera
-    //             const focalLength = camera.position.distanceTo(this.controls.target);
-    //             const fov = camera.fov * (Math.PI / 180);
-    //             const aspect = camera.aspect;
-
-    //             const heightNear = 2 * Math.tan(fov / 2) * focalLength;
-    //             const mapWith = heightNear * aspect;
-
-    //             const tileGrid = createXYZ({ tileSize: 512 })
-    //             let target_resolution = mapWith / this.map["_instance"].domElement.width
-
-    //             // Compute Z of the map
-    //             const z = tileGrid.getZForResolution(
-    //                 target_resolution
-    //             );
-    //             // console.log(z)
-    //             if (z < 16) {
-    //                 this.buildingGroup.visible = false
-    //             }
-    //             // this.instance.camera.minNearPlane = 0.1
-    //             // if (camera.near == 0.1) {
-    //             //     this.instance.camera.far = 50
-    //             //     this.instance.camera.update()
-    //             //     //     //     this.instance.camera.minNearPlane = 1
-    //             //     //     //     this.instance.view.camera.near = 1
-    //             //     //     //     this.instance.view.camera.updateProjectionMatrix();
-    //             //     //     //     // camera.near = 1
-    //             //     //     //     // camera.updateProjectionMatrix();
-    //             //     //     this.instance.camera.resetPlanes()
-    //             // }
-    //             // console.log(camera.far, this.instance.camera.near)
-    //             return [z, mapWith]
-    //         }),
-    //         filter((zAndMapWith) => zAndMapWith[0] >= 16),
-    //         // debounceTime(200),
-    //         rxjsMap((zAndMapWith) => {
-    //             const mapExtent = CartoHelper.getMapExtent(this.map)
-
-    //             if (mapExtent == undefined) {
-    //                 throw "Could not compute the map extent";
-    //             }
 
 
-    //             this.buildingGroup.visible = true
-    //             // this.buildingGroup.origin = mapExtent.centerAsVector3()
-    //             // this.buildingGroup.position.set(this.buildingGroup.origin.x, this.buildingGroup.origin.y, this.buildingGroup.origin.z)
-    //             // this.buildingGroup.boundingBox = new Box3(
-    //             //     new Vector3(mapExtent.west(), mapExtent.south(), -1),
-    //             //     new Vector3(mapExtent.east(), mapExtent.north(), 1),
-    //             // );
-    //             // this.buildingGroup.updateMatrixWorld()
-    //             // this.buildingGroup.updateMatrix()
-    //             // const bottomLeftExtent = mapExtent.bottomLeft().toVector3().project(this.camera)
-    //             // const topRightExtent = mapExtent.topRight().toVector3().project(this.camera);
-    //             // console.log(mapExtent, [
-    //             //   topRightExtent.x - bottomLeftExtent.x,
-    //             //   topRightExtent.y - bottomLeftExtent.y,
-    //             // ])
-    //             // const extentDimension = new Vector2()
-    //             // mapExtent.dimensions(extentDimension)
-
-    //             const olExtent = OLUtils.toOLExtent(mapExtent);
-    //             const targetProjection = new Projection({ code: "EPSG:3857" });
-    //             let mapWith = zAndMapWith[1]
-
-    //             let target_resolution = mapWith / this.map["_instance"].domElement.width
-
-
-    //             const tilesToLoad = []
-
-    //             this.vectorTileSource.tileGrid.forEachTileCoord(olExtent, 16, (tileCoord: TileCoord) => {
-    //                 const z = tileCoord[0]
-    //                 const x = tileCoord[1]
-    //                 const y = tileCoord[2]
-
-    //                 // let giroTile
-    //                 // this.object3d.traverse((object: any) => {
-    //                 //     // && object.userData.x == x && object.userData.y==y 
-    //                 //     if (object.isFeatureTile && object.visible && object.userData.z == 14 && mapExtent.intersect(object.userData.extent)) {
-    //                 //         // console.log(object)
-    //                 //         giroTile = object
-    //                 //     }
-    //                 //     if (giroTile) {
-    //                 //         return
-    //                 //     }
-    //                 //     // break
-    //                 // })
-    //                 // if (!this.buildingGroup.parent) {
-    //                 //     console.log(giroTile)
-    //                 //     giroTile.add(this.buildingGroup)
-    //                 // }
-
-    //                 const currentTile = this.vectorTileSource.getTile(z, x, y, target_resolution, targetProjection)
-    //                 // console.log(currentTile.getState(), "loading tile ")
-    //                 if (currentTile.getState() == TileState.IDLE) {
-    //                     currentTile.getSourceTiles()
-    //                     tilesToLoad.push(currentTile.getKey())
-    //                 }
-    //             })
-    //             if (tilesToLoad.length > 0) {
-    //                 this.tileLoad$.pipe(
-    //                     take(tilesToLoad.length),
-    //                     filter((val, index) => index == tilesToLoad.length - 1),
-    //                     tap(() => {
-    //                         this.extentLoadEnd()
-    //                     })
-    //                 ).subscribe()
-    //             }
-
-    //         }),
-    //         retryWhen((errors) => {
-    //             return errors.pipe(
-    //                 tap(val => console.warn(val)),
-    //                 delay(300),
-    //                 // take(1)
-    //             )
-    //         }),
-    //     ).subscribe()
-
-    //     this.vectorTileSource.on("tileloaderror", () => {
-    //         this.tileLoad$.next(undefined)
-    //     })
-
-    //     this.vectorTileSource.on("tileloadend", (event: any) => {
-    //         // console.log(
-    //         //     (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "point" && feat.getProperties()["type"] == "tree")
-    //         // )
-    //         let features = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "buildings")
-    //         this.tileLoad$.next(undefined)
-    //         if (features.length > 0) {
-
-    //             this.processFeatures(features)
-    //         }
-    //     })
-
-    // }
-
-    extentLoadEnd(vectorTileSource: VectorTileSource, tilesToLoad: VectorRenderTile[], parentTile: TileCoord) {
+    extentLoadEnd(vectorTileSource: VectorTileSource, tilesToLoad: VectorRenderTile[], for_reload: boolean = false) {
 
         for (let index = 0; index < tilesToLoad.length; index++) {
             const tile = tilesToLoad[index];
-            let features = getFeaturesFromTileCoord(tile, 16).filter((feat) => feat.getProperties()["layer"] == "buildings" && ["bench", "construction", "streetLamp", "busStop"].indexOf(feat.getProperties()["type"]) == -1)
+            const tileCoord = tile.getTileCoord()
+            const buildingTileCenter = getBottomLeft(vectorTileSource.tileGrid.getTileCoordExtent(tileCoord))
+            const x = buildingTileCenter[0]
+            const y = buildingTileCenter[1]
+
+            const buildingsToHide = Array.from(this.featuresStoreService.getBuildingsToHide().entries()).filter((entry) => {
+                return true
+                return entry[1] == x + "_" + y
+            }).map((entry) => {
+                return entry[0]
+            })
+
+            let features = getFeaturesFromTileCoord(tile, 16).filter(
+                (feat) => feat.getProperties()["layer"] == "buildings" && ["bench", "construction", "streetLamp", "busStop"].indexOf(feat.getProperties()["type"]) == -1
+            ).filter(
+                (feat) => (!this.uniqueBuildingPerTile.has(feat.getProperties()["osmId"]) || this.uniqueBuildingPerTile.get(feat.getProperties()["osmId"]) == tileCoord)
+            ).filter(
+                (feat) => !buildingsToHide.includes(feat.getProperties()["osmId"])
+            )
 
             if (features.length > 0) {
-                const buildingTileCenter = getBottomLeft(vectorTileSource.tileGrid.getTileCoordExtent(tile.getTileCoord()))
-                const x = buildingTileCenter[0]
-                const y = buildingTileCenter[1]
+                if (!for_reload) {
+                    //@ts-expect-error
+                    this.buildingVectorSource.addFeatures(features)
+                    features.forEach((feature) => {
+                        this.uniqueBuildingPerTile.set(feature.getProperties()["osmId"], tileCoord)
+                    })
+                }
+
+
 
                 const [isTileAlreadyCreated, buildingTile] = this.getBuildingsTile(new Vector2(x, y))
 
 
                 const worldBuildingPosition = buildingTile.getWorldPosition(new Vector3())
-                const serializableFeatures = features.map((feature) => {
-                    return {
-                        // @ts-expect-error
-                        "flatCoordinates": feature.getFlatCoordinates(),
-                        // @ts-expect-error
-                        "ends_": feature.ends_,
-                        "properties": feature.getProperties()
-                    }
-                })
+                this.addElevationAndSerializeFeatures(features, worldBuildingPosition, buildingTile.key)
 
-                // console.log(buildingTile.position, "position")
-                if (window.Worker && typeof Worker !== 'undefined') {
-                    // Create a new
-                    if (this.worker == undefined) {
-                        this.worker = new Worker(new URL('../processing.worker', import.meta.url));
-                    }
-
-                    this.worker.onmessage = ({ data }) => {
-                        let tile = this._tileSets.get(data.tile_key)
-                        this.loadFeatureInScene(
-                            data.geometriesJson,
-                            tile
-                        )
-                    };
-
-                    this.worker.postMessage({ "features": serializableFeatures, "worldBuildingPosition": worldBuildingPosition, "tile_key": buildingTile.key });
-
-                } else {
-                    let data = build3dBuildings(serializableFeatures, worldBuildingPosition, buildingTile.key)
-                    let tile = this._tileSets.get(data.tile_key)
-                    this.loadFeatureInScene(
-                        // @ts-expect-error
-                        data.geometriesJson,
-                        tile
-                    )
-                }
-                // this.processFeatures(features, buildingTile)
             }
         }
 
 
+        this.rebuildBuildingsHeightIndex(vectorTileSource)
+
+    }
+
+    rebuildBuildingsHeightIndex(vectorTileSource: VectorTileSource) {
         const buildingFeatures = getAllFeaturesInVectorTileSource(vectorTileSource).filter((feat) => feat.getProperties()["layer"] == "buildings")
         if (buildingFeatures.length > 0) {
 
@@ -756,6 +595,147 @@ export class BuildingLayer {
             this.buildingsHeights$.next(buildingsHeights)
             this.buildingsIndex$.next(index)
         }
+    }
+
+
+
+    buildBuildingsAndAddToMap(
+        serializableFeatures: {
+            flatCoordinates: any;
+            ends_: any;
+            properties: {
+                [x: string]: any;
+            };
+            feature_id: number;
+        }[],
+        worldBuildingPosition: Vector3,
+        key: string
+    ) {
+
+
+        if (window.Worker && typeof Worker !== 'undefined') {
+            function createWorker() {
+                return new Worker(new URL('../processing.worker', import.meta.url), {
+                    type: 'module',
+                    name: 'ExtrudeBuildings',
+                });
+            }
+            // Create a new
+            if (this.worker == undefined) {
+                this.worker = new WorkerPool({ createWorker });
+                // this.worker = new Worker(new URL('../processing.worker', import.meta.url));
+            }
+            const result = this.worker.queue('ExtrudeBuildings', { "features": serializableFeatures, "worldBuildingPosition": worldBuildingPosition, "tile_key": key });
+            result.then((data) => {
+                // @ts-expect-error
+                let tile = this._tileSets.get(data.tile_key)
+                this.loadFeatureInScene(
+                    // @ts-expect-error
+                    data.geometriesJson,
+                    tile
+                )
+            })
+
+        } else {
+            let data = build3dBuildings(serializableFeatures, worldBuildingPosition, key)
+            let tile = this._tileSets.get(data.tile_key)
+            this.loadFeatureInScene(
+                // @ts-expect-error
+                data.geometriesJson,
+                tile
+            )
+        }
+    }
+
+    addElevationAndSerializeFeatures(features: FeatureLike[], worldBuildingPosition: Vector3, key: string) {
+
+        const transformCoordinates = features.map((feature, index) => {
+            // @ts-expect-error
+            const flatCoordinates = feature.getFlatCoordinates()
+            const properties = feature.getProperties()
+            // @ts-expect-error
+            const point = getCenter(new Polygon(flatCoordinates, 'XY', feature.ends_).getExtent())
+            const transformCoordinate = transform(point, this.map.extent.crs, "IGNF:WGS84G")
+            const coordinate_with_index: [number, number, number] = [transformCoordinate[0], transformCoordinate[1], index]
+            return coordinate_with_index
+        })
+
+        if (window.Worker && typeof Worker !== 'undefined') {
+            if (this.elevationWorker == undefined) {
+
+                this.elevationWorker = new WorkerPool({ createWorker: createListElevationWorker });
+            }
+            getCapabilities().then((capabilities) => {
+                const result = this.elevationWorker.queue('ListElevation', { "capabilities": capabilities, "coordinates_with_index": transformCoordinates });
+                result.then((data) => {
+                    const elevations: Map<number | string, number> = data.elevations
+                    const features_in_key = features
+                    if (features_in_key.length != Array.from(elevations.values()).length) {
+                        console.warn(
+                            "Toutes élévations n'ont pas été trouvées",
+                        )
+                    }
+                    features_in_key.map((feature, index) => {
+                        const properties = feature.getProperties()
+                        properties["elevation"] = elevations.get(index)
+
+                        if ((properties["elevation"] == -Infinity) || (properties["elevation"] == undefined)) {
+                            console.warn("Une elevation n'a pas pu être trouvée", properties["elevation"])
+                        }
+                    })
+                    const serializableFeatures = features_in_key.map((feature) => {
+                        // @ts-expect-error
+                        const flatCoordinates = feature.getFlatCoordinates()
+                        const properties = feature.getProperties()
+                        return {
+                            "flatCoordinates": flatCoordinates,
+                            // @ts-expect-error
+                            "ends_": feature.ends_,
+                            "properties": properties,
+                            "feature_id": parseInt(getUid(feature))
+                        }
+                    })
+
+                    this.buildBuildingsAndAddToMap(serializableFeatures, worldBuildingPosition, key)
+                })
+            })
+
+            // this.elevationWorker.onmessage = ({ data }) => {
+            //     const elevations: Map<number, number> = data.elevations
+            //     const features_in_key = this.featuresPerKey.get(data.key)
+            //     const worldBuildingPosition = data.worldBuildingPosition
+            //     if (features_in_key.length != Array.from(elevations.values()).length) {
+            //         console.warn(
+            //             "Toutes élévations n'ont pas été trouvées",
+            //         )
+            //     }
+            //     features_in_key.map((feature, index) => {
+            //         const properties = feature.getProperties()
+            //         properties["elevation"] = elevations.get(index)
+
+            //         if ((properties["elevation"] == -Infinity) || (properties["elevation"] == undefined)) {
+            //             console.warn("Une elevation n'a pas pu être trouvée", properties["elevation"])
+            //         }
+            //     })
+            //     this.featuresPerKey.delete(data.key)
+            //     const serializableFeatures = features_in_key.map((feature) => {
+            //         // @ts-expect-error
+            //         const flatCoordinates = feature.getFlatCoordinates()
+            //         const properties = feature.getProperties()
+            //         return {
+            //             "flatCoordinates": flatCoordinates,
+            //             // @ts-expect-error
+            //             "ends_": feature.ends_,
+            //             "properties": properties,
+            //             "feature_id": parseInt(getUid(feature))
+            //         }
+            //     })
+
+            //     this.buildBuildingsAndAddToMap(serializableFeatures, worldBuildingPosition, data.key)
+
+            // };
+
+        }
 
     }
 
@@ -774,24 +754,29 @@ export class BuildingLayer {
             geometry.setAttribute(geometryJson.key, new BufferAttribute(new Float32Array(geometryJson.data.array), geometryJson.data.itemSize, geometryJson.data.normalized))
         })
 
-        // const geometry = BufferGeometryUtils.mergeGeometries(buildingGeometries)
-        const building = new Mesh(geometry, this.buildingMaterial)
+        const building = new SelectableMesh(geometry, this.getBuildingMaterial())
+        building.userData.name = BUILDING_DESCRIPTION_SHEET_TITLE
+        building.userData.couche_id = LAYER_VECTOR_SOURCE_ID
+        building.userData.descriptionSheetCapabilities = BUILDING_DESCRIPTION_SHEET
+
         tmpBox3.setFromArray(building.geometry.attributes.position.array)
+
         building.geometry.boundingBox = tmpBox3
         building.geometry.boundingSphere = tmpBox3.getBoundingSphere(tmpSphere)
         building.frustumCulled = true
         building.updateMatrix()
 
+        buildingTile.clear()
         buildingTile.add(building)
         buildingTile.updateMatrixWorld()
 
 
 
-        if (this.buildingMaterial.uniforms.tNoise == undefined) {
-            this.buildingMaterial.uniforms.tMap = {
+        if (building.material.uniforms.tNoise == undefined) {
+            building.material.uniforms.tMap = {
                 value: this.buildingTexture
             }
-            this.buildingMaterial.uniforms.tNoise = {
+            building.material.uniforms.tNoise = {
                 value: this.noiseTexture
             }
         }
@@ -951,7 +936,7 @@ export class BuildingLayer {
             })
 
 
-            const building = new Mesh(BufferGeometryUtils.mergeGeometries(buildingGeometries), this.buildingMaterial)
+            const building = new Mesh(BufferGeometryUtils.mergeGeometries(buildingGeometries), this.getBuildingMaterial())
 
             tmpBox3.setFromArray(building.geometry.attributes.position.array)
             building.geometry.boundingBox = tmpBox3
@@ -975,17 +960,17 @@ export class BuildingLayer {
 
 
 
-            if (this.buildingMaterial.uniforms.tNoise == undefined) {
-                this.buildingMaterial.uniforms.tMap = {
+            if (this.getBuildingMaterial().uniforms.tNoise == undefined) {
+                this.getBuildingMaterial().uniforms.tMap = {
                     value: this.buildingTexture
                 }
-                this.buildingMaterial.uniforms.tNoise = {
+                this.getBuildingMaterial().uniforms.tNoise = {
                     value: this.noiseTexture
                 }
             }
 
 
-            // this.buildingMaterial.onBeforeCompile = (shader) => {
+            // this.getBuildingMaterial().onBeforeCompile = (shader) => {
             //     if (shader.uniforms.tMap == undefined) {
             //         shader.uniforms.tMap = {
             //             value: this.buildingTexture

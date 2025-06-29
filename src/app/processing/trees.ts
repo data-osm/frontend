@@ -5,7 +5,7 @@ import { Feature, GeometryLayout, MVT, Polygon, TileState, VectorTileSource, Geo
 import { fromInstanceGiroEvent } from "../shared/class/fromGiroEvent";
 import { createXYZ } from "ol/tilegrid";
 import { CartoHelper, getAllFeaturesInVectorTileSource, getFeaturesFromTileCoord } from "../../helper/carto.helper";
-import { Projection } from "ol/proj";
+import { Projection, transform } from "ol/proj";
 import { BehaviorSubject, ReplaySubject } from "rxjs";
 import { TileCoord } from "ol/tilecoord";
 import { BufferGeometryUtils, GLTF } from "three/examples/jsm/Addons";
@@ -17,6 +17,8 @@ import { AppInjector } from "../../helper/app-injector.helper";
 import { environment } from "../../environments/environment";
 import VectorRenderTile from "ol/VectorRenderTile";
 import { getBottomLeft } from "ol/extent";
+import { createListElevationWorker, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "./elevation/pool";
+import WorkerPool from "@giro3d/giro3d/utils/WorkerPool";
 
 
 
@@ -30,6 +32,9 @@ class ThreeTile extends Group {
     };
 
     threes_loaded: Array<number[]> = []
+
+    //[index in threes_loaded, elevation]
+    elevations: Map<number | string, number>
 
 }
 
@@ -58,6 +63,8 @@ export class TreeLayer {
 
     threeGeometry: BufferGeometry
     threeMaterial: Material
+
+    elevationWorker: WorkerPool<ListElevationsMessageType, ListElevationMessageMap> | null
 
     constructor(
         map: Giro3DMap,
@@ -175,12 +182,7 @@ export class TreeLayer {
         if (features.length == 0) {
             return
         }
-        // console.log(features.length, "threeGlb - features.length")
-        // const firstTileFeature = (features[0].getGeometry() as Point).getFlatCoordinates()
 
-        // const threeTile = this.getThreeTile(
-        //     tempVec2.set(firstTileFeature[0], firstTileFeature[1])
-        // )
         if (threeTile.threes_loaded.length > 0) {
             threeTile.threes_loaded = threeTile.threes_loaded.concat(features.map((feature) => (feature.getGeometry() as Point).getFlatCoordinates()))
             threeTile.clear()
@@ -189,24 +191,55 @@ export class TreeLayer {
         }
 
         const instancedThreeMesh = new InstancedMesh(this.threeGeometry, this.threeMaterial, threeTile.threes_loaded.length);
-        // const instancedThreeMesh = new InstancedMesh(new Points().geometry, new Material(), threeTile.threes_loaded.length);
         instancedThreeMesh.updateMatrix()
-        threeTile.add(instancedThreeMesh)
         threeTile.updateMatrixWorld()
 
 
+        this.addElevation(threeTile).then(() => {
+            this.updateInstancedMesh(threeTile, instancedThreeMesh)
+        })
+    }
 
+    async addElevation(threeTile: ThreeTile) {
+        const transformCoordinates = threeTile.threes_loaded.map((coordinate, index) => {
+            const point = new Point([coordinate[0], coordinate[1]])
+            const transformCoordinate = transform(point.getCoordinates(), this.map.extent.crs, "IGNF:WGS84G")
+            const coordinate_with_index: [number, number, number] = [transformCoordinate[0], transformCoordinate[1], index]
+            return coordinate_with_index
+        })
+
+        if (this.elevationWorker == undefined) {
+
+            this.elevationWorker = new WorkerPool({ createWorker: createListElevationWorker });
+        }
+
+        await getCapabilities().then(async (capabilities) => {
+            const result = await this.elevationWorker.queue('ListElevation', { "capabilities": capabilities, "coordinates_with_index": transformCoordinates });
+            const elevations: Map<number | string, number> = result.elevations
+            if (transformCoordinates.length != Array.from(elevations.values()).length) {
+                console.warn(
+                    "Toutes élévations n'ont pas été trouvées pour les arbres",
+                )
+            }
+            threeTile.elevations = elevations
+
+        })
+
+    }
+
+    updateInstancedMesh(threeTile: ThreeTile, instancedThreeMesh: InstancedMesh) {
         for (let index = 0; index < threeTile.threes_loaded.length; index++) {
-            // const feature = features[index];
-            // const geometry = feature.getGeometry() as Point
             const coordinate = threeTile.threes_loaded[index];
-            // const properties = feature.getProperties()
-            // let height = <number>properties.height ?? null;
 
+            let elevation = threeTile.elevations.get(index)
+            if (elevation == undefined || elevation == -Infinity) {
+                elevation = 0
+                console.warn('Elevation de l arbre non trouvée')
+            }
             tempVec3.set(
                 coordinate[0] - threeTile.position.x,
                 coordinate[1] - threeTile.position.y,
-                15
+                threeTile.elevations.get(index) + 15
             )
             const scale = new Vector3(15, 15, 15);
 
@@ -214,20 +247,10 @@ export class TreeLayer {
 
             tempMatrix4.compose(tempVec3, tempQuaternion, scale);
             instancedThreeMesh.setMatrixAt(index, tempMatrix4);
-
-
         }
-
-
-
-        // console.log(all_coordinates, features.length * 3)
-        // const geometry = new BufferGeometry()
-        // geometry.setAttribute("position", new BufferAttribute(all_coordinates, 3))
-        // const threeMesh = new Points(geometry)
-        // threeMesh.updateMatrix()
-        // threeTile.add(threeMesh)
-        // threeTile.updateMatrixWorld()
+        instancedThreeMesh.updateMatrix()
+        threeTile.add(instancedThreeMesh)
+        threeTile.updateMatrixWorld()
 
     }
-
 }

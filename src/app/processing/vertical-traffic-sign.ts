@@ -40,9 +40,9 @@ class VerticalTrafficSignTile extends AbstractPointsTile {
             stickMesh: undefined
         }
 
-    addPointMesh(geometry: CustomInstancedBufferGeometry, material: ShaderMaterial) {
+    addPointMesh(geometry: CustomInstancedBufferGeometry, material: ShaderMaterial, camera: PerspectiveCamera) {
         for (const key in this.meshes) {
-            this.meshes[key] = new PointMesh(geometry.clone(), material.clone())
+            this.meshes[key] = new PointMesh(geometry.clone(), material.clone(), camera)
             this.meshes[key].updateMatrixWorld()
             this.meshes[key].updateMatrix()
             this.add(this.meshes[key])

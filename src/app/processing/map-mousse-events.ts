@@ -6,7 +6,11 @@ import { AppInjector } from "../../helper/app-injector.helper";
 import { CartoHelper } from "../../helper/carto.helper";
 import { LayerGiroUserData } from "../../helper/type";
 import { getUid } from "ol";
-
+import WMTSCapabilities from "ol/format/WMTSCapabilities";
+import { TileGrid } from "ol/tilegrid";
+import WMTS, { optionsFromCapabilities } from "ol/source/WMTS";
+import { transformExtent, transform } from "ol/proj";
+import { decodeRaster } from "@giro3d/giro3d/formats/bilWorker";
 /**
  * interface that describe data get by a click on the map
  */
@@ -15,9 +19,10 @@ export interface dataFromClickOnMapInterface {
     data: {
         coord: [number, number],
         point: Vector3
-        layers: Array<Layer<LayerEvents, LayerGiroUserData>>,
+        layers: Array<Layer<LayerEvents, LayerGiroUserData>> | undefined,
         feature?: Feature
         object?: Object3D<Object3DEventMap>
+        descriptionSheetCapabilities: string
         //** mandatory when type is raster, will be use to generate wms get feature info url */
         /** additional data */
         data?: {}
@@ -52,7 +57,7 @@ export class MapMousseEvents {
     *@param evt MapBrowserEvent
     *@param (param :dataFromClickOnMapInterface)=>void
     */
-    onClicked(evt: MouseEvent): dataFromClickOnMapInterface {
+    onClicked(evt: MouseEvent): dataFromClickOnMapInterface[] {
         const cartoHelper = new CartoHelper(this.map)
         const pickOptions: PickObjectsAtOptions =
         {
@@ -61,96 +66,88 @@ export class MapMousseEvents {
             sortByDistance: true,
             gpuPicking: false
         };
-        let data_callback: dataFromClickOnMapInterface
+        let data_callback: dataFromClickOnMapInterface[] = []
+
+
+        const normalized = this.instance.canvasToNormalizedCoords(this.instance.eventToCanvasCoords(evt, new Vector2()), new Vector2());
+        const mapCoord = new Vector3(normalized.x, normalized.y, 0).unproject(this.camera);
+
+
+
         const map_pick_result = this.instance.pickObjectsAt(evt, pickOptions)
         if (map_pick_result.length == 0) {
             return
         }
-        // const map_pick_result: Array<any> = this.instance.pickObjectsAt(evt, pickOptions)
+
         const mousePositionInMap: Vector3 = map_pick_result[0].point
+        const result = this.map.getElevation({
+            coordinates: new Coordinates(this.map.extent.crs, mousePositionInMap.x, mousePositionInMap.y)
+        })
+        if (result.samples.length > 0) {
+            // Let's sort the samples to get the highest resolution sample first
+            result.samples.sort((a, b) => a.resolution - b.resolution);
+
+            const elevation = result.samples[0].elevation;
+            console.log(elevation, "map elevation")
+        }
 
         // @ts-expect-error
         if (map_pick_result.filter((res) => res.featureUid).length > 0) {
-            // @ts-expect-error
-            const intersects = map_pick_result.filter((res) => res.featureUid)
+            // We remove duplicate
+            const intersects = Array.from(
+                new Map(
+                    map_pick_result
+                        // @ts-expect-error
+                        .filter(res => res.featureUid)
+                        // @ts-expect-error
+                        .map(res => [res.featureUid, res])
+                ).values()
+            );
 
-            const intersect = intersects[intersects.length - 1]
-            const couche_id = intersect.object.userData.couche_id
-            const layers_vector_sources_map = this.featuresStoreService.getLayerVectorSource(couche_id)
-            // @ts-expect-error
-            const feature = layers_vector_sources_map.getFeatureByUid(intersect.featureUid)
-            const layer = cartoHelper.getLayerInToc(couche_id, "couche")
-            data_callback = {
-                type: 'vector',
-                data: {
-                    coord: [mousePositionInMap.x, mousePositionInMap.y],
-                    layers: layer.layer,
-                    point: intersect.point,
-                    object: intersect.object,
-                    feature: feature,
-                    data: {}
+            for (let i = 0; i < intersects.length; i++) {
+                const intersect = intersects[i]
+                const couche_id = intersect.object.userData.couche_id
+                const layers_vector_sources_map = this.featuresStoreService.getLayerVectorSource(couche_id)
+                // @ts-expect-error
+                const feature = layers_vector_sources_map.getFeatureByUid(intersect.featureUid)
+                const layer = cartoHelper.getLayerInToc(couche_id, "couche")
+                let descriptionSheetCapabilities = undefined
+                if (layer) {
+                    descriptionSheetCapabilities = layer.descriptionSheetCapabilities
+                } else {
+                    descriptionSheetCapabilities = intersect.object.userData.descriptionSheetCapabilities as string
                 }
+
+
+                data_callback.push(
+                    {
+                        type: 'vector',
+                        data: {
+                            coord: [mousePositionInMap.x, mousePositionInMap.y],
+                            layers: layer?.layer,
+                            point: intersect.point,
+                            object: intersect.object,
+                            descriptionSheetCapabilities: descriptionSheetCapabilities,
+                            feature: feature,
+                            data: {}
+                        }
+                    }
+                )
             }
+
+
         }
 
 
-        // eventToCanvasCoords
-        // const mousePositionInMap = tmpVec3.fromArray(
-        //     this.instance.eventToNormalizedCoords(evt, tmpVec2).toArray().concat([0]),
-        // ).unproject(this.camera)
-
-        // const layers_vector_sources_map = this.featuresStoreService.layersVectorSourcesMap()
-        // if (layers_vector_sources_map.size > 0) {
-        //     // const layers_visible_in_map = []
-
-        //     layers_vector_sources_map.forEach((vector_source, couche_id) => {
-        //         const layer = cartoHelper.getLayerInToc(couche_id, "couche")
-        //         if (layer && layer.visible) {
-        //             let ex = Extent.fromCenterAndSize('EPSG:3857', { x: mousePositionInMap.x, y: mousePositionInMap.y }, 150, 150)
-        //             const olExtent = OLUtils.toOLExtent(ex);
-        //             const focalLength = this.instance.view.camera.position.distanceTo(this.instance["_controls"].target);
-        //             const fov = this.camera.fov * (Math.PI / 180);
-        //             const aspect = this.camera.aspect;
-        //             const heightNear = 2 * Math.tan(fov / 2) * focalLength;
-        //             const mapWith = heightNear * aspect;
-        //             let targetResolution = mapWith / this.instance.domElement.width
-        //             // Resolution of 3 => 50 M
-        //             let maxDistance = 50
-        //             if (targetResolution < 3) {
-        //                 maxDistance = (targetResolution * 50) / 3
-        //             }
-        //             if (maxDistance < 20) {
-        //                 maxDistance = 20
-        //             }
-        //             // vector_source.getFeatureByUid()
-        //             const feature = vector_source.getClosestFeatureToCoordinateLimitByDistance([mousePositionInMap.x, mousePositionInMap.y], maxDistance)
-        //             if (feature) {
-        //                 data_callback = {
-        //                     type: 'vector',
-        //                     data: {
-        //                         coord: [mousePositionInMap.x, mousePositionInMap.y],
-        //                         layers: layer.layer,
-        //                         point: intersects.length > 0 ? intersects[0].point : mousePositionInMap,
-        //                         feature: feature,
-        //                         data: {}
-        //                     }
-        //                 }
-        //                 return
-        //             }
-        //         }
-        //     })
-
-        // }
-
-        if (data_callback) {
+        if (data_callback.length > 0) {
             return data_callback
         } else if (map_pick_result.length > 0) {
             // const buildings = map_pick_result.filter((res) => res.object.type == "Mesh")
             // buildings.map((b) => (b.object as Mesh).geometry.index.count / 3)
             // console.log(map_pick_result, "mapHasClicked")
-            let layers_clicked = []
+            let layers_clicked: Array<Layer<LayerEvents, LayerGiroUserData>> = []
             for (let index = 0; index < this.map.getLayers().length; index++) {
-                const layer = this.map.getLayers()[index] as ColorLayer;
+                const layer = this.map.getLayers()[index] as Layer<LayerEvents, LayerGiroUserData>;
                 // We do not handle onClick on VectorSource layer
                 // VectorSource are only used as labels in the app
                 if (layer.source.type == "VectorSource") {
@@ -176,6 +173,7 @@ export class MapMousseEvents {
                 }
 
                 const material = target.node.material as LayeredMaterial
+                // @ts-expect-error
                 material.getColorTexture(layer)
 
                 // @ts-expect-error
@@ -198,7 +196,7 @@ export class MapMousseEvents {
 
                 let pixels = new Uint8Array(10 * 10 * 4);
                 renderer.readRenderTargetPixels(
-                    target["renderTarget"],
+                    target.renderTarget.object,
                     target.width * uv.x, target.height * uv.y, 10, 10, pixels
                 );
 
@@ -211,28 +209,34 @@ export class MapMousseEvents {
             }
 
             if (layers_clicked.length > 0) {
-
-                const data_callback: dataFromClickOnMapInterface = {
-                    type: 'raster',
-                    data: {
-                        // @ts-expect-error
-                        coord: [map_pick_result[0].coord.toVector2().x, map_pick_result[0].coord.toVector2().y],
-                        point: map_pick_result[0].point,
-                        layers: layers_clicked,
-                    }
+                for (let index = 0; index < layers_clicked.length; index++) {
+                    const layer = layers_clicked[index];
+                    const descriptionSheetCapabilities = layers_clicked[index].userData.descriptionSheetCapabilities
+                    data_callback.push({
+                        type: 'raster',
+                        data: {
+                            // @ts-expect-error
+                            coord: [map_pick_result[0].coord.toVector2().x, map_pick_result[0].coord.toVector2().y],
+                            point: map_pick_result[0].point,
+                            layers: layers_clicked,
+                            descriptionSheetCapabilities: descriptionSheetCapabilities
+                        }
+                    })
                 }
+
                 return data_callback
             }
         } else {
-            const data_callback: dataFromClickOnMapInterface = {
-                type: 'clear',
-                data: {
-                    coord: [mousePositionInMap.x, mousePositionInMap.y],
-                    point: map_pick_result[0].point,
-                    layers: []
-                }
-            }
-            data_callback
+            // const data_callback: dataFromClickOnMapInterface = {
+            //     type: 'clear',
+            //     data: {
+            //         coord: [mousePositionInMap.x, mousePositionInMap.y],
+            //         point: map_pick_result[0].point,
+            //         layers: [],
+            //         descriptionSheetCapabilities: undefined
+            //     }
+            // }
+            // data_callback
         }
 
         // const results = instance.pickObjectsAt(evt, pickOptions);

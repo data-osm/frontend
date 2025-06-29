@@ -21,7 +21,10 @@ export default class Vec3 {
     public get xy(): Vec2 {
         return new Vec2(this.x, this.y);
     }
-
+    public set xy(v: Vec2) {
+        this.x = v.x;
+        this.y = v.y;
+    }
     public set(x: number, y: number, z: number): void {
         this.x = x;
         this.y = y;

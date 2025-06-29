@@ -7,5 +7,6 @@ export const environment = {
   nom_instance: "OSMdata",
   matomoUrl: 'https://piwik.dataosm.info/',
   matomoSiteId: 1,
-  building_tile: "https://buildings.dataosm.info/data/data/{z}/{x}/{y}.pbf"
+  building_tile: "https://buildings.dataosm.info/data/data/{z}/{x}/{y}.pbf",
+  revitURl: ""
 };

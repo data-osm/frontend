@@ -15,12 +15,52 @@ export class FeaturesStoreService {
     buildingsHeights$: BehaviorSubject<Map<number, number>> = new BehaviorSubject<Map<number, number>>(new Map());
     // Index for fast searching building around a position
     buildingsIndex$ = new BehaviorSubject<Flatbush>(new Flatbush(1));
-
+    buildingsToHide$: BehaviorSubject<Map<number, string>> = new BehaviorSubject<Map<number, string>>(new Map());
+    latestChangedBuildingToHide$: BehaviorSubject<string> = new BehaviorSubject<string>(undefined);
     // Map of layer add as a vector layer using Three.GROUP with his vectorSource
-    private layersVectorSources$: BehaviorSubject<Map<number, CustomVectorSource>> = new BehaviorSubject<Map<number, CustomVectorSource>>(new Map());
+    private layersVectorSources$: BehaviorSubject<Map<number | string, CustomVectorSource>> = new BehaviorSubject<Map<number, CustomVectorSource>>(new Map());
 
     constructor() {
 
+    }
+
+    getBuildingsToHide() {
+        const stored = localStorage.getItem('buildingsToHide');
+        let restoredMap: Map<number, string> = new Map();
+        if (stored) {
+            const entries = JSON.parse(stored);
+            restoredMap = new Map(entries);
+        }
+        return restoredMap
+    }
+
+    setBuildingsToHide(tile_key: string, osmId: number) {
+        const oldValue = this.getBuildingsToHide()
+        oldValue.set(osmId, tile_key)
+        this.buildingsToHide$.next(oldValue)
+        localStorage.setItem('buildingsToHide', JSON.stringify(Array.from(oldValue.entries())))
+        this.latestChangedBuildingToHide$.next(tile_key)
+    }
+
+    removeBuildingsToHide(osmId: number) {
+        const oldValue = this.getBuildingsToHide()
+        const tile_key = oldValue.get(osmId)
+        if (tile_key) {
+            oldValue.delete(osmId)
+            this.buildingsToHide$.next(oldValue)
+            localStorage.setItem('buildingsToHide', JSON.stringify(Array.from(oldValue.entries())))
+            this.latestChangedBuildingToHide$.next(tile_key)
+        }
+    }
+    RemoveAllBuildingsToHide() {
+        const oldValue = this.getBuildingsToHide()
+        const keys = Array.from(oldValue.values())
+        oldValue.clear()
+        this.buildingsToHide$.next(oldValue)
+        localStorage.setItem('buildingsToHide', JSON.stringify(Array.from(oldValue.entries())))
+        for (const tile_key of keys) {
+            this.latestChangedBuildingToHide$.next(tile_key)
+        }
     }
 
     getBuildingHeights() {
@@ -50,13 +90,13 @@ export class FeaturesStoreService {
         }
     }
 
-    addLayerVectorSource(couche_id: number, layer_vector_source: CustomVectorSource) {
+    addLayerVectorSource(couche_id: number | string, layer_vector_source: CustomVectorSource) {
         const layers_vector_sources_map = this.layersVectorSources$.getValue()
         layers_vector_sources_map.set(couche_id, layer_vector_source)
         this.layersVectorSources$.next(layers_vector_sources_map)
     }
 
-    removeLayerVectorSource(couche_id: number) {
+    removeLayerVectorSource(couche_id: number | string) {
         const layers_vector_sources_map = this.layersVectorSources$.getValue()
         if (layers_vector_sources_map.has(couche_id)) {
             layers_vector_sources_map.delete(couche_id)
@@ -64,7 +104,7 @@ export class FeaturesStoreService {
         }
     }
 
-    getLayerVectorSource(couche_id: number) {
+    getLayerVectorSource(couche_id: number | string) {
         const layers_vector_sources_map = this.layersVectorSources$.getValue()
         return layers_vector_sources_map.get(couche_id)
     }

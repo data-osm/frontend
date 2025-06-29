@@ -4,9 +4,10 @@ import { Box3, BufferAttribute, BufferGeometry, DataArrayTexture, Mesh, ShaderMa
 import { Builder, createBuildingPolygons } from "./building/builder";
 import { SkeletonBuilder } from "straight-skeleton";
 import { Coordinate, GeometryLayout, Polygon } from "../ol-module";
+import { getUid } from "ol";
 
 
-export const build3dBuildings = (features: { "properties": {}, "flatCoordinates": Array<number>, "ends_": number[] }[], worldBuildingPosition: Vector3, tile_key: string) => {
+export const build3dBuildings = (features: { "properties": {}, "flatCoordinates": Array<number>, "ends_": number[], "feature_id": number }[], worldBuildingPosition: Vector3, tile_key: string) => {
 
 
     const olFeatures = features.map((feature) => {
@@ -66,6 +67,9 @@ export const build3dBuildings = (features: { "properties": {}, "flatCoordinates"
         polygon.setCoordinates(newOuterAndInnerCoordinates)
         const olFeature = new Feature(polygon)
         olFeature.setProperties(feature.properties)
+        // @ts-expect-error
+        olFeature.ol_uid = feature.feature_id
+        // olFeature.setId(feature.feature_id)
         return olFeature
     })
 
@@ -76,12 +80,21 @@ export const build3dBuildings = (features: { "properties": {}, "flatCoordinates"
         const vectors_areas = createBuildingPolygons(olFeatures)
 
         const buildFeature = []
+        const featuresId = []
+
         for (let index = 0; index < vectors_areas.length; index++) {
             const element = vectors_areas[index];
-            buildFeature.push(new Builder(element).getFeatures())
+            featuresId.push(element.featureId)
+            const buildingGeometry = new Builder(element).getFeatures();
+
+            const positions = (buildingGeometry.extruded.positionBuffer as Float32Array)
+            for (let i = 2; i < positions.length; i += 3) {
+                positions[i] += element.elevation;
+            }
+            buildFeature.push(buildingGeometry)
         }
 
-        const buildingGeometries = buildFeature.map((building) => {
+        const buildingGeometries = buildFeature.map((building, index) => {
 
             const extrudedBuilding = building.extruded
             const buildingGeometry = new BufferGeometry();
@@ -93,6 +106,7 @@ export const build3dBuildings = (features: { "properties": {}, "flatCoordinates"
             buildingGeometry.setAttribute("normal", new BufferAttribute((extrudedBuilding.normalBuffer as Float32Array), 3))
             buildingGeometry.setAttribute("textureId", new BufferAttribute((extrudedBuilding.textureIdBuffer as Int32Array), 1))
             buildingGeometry.setAttribute("uv", new BufferAttribute((extrudedBuilding.uvBuffer as Float32Array), 2))
+            buildingGeometry.setAttribute("aFeatureUid", new BufferAttribute(Int32Array.from({ length: buildingGeometry.getAttribute("position").count }, () => featuresId[index]), 1));
             return buildingGeometry
         })
 

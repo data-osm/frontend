@@ -16,6 +16,8 @@ import {
   Polygon,
   GeometryLayout,
   FeatureLike,
+  LineString,
+  MultiLineString,
 } from '../app/ol-module'
 import { BackendApiService } from '../app/services/backend-api/backend-api.service'
 import { environment } from '../environments/environment'
@@ -1232,6 +1234,25 @@ export class CartoHelper {
 
 
   }
+  zoomOnTomBox(box3: Box3) {
+
+    const center = box3.getCenter(new Vector3());
+    const size = box3.getSize(new Vector3());
+
+    const top = box3.max.z;
+    const fov = this.camera.fov;
+    const aspect = this.camera.aspect;
+
+    const hFov = MathUtils.degToRad(fov) / 2;
+    const altitude = (Math.max(size.x / aspect, size.y) / Math.tan(hFov)) * 0.5;
+
+    this.camera.position.set(center.x, center.y - 1, altitude + top);
+    this.camera.lookAt(center);
+
+    this.controls.target.set(center.x, center.y, top);
+
+    this.instance.notifyChange(this.camera);
+  }
 
   zoomToExtent(lookAtExtent: Extent, lookAtAltitude = 0) {
     // return
@@ -1901,4 +1922,30 @@ export function getFeaturesFromTileCoord(tile: VectorRenderTile, z: number) {
     // }
   }
   return features;
+}
+
+export class LinesStringWithZ extends LineString {
+  protected _coordinatesWithZ: Array<[number, number, number]>
+
+  constructor(coordinates: Coordinate[], layout, coordinatesWithZ: Array<[number, number, number]>) {
+    super(coordinates, layout);
+    this._coordinatesWithZ = coordinatesWithZ
+  }
+
+  get coordinatesWithZ(): Array<[number, number, number]> {
+    return this._coordinatesWithZ
+  }
+}
+
+export class MultiLineStringWithZ extends MultiLineString {
+  protected _coordinatesWithZ: Array<Array<[number, number, number]>>
+
+  constructor(coordinates: Array<Coordinate[]>, layout, coordinatesWithZ: Array<Array<[number, number, number]>>) {
+    super(coordinates, layout);
+    this._coordinatesWithZ = coordinatesWithZ
+  }
+
+  get coordinatesWithZ(): Array<Array<[number, number, number]>> {
+    return this._coordinatesWithZ
+  }
 }

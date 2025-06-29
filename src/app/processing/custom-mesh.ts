@@ -1,4 +1,5 @@
-import { BackSide, Box3, BufferGeometry, Color, FrontSide, InstancedBufferGeometry, Material, Matrix4, Mesh, MeshStandardMaterial, Object3DEventMap, Ray, Raycaster, ShaderMaterial, Sphere, Triangle, Vector2, Vector3 } from "three";
+import { set } from "ol/transform";
+import { BackSide, Box3, BufferGeometry, Color, FrontSide, InstancedBufferGeometry, Material, Matrix4, Mesh, MeshStandardMaterial, Object3DEventMap, PerspectiveCamera, Ray, Raycaster, ShaderMaterial, Sphere, Triangle, Vector2, Vector3 } from "three";
 import { LineSegmentsGeometry } from "three/examples/jsm/Addons";
 
 const _inverseMatrix = /*@__PURE__*/ new Matrix4();
@@ -112,6 +113,8 @@ export class CustomInstancedBufferGeometry extends InstancedBufferGeometry {
 
             }
 
+
+
             // process morph attributes if present
 
             if (morphAttributesPosition) {
@@ -140,9 +143,11 @@ export class CustomInstancedBufferGeometry extends InstancedBufferGeometry {
 
             }
 
-            this.instanceBoundingSphere.radius = Math.sqrt(maxRadiusSq);
+            // Default radius to 5. To prevent the fact that If geometry have only one point, then radius will be 0.
+            this.instanceBoundingSphere.radius = Math.max(5, Math.sqrt(maxRadiusSq));
 
-            if (isNaN(this.instanceBoundingSphere.radius)) {
+
+            if (isNaN(maxRadiusSq)) {
 
                 console.error('THREE.BufferGeometry.computeBoundingSphere(): Computed radius is NaN. The "position" attribute is likely to have NaN values.', this);
 
@@ -154,6 +159,30 @@ export class CustomInstancedBufferGeometry extends InstancedBufferGeometry {
 }
 
 export class PointMesh extends Mesh<CustomInstancedBufferGeometry, ShaderMaterial, Object3DEventMap> {
+    readonly isSelectable = true
+    private lockClearFeatureSelected = false
+    camera: PerspectiveCamera
+
+    constructor(geometry = new CustomInstancedBufferGeometry(), material = new ShaderMaterial(), camera: PerspectiveCamera) {
+
+        super(geometry, material);
+        this.camera = camera
+        this.material.uniforms.uFeatureUidSelected = { value: undefined }
+    }
+
+    setFeatureUidSelected(uid: number) {
+        this.material.uniforms.uFeatureUidSelected.value = parseFloat(uid.toString())
+        this.lockClearFeatureSelected = true
+        setTimeout(() => {
+            this.lockClearFeatureSelected = false
+        }, 300)
+    }
+
+    clearFeatureSelected() {
+        if (this.lockClearFeatureSelected) return
+        this.material.uniforms.uFeatureUidSelected = { value: undefined }
+
+    }
 
     raycast(raycaster: Raycaster, intersects) {
         this.updateMatrix()
@@ -169,45 +198,75 @@ export class PointMesh extends Mesh<CustomInstancedBufferGeometry, ShaderMateria
         if (this.geometry.instanceBoundingSphere === null) this.geometry.computeInstanceBoundingSphere();
 
         _sphere.copy(this.geometry.instanceBoundingSphere);
-        // _sphere.applyMatrix4(this.matrix);
+
         _sphere.applyMatrix4(matrixWorld);
+
         if (raycaster.ray.intersectsSphere(_sphere) === false) return;
+
         // now test each instance
-
         for (let instanceId = 0; instanceId < raycastTimes; instanceId++) {
-
-            // calculate the world matrix for each instance
-            _matrix4.setPosition(
-                tmpVec3.set(
-                    this.geometry.attributes.aInstancePosition.getX(instanceId),
-                    this.geometry.attributes.aInstancePosition.getY(instanceId),
-                    this.geometry.attributes.aInstancePosition.getZ(instanceId),
-                )
+            let scaleFactor = (this.camera.position.z * 60.0 * 5.0 / 1000.0 / 1000.0);
+            if (scaleFactor < 0.13) {
+                scaleFactor = 0.13;
+            }
+            const quaternion = this.camera.quaternion.clone()
+            tmpVec3.set(
+                this.geometry.attributes.aInstancePosition.getX(instanceId),
+                this.geometry.attributes.aInstancePosition.getY(instanceId),
+                this.geometry.attributes.aInstancePosition.getZ(instanceId),
             )
+            tmpVec3.applyMatrix4(matrixWorld);
+
+            const halfW = 60 * scaleFactor / 2;
+            const halfH = 60 * scaleFactor / 2; // si tes planes sont carrés ; sinon ajuste
+            const radius = Math.sqrt(halfW * halfW + halfH * halfH);
+
+
+            _sphere.center.copy(tmpVec3);
+            _sphere.radius = radius;
+
+            const point = raycaster.ray.intersectSphere(_sphere, new Vector3());
+            if (point) {
+
+                // new Intersection
+                intersects.push({
+                    distance: raycaster.ray.origin.distanceTo(point),
+                    point: point.clone(),
+                    object: this,
+                    instanceId: instanceId,
+                    featureUid: this.geometry.attributes.aFeatureUid.getX(instanceId)
+                })
+                // intersect.featureUid = this.geometry.attributes.aFeatureUid.getX(instanceId)
+                // intersect.instanceId = instanceId;
+                // intersect.object = this;
+                // intersects.push(intersect);
+            }
+            // calculate the world matrix for each instance
+            // _matrix4.identity().setPosition(tmpVec3 )
+
+            // _matrix4.scale(new Vector3(scaleFactor, scaleFactor, scaleFactor));
+            // _matrix4.makeRotationFromQuaternion(quaternion)
             // _instanceLocalMatrix
 
 
             // this.getMatrixAt( instanceId, _instanceLocalMatrix );
 
-            _instanceWorldMatrix.multiplyMatrices(matrixWorld, _matrix4);
+            // _instanceWorldMatrix.multiplyMatrices(matrixWorld, _matrix4);
+            // _mesh.matrixWorld = _instanceWorldMatrix;
+            // _mesh.matrixAutoUpdate = false;
+            // _mesh.raycast(raycaster, _instanceIntersects);
 
-            // the mesh represents this single instance
+            // // process the result of raycast
 
-            _mesh.matrixWorld = _instanceWorldMatrix;
+            // for (let i = 0, l = _instanceIntersects.length; i < l; i++) {
 
-            _mesh.raycast(raycaster, _instanceIntersects);
+            //     const intersect = _instanceIntersects[i];
+            //     intersect.featureUid = this.geometry.attributes.aFeatureUid.getX(instanceId)
+            //     intersect.instanceId = instanceId;
+            //     intersect.object = this;
+            //     intersects.push(intersect);
 
-            // process the result of raycast
-
-            for (let i = 0, l = _instanceIntersects.length; i < l; i++) {
-
-                const intersect = _instanceIntersects[i];
-                intersect.featureUid = this.geometry.attributes.aFeatureUid.getX(instanceId)
-                intersect.instanceId = instanceId;
-                intersect.object = this;
-                intersects.push(intersect);
-
-            }
+            // }
 
             _instanceIntersects.length = 0;
 
@@ -224,6 +283,9 @@ export class PointMesh extends Mesh<CustomInstancedBufferGeometry, ShaderMateria
  */
 export class SelectableMesh extends Mesh<BufferGeometry, ShaderMaterial, Object3DEventMap> {
 
+    readonly isSelectable = true
+    private lockClearFeatureSelected = false
+
     constructor(geometry = new BufferGeometry(), material = new ShaderMaterial()) {
 
         super(geometry, material);
@@ -231,13 +293,17 @@ export class SelectableMesh extends Mesh<BufferGeometry, ShaderMaterial, Object3
         this.material.uniforms.uFeatureUidSelected = { value: undefined }
 
     }
-    readonly isSelectable = true
 
     setFeatureUidSelected(uid: number) {
         this.material.uniforms.uFeatureUidSelected.value = parseFloat(uid.toString())
+        this.lockClearFeatureSelected = true
+        setTimeout(() => {
+            this.lockClearFeatureSelected = false
+        }, 300)
     }
 
     clearFeatureSelected() {
+        if (this.lockClearFeatureSelected) return
         this.material.uniforms.uFeatureUidSelected = { value: undefined }
 
     }

@@ -13,6 +13,8 @@ import { TramLineString } from "../../processing/linestring/tram-linestring"
 import { VerticalTrafficSignLayer } from "../../processing/vertical-traffic-sign"
 import { TubeLineStringLayer } from "../../processing/linestring/tube-linestring"
 import { Target, TextureAndPitch } from "@giro3d/giro3d/core/layer/Layer"
+import { PsrLayer } from "../../processing/linestring/psr"
+import { SubwayLineLineStringLayer } from "../../processing/linestring/subway-linestring"
 
 class ColorLayerWithoutFog extends ColorLayer {
     applyTextureToNode(result: TextureAndPitch, target: Target) {
@@ -72,7 +74,9 @@ export function constructPSRLayer(map: Giro3DMap, instance: Instance, controls: 
             couche["destroyedInstancedMesh$"] = new ReplaySubject(1);
             let threeLayer;
             if (couche.geometryType == "Point") {
-                threeLayer = new VerticalTrafficSignLayer(
+
+                threeLayer = new PointsLayer(
+                    // threeLayer = new VerticalTrafficSignLayer(
                     map,
                     couche,
                     11
@@ -80,7 +84,7 @@ export function constructPSRLayer(map: Giro3DMap, instance: Instance, controls: 
             }
             else {
                 if (couche.nom == "Réseaux") {
-                    threeLayer = new TubeLineStringLayer(
+                    threeLayer = new PsrLayer(
                         map,
                         couche,
                         11
@@ -100,6 +104,13 @@ export function constructPSRLayer(map: Giro3DMap, instance: Instance, controls: 
                         11
                     )
                 }
+                if (couche.nom == "Ligne de métro") {
+                    threeLayer = new SubwayLineLineStringLayer(
+                        map,
+                        couche,
+                        11
+                    )
+                }
 
 
             }
@@ -107,6 +118,7 @@ export function constructPSRLayer(map: Giro3DMap, instance: Instance, controls: 
 
             fromInstanceGiroEvent(instance, "after-camera-update").pipe(
                 takeUntil(couche["destroyedInstancedMesh$"]),
+                filter(() => threeLayer != undefined),
                 // User can set this layer not visible, in that case the both will not be visible 
                 // So we prevent to go further if both are not visible
                 filter(() => layer.visible || threeLayer.getVisible()),
@@ -127,6 +139,7 @@ export function constructPSRLayer(map: Giro3DMap, instance: Instance, controls: 
                     }
                 })
             ).subscribe()
+
 
         }
 

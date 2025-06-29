@@ -11,6 +11,7 @@ import { Target, TextureAndPitch } from "@giro3d/giro3d/core/layer/Layer"
 import { TramLineString } from "../../processing/linestring/tram-linestring"
 import { RailLineString } from "../../processing/linestring/rail-linestring"
 import { SubwayLineLineStringLayer } from "../../processing/linestring/subway-linestring"
+import { FlatLineStringLayer } from "../../processing/linestring/flat-linestring"
 class ColorLayerWithoutFog extends ColorLayer {
     applyTextureToNode(result: TextureAndPitch, target: Target) {
         super.applyTextureToNode(result, target)
@@ -97,20 +98,22 @@ export function constructLayer(map: Giro3DMap, instance: Instance, couche: DataO
                         11
                     )
                 }
+                // else {
+                //     threeLayer = new FlatLineStringLayer(
+                //         map,
+                //         couche,
+                //         11
+                //     )
+                // }
 
             }
 
-            // else {
-            //   threeLayer = new FlatLineStringLayer(
-            //     map,
-            //     couche,
-            //     11
-            //   )
-            // }
+
 
 
             fromInstanceGiroEvent(instance, "after-camera-update").pipe(
                 takeUntil(couche["destroyedInstancedMesh$"]),
+                filter(() => threeLayer != undefined),
                 // User can set this layer not visible, in that case the both will not be visible 
                 // So we prevent to go further if both are not visible
                 filter(() => layer.visible || threeLayer.getVisible()),
