@@ -7,14 +7,13 @@ import { environment } from '../../../environments/environment';
 import { Group, SubGroup, LayerProviders, ReorderProvider, Tag, Metadata, Map as MapInterface, Layer, SubGroupWithLayers, SubGroupWithGroup } from '../../type/type';
 import { VectorTileSource } from '../../ol-module';
 import Flatbush from 'flatbush';
+import { OsmDataRequest } from '../../services/request';
 
 @Injectable({
   providedIn: 'root'
 })
-export class MapsService {
+export class MapsService extends OsmDataRequest {
 
-  headers: HttpHeaders = new HttpHeaders({});
-  url_prefix = environment.backend
   private readonly notifier: NotifierService;
   // Map of Index ID of a building in FlatBush index and his corresponding height
   buildingsHeights$ = new BehaviorSubject<Map<number, number>>(new Map());
@@ -22,12 +21,11 @@ export class MapsService {
   buildingsIndex$ = new BehaviorSubject<Flatbush>(new Flatbush(1));
 
   constructor(
-    private http: HttpClient,
+    private http_: HttpClient,
     notifierService: NotifierService,
 
   ) {
-    this.headers.append('Content-Type', 'application/x-www-form-urlencoded');
-    this.headers.append('Content-Type', 'application/json');
+    super(http_)
     this.notifier = notifierService;
   }
 
@@ -40,18 +38,11 @@ export class MapsService {
   }
 
   getLocalMapBoxStyle() {
-    return this.http.get("./assets/dark-v11.json")
+    return this.http_.get("./assets/dark-v11.json")
   }
 
 
-  /**
- * Get header
- * @returns HttpHeaders
- */
-  get_header(): HttpHeaders {
-    this.headers = this.headers.set('Authorization', 'Bearer  ' + localStorage.getItem('token'))
-    return this.headers
-  }
+
 
   /**
    * Search map
@@ -59,7 +50,7 @@ export class MapsService {
    * @returns Observable<Map[]>
    */
   searchMap(search_word: string): Observable<MapInterface[]> {
-    return this.http.post<MapInterface[]>(this.url_prefix + '/api/group/map/search', { 'search_word': search_word }, { headers: this.get_header() })
+    return this.safePost<MapInterface[]>('/api/group/map/search', { 'search_word': search_word })
   }
 
   /**
@@ -67,7 +58,7 @@ export class MapsService {
    * @returns Observable<Map[]>
    */
   getAllMaps(): Observable<MapInterface[]> {
-    return this.http.get<MapInterface[]>(this.url_prefix + '/api/group/map', { headers: this.get_header() })
+    return this.safeGet<MapInterface[]>('/api/group/map')
   }
 
   /**
@@ -76,7 +67,7 @@ export class MapsService {
    * @returns Observable<Map>
    */
   updateMap(map: MapInterface): Observable<MapInterface> {
-    return this.http.put<MapInterface>(this.url_prefix + '/api/group/map/' + map.map_id, map, { headers: this.get_header() })
+    return this.safePut<MapInterface>('/api/group/map/' + map.map_id, map)
   }
 
   /**
@@ -85,7 +76,7 @@ export class MapsService {
    * @returns Observable<Map>
    */
   addMap(map: MapInterface): Observable<MapInterface> {
-    return this.http.post<MapInterface>(this.url_prefix + '/api/group/map', map, { headers: this.get_header() })
+    return this.safePost<MapInterface>('/api/group/map', map)
   }
 
   /**
@@ -93,7 +84,7 @@ export class MapsService {
    * @param map Map
    */
   deleteMap(map: MapInterface): Observable<HttpResponse<any>> {
-    return this.http.delete<HttpResponse<any>>(this.url_prefix + '/api/group/map/' + map.map_id, { headers: this.get_header() })
+    return this.safeDelete<HttpResponse<any>>('/api/group/map/' + map.map_id)
   }
   /**
    * Get all group of a map
@@ -101,7 +92,7 @@ export class MapsService {
    * @returns Observable<Group[]>
    */
   getAllGroupOfMap(map_id: number): Observable<Group[]> {
-    return this.http.get<Group[]>(this.url_prefix + '/api/group?map=' + map_id, { headers: this.get_header() })
+    return this.safeGet<Group[]>('/api/group?map=' + map_id)
   }
 
   /**
@@ -109,7 +100,7 @@ export class MapsService {
    * @param group Group
    */
   addGroup(group: Group): Observable<Group> {
-    return this.http.post<Group>(this.url_prefix + '/api/group/', group, { headers: this.get_header() })
+    return this.safePost<Group>('/api/group/', group)
   }
 
   /**
@@ -117,7 +108,7 @@ export class MapsService {
    * @param group Group
    */
   getGroup(group_id: number): Observable<Group> {
-    return this.http.get<Group>(this.url_prefix + '/api/group/group/' + group_id, { headers: this.get_header() })
+    return this.safeGet<Group>('/api/group/group/' + group_id)
   }
 
   /**
@@ -125,7 +116,7 @@ export class MapsService {
    * @param group Group
    */
   updateGroup(group: Group): Observable<Group> {
-    return this.http.put<Group>(this.url_prefix + '/api/group/group/' + group.group_id, group, { headers: this.get_header() })
+    return this.safePut<Group>('/api/group/group/' + group.group_id, group)
   }
 
   /**
@@ -133,7 +124,7 @@ export class MapsService {
    * @param layer_id number
    */
   setGroupPrincipal(group: Group): Observable<Group> {
-    return this.http.post<Group>(this.url_prefix + '/api/group/group/' + group.group_id + '/set-principal', {}, { headers: this.get_header() })
+    return this.safePost<Group>('/api/group/group/' + group.group_id + '/set-principal', {})
   }
 
   /**
@@ -142,7 +133,7 @@ export class MapsService {
    * @returns Observable<[]>
    */
   reorderGroups(reorderGroups: Array<{ group_id: number, order: number }>): Observable<[]> {
-    return this.http.post<[]>(this.url_prefix + '/api/group/group/reorder', { reorderGroups }, { headers: this.get_header() })
+    return this.safePost<[]>('/api/group/group/reorder', { reorderGroups })
   }
 
   /**
@@ -150,7 +141,7 @@ export class MapsService {
    * @param group Group
    */
   deleteGroup(group: Group): Observable<HttpResponse<any>> {
-    return this.http.delete<HttpResponse<any>>(this.url_prefix + '/api/group/group/' + group.group_id, { headers: this.get_header() })
+    return this.safeDelete<HttpResponse<any>>('/api/group/group/' + group.group_id)
   }
 
   /**
@@ -158,7 +149,7 @@ export class MapsService {
    * @param group_id number
    */
   getAllSubGroupOfGroup(group_id: number): Observable<SubGroup[]> {
-    return this.http.get<SubGroup[]>(this.url_prefix + '/api/group/sub?group_id=' + group_id, { headers: this.get_header() })
+    return this.safeGet<SubGroup[]>('/api/group/sub?group_id=' + group_id)
   }
 
   /**
@@ -166,7 +157,7 @@ export class MapsService {
   * @param group_id number
   */
   getAllSubGroupWithLayersOfGroup(group_id: number): Observable<SubGroupWithLayers[]> {
-    return this.http.get<SubGroupWithLayers[]>(this.url_prefix + '/api/group/sub/layers?group_id=' + group_id, { headers: this.get_header() })
+    return this.safeGet<SubGroupWithLayers[]>('/api/group/sub/layers?group_id=' + group_id)
   }
 
   /**
@@ -174,7 +165,7 @@ export class MapsService {
    * @param subGroup SubGroup
    */
   updateSubGroup(subGroup: SubGroup): Observable<SubGroup> {
-    return this.http.put<SubGroup>(this.url_prefix + '/api/group/sub/' + subGroup.group_sub_id, subGroup, { headers: this.get_header() })
+    return this.safePut<SubGroup>('/api/group/sub/' + subGroup.group_sub_id, subGroup)
   }
   /**
    * get sub with his group
@@ -182,7 +173,7 @@ export class MapsService {
    * @returns 
    */
   getSubWithGroup(group_sub_id: number): Observable<SubGroupWithGroup> {
-    return this.http.get<SubGroupWithGroup>(this.url_prefix + '/api/group/sub/group/' + group_sub_id, { headers: this.get_header() })
+    return this.safeGet<SubGroupWithGroup>('/api/group/sub/group/' + group_sub_id)
   }
 
   /**
@@ -190,7 +181,7 @@ export class MapsService {
    * @param subGroup SubGroup
    */
   deleteSubGroup(subGroup: SubGroup): Observable<HttpResponse<any>> {
-    return this.http.delete<HttpResponse<any>>(this.url_prefix + '/api/group/sub/' + subGroup.group_sub_id, { headers: this.get_header() })
+    return this.safeDelete<HttpResponse<any>>('/api/group/sub/' + subGroup.group_sub_id)
   }
 
   /**
@@ -198,7 +189,7 @@ export class MapsService {
    * @param subGroup SubGroup
    */
   addSubGroup(subGroup: SubGroup): Observable<SubGroup> {
-    return this.http.post<SubGroup>(this.url_prefix + '/api/group/sub', subGroup, { headers: this.get_header() })
+    return this.safePost<SubGroup>('/api/group/sub', subGroup)
   }
 
   /**
@@ -207,7 +198,7 @@ export class MapsService {
    */
   getAllLayersFromSubGroup(group_sub_id: number): Observable<Layer[]> {
     let query_params = 'sub=' + group_sub_id
-    return this.http.get<Layer[]>(this.url_prefix + '/api/group/layer?' + query_params, { headers: this.get_header() })
+    return this.safeGet<Layer[]>('/api/group/layer?' + query_params)
   }
 
   /**
@@ -219,7 +210,7 @@ export class MapsService {
     if (principal != null) {
       query_params = query_params + "&principal=" + principal
     }
-    return this.http.get<Layer[]>(this.url_prefix + '/api/group/layer?' + query_params, { headers: this.get_header() })
+    return this.safeGet<Layer[]>('/api/group/layer?' + query_params)
   }
 
 
@@ -229,21 +220,21 @@ export class MapsService {
   * @param layer Layer
   */
   addLayer(layer: Layer): Observable<Layer[]> {
-    return this.http.post<Layer[]>(this.url_prefix + '/api/group/layer', layer, { headers: this.get_header() })
+    return this.safePost<Layer[]>('/api/group/layer', layer)
   }
 
   /**
    * get a layer by old id
    */
   getLayerByOldId(layer_id: number): Observable<{ layer: Layer, group: Group }> {
-    return this.http.post<{ layer: Layer, group: Group }>(this.url_prefix + '/api/group/layer/old', { layer_id }, { headers: this.get_header() })
+    return this.safePost<{ layer: Layer, group: Group }>('/api/group/layer/old', { layer_id })
   }
 
   /**
    * get a layer by id
    */
   getLayer(layer_id: number): Observable<Layer> {
-    return this.http.get<Layer>(this.url_prefix + '/api/group/layer/' + layer_id, { headers: this.get_header() })
+    return this.safeGet<Layer>('/api/group/layer/' + layer_id)
   }
 
   /**
@@ -251,7 +242,7 @@ export class MapsService {
    * @param layer_id number
    */
   updateLayer(layer: Layer): Observable<Layer> {
-    return this.http.put<Layer>(this.url_prefix + '/api/group/layer/' + layer.layer_id, layer, { headers: this.get_header() })
+    return this.safePut<Layer>('/api/group/layer/' + layer.layer_id, layer)
   }
 
   /**
@@ -259,7 +250,7 @@ export class MapsService {
    * @param layer_id number
    */
   changeLayerPrincipal(layer: Layer, principal: boolean): Observable<Layer> {
-    return this.http.post<Layer>(this.url_prefix + '/api/group/layer/' + layer.layer_id + "/set-principal", { principal }, { headers: this.get_header() })
+    return this.safePost<Layer>('/api/group/layer/' + layer.layer_id + "/set-principal", { principal })
   }
 
   /**
@@ -267,7 +258,7 @@ export class MapsService {
    * @param layer_id number
    */
   deleteLayer(layer_id: number) {
-    return this.http.delete(this.url_prefix + '/api/group/layer/' + layer_id, { headers: this.get_header() })
+    return this.safeDelete('/api/group/layer/' + layer_id)
   }
 
   /**
@@ -275,7 +266,7 @@ export class MapsService {
    */
   addProviderWithStyleToLayer(parameter: { layer_id: number, vs_id: number, vp_id: number }): Observable<LayerProviders> {
 
-    return this.http.post<LayerProviders>(this.url_prefix + '/api/group/layer/provider', parameter, { headers: this.get_header() })
+    return this.safePost<LayerProviders>('/api/group/layer/provider', parameter)
 
   }
 
@@ -283,14 +274,14 @@ export class MapsService {
    * update a provider of a layer
    */
   updateProviderWithStyleOfLayer(layerProviders_id, parameter: { layer_id: number, vs_id: number, vp_id: number }): Observable<LayerProviders> {
-    return this.http.put<LayerProviders>(this.url_prefix + '/api/group/layer/provider/' + layerProviders_id, parameter, { headers: this.get_header() })
+    return this.safePut<LayerProviders>('/api/group/layer/provider/' + layerProviders_id, parameter)
   }
 
   /**
    * get all providers of a map
    */
   getProviderWithStyleOfLayer(layer_id: number): Observable<Array<LayerProviders>> {
-    return this.http.get<Array<LayerProviders>>(this.url_prefix + '/api/group/layer/provider?layer_id=' + layer_id, { headers: this.get_header() })
+    return this.safeGet<Array<LayerProviders>>('/api/group/layer/provider?layer_id=' + layer_id)
   }
 
   /**
@@ -298,7 +289,7 @@ export class MapsService {
    * @param id number
    */
   deleteProviderWithStyleOfLayer(id: number) {
-    return this.http.delete(this.url_prefix + '/api/group/layer/provider/' + id, { headers: this.get_header() })
+    return this.safeDelete('/api/group/layer/provider/' + id)
   }
 
   /**
@@ -306,7 +297,7 @@ export class MapsService {
    * @param reorderProvider ReorderProvider
    */
   reorderProvidersInLayerProviders(reorderProvider: Array<ReorderProvider>) {
-    return this.http.post(this.url_prefix + '/api/group/layer/provider/reorder', { reorderProviders: reorderProvider }, { headers: this.get_header() })
+    return this.safePost('/api/group/layer/provider/reorder', { reorderProviders: reorderProvider })
   }
 
   /**
@@ -315,7 +306,7 @@ export class MapsService {
    * @returns Observable<Array<Tag>>
    */
   searchTags(search_word: string): Observable<Array<Tag>> {
-    return this.http.post<Array<Tag>>(this.url_prefix + '/api/group/layer/tags/search', { search_word: search_word }, { headers: this.get_header() })
+    return this.safePost<Array<Tag>>('/api/group/layer/tags/search', { search_word: search_word })
   }
 
   /**
@@ -324,7 +315,7 @@ export class MapsService {
    * @returns Observable<Metadata>
    */
   getLayerMetadata(layer_id: number): Observable<Metadata> {
-    return this.http.get<Metadata>(this.url_prefix + '/api/group/metadata?layer=' + layer_id, { headers: this.get_header() })
+    return this.safeGet<Metadata>('/api/group/metadata?layer=' + layer_id)
   }
 
   /**
@@ -332,7 +323,7 @@ export class MapsService {
    * @param metadata 
    */
   addMetadata(metadata: Metadata) {
-    return this.http.post(this.url_prefix + '/api/group/metadata', metadata, { headers: this.get_header() })
+    return this.safePost('/api/group/metadata', metadata)
   }
 
   /**
@@ -340,7 +331,7 @@ export class MapsService {
    * @param metadata 
    */
   updateMetadata(metadata: Metadata) {
-    return this.http.put(this.url_prefix + '/api/group/metadata/' + metadata.id, metadata, { headers: this.get_header() })
+    return this.safePut('/api/group/metadata/' + metadata.id, metadata)
   }
 
 }

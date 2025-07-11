@@ -249,6 +249,7 @@ export abstract class AbstractProfilComponent implements OnInit {
           .filter((baseMap) => baseMap && baseMap.principal)
 
         if (prinicpalBaseMapLoaded.length == 0) {
+          // https://demo.openstreetmap.fr/map?profil=1&layers=8,15,layer;333,15,layer;3,15,layer;406,15,layer&pos=266643.6,6242730.5,428.7,265357,6243023.6,0
           throw 'Basemap not yet loaded'
         }
         return prinicpalBaseMapLoaded.length > 0

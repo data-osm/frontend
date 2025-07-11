@@ -4,55 +4,41 @@ import { NotifierService } from 'angular-notifier';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { SigFile } from '../../../type/type';
+import { OsmDataRequest } from '../../../services/request';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SigFileService {
+export class SigFileService extends OsmDataRequest {
 
-  headers: HttpHeaders = new HttpHeaders({});
-  url_prefix = environment.backend
   private readonly notifier: NotifierService;
 
   constructor(
-    private http: HttpClient,
+    private http_: HttpClient,
     notifierService: NotifierService,
 
   ) {
-    this.headers.append('Content-Type', 'application/x-www-form-urlencoded');
-    this.headers.append('Content-Type', 'application/json');
+    super(http_)
     this.notifier = notifierService;
 
   }
 
-  /**
-* Get header
-* @returns HttpHeaders
-*/
-  get_header(): HttpHeaders {
-    this.headers = this.headers.set('Authorization', 'Bearer  ' + localStorage.getItem('token'))
-    return this.headers
-  }
 
 
   /**
   * add  new Sig File
   * @param sigFile FormData
   */
-  addSigFile(sigFile: FormData):Observable<SigFile> {
-    return this.http.post<SigFile>(this.url_prefix + '/api/datasource/sig-file', sigFile, {
-      headers: this.get_header(),
-    })
+  addSigFile(sigFile: FormData): Observable<SigFile> {
+    return this.safePost<SigFile>('/api/datasource/sig-file', sigFile)
   }
 
   /**
   * add  new Sig File
   * @param sigFile FormData
   */
-   updateSigFile(sigFile: FormData):Observable<SigFile>{
-    return this.http.put<SigFile>(this.url_prefix + '/api/datasource/sig-file/'+sigFile.get('provider_vector_id'), sigFile, {
-      headers: this.get_header(),
-    })
+  updateSigFile(sigFile: FormData): Observable<SigFile> {
+    return this.safePut<SigFile>('/api/datasource/sig-file/' + sigFile.get('provider_vector_id'), sigFile)
   }
 
 
@@ -61,10 +47,8 @@ export class SigFileService {
    * @param provider_vector_id 
    * @returns Observable<SigFile>
    */
-  getSigFile(provider_vector_id:number):Observable<SigFile>{
-    return this.http.get<SigFile>(this.url_prefix + '/api/datasource/sig-file/'+provider_vector_id, {
-      headers: this.get_header(),
-    })
+  getSigFile(provider_vector_id: number): Observable<SigFile> {
+    return this.safeGet<SigFile>('/api/datasource/sig-file/' + provider_vector_id)
   }
 
 }

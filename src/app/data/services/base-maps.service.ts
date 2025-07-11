@@ -4,38 +4,28 @@ import { Observable } from 'rxjs';
 import { retryWhen } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { BaseMap } from '../models/base-maps';
+import { OsmDataRequest } from '../../services/request';
 
 @Injectable({
   providedIn: 'root'
 })
-export class BaseMapsService {
+export class BaseMapsService extends OsmDataRequest {
 
-  headers: HttpHeaders = new HttpHeaders({});
-  url_prefix = environment.backend
 
   constructor(
-    private http: HttpClient,
+    private http_: HttpClient,
   ) {
-    this.headers.append('Content-Type', 'application/x-www-form-urlencoded');
-    this.headers.append('Content-Type', 'application/json');
-
+    super(http_)
   }
 
-  /**
-   * Get header
-   * @returns HttpHeaders
-   */
-  get_header(): HttpHeaders {
-    this.headers = this.headers.set('Authorization', 'Bearer  ' + localStorage.getItem('token'))
-    return this.headers
-  }
+
 
   /**
    * Get list of all base maps
    * @returns Observable<BaseMap[]>
    */
-  getBaseMaps():Observable<BaseMap[]>{
-    return this.http.get<BaseMap[]>(this.url_prefix+'/api/group/basemaps',{headers: this.get_header()})
+  getBaseMaps(): Observable<BaseMap[]> {
+    return this.safeGet<BaseMap[]>('/api/group/basemaps')
   }
 
   /**
@@ -43,17 +33,17 @@ export class BaseMapsService {
    * @param baseMap any
    * @returns Observable<BaseMap>
    */
-  addBaseMap(baseMap:any):Observable<BaseMap>{
-    return this.http.post<BaseMap>(this.url_prefix+'/api/group/basemaps',baseMap, {headers: this.get_header()})
+  addBaseMap(baseMap: any): Observable<BaseMap> {
+    return this.safePost<BaseMap>('/api/group/basemaps', baseMap,)
   }
-  
+
   /**
    * Delete a base map
    * @param id number
    * @returns Observable<any>
    */
-  deleteBaseMap(id:number):Observable<any>{
-    return this.http.delete<any>(this.url_prefix+'/api/group/basemaps/'+id,{headers: this.get_header()} )
+  deleteBaseMap(id: number): Observable<any> {
+    return this.safeDelete<any>('/api/group/basemaps/' + id)
   }
 
   /**
@@ -61,8 +51,8 @@ export class BaseMapsService {
    * @param parameters FormData
    * @returns Observable<BaseMap>
    */
-  updateBaseMap(parameters:FormData):Observable<BaseMap>{
-    return this.http.put<BaseMap>(this.url_prefix+'/api/group/basemaps/'+parameters.get('id') ,parameters, {headers: this.get_header()} )
+  updateBaseMap(parameters: FormData): Observable<BaseMap> {
+    return this.safePut<BaseMap>('/api/group/basemaps/' + parameters.get('id'), parameters,)
   }
 
   /**
@@ -70,7 +60,7 @@ export class BaseMapsService {
    * @param id number
    * @returns Observable<BaseMap>
    */
-  setBaseMapPrincipal(id:number):Observable<{}>{
-    return this.http.post<{}>(this.url_prefix+'/api/group/basemaps/principal',{id},{headers:this.get_header()})
+  setBaseMapPrincipal(id: number): Observable<{}> {
+    return this.safePost<{}>('/api/group/basemaps/principal', { id },)
   }
 }

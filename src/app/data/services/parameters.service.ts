@@ -8,14 +8,14 @@ import { environment } from '../../../environments/environment';
 import { Feature, FeatureLike, Geometry } from '../../ol-module';
 import { AdminBoundary, Parameter, AppExtent, AdminBoundaryRespone, AdminBoundaryFeature } from '../models/parameters';
 import { FrameRenderTime } from '../../../helper/type';
+import { OsmDataRequest } from '../../services/request';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ParametersService {
+export class ParametersService extends OsmDataRequest {
 
-  headers: HttpHeaders = new HttpHeaders({});
-  url_prefix = environment.backend
+
   /**
    * List of app extents with geometry
    */
@@ -32,11 +32,9 @@ export class ParametersService {
   map_id: number
 
   constructor(
-    private http: HttpClient,
+    private http_: HttpClient,
   ) {
-    this.headers.append('Content-Type', 'application/x-www-form-urlencoded');
-    this.headers.append('Content-Type', 'application/json');
-
+    super(http_)
   }
 
   get parameter() {
@@ -47,21 +45,13 @@ export class ParametersService {
     this.parameter$.next(parameter)
   }
 
-  /**
-   * Get header
-   * @returns HttpHeaders
-   */
-  get_header(): HttpHeaders {
-    this.headers = this.headers.set('Authorization', 'Bearer  ' + localStorage.getItem('token'))
-    return this.headers
-  }
 
   /**
    * Get parameters of the app
    * @returns Observable<Parameter> 
    */
   getParameters(): Observable<Parameter> {
-    return this.http.get<Parameter[]>(this.url_prefix + '/api/parameter/parameter', { headers: this.get_header() }).pipe(
+    return this.safeGet<Parameter[]>('/api/parameter/parameter').pipe(
       map((response) => {
         if (response.length > 0) {
           response[0].can_hide_buildings = false
@@ -80,7 +70,7 @@ export class ParametersService {
    * @returns Observable<any>
    */
   addAdminstrativeBoundary(adminBoundary: any): Observable<any> {
-    return this.http.post<any>(this.url_prefix + '/api/parameter/admin_boundary', adminBoundary, { headers: this.get_header() })
+    return this.safePost<any>('/api/parameter/admin_boundary', adminBoundary)
   }
 
   /**
@@ -89,7 +79,7 @@ export class ParametersService {
    * @returns Observable<any>
    */
   updateAdminstrativeBoundary(adminBoundary: AdminBoundary): Observable<any> {
-    return this.http.put<any>(this.url_prefix + '/api/parameter/admin_boundary/' + adminBoundary.admin_boundary_id, adminBoundary, { headers: this.get_header() })
+    return this.safePut<any>('/api/parameter/admin_boundary/' + adminBoundary.admin_boundary_id, adminBoundary)
   }
 
   /**
@@ -98,7 +88,7 @@ export class ParametersService {
    * @returns Observable<any>
    */
   destroyAdminstrativeBoundary(admin_boundary_id: number): Observable<any> {
-    return this.http.delete<any>(this.url_prefix + '/api/parameter/admin_boundary/' + admin_boundary_id, { headers: this.get_header() })
+    return this.safeDelete<any>('/api/parameter/admin_boundary/' + admin_boundary_id)
   }
 
   /**
@@ -107,7 +97,7 @@ export class ParametersService {
    * @returns Observable<any>
    */
   addParameter(parameter: any): Observable<any> {
-    return this.http.post<any>(this.url_prefix + '/api/parameter/parameter/add', parameter, { headers: this.get_header() })
+    return this.safePost<any>('/api/parameter/parameter/add', parameter)
   }
 
   /**
@@ -116,7 +106,7 @@ export class ParametersService {
    * @returns Observable<any>
    */
   updateParameter(parameter: any): Observable<any> {
-    return this.http.put<any>(this.url_prefix + '/api/parameter/parameter/' + parameter.parameter_id, parameter, { headers: this.get_header() })
+    return this.safePut<any>('/api/parameter/parameter/' + parameter.parameter_id, parameter)
   }
 
   /**
@@ -126,7 +116,7 @@ export class ParametersService {
    * @returns Observable<AppExtent>
    */
   getAppExtent(geometry: boolean = false, tolerance: number = 0): Observable<AppExtent> {
-    return this.http.get<AppExtent>(this.url_prefix + '/api/parameter/extent?geometry=' + geometry + '&tolerance=' + tolerance, { headers: this.get_header() })
+    return this.safeGet<AppExtent>('/api/parameter/extent?geometry=' + geometry + '&tolerance=' + tolerance)
 
   }
 
@@ -135,7 +125,7 @@ export class ParametersService {
    * @returns Observable<AppExtent>
    */
   getAppExtentById(id: number): Observable<AppExtent> {
-    return this.http.post<AppExtent>(this.url_prefix + '/api/parameter/extent/get', { id: id }, { headers: this.get_header() })
+    return this.safePost<AppExtent>('/api/parameter/extent/get', { id: id })
 
   }
   /**
@@ -145,7 +135,7 @@ export class ParametersService {
    * @returns Observable<AppExtent[]>
    */
   getListAppExtent(geometry: boolean = false, tolerance: number = 0): Observable<AppExtent[]> {
-    return this.http.get<AppExtent[]>(this.url_prefix + '/api/parameter/extent/list?geometry=' + geometry + '&tolerance=' + tolerance, { headers: this.get_header() })
+    return this.safeGet<AppExtent[]>('/api/parameter/extent/list?geometry=' + geometry + '&tolerance=' + tolerance)
   }
 
   /**
@@ -154,7 +144,7 @@ export class ParametersService {
    * @returns Observable<AdminBoundaryRespone[]>
    */
   searchAdminBoundary(querry: string): Observable<AdminBoundaryRespone[]> {
-    return this.http.post<AdminBoundaryRespone[]>(this.url_prefix + "/api/parameter/admin_boundary/search", { search_word: querry }, { headers: this.get_header() })
+    return this.safePost<AdminBoundaryRespone[]>("/api/parameter/admin_boundary/search", { search_word: querry })
   }
 
   /**
@@ -164,7 +154,7 @@ export class ParametersService {
    * @returns Observable<AdminBoundaryFeature>
    */
   getAdminBoundaryFeature(provider_vector_id: number, table_id: number): Observable<AdminBoundaryFeature> {
-    return this.http.post<AdminBoundaryFeature>(this.url_prefix + "/api/parameter/admin_boundary/feature", { vector_id: provider_vector_id, table_id: table_id }, { headers: this.get_header() })
+    return this.safePost<AdminBoundaryFeature>("/api/parameter/admin_boundary/feature", { vector_id: provider_vector_id, table_id: table_id })
   }
 
   /**
@@ -183,14 +173,14 @@ export class ParametersService {
         frame_index: frame_index, render_time: frame_render_time_value[parseInt(frame_index)].render_time, total_render_time: frame_render_time_value[parseInt(frame_index)].total_render_time
       }
     })
-    return this.http.post(this.url_prefix + "/api/logs/log-render-time-per-frame", {
+    return this.safePost("/api/logs/log-render-time-per-frame", {
       frame_render_time, layers_ids, layers_names, extent_size, extent, current_url
-    }, { headers: this.get_header() })
+    })
 
   }
 
   createNPSFeedback(score: number) {
-    return this.http.post(this.url_prefix + "/api/logs/nps", { score }, { headers: this.get_header() })
+    return this.safePost("/api/logs/nps", { score })
   }
 
 }

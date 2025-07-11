@@ -87,7 +87,7 @@ export class GenerateIconComponent implements OnInit {
 
 
     setTimeout(() => {
-      if (this.icon ) {
+      if (this.icon) {
         if (this.icon.value) {
           this.iconComponent.onIconSelect.next(this.icon.value)
         }
@@ -99,7 +99,7 @@ export class GenerateIconComponent implements OnInit {
         if (this.icon) {
           this.icon.setValue(icon)
         }
-        
+
         if (!icon.path.includes('.svg')) {
           this.mode = 'raster'
           if (this.squareSvgAsText) {
@@ -107,7 +107,7 @@ export class GenerateIconComponent implements OnInit {
 
           }
 
-            this.circleSvgAsText.setValue(null)
+          this.circleSvgAsText.setValue(null)
 
           if (this.backgroundColor) {
             this.backgroundColor.setValue(environment.primaryColor)
@@ -136,7 +136,7 @@ export class GenerateIconComponent implements OnInit {
     )
 
     combineLatest(this.iconSvgSelected.pipe(startWith(this.icon)), this.backgroundColor.valueChanges.pipe(startWith(this.backgroundColor.value)), this.iconColorForm.valueChanges, this.matSlideToggleBackground.change.pipe(startWith({ checked: this.background.value }))).pipe(
-      filter((value: [IconWithSVGContent, string, string, MatSlideToggleChange]) => value[0] && value[0].svgContent != undefined && this.mode=='svg'),
+      filter((value: [IconWithSVGContent, string, string, MatSlideToggleChange]) => value[0] && value[0].svgContent != undefined && this.mode == 'svg'),
       tap((value: [IconWithSVGContent, string, string, MatSlideToggleChange]) => {
         let icon = value[0]
         let form = value[1]

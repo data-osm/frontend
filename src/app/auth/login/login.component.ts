@@ -4,6 +4,7 @@ import { AuthService } from '../auth.service'
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from "angular-notifier";
 import { Router } from '@angular/router';
+import { catchError, EMPTY, ReplaySubject, takeUntil, tap } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -15,6 +16,7 @@ export class LoginComponent implements OnInit {
   /** form for login */
   loginForm: UntypedFormGroup = this.fb.group({})
   private readonly notifier: NotifierService;
+  private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   constructor(
     private fb: UntypedFormBuilder,
@@ -25,10 +27,14 @@ export class LoginComponent implements OnInit {
   ) {
     this.notifier = notifierService;
     translate.setDefaultLang('fr');
-   }
+  }
 
   ngOnInit(): void {
     this.initialiseLoginForm()
+  }
+  ngOnDestroy(): void {
+    this.destroyed$.next(true);
+    this.destroyed$.complete();
   }
 
   /**
@@ -43,22 +49,37 @@ export class LoginComponent implements OnInit {
    * submit login form 
    */
   submitLoginForm() {
-    this.AuthService.login(this.loginForm.value.email, this.loginForm.value.password).then(
-      (response: {
-        error: boolean;
-        msg?: string;
-      }) => {
-        if (response.error) {
+    this.AuthService.login(this.loginForm.value.email, this.loginForm.value.password).pipe(
+      takeUntil(this.destroyed$),
+      catchError((err) => {
+        this.translate.get('login', { value: 'caracteristique' }).subscribe((res: any) => {
+          this.notifier.notify("error", res.error);
+        })
+        return EMPTY
+      }),
+      tap((obj) => {
+        console.log(obj)
+        this.router.navigate(['admin'])
+      }),
+      // take
+    ).subscribe()
 
-          this.translate.get('login', { value: 'caracteristique' }).subscribe((res: any) => {
-            this.notifier.notify("error", res.error);
-          })
+    // .then(
+    //   (response: {
+    //     error: boolean;
+    //     msg?: string;
+    //   }) => {
+    //     if (response.error) {
 
-        }else{
-          this.router.navigate(['admin'])
-        }
-      }
-    )
+    //       this.translate.get('login', { value: 'caracteristique' }).subscribe((res: any) => {
+    //         this.notifier.notify("error", res.error);
+    //       })
+
+    //     } else {
+    //       this.router.navigate(['admin'])
+    //     }
+    //   }
+    // )
   }
 
 }
