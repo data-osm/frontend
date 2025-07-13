@@ -32,7 +32,7 @@ export function isBuildingHasWindows(building_properties: BuildingProperties): b
         return windowsValue;
     }
 
-    return !buildingsWithoutWindows.includes(<string>building_properties.buildingType);
+    return !buildingsWithoutWindows.includes(<string>building_properties.building_type);
 }
 
 
@@ -48,7 +48,7 @@ export function getBuildingParams(
     buildingRoofType: BuildingRoofType;
     buildingRoofOrientation: BuildingRoofOrientation;
     buildingRoofDirection: number;
-    buildingRoofAngle: number;
+    // buildingRoofAngle: number;
     buildingFacadeMaterial: BuildingFacadeMaterial;
     buildingFacadeColor: number;
     buildingRoofMaterial: BuildingRoofMaterial;
@@ -59,25 +59,25 @@ export function getBuildingParams(
     const fallbackLevels = 1;
 
 
-    const isRoof = building_properties.buildingType === 'roof';
+    const isRoof = building_properties.building_type === 'roof';
 
     const hasFoundation = !isRoof &&
         building_properties.levels === undefined &&
-        building_properties.minLevel === undefined &&
+        building_properties.min_level === undefined &&
         building_properties.height === undefined &&
-        building_properties.minHeight === undefined;
+        building_properties.min_height === undefined;
 
     const roofParams = getRoofParams(building_properties);
-    const roofOrientation = getRoofOrientation(building_properties.roofOrientation);
-    const roofLevels = building_properties.roofLevels <= 0 ? 0.6 : <number>building_properties.roofLevels ?? (roofParams.type === 'flat' ? 0 : 1);
-    const roofDirection = <number>building_properties.roofDirection ?? null;
-    const roofAngle = <number>building_properties.roofAngle ?? null;
-    let roofHeight = <number>building_properties.roofHeight ?? (roofLevels * LEVEL_HEIGHT);
+    const roofOrientation = getRoofOrientation(building_properties.roof_orientation);
+    const roofLevels = building_properties.roof_levels <= 0 ? 0.6 : <number>building_properties.roof_levels ?? (roofParams.type === 'flat' ? 0 : 1);
+    const roofDirection = <number>building_properties.roof_direction ?? null;
+    // const roofAngle = <number>building_properties.roof_angle ?? null;
+    let roofHeight = <number>building_properties.roof_height ?? (roofLevels * LEVEL_HEIGHT);
 
-    let minLevel = <number>building_properties.minLevel ?? null;
+    let minLevel = <number>building_properties.min_level ?? null;
     let height = <number>building_properties.height ?? null;
     let levels = <number>building_properties.levels ?? null;
-    let minHeight = <number>building_properties.minHeight ?? null;
+    let minHeight = <number>building_properties.min_height ?? null;
 
     if (height !== null) {
         roofHeight = Math.min(roofHeight, height - (minHeight ?? 0));
@@ -121,7 +121,7 @@ export function getBuildingParams(
         buildingRoofType: roofParams.type,
         buildingRoofOrientation: roofOrientation,
         buildingRoofDirection: roofDirection,
-        buildingRoofAngle: roofAngle,
+        // buildingRoofAngle: roofAngle,
         buildingFacadeMaterial: facadeParams.material,
         buildingFacadeColor: facadeParams.color,
         buildingRoofMaterial: roofParams.material,

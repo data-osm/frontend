@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, SimpleChanges, OnChanges, ViewChild, ChangeDetectorRef, ViewChildren, QueryList } from '@angular/core';
 import { manageDataHelper } from '../../../../../helper/manage-data.helper'
-import { ImageWMS, TileWMS, GeoJSON, VectorLayer, Coordinate, Polygon, GeometryLayout, LineString, MultiLineString, LinearRing } from '../../../../ol-module';
+import { ImageWMS, TileWMS, GeoJSON, VectorLayer, Coordinate, Polygon, LineString, MultiLineString, LinearRing, MultiPolygon, Circle } from '../../../../ol-module';
 import { CartoHelper } from '../../../../../helper/carto.helper'
 import { BackendApiService } from '../../../../services/backend-api/backend-api.service'
 import { NotifierService } from "angular-notifier";
@@ -14,7 +14,7 @@ import { Group, Layer } from '../../../../type/type';
 import WMSGetFeatureInfo from 'ol/format/WMSGetFeatureInfo';
 import { MatLegacyChip as MatChip, MatLegacyChipList as MatChipList } from '@angular/material/legacy-chips';
 import { getCenter, buffer } from 'ol/extent';
-import { FeatureForSheet, HighlightFeatureTile, HighlightLayerUserData } from '../descriptive-sheet.component';
+import { FeatureForSheet } from '../descriptive-sheet.component';
 import { environment } from '../../../../../environments/environment';
 
 import {
@@ -33,6 +33,8 @@ import { createFloorVertices } from '../../../../processing/buildings';
 import Earcut from 'earcut';
 import { Line2, LineGeometry, LineMaterial, MapControls } from 'three/examples/jsm/Addons';
 import { createPositionBuffer, ensureLineStringNotClosed, ensureMultiLineStringNotClosed, subdivideLineString, subdivideMultiLineString } from '../../../../processing/linestring/utils';
+import { transform } from 'ol/proj';
+import { addElevationToPolygons } from '../../../../processing/polygon.ts/utils';
 declare var OpeningHoursParser: any;
 
 export interface Week {
@@ -227,15 +229,14 @@ export class OsmSheetComponent implements OnInit, OnChanges {
       this.object.clearFeatureSelected()
       return
     }
-    let coordinate = getCenter(feature.getGeometry().getExtent())
-    const featureCenter = new Vector2(coordinate[0], coordinate[1])
-    const highlight_feature_tile = instance.getObjects((obj) => obj.userData.name == "highlightFeature")[0] as HighlightFeatureTile
-    highlight_feature_tile.reset()
-    // const tile = highlight_feature_tile.getTile(
-    //   featureCenter
-    // )
-    // tile.clear()
-    // highlight_feature_tile.removeAllChildren()
+    const layers = this.map.getLayers((layer) => layer.name == "HighlightLayer")
+    if (layers.length > 0) {
+      const highlightLayer = layers[0]
+      const source = highlightLayer.source as VectorSource
+      source.source.clear()
+    }
+
+    this.map.instance.notifyChange(this.map.instance.view.camera)
   }
 
   addFeatureToMesh(feature: FeatureForSheet) {
@@ -249,163 +250,19 @@ export class OsmSheetComponent implements OnInit, OnChanges {
       instance.notifyChange([this.object])
       return
     }
-    console.log(feature, "is not selectable")
+    const layers = this.map.getLayers((layer) => layer.name == "HighlightLayer")
 
-    let coordinate = getCenter(feature.getGeometry().getExtent())
-
-    const featureCenter = new Vector2(coordinate[0], coordinate[1])
-    const highlight_feature_tile = instance.getObjects((obj) => obj.userData.name == "highlightFeature")[0] as HighlightFeatureTile
-    highlight_feature_tile.reset()
-    const tile = highlight_feature_tile.getTile(
-      featureCenter
-    )
-
-    if (feature.getGeometry().getType() == "Polygon" || feature.getGeometry().getType() == "MultiPolygon" || feature.getGeometry().getType() == "Circle") {
-      // const flatCoordinates = feature.getGeometry().getFlatCoordinates()
-      // @ts-expect-error
-      const newFlatCoordinates = feature.getGeometry().getFlatCoordinates().map((coord, index) => {
-        // pair => x
-        if (index % 2 == 0) {
-          return coord - tile.position.x
-        }
-        return coord - tile.position.y
-      })
-      // const newFlatCoordinates = feature.getGeometry().getFlatCoordinates()
-      // @ts-expect-error
-      const newPolygon = new Polygon(newFlatCoordinates, GeometryLayout.XY, feature.getGeometry().ends_)
-      const { flatCoordinates, holes } = createFloorVertices(
-        newPolygon.getCoordinates(),
-        newPolygon.getStride(),
-        new Vector3(0, 0, -1),
-        10,
-        true,
-      );
-
-      const pointCount = flatCoordinates.length / 3;
-      const floorPositionsCount = flatCoordinates.slice().length
-      const triangles = Earcut(flatCoordinates, holes, 3);
-      const positions = new Float32Array(flatCoordinates);
-      const indices =
-        positions.length <= 65536 ? new Uint16Array(triangles) : new Uint32Array(triangles);
-
-
-      const surfaceGeometry = new BufferGeometry();
-      surfaceGeometry.setAttribute('position', new BufferAttribute(positions, 3));
-      surfaceGeometry.setIndex(new BufferAttribute(indices, 1));
-      surfaceGeometry.computeBoundingBox();
-      surfaceGeometry.computeBoundingSphere();
-      surfaceGeometry.computeVertexNormals();
-
-      const mesh = new Mesh(surfaceGeometry, new MeshStandardMaterial({
-        color: new Color(1, 0, 0),
-        opacity: 0.5,
-        transparent: true
-      }))
-
-      mesh.updateMatrix()
-      mesh.updateMatrixWorld()
-      mesh.frustumCulled = false
-
-      tile.add(mesh)
-
-      // Don't know why, but after loading features, the doesn't appear, till one move the map
-
-      setTimeout(() => {
-        instance.engine.renderer.render(tile, instance.view.camera)
-        instance.engine.renderer.render(instance.scene, instance.view.camera)
-        // instance.notifyChange(this.map, true)
-      }, 100);
-
-    } else if (feature.getGeometry().getType() == "LineString" || feature.getGeometry().getType() == "LinearRing" || feature.getGeometry().getType() == "MultiLineString") {
-
-      let geometry = feature.getGeometry() as LineString | MultiLineString | LinearRing
-      const lineGeometry = new LineGeometry();
-      let coordinates: Array<Coordinate>
-
-      if (geometry.getType() == "MultiLineString") {
-        ensureMultiLineStringNotClosed(geometry as MultiLineString)
-        const newMultiLineString = subdivideMultiLineString(geometry as MultiLineString, 1)
-        coordinates = [].concat(...newMultiLineString.getCoordinates())
-
-      } else {
-        ensureLineStringNotClosed(geometry as LineString)
-        geometry = subdivideLineString((geometry as LineString), 1)
-        coordinates = geometry.getCoordinates()
-      }
-
-      lineGeometry.setPositions(
-        createPositionBuffer(
-          coordinates,
-          {
-            ignoreZ: true,
-            origin: new Vector3(tile.position.x, tile.position.y, -1),
-          }
-
-        )
-      )
-      lineGeometry.computeBoundingBox();
-
-      const lineMaterial = new LineMaterial({
-        color: feature.getProperties()["colour"] ? feature.getProperties()["colour"] : "red",
-        linewidth: 0.02, // Notice the different case
-        opacity: 0.9,
-        transparent: true,
-      });
-
-      const lineMesh = new Line2(lineGeometry, lineMaterial)
-      lineMesh.updateMatrix()
-      lineMesh.updateMatrixWorld()
-      lineMesh.frustumCulled = false
-
-      tile.add(lineMesh)
-      // Don't know why, but after loading features, the doesn't appear, till one move the map
-      setTimeout(() => {
-        instance.engine.renderer.render(tile, instance.view.camera)
-        instance.engine.renderer.render(instance.scene, instance.view.camera)
-      }, 100);
-
-    } else {
-
-      let highlightFeatureMesh: Mesh<InstancedBufferGeometry, ShaderMaterial, Object3DEventMap> = tile.children[0] as any
-
-
-      const instancePosition = new Float32Array(3);
-
-      instancePosition[0] = coordinate[0] - tile.position.x
-      instancePosition[1] = coordinate[1] - tile.position.y
-      instancePosition[2] = this.featuresStoreService.getBuildingHeightAtPoint(
-        featureCenter
-      ) + 0.01
-
-      highlightFeatureMesh.geometry.instanceCount = 1
-      highlightFeatureMesh.geometry.setAttribute("aInstancePosition", new InstancedBufferAttribute(instancePosition, 3));
-      highlightFeatureMesh.updateMatrix()
-      highlightFeatureMesh.updateMatrixWorld()
-      highlightFeatureMesh.material.needsUpdate = true
-
-      // Don't know why, but after loading features, the doesn't appear, till one move the map
-      setTimeout(() => {
-        const camera = instance.view.camera
-        camera.translateX(0.000001);
-        instance.notifyChange([camera])
-      }, 100);
-
-      this.featuresStoreService.buildingsHeights$.pipe(
-        debounceTime(1000),
-        takeUntil(this.destroyed$),
-        filter(buildingsHeights => buildingsHeights.size > 0),
-        tap((buildingsHeights) => {
-
-          instancePosition[2] = this.featuresStoreService.getBuildingHeightAtPoint(
-            featureCenter
-          ) + 0.01
-          highlightFeatureMesh.geometry.setAttribute("aInstancePosition", new InstancedBufferAttribute(instancePosition, 3));
-          highlightFeatureMesh.updateMatrix()
-          highlightFeatureMesh.updateMatrixWorld()
-          highlightFeatureMesh.material.needsUpdate = true
-        })
-      ).subscribe()
+    if (layers.length == 0) {
+      return
     }
+    const highlightLayer = layers[0]
+    const source = highlightLayer.source as VectorSource
+    source.source.clear()
+    source.source.addFeature(feature)
+    this.map.instance.notifyChange(this.map.instance.view.camera)
+
+
+
 
   }
 

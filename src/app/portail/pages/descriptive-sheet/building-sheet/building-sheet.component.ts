@@ -24,6 +24,7 @@ import { getUid } from 'ol';
 import { buffer, getCenter } from 'ol/extent';
 import { FeaturesStoreService } from '../../../../data/store/features.store.service';
 import { ParametersService } from '../../../../data/services/parameters.service';
+import { BuildingProperties } from '../../../../processing/building/type';
 @Component({
   selector: 'app-building-sheet',
   templateUrl: './building-sheet.component.html',
@@ -141,7 +142,7 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
       if (properties.hasOwnProperty(key) &&
 
         ['number', 'string'].indexOf(typeof properties[key]) != -1 &&
-        ["@ombb00", "@ombb01", "@ombb10", "@ombb11", "@ombb20", "@ombb21", "@ombb30", "@ombb31", "layer", "type", "osmType", "osmId_"].indexOf(key) == -1
+        ["@ombb00", "@ombb01", "@ombb10", "@ombb11", "@ombb20", "@ombb21", "@ombb30", "@ombb31", "elevation", "layer", "type", "osmType", "osmId_"].indexOf(key) == -1
       ) {
 
         const value = properties[key];
@@ -181,22 +182,11 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
    * @return string
    */
   getOsmLink(feature: Feature) {
-    let properties = feature.getProperties()
-    const osmType = properties['osmType']
-    let osm_ref_type = undefined
-    switch (osmType) {
-      case 0:
-        osm_ref_type = "node";
-        break;
-      case 1:
-        osm_ref_type = "way";
-        break;
-      case 2:
-        osm_ref_type = "relation";
-        break;
-    }
-    let osmId = properties['osmId']
-    return `https://www.openstreetmap.org/${osm_ref_type.toLowerCase()}/${osmId}`
+    let properties = feature.getProperties() as BuildingProperties
+    const osmType = properties.osm_type
+
+    let osmId = properties.osm_id
+    return `https://www.openstreetmap.org/${osmType.toLowerCase()}/${osmId}`
 
   }
 

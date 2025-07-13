@@ -393,7 +393,7 @@ export class GroundTileProcessing {
                         ).subscribe(() => {
 
                             this.buildingLayer.extentLoadEnd(this.vectorTileSource, tilesToLoad)
-                            this.treeLayer.extentLoadEnd(this.vectorTileSource, tilesToLoad)
+                            // this.treeLayer.extentLoadEnd(this.vectorTileSource, tilesToLoad)
                             // for (let index = 0; index < tilesToLoad.length; index++) {
                             //     // if (index >= 3) {
                             //     //     break
@@ -460,7 +460,7 @@ export class GroundTileProcessing {
             //: "water"
             // 
 
-            let buildingFeatures = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "buildings" && ["bench", "construction", "streetLamp", "busStop"].indexOf(feat.getProperties()["type"]) == -1)
+            // let buildingFeatures = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "buildings" && ["bench", "construction", "streetLamp", "busStop"].indexOf(feat.getProperties()["type"]) == -1)
             // Skillion 3543309932, 3543309922
             // let buildingFeatures = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "buildings" && feat.getProperties()["roofType"] == "skillion" && [3543309922].indexOf(feat["id_"]) != -1)
             //gabled 11968231872, 11968231882

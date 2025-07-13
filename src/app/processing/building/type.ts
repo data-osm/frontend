@@ -39,28 +39,28 @@ export interface BuildingProperties {
     "@ombb21": number
     "@ombb30": number
     "@ombb31": number
-    buildingType: string
+    building_type: string
     color: number
-    defaultRoof: boolean
+    default_roof: boolean
     height: number
-    isPart: boolean
+    is_part: boolean
     levels: number
     material: string
-    minHeight: number
-    minLevel: number
+    min_height: number
+    min_level: number
     name: string
-    osmId: number
-    osmType: number
-    roofColor: number
-    roofDirection: number
-    roofHeight: number
-    roofLevels: number
+    osm_id: number
+    osm_type: "way" | "relation"
+    roof_color: string
+    roof_direction: number
+    roof_height: number
+    roof_levels: number
     type: string
     windows: boolean
-    roofAngle?: number
-    roofOrientation?: BuildingRoofOrientation
-    roofMaterial?: BuildingRoofMaterial
-    roofType?: BuildingRoofType
+    // roo_angle?: number
+    roof_orientation?: BuildingRoofOrientation
+    roof_material?: BuildingRoofMaterial
+    roof_type?: BuildingRoofType
 }
 
 export interface VectorAreaDescriptor {

@@ -18,6 +18,8 @@ import {
   FeatureLike,
   LineString,
   MultiLineString,
+  MultiPolygon,
+  Circle,
 } from '../app/ol-module'
 import { BackendApiService } from '../app/services/backend-api/backend-api.service'
 import { environment } from '../environments/environment'
@@ -1946,6 +1948,32 @@ export class MultiLineStringWithZ extends MultiLineString {
   }
 
   get coordinatesWithZ(): Array<Array<[number, number, number]>> {
+    return this._coordinatesWithZ
+  }
+}
+
+export class PolygonWithZ extends Polygon {
+  protected _coordinatesWithZ: Array<Array<[number, number, number]>>
+
+  constructor(coordinates: Array<Array<Coordinate>>, layout, ends?: Array<number>, coordinatesWithZ?: Array<Array<[number, number, number]>>) {
+    super(coordinates, layout, ends);
+    this._coordinatesWithZ = coordinatesWithZ
+  }
+
+  get coordinatesWithZ(): Array<Array<[number, number, number]>> {
+    return this._coordinatesWithZ
+  }
+}
+
+export class MultiPolygonWithZ extends MultiPolygon {
+  protected _coordinatesWithZ: Array<Array<Array<[number, number, number]>>>
+
+  constructor(coordinates: Array<Array<Array<Coordinate>> | Polygon> | Array<number>, layout, endss?: number[][] | undefined, coordinatesWithZ?: Array<Array<Array<[number, number, number]>>>) {
+    super(coordinates, layout, endss);
+    this._coordinatesWithZ = coordinatesWithZ
+  }
+
+  get coordinatesWithZ(): Array<Array<Array<[number, number, number]>>> {
     return this._coordinatesWithZ
   }
 }

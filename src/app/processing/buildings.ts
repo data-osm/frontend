@@ -534,25 +534,25 @@ export class BuildingLayer {
 
             const buildingsToHide = Array.from(this.featuresStoreService.getBuildingsToHide().entries()).filter((entry) => {
                 return true
-                return entry[1] == x + "_" + y
             }).map((entry) => {
                 return entry[0]
             })
 
             let features = getFeaturesFromTileCoord(tile, 16).filter(
-                (feat) => feat.getProperties()["layer"] == "buildings" && ["bench", "construction", "streetLamp", "busStop"].indexOf(feat.getProperties()["type"]) == -1
+                (feat) => ["bench", "construction", "streetLamp", "busStop"].indexOf(feat.getProperties()["type"]) == -1
             ).filter(
-                (feat) => (!this.uniqueBuildingPerTile.has(feat.getProperties()["osmId"]) || this.uniqueBuildingPerTile.get(feat.getProperties()["osmId"]) == tileCoord)
+                (feat) => (!this.uniqueBuildingPerTile.has(feat.getProperties()["osm_id"]) || this.uniqueBuildingPerTile.get(feat.getProperties()["osm_id"]) == tileCoord)
             ).filter(
-                (feat) => !buildingsToHide.includes(feat.getProperties()["osmId"])
+                (feat) => !buildingsToHide.includes(feat.getProperties()["osm_id"])
             )
+
 
             if (features.length > 0) {
                 if (!for_reload) {
                     //@ts-expect-error
                     this.buildingVectorSource.addFeatures(features)
                     features.forEach((feature) => {
-                        this.uniqueBuildingPerTile.set(feature.getProperties()["osmId"], tileCoord)
+                        this.uniqueBuildingPerTile.set(feature.getProperties()["osm_id"], tileCoord)
                     })
                 }
 
@@ -650,11 +650,7 @@ export class BuildingLayer {
     addElevationAndSerializeFeatures(features: FeatureLike[], worldBuildingPosition: Vector3, key: string) {
 
         const transformCoordinates = features.map((feature, index) => {
-            // @ts-expect-error
-            const flatCoordinates = feature.getFlatCoordinates()
-            const properties = feature.getProperties()
-            // @ts-expect-error
-            const point = getCenter(new Polygon(flatCoordinates, 'XY', feature.ends_).getExtent())
+            const point = getCenter(feature.getGeometry().getExtent())
             const transformCoordinate = transform(point, this.map.extent.crs, "IGNF:WGS84G")
             const coordinate_with_index: [number, number, number] = [transformCoordinate[0], transformCoordinate[1], index]
             return coordinate_with_index
@@ -685,7 +681,7 @@ export class BuildingLayer {
                     })
                     const serializableFeatures = features_in_key.map((feature) => {
                         // @ts-expect-error
-                        const flatCoordinates = feature.getFlatCoordinates()
+                        const flatCoordinates = feature.getGeometry().getOrientedFlatCoordinates()
                         const properties = feature.getProperties()
                         return {
                             "flatCoordinates": flatCoordinates,
@@ -761,10 +757,9 @@ export class BuildingLayer {
 
         tmpBox3.setFromArray(building.geometry.attributes.position.array)
 
-        building.geometry.boundingBox = tmpBox3
-        building.geometry.boundingSphere = tmpBox3.getBoundingSphere(tmpSphere)
+        building.geometry.boundingBox = tmpBox3.clone()
+        building.geometry.boundingSphere = tmpBox3.getBoundingSphere(tmpSphere).clone()
         building.frustumCulled = true
-        building.updateMatrix()
 
         buildingTile.clear()
         buildingTile.add(building)
@@ -1178,42 +1173,50 @@ const Z = 2;
  * @param elevation - The elevation.
  */
 export function createFloorVertices(
-    coordinates: Array<Array<Array<number>>>,
-    stride: number,
+    coordinates: Array<Array<[number, number, number]>> | Array<Array<Array<[number, number, number]>>>,
     offset: Vector3,
-    elevation: Array<number> | number,
     ignoreZ: boolean,
 ) {
-    // iterate on polygon and holes
-    const holesIndices = [];
+    const holesIndices: Array<number> = [];
+    const positions: Array<number> = [];
     let currentIndex = 0;
-    const positions = [];
-    for (const ring of coordinates) {
-        // NOTE: rings coming from openlayers are auto-closing, so we need to remove the last vertex
-        // of each ring here
-        if (currentIndex > 0) {
-            holesIndices.push(currentIndex);
-        }
-        for (let i = 0; i < ring.length - 1; i++) {
+
+    // Helper pour traiter un seul polygon (anneaux)
+    function processPolygon(rings: Array<[number, number, number]>) {
+        if (currentIndex > 0) holesIndices.push(currentIndex);
+        for (let i = 0; i < rings.length - 1; i++) {
             currentIndex++;
-            const coord = ring[i];
+            const coord = rings[i];
             positions.push(coord[X] - offset.x);
             positions.push(coord[Y] - offset.y);
+
             let z = 0;
             if (!ignoreZ) {
-                if (stride === 3) {
-                    z = coord[Z];
-                } else if (elevation != null) {
-                    z = Array.isArray(elevation) ? elevation[i] : elevation;
-                }
+                z = coord[Z];
+
             }
-            z -= offset.z;
+            z += offset.z;
             positions.push(z);
         }
     }
+
+    // Test si c’est un MultiPolygon
+    if (Array.isArray(coordinates[0][0][0])) {
+        // MultiPolygon
+        for (const polygon of coordinates as Array<Array<Array<[number, number, number]>>>) {
+            for (const ring of polygon) {
+                processPolygon(ring);
+            }
+        }
+    } else {
+        // Polygon
+        for (const ring of coordinates as Array<Array<[number, number, number]>>) {
+            processPolygon(ring);
+        }
+    }
+
     return { flatCoordinates: positions, holes: holesIndices };
 }
-
 
 
 

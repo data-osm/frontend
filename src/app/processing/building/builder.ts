@@ -347,7 +347,7 @@ export function createBuildingPolygons(olFeatures: Feature<Polygon>[]) {
                 areas.push({
                     type: 'area',
                     rings: [ring],
-                    osmReference: olFeature.getProperties()["osmId"],
+                    osmReference: olFeature.getProperties()["osm_id"],
                     elevation: olFeature.getProperties()["elevation"],
                     featureId: parseInt(getUid(olFeature)),
                     descriptor: {
@@ -468,6 +468,7 @@ export class Builder {
 
         const roofParams = this.getRoofParams(noDefaultRoof, this.descriptor.buildingHeight == 4);
         // const roofParams = this.getTemporaryRoofParams(this.descriptor.buildingHeight == 4);
+
 
         const facadeMinHeight = this.descriptor.buildingFoundation ? TERRAINMAXHEIGHT : TERRAINMINHEIGHT;
         const foundationHeight = TERRAINMAXHEIGHT - TERRAINMINHEIGHT;
@@ -678,6 +679,8 @@ export class Builder {
             [ExtrudedTextures.RoofTar]: new Vector2(4, 4),
         };
         const scaleFactor = 1
+
+
         if (buildingWithOneLevel) {
             let id = ExtrudedTextures.RoofConcrete
             let scale = textureIdToScale[id]

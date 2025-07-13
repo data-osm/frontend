@@ -394,8 +394,10 @@ export abstract class AbstractProfilComponent implements OnInit {
         })
 
       const mapExtent = CartoHelper.getMapExtent(this.map)
+      if (mapExtent == undefined) {
+        return
+      }
       const mapSize = mapExtent.dimensions()
-
       this.parametersService.logRenderTimePerFrame(this.frameRenderTime, layers.map((layer) => layer.layer_id), layers.map((layer) => layer.layer_name), mapSize.toArray(), mapExtent.values.join(","), window.location.href).pipe(take(1)).subscribe()
       this.frameRenderTime = {}
     }

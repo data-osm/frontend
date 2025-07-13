@@ -69,27 +69,34 @@ export class MapMousseEvents {
         let data_callback: dataFromClickOnMapInterface[] = []
 
 
-        const normalized = this.instance.canvasToNormalizedCoords(this.instance.eventToCanvasCoords(evt, new Vector2()), new Vector2());
-        const mapCoord = new Vector3(normalized.x, normalized.y, 0).unproject(this.camera);
 
+        // const normalized = this.instance.canvasToNormalizedCoords(this.instance.eventToCanvasCoords(evt, new Vector2()), new Vector2());
+        // const mapCoord = new Vector3(normalized.x, normalized.y, 0).unproject(this.camera);
+        // const result = this.map.getElevation({
+        //     coordinates: new Coordinates(this.map.extent.crs, mapCoord.x, mapCoord.y)
+        // })
+        // let pointElevation: number = undefined
+        // if (result.samples.length > 0) {
+        //     // Let's sort the samples to get the highest resolution sample first
+        //     result.samples.sort((a, b) => a.resolution - b.resolution);
 
-
+        //     pointElevation = result.samples[0].elevation;
+        //     // console.log(elevation, "map elevation")
+        // }
+        // if (pointElevation !== undefined) {
+        //     // mapCoord.setZ(pointElevation)
+        //     const newMapCoord = new Vector3(normalized.x, normalized.y, pointElevation).unproject(this.camera);
+        //     const direction = newMapCoord.sub(this.instance.view.camera.position).normalize();
+        //     const raycaster = new Raycaster(this.instance.view.camera.position, direction);
+        //     pickOptions.raycaster = raycaster
+        //     console.log(newMapCoord, pointElevation, "newMapCoord")
+        // }
         const map_pick_result = this.instance.pickObjectsAt(evt, pickOptions)
         if (map_pick_result.length == 0) {
             return
         }
 
         const mousePositionInMap: Vector3 = map_pick_result[0].point
-        const result = this.map.getElevation({
-            coordinates: new Coordinates(this.map.extent.crs, mousePositionInMap.x, mousePositionInMap.y)
-        })
-        if (result.samples.length > 0) {
-            // Let's sort the samples to get the highest resolution sample first
-            result.samples.sort((a, b) => a.resolution - b.resolution);
-
-            const elevation = result.samples[0].elevation;
-            console.log(elevation, "map elevation")
-        }
 
         // @ts-expect-error
         if (map_pick_result.filter((res) => res.featureUid).length > 0) {
@@ -103,7 +110,6 @@ export class MapMousseEvents {
                         .map(res => [res.featureUid, res])
                 ).values()
             );
-
             for (let i = 0; i < intersects.length; i++) {
                 const intersect = intersects[i]
                 const couche_id = intersect.object.userData.couche_id
@@ -117,7 +123,6 @@ export class MapMousseEvents {
                 } else {
                     descriptionSheetCapabilities = intersect.object.userData.descriptionSheetCapabilities as string
                 }
-
 
                 data_callback.push(
                     {
@@ -138,13 +143,9 @@ export class MapMousseEvents {
 
         }
 
-
         if (data_callback.length > 0) {
             return data_callback
         } else if (map_pick_result.length > 0) {
-            // const buildings = map_pick_result.filter((res) => res.object.type == "Mesh")
-            // buildings.map((b) => (b.object as Mesh).geometry.index.count / 3)
-            // console.log(map_pick_result, "mapHasClicked")
             let layers_clicked: Array<Layer<LayerEvents, LayerGiroUserData>> = []
             for (let index = 0; index < this.map.getLayers().length; index++) {
                 const layer = this.map.getLayers()[index] as Layer<LayerEvents, LayerGiroUserData>;
@@ -164,9 +165,11 @@ export class MapMousseEvents {
                 if (!target) {
                     continue
                 }
-                if (target.renderTarget instanceof WebGLRenderTarget == false) {
-                    continue
-                }
+
+                // if (target.renderTarget instanceof WebGLRenderTarget == false) {
+                //     continue
+                // }
+
                 // only visible layer
                 if (!layer.visible) {
                     continue
