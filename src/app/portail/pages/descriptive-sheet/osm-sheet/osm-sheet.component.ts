@@ -576,7 +576,6 @@ export class OsmSheetComponent implements OnInit, OnChanges {
   }
 
   openUrl(url) {
-    console.log(url)
     window.open(url, '_blank')
   }
 

@@ -6,7 +6,7 @@ import Tile3DMultipolygon from "./tile3d-multipolygon";
 import Tile3DRing, { Tile3DRingType, VectorAreaRing } from "./tile-3d-ring";
 import { BuildingBuilder } from "./building-builder";
 import { getRoofParams } from "./roof-params";
-import { getOMBB } from "./ombb-params";
+import { getOMBB, OMBBResult } from "./ombb-params";
 import { ExtrudedTextures } from "./roof/textures";
 import { getBuildingParams } from "./building-params";
 import { Tile3DFeaturesToBuffersConverter } from "./tile3d-features-to-buffers-converter";
@@ -383,12 +383,15 @@ export class Builder {
     private mercatorScale: number = 1.52122668;
     descriptor: VectorAreaDescriptor
     feature: VectorArea
+    tilePosition: Vec3
     constructor(
-        feature: VectorArea
+        feature: VectorArea,
+        tilePosition: Vector3
     ) {
         this.feature = feature
         this.descriptor = feature.descriptor;
         this.rings = feature.rings;
+        this.tilePosition = new Vec3(tilePosition.x, tilePosition.y, tilePosition.z)
     }
 
 
@@ -408,9 +411,15 @@ export class Builder {
                 this.multipolygon.addRing(new Tile3DRing(type, nodes));
             }
 
-            // if (this.descriptor.ombb) {
-            //     this.multipolygon.setOMBB(this.descriptor.ombb);
-            // }
+            if (this.descriptor.ombb) {
+                const newOmbb = this.descriptor.ombb.map((corner) => {
+                    const newCorner = Vec2.clone(corner)
+                    newCorner.x -= this.tilePosition.x
+                    newCorner.y -= this.tilePosition.y
+                    return newCorner
+                })
+                this.multipolygon.setOMBB(newOmbb as OMBBResult);
+            }
 
             // if (this.descriptor.poi) {
             //     this.multipolygon.setPoleOfInaccessibility(this.descriptor.poi);

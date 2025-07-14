@@ -31,14 +31,14 @@ export type BuildingRoofOrientation = 'along' | 'across';
 export type BuildingFacadeMaterial = 'plaster' | 'brick' | 'wood' | 'glass' | 'cementBlock';
 
 export interface BuildingProperties {
-    "@ombb00": number
-    "@ombb01": number
-    "@ombb10": number
-    "@ombb11": number
-    "@ombb20": number
-    "@ombb21": number
-    "@ombb30": number
-    "@ombb31": number
+    "ombb00": number
+    "ombb01": number
+    "ombb10": number
+    "ombb11": number
+    "ombb20": number
+    "ombb21": number
+    "ombb30": number
+    "ombb31": number
     building_type: string
     color: number
     default_roof: boolean

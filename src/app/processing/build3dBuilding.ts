@@ -85,7 +85,7 @@ export const build3dBuildings = (features: { "properties": {}, "flatCoordinates"
         for (let index = 0; index < vectors_areas.length; index++) {
             const element = vectors_areas[index];
             featuresId.push(element.featureId)
-            const buildingGeometry = new Builder(element).getFeatures();
+            const buildingGeometry = new Builder(element, worldBuildingPosition).getFeatures();
 
             const positions = (buildingGeometry.extruded.positionBuffer as Float32Array)
             for (let i = 2; i < positions.length; i += 3) {

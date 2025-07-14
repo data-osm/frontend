@@ -135,14 +135,11 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
     let listAttributes = []
     let properties = feature.getProperties()
 
-
-
-
     for (const key in properties) {
       if (properties.hasOwnProperty(key) &&
 
         ['number', 'string'].indexOf(typeof properties[key]) != -1 &&
-        ["@ombb00", "@ombb01", "@ombb10", "@ombb11", "@ombb20", "@ombb21", "@ombb30", "@ombb31", "elevation", "layer", "type", "osmType", "osmId_"].indexOf(key) == -1
+        ["ombb00", "ombb01", "ombb10", "ombb11", "ombb20", "ombb21", "ombb30", "ombb31", "elevation", "layer", "type", "osmType", "osm_id_"].indexOf(key) == -1
       ) {
 
         const value = properties[key];
@@ -218,7 +215,7 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
   openUrl(url) {
     this.parametersService.parameter
     // //@ts-expect-error
-    // this.featuresStoreService.setBuildingsToHide(this.object.parent.key, this.features[0].getProperties()['osmId'])
+    // this.featuresStoreService.setBuildingsToHide(this.object.parent.key, this.features[0].getProperties()['osm_id'])
     window.open(url, '_blank')
   }
 
@@ -228,7 +225,7 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
 
   hideBuilding() {
     //@ts-expect-error
-    this.featuresStoreService.setBuildingsToHide(this.object.parent.key, this.feature.getProperties()['osmId'])
+    this.featuresStoreService.setBuildingsToHide(this.object.parent.key, this.feature.getProperties()['osm_id'])
     this.closeModal.emit()
   }
 

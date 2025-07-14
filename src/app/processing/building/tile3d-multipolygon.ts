@@ -72,11 +72,11 @@ export default class Tile3DMultipolygon {
         this.rings.push(ring);
     }
 
-    // public setOMBB(ombb: OMBBResult): void {
+    public setOMBB(ombb: OMBBResult): void {
 
 
-    //     this.cachedOMBB = ombb;
-    // }
+        this.cachedOMBB = ombb;
+    }
 
     public setPoleOfInaccessibility(poi: Vec3): void {
         this.cachedPoleOfInaccessibility = poi;

@@ -248,7 +248,7 @@ export class CartoHelper {
     }
 
     if ((layer.userData.nom) && layer.userData.type_layer) {
-      map.addLayer(layer)
+      return map.addLayer(layer)
     }
 
   }
