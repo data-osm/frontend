@@ -8,14 +8,15 @@ export const environment = {
   primaryColor: '#023f5f',
   // backend: 'https://ws.dataosm.info',
   // url_carto: 'https://tiles.dataosm.info/ows/?map=',
-  backend: 'http://localhost:8000',
+  backend: 'http://localhost:4200',
   url_carto: 'http://localhost:3000/ows/?map=',
   url_frontend: 'http://localhost:4200',
   nom_instance: "OSMdata",
   matomoUrl: 'https://piwik.dataosm.info/',
   matomoSiteId: 4,
-  // building_tile: "https://buildings.dataosm.info/data/data/{z}/{x}/{y}.pbf",
-  building_tile: "http://localhost:7070/maps/osm_data/{z}/{x}/{y}.pbf",
+  building_tile: "https://buildings.dataosm.info/maps/osm_data/{z}/{x}/{y}.pbf",
+  // building_tile: "http://localhost:7070/maps/osm_data/{z}/{x}/{y}.pbf",
+  osm_auth_base_url: "http://127.0.0.1:8000",
   revitURl: ""
 };
 

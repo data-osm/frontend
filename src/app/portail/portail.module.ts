@@ -39,6 +39,8 @@ import { ListAllLayersComponent } from './pages/sidenav-left/sidenave-left-secon
 import { RequestFeedbackComponent } from './pages/request-feedback/request-feedback.component';
 import { ImportDataComponent } from './pages/sidenav-right/import-data/import-data.component';
 import { BuildingSheetComponent } from './pages/descriptive-sheet/building-sheet/building-sheet.component';
+import { UpdateOsmBuildingComponent } from './pages/update-osm-building/update-osm-building.component';
+import { OsmBulkSaveComponent } from '../modal/osm-bulk-save/osm-bulk-save.component';
 
 
 
@@ -78,6 +80,8 @@ import { BuildingSheetComponent } from './pages/descriptive-sheet/building-sheet
     ListAllLayersComponent,
     RequestFeedbackComponent,
     BuildingSheetComponent,
+    UpdateOsmBuildingComponent,
+    OsmBulkSaveComponent,
 
   ],
   imports: [

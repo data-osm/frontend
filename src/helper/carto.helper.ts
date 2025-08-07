@@ -86,6 +86,7 @@ import { posix } from 'path'
 import { TubeLineStringLayer } from '../app/processing/linestring/tube-linestring'
 import { FlatLineStringLayer } from '../app/processing/linestring/flat-linestring'
 import { DataOSMLayer, LayerGiroUserData, LayersInMap, TypeLayer } from './type'
+import RenderFeature from 'ol/render/Feature'
 
 
 /**
@@ -1194,13 +1195,32 @@ export class CartoHelper {
     return window.innerWidth < 450
   }
 
-  panTo(position: Vector3) {
+  panTo(position: Vector3, offsetX: number = 0) {
 
     const offset = new Vector3().subVectors(this.camera.position, this.controls.target);
 
+
+    const el = this.instance.renderer.domElement;
+    const pixelX = offsetX
+    const distance = this.camera.position.distanceTo(this.controls.target);
+
+    const fov = this.camera.fov * Math.PI / 180;
+    const heightHalf = Math.tan(fov / 2) * distance;
+    const widthHalf = heightHalf * (el.clientWidth / el.clientHeight);
+
+    const worldX = (pixelX / el.clientWidth) * 2 * widthHalf;
+
+    const right = new Vector3();
+    this.camera.getWorldDirection(right);
+    right.cross(this.camera.up).normalize();
+
+    const worldOffset = right.multiplyScalar(worldX);
+
+    const finalTarget = position.clone().add(worldOffset);
+
     gsap.to(this.controls.target, {
-      x: position.x,
-      y: position.y,
+      x: finalTarget.x,
+      y: finalTarget.y,
       ease: "power4.in",
       duration: 1,
       onUpdate: () => {
@@ -1901,7 +1921,7 @@ export function getAllFeaturesInVectorTileSource(vectorTileSource: VectorTileSou
 }
 
 export function getFeaturesFromTileCoord(tile: VectorRenderTile, z: number) {
-  const features: FeatureLike[] = []
+  const features: Feature[] = []
   if (tile.tileCoord[0] !== z || tile.getState() !== TileState.LOADED) {
     return features;
   }
@@ -1914,10 +1934,20 @@ export function getFeaturesFromTileCoord(tile: VectorRenderTile, z: number) {
     if (tileFeatures) {
       for (let j = 0, jj = tileFeatures.length; j < jj; ++j) {
         const candidate = tileFeatures[j];
-        const geometry = candidate.getGeometry();
+        let geometry = candidate.getGeometry();
+
+        if (geometry instanceof RenderFeature) {
+          // @ts-expect-error
+          geometry = new Polygon(geometry.getOrientedFlatCoordinates(), 'XY', candidate.ends_)
+        }
+        const feature = new Feature(geometry)
+        // @ts-expect-error
+        feature.ends_ = candidate.ends_
+        const properties = candidate.getProperties()
+        feature.setProperties(properties)
         // return candidate
         // if (intersects(extent, geometry.getExtent())) {
-        features.push(candidate);
+        features.push(feature);
         // }
       }
     }

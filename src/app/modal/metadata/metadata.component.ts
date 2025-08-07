@@ -15,7 +15,7 @@ export interface MetaDataInterface {
   metadata
   nom
   url_prefix
-  exist:boolean
+  exist: boolean
 }
 
 
@@ -28,70 +28,70 @@ export interface MetaDataInterface {
  * Metadata Modal
  */
 export class MetadataLayerComponent implements OnInit {
-  onInitInstance:()=>void
-  metadata$:Observable<Metadata>
-  osmQuerry$:Observable<OsmQuerry[]>
-  sigFiles$:Observable<SigFile[]>
-  environment=environment
-  
+  onInitInstance: () => void
+  metadata$: Observable<Metadata>
+  osmQuerry$: Observable<OsmQuerry[]>
+  sigFiles$: Observable<SigFile[]>
+  environment = environment
+
   constructor(
     public dialogRef: MatDialogRef<MetadataLayerComponent>,
     @Inject(MAT_DIALOG_DATA) public layer: Layer,
     private mapsService: MapsService,
     private osmQuerryService: OsmQuerryService,
     private sigFileService: SigFileService,
-    public notifier:NotifierService
-  ) { 
-console.log(this.layer)
-    const onInit:ReplaySubject<void> = new ReplaySubject(1)
-    this.onInitInstance = ()=>{
+    public notifier: NotifierService
+  ) {
+
+    const onInit: ReplaySubject<void> = new ReplaySubject(1)
+    this.onInitInstance = () => {
       onInit.next()
     }
     this.metadata$ = onInit.pipe(
-      switchMap(()=>{
+      switchMap(() => {
         console.log(this.layer)
         return this.mapsService.getLayerMetadata(this.layer.layer_id).pipe(
-          catchError((error:HttpErrorResponse) => { 
+          catchError((error: HttpErrorResponse) => {
             if (error.status != 404) {
               this.notifier.notify("error", "An error occured while loading metadata ");
-            }else{
+            } else {
               // this.notifier.notify("error", " This layer does'nt have a metadata yet ! ");
             }
-            return EMPTY 
+            return EMPTY
           })
         )
       })
     )
 
-    this.osmQuerry$  = onInit.pipe(
-      map(()=>{
-       return this.layer.providers.map((provider)=>{
+    this.osmQuerry$ = onInit.pipe(
+      map(() => {
+        return this.layer.providers.map((provider) => {
           return this.osmQuerryService.getOsmQuerry(provider.vp_id).pipe(
-            catchError(()=>EMPTY)
+            catchError(() => EMPTY)
           )
-        }) 
+        })
       }),
-      concatMap((value)=>{
+      concatMap((value) => {
         return merge(...value).pipe(toArray())
       }),
-      tap((values)=>{
-        
+      tap((values) => {
+
       })
     )
 
-    this.sigFiles$  = onInit.pipe(
-      map(()=>{
-       return this.layer.providers.map((provider)=>{
+    this.sigFiles$ = onInit.pipe(
+      map(() => {
+        return this.layer.providers.map((provider) => {
           return this.sigFileService.getSigFile(provider.vp_id).pipe(
-            catchError(()=>EMPTY)
+            catchError(() => EMPTY)
           )
-        }) 
+        })
       }),
-      concatMap((value)=>{
+      concatMap((value) => {
         return merge(...value).pipe(toArray())
       }),
-      tap((values)=>{
-        
+      tap((values) => {
+
       })
     )
 

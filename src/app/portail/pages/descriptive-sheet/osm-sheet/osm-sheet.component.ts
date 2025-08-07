@@ -29,7 +29,6 @@ import {
 import { BufferAttribute, BufferGeometry, Camera, Clock, Color, InstancedBufferAttribute, InstancedBufferGeometry, MathUtils, Mesh, MeshStandardMaterial, Object3D, Object3DEventMap, PerspectiveCamera, ShaderMaterial, Vector2, Vector3 } from 'three';
 import { FeaturesStoreService } from '../../../../data/store/features.store.service';
 import { AppInjector } from '../../../../../helper/app-injector.helper';
-import { createFloorVertices } from '../../../../processing/buildings';
 import Earcut from 'earcut';
 import { Line2, LineGeometry, LineMaterial, MapControls } from 'three/examples/jsm/Addons';
 import { createPositionBuffer, ensureLineStringNotClosed, ensureMultiLineStringNotClosed, subdivideLineString, subdivideMultiLineString } from '../../../../processing/linestring/utils';

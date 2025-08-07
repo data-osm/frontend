@@ -31,6 +31,25 @@ import { MetadataLayerComponent } from './modal/metadata/metadata.component';
 import { MatomoConsentMode, NgxMatomoModule, NgxMatomoRouterModule, } from 'ngx-matomo-client';
 import { environment } from '../environments/environment';
 import { DataOsmLayersServiceService } from './services/data-som-layers-service/data-som-layers-service.service';
+import { OsmLoginComponent } from './modal/osm-login/osm-login.component';
+import { H } from 'highlight.run';
+
+
+if (environment.production) {
+  // H.init('xdn33xle', {
+  //   environment: 'production',
+  //   version: '20',
+  //   tracingOrigins: [environment.backend],
+  //   disableBackgroundRecording: true,
+  //   disableSessionRecording: true,
+  //   privacySetting: "strict",
+  //   enableCanvasRecording: false,
+  //   inlineStylesheet: false,
+  //   //@ts-expect-error
+  //   sessionCookie: false,
+  //   networkRecording: false,
+  // });
+}
 @NgModule({
   declarations: [
     AppComponent,
@@ -40,6 +59,7 @@ import { DataOsmLayersServiceService } from './services/data-som-layers-service/
 
     ConfirmationDialogComponent,
     MetadataLayerComponent,
+    OsmLoginComponent,
   ],
   imports: [
     ShareButtonsModule,

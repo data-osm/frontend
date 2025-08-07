@@ -158,41 +158,144 @@ export abstract class AbstractProfilComponent implements OnInit {
     protected dialog: MatDialog,
     protected baseMapService: BaseMapsService,
     protected dataOsmLayersService: DataOsmLayersServiceService,
-    protected readonly tracker: MatomoTracker
+    protected readonly tracker: MatomoTracker,
   ) {
     this.notifier = notifierService;
 
 
     const onInit: Subject<void> = new ReplaySubject<void>(1)
+
     this.onInitInstance = () => {
       onInit.next()
+      onInit.pipe(
+        take(1),
+        switchMap(() => {
+          return this.baseMapService.getCSRFToken()
+        }),
+        tap(() => {
+
+
+          this.initialiseProfilGroups()
+
+          this.initialiseListAppRegions()
+
+          combineLatest(onInit, this.activatedRoute.queryParams).pipe(
+            take(1),
+            switchMap((parameters) => {
+              return this.getAppExtentGeometry(parameters).pipe(
+                map((appExtent) => {
+                  return { parameters, appExtent }
+                })
+              )
+            }),
+            tap((data) => {
+              this.initialiseMapCenter(data.parameters, data.appExtent)
+              this.updateCurrentUrl()
+              this.initialiseClickEvent()
+            }),
+            delay(500),
+            tap(() => {
+              this.initialiseGroundTileProcessing()
+
+            })
+          ).subscribe()
+
+          combineLatest(this.activatedRoute.queryParams, this.groups$).pipe(
+            takeUntil(this.destroyed$),
+            switchMap((data) => {
+              return this.getSharedLayersInUrl(data[0], data[1]).pipe(
+                map((layers_groups) => {
+                  return { "layers_groups": layers_groups, "groups": data[1] }
+                })
+              )
+            }),
+            switchMap((data) => {
+
+              const layers_groups = data.layers_groups
+
+              // if no layer have been shared, we display the default/active layer of the profil
+              const principalGroup = data.groups.find((group) => group.principal)
+
+              if (layers_groups.length == 0 && principalGroup) {
+                return this.mapService.getAllPrincipalLayersFromGroup(
+                  principalGroup.group_id,
+                  true
+                ).pipe(
+                  filter((layers) => layers.length > 0),
+                  map((layers) => {
+                    return layers.map((layer) => {
+                      return {
+                        layer: layer,
+                        group: principalGroup
+                      }
+                    })
+                  })
+                )
+              } else if (layers_groups.length > 0) {
+                return of(layers_groups)
+              } else {
+                return EMPTY
+              }
+            }),
+            filter(() => {
+              // Ensure base map is already add to map : map is ready to receive layers
+              let prinicpalBaseMapLoaded = new CartoHelper(this.map).getAllLayersInToc()
+                .filter((layerProp) => layerProp.type_layer == 'geosmCatalogue')
+                .filter((layerProp) => layerProp.properties['type'] == 'carte')
+                .map((layerProp) => this.dataOsmLayersService.getBasemap(layerProp.properties['couche_id']))
+                .filter((baseMap) => baseMap && baseMap.principal)
+
+              if (prinicpalBaseMapLoaded.length == 0) {
+                // https://demo.openstreetmap.fr/map?profil=1&layers=8,15,layer;333,15,layer;3,15,layer;406,15,layer&pos=266643.6,6242730.5,428.7,265357,6243023.6,0
+                throw 'Basemap not yet loaded'
+              }
+              return prinicpalBaseMapLoaded.length > 0
+            }),
+            switchMap((layers_groups) => {
+              const controlsIsDefine$ = new BehaviorSubject(this.controls != undefined)
+              const updateControlSubscription = interval(100).subscribe(() => {
+                controlsIsDefine$.next(this.controls != undefined);
+              });
+              return controlsIsDefine$.pipe(
+                filter((controlIsDefine) => controlIsDefine),
+                map(() => {
+                  updateControlSubscription.unsubscribe()
+                  return layers_groups
+                }),
+              );
+            }),
+            delay(500),
+            tap((layers_groups) => {
+
+              layers_groups.map((layer_group, index) => {
+
+                setTimeout(() => {
+                  if (typeof layer_group == 'number') {
+                    let baseMap = this.dataOsmLayersService.getBasemap(layer_group)
+                    if (baseMap) {
+                      this.dataOsmLayersService.addBaseMap(baseMap, this.map, {
+                        share: true,
+                        metadata: true,
+                        opacity: true,
+                        removable: true
+                      })
+                    }
+                  } else {
+                    this.dataOsmLayersService.addLayer(layer_group.layer, this.map, layer_group.group)
+                  }
+                }, index * 500);
+              })
+            })
+          ).subscribe()
+        })
+      ).subscribe()
+
     }
 
     // Handle url query params when app is open
-    combineLatest(onInit, this.activatedRoute.queryParams).pipe(
-      take(1),
-      switchMap((parameters) => {
-        return this.getAppExtentGeometry(parameters).pipe(
-          map((appExtent) => {
-            return { parameters, appExtent }
-          })
-        )
-      }),
-      tap((data) => {
-        this.initialiseMapCenter(data.parameters, data.appExtent)
-        this.updateCurrentUrl()
-        this.initialiseClickEvent()
-      }),
-      delay(500),
-      tap(() => {
-        this.initialiseGroundTileProcessing()
 
-      })
-    ).subscribe()
 
-    this.initialiseProfilGroups()
 
-    this.initialiseListAppRegions()
 
     this.eventsListener.controlsAdded.pipe(
       takeUntil(this.destroyed$),
@@ -203,93 +306,7 @@ export abstract class AbstractProfilComponent implements OnInit {
     ).subscribe()
 
     // Retrieve and display shared layers if exist, or default layers of the profil if exist
-    combineLatest(this.activatedRoute.queryParams, this.groups$).pipe(
-      takeUntil(this.destroyed$),
-      switchMap((data) => {
-        return this.getSharedLayersInUrl(data[0], data[1]).pipe(
-          map((layers_groups) => {
-            return { "layers_groups": layers_groups, "groups": data[1] }
-          })
-        )
-      }),
-      switchMap((data) => {
 
-        const layers_groups = data.layers_groups
-
-        // if no layer have been shared, we display the default/active layer of the profil
-        const principalGroup = data.groups.find((group) => group.principal)
-
-        if (layers_groups.length == 0 && principalGroup) {
-          return this.mapService.getAllPrincipalLayersFromGroup(
-            principalGroup.group_id,
-            true
-          ).pipe(
-            filter((layers) => layers.length > 0),
-            map((layers) => {
-              return layers.map((layer) => {
-                return {
-                  layer: layer,
-                  group: principalGroup
-                }
-              })
-            })
-          )
-        } else if (layers_groups.length > 0) {
-          return of(layers_groups)
-        } else {
-          return EMPTY
-        }
-      }),
-      filter(() => {
-        // Ensure base map is already add to map : map is ready to receive layers
-        let prinicpalBaseMapLoaded = new CartoHelper(this.map).getAllLayersInToc()
-          .filter((layerProp) => layerProp.type_layer == 'geosmCatalogue')
-          .filter((layerProp) => layerProp.properties['type'] == 'carte')
-          .map((layerProp) => this.dataOsmLayersService.getBasemap(layerProp.properties['couche_id']))
-          .filter((baseMap) => baseMap && baseMap.principal)
-
-        if (prinicpalBaseMapLoaded.length == 0) {
-          // https://demo.openstreetmap.fr/map?profil=1&layers=8,15,layer;333,15,layer;3,15,layer;406,15,layer&pos=266643.6,6242730.5,428.7,265357,6243023.6,0
-          throw 'Basemap not yet loaded'
-        }
-        return prinicpalBaseMapLoaded.length > 0
-      }),
-      switchMap((layers_groups) => {
-        const controlsIsDefine$ = new BehaviorSubject(this.controls != undefined)
-        const updateControlSubscription = interval(100).subscribe(() => {
-          controlsIsDefine$.next(this.controls != undefined);
-        });
-        return controlsIsDefine$.pipe(
-          filter((controlIsDefine) => controlIsDefine),
-          map(() => {
-            updateControlSubscription.unsubscribe()
-            return layers_groups
-          }),
-        );
-      }),
-      delay(500),
-      tap((layers_groups) => {
-
-        layers_groups.map((layer_group, index) => {
-
-          setTimeout(() => {
-            if (typeof layer_group == 'number') {
-              let baseMap = this.dataOsmLayersService.getBasemap(layer_group)
-              if (baseMap) {
-                this.dataOsmLayersService.addBaseMap(baseMap, this.map, {
-                  share: true,
-                  metadata: true,
-                  opacity: true,
-                  removable: true
-                })
-              }
-            } else {
-              this.dataOsmLayersService.addLayer(layer_group.layer, this.map, layer_group.group)
-            }
-          }, index * 500);
-        })
-      })
-    ).subscribe()
 
   }
 
@@ -320,6 +337,20 @@ export abstract class AbstractProfilComponent implements OnInit {
     if (!environment.production) {
       this.instance.renderer.debug.checkShaderErrors = true
     }
+
+    // We prevent Firefox effect : Firefox sometimes create an ghost image
+    // when one drag the map
+    const canvas = this.instance.renderer.domElement;
+    canvas.setAttribute('draggable', 'false');
+    canvas.addEventListener('dragstart', e => e.preventDefault());
+
+    canvas.style.userSelect = 'none';
+    // @ts-expect-error
+    canvas.style.MozUserSelect = 'none';  // Firefox
+    // @ts-expect-error
+    canvas.style.WebkitUserSelect = 'none';
+    canvas.style.touchAction = 'none';
+
 
     this.instance.add(this.map);
 

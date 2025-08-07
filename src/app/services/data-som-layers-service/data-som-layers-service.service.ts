@@ -89,16 +89,19 @@ export class DataOsmLayersServiceService {
       couche_id: layer_id,
       type: 'couche'
     })
-
-    while (layers.length > 0) {
-      new CartoHelper(map).removeLayerToMap(layers[0] as any)
-      this.tracker.trackEvent("Layer", "remove", layers[0].name, layer_id)
-
-      layers = new CartoHelper(map).getLayerByPropertiesCatalogueGeosm({
-        couche_id: layer_id,
-        type: 'couche'
-      })
+    for (let i = 0; i < layers.length; i++) {
+      new CartoHelper(map).removeLayerToMap(layers[i] as any)
+      this.tracker.trackEvent("Layer", "remove", layers[i].name, layer_id)
     }
+    // while (layers.length > 0) {
+    // new CartoHelper(map).removeLayerToMap(layers[0] as any)
+    //   this.tracker.trackEvent("Layer", "remove", layers[0].name, layer_id)
+
+    //   layers = new CartoHelper(map).getLayerByPropertiesCatalogueGeosm({
+    //     couche_id: layer_id,
+    //     type: 'couche'
+    //   })
+    // }
     this.destroyLayer(layer_id)
   }
 

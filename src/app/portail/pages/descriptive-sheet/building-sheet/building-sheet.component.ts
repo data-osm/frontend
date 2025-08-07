@@ -10,8 +10,8 @@ import {
   VectorSource
 } from "../../../../giro-3d-module"
 import { Coordinate, Feature } from '../../../../ol-module';
-import { FeatureForSheet } from '../descriptive-sheet.component';
-import { map, Observable, ReplaySubject, Subject, take } from 'rxjs';
+import { DescriptiveSheetComponent, FeatureForSheet } from '../descriptive-sheet.component';
+import { catchError, EMPTY, map, Observable, ReplaySubject, Subject, take, takeUntil, tap } from 'rxjs';
 import { NotifierService } from "angular-notifier";
 import { AttributeInterface, ConfigTagsOsm } from '../osm-sheet/osm-sheet.component';
 import { MatLegacyChip as MatChip, MatLegacyChipList as MatChipList } from '@angular/material/legacy-chips';
@@ -25,6 +25,14 @@ import { buffer, getCenter } from 'ol/extent';
 import { FeaturesStoreService } from '../../../../data/store/features.store.service';
 import { ParametersService } from '../../../../data/services/parameters.service';
 import { BuildingProperties } from '../../../../processing/building/type';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { environment } from '../../../../../environments/environment';
+import { OsmService } from '../../../../data/services/osm.service';
+import { OsmLoginComponent } from '../../../../modal/osm-login/osm-login.component';
+import { MatomoTracker } from 'ngx-matomo-client';
+import { formatColor, formatFeatureAttributes, getFields, getOsmLink } from './utils';
+import { OSMUpdateStoreService } from '../../../../data/store/osm-update.store.service';
+
 @Component({
   selector: 'app-building-sheet',
   templateUrl: './building-sheet.component.html',
@@ -63,16 +71,25 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
    */
   selectedFeature$: Observable<AttributeInterface[]>
 
+  isEditing = false
 
+  private _oldModalContentHeight: number
 
+  getOsmLink: (feature: Feature) => string
+  formatColor: (decimalColor: number) => string
   constructor(
     public backendApiService: BackendApiService,
     private featuresStoreService: FeaturesStoreService,
     private parametersService: ParametersService,
     notifierService: NotifierService,
-    private http: HttpClient,
-    private cdRef: ChangeDetectorRef
+    public dialog: MatDialog,
+    private osmService: OsmService,
+    private cdRef: ChangeDetectorRef,
+    private readonly tracker: MatomoTracker,
+    private osmUpdateStoreService: OSMUpdateStoreService
   ) {
+    this.getOsmLink = getOsmLink
+    this.formatColor = formatColor
     this.notifier = notifierService;
 
     const onInit: Subject<void> = new ReplaySubject<void>(1)
@@ -83,14 +100,24 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
     this.selectedFeature$ = onInit.pipe(
       map(() => {
         const instance = this.map.instance
-
+        const properties = (this.feature.getProperties() as BuildingProperties)
+        const parentAndChildren = properties.parent_and_children ?? undefined
+        if (Boolean(parentAndChildren) == true) {
+          console.log(JSON.parse(parentAndChildren).find((c) => {
+            return (c.role == 'outer' || c.role == 'outline')
+          }))
+        }
         // @ts-expect-error
         if (this.object && this.object.isSelectable == true) {
           // @ts-expect-error
-          this.object.setFeatureUidSelected(getUid(this.feature))
+          this.object.setFeatureUidSelected(properties.osm_id)
           instance.notifyChange([this.object])
         }
-        return this.formatFeatureAttributes(this.feature)
+        const buildingCount = parseInt(localStorage.getItem("buildingCount")) || 0
+        if (buildingCount > 3 && this.should_display_rnb_edit()) {
+          this.startEditBuilding()
+        }
+        return formatFeatureAttributes(this.feature)
       })
     )
   }
@@ -100,8 +127,6 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    //Called before any other lifecycle hook. Use it to inject dependencies, but avoid any serious work here.
-    //Add '${implements OnChanges}' to the class.
 
     if (changes.object) {
       if (changes.object.previousValue) {
@@ -111,6 +136,8 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
     }
 
   }
+
+
 
   removeFeatureInMap(object: Object3D) {
     // @ts-expect-error
@@ -128,44 +155,33 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
 
   }
 
-  /**
-   * Format feature attributes
-   */
-  formatFeatureAttributes(feature: Feature): AttributeInterface[] {
-    let listAttributes = []
-    let properties = feature.getProperties()
-
-    for (const key in properties) {
-      if (properties.hasOwnProperty(key) &&
-
-        ['number', 'string'].indexOf(typeof properties[key]) != -1 &&
-        ["ombb00", "ombb01", "ombb10", "ombb11", "ombb20", "ombb21", "ombb30", "ombb31", "elevation", "layer", "type", "osmType", "osm_id_"].indexOf(key) == -1
-      ) {
-
-        const value = properties[key];
-
-        var positionOfKeyInListAttribute = manageDataHelper.isAttributesInObjectOfAnArray(listAttributes, key, value)
-        if (positionOfKeyInListAttribute) {
-          listAttributes.splice(positionOfKeyInListAttribute, 1, {
-            field: key,
-            value: value,
-            display: true
-          })
-        } else {
-          listAttributes.push({
-            field: key,
-            value: value,
-            display: true
-          })
-        }
-
-
-
-      }
+  should_display_rnb_edit() {
+    if (!this.osmUpdateStoreService.isOsmBuildingUpdateEnabled) {
+      return false
     }
-    return listAttributes
+    if (CartoHelper.isMobile()) {
+      return false
+    }
+    if (this.feature === undefined) {
+      return false
+    }
+    const properties = this.feature.getProperties() as BuildingProperties
+
+    // if (Boolean(properties.building) == false) {
+    //   return false
+    // }
+    if (properties.rnb) {
+      return false
+    }
+
+    if (properties.match_rnb_ids) {
+      return true
+    }
+    return false
 
   }
+
+
 
   getNameOfFeature(feature: Feature, index: number): string {
     let properties = feature.getProperties()
@@ -178,18 +194,9 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
    * find OSM link of this feature
    * @return string
    */
-  getOsmLink(feature: Feature) {
-    let properties = feature.getProperties() as BuildingProperties
-    const osmType = properties.osm_type
 
-    let osmId = properties.osm_id
-    return `https://www.openstreetmap.org/${osmType.toLowerCase()}/${osmId}`
 
-  }
 
-  formatColor(decimalColor: number) {
-    return '#' + decimalColor.toString(16).padStart(6, '0');
-  }
 
   /**
  * Format area
@@ -213,9 +220,6 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
   }
 
   openUrl(url) {
-    this.parametersService.parameter
-    // //@ts-expect-error
-    // this.featuresStoreService.setBuildingsToHide(this.object.parent.key, this.features[0].getProperties()['osm_id'])
     window.open(url, '_blank')
   }
 
@@ -244,7 +248,6 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
   zoomOnFeatureExtent() {
     if (this.feature && this.feature.getGeometry()) {
       const geometry = this.feature.getGeometry()
-      // if (geometry.getType() == "Point" || geometry.getType() == "MultiPoint") {
       let ol_extent = buffer(geometry.getExtent(), geometry.getType() == "Point" ? 20 : 20)
 
       const coordinate = getCenter(ol_extent)
@@ -255,11 +258,83 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
         0
       ))
 
-      // } else {
-      //   let cartoClass = new CartoHelper(this.map)
-      //   cartoClass.zoomToExtent(CartoHelper.olGeometryToGiroExtent(geometry), 16)
-
-      // }
     }
+  }
+
+  getOsmUserInfo() {
+    return this.osmService.getOsmUserInfo()
+  }
+
+  stopEditBuilding() {
+    this.isEditing = false
+    this.onInitInstance()
+    for (let index = 0; index < this.dialog.openDialogs.length; index++) {
+      const elementDialog = this.dialog.openDialogs[index];
+
+      if (elementDialog.componentInstance instanceof DescriptiveSheetComponent && document.getElementById(elementDialog.id) && document.getElementById(elementDialog.id).parentElement) {
+        elementDialog.updateSize(
+          (window.innerWidth / 3) + "px",
+          (window.innerHeight / 3) + "px"
+        )
+        elementDialog.updatePosition({
+          top: '60px',
+          left: (window.innerWidth / 2 - 400 / 2) + 'px'
+        })
+        try {
+          // @ts-expect-error
+          elementDialog._containerInstance._elementRef.nativeElement.querySelector(".building-descriptive-sheet-content").style.setProperty("height", (this._oldModalContentHeight || 300) + "px", "important")
+        } catch (error) {
+
+        }
+        // @ts-expect-error
+        elementDialog._containerInstance._elementRef.nativeElement.parentElement.style.maxHeight = window.innerHeight + "px"
+
+      }
+    }
+  }
+
+  startEditBuilding() {
+    this.tracker.trackEvent("edit", "building")
+
+    this.getOsmUserInfo().pipe(
+      takeUntil(this.destroyed$),
+      catchError((error) => {
+        this.dialog.open(OsmLoginComponent, { minWidth: 400 })
+        return EMPTY
+      }),
+      tap(() => {
+        for (let index = 0; index < this.dialog.openDialogs.length; index++) {
+          const elementDialog = this.dialog.openDialogs[index];
+
+          if (elementDialog.componentInstance instanceof DescriptiveSheetComponent && document.getElementById(elementDialog.id) && document.getElementById(elementDialog.id).parentElement) {
+            elementDialog.updateSize(
+              (window.innerWidth / 2) + "px",
+              window.innerHeight + "px"
+            )
+            elementDialog.updatePosition({
+              top: "0px",
+              left: "0px"
+            })
+            try {
+
+              // @ts-expect-error 
+              this._oldModalContentHeight = elementDialog._containerInstance._elementRef.nativeElement.querySelector(".building-descriptive-sheet-content").clientHeight
+              // @ts-expect-error
+              elementDialog._containerInstance._elementRef.nativeElement.querySelector(".building-descriptive-sheet-content").style.setProperty("height", (window.innerHeight - 80) + "px", "important")
+            } catch (error) {
+
+            }
+            // @ts-expect-error
+            elementDialog._containerInstance._elementRef.nativeElement.parentElement.style.maxHeight = window.innerHeight + "px"
+
+            this.isEditing = true
+            const buildingCount = parseInt(localStorage.getItem("buildingCount")) || 0
+            localStorage.setItem("buildingCount", (buildingCount + 1).toString())
+          }
+        }
+      })
+    ).subscribe()
+
+
   }
 }

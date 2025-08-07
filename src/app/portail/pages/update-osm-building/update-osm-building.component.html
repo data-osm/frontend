@@ -1,0 +1,83 @@
+<div class="text-center" *ngIf="featureToUpdate">
+    <div class="text-center descriptive-sheet-body-header-btn " style="margin-top: 10px;">
+
+        <button [matTooltip]="'OpenStreetMap'" mat-mini-fab class="descriptive-sheet-body-header-btn-osm"
+            (click)="openUrl(getOsmLink(featureToUpdate))">
+            <img src="assets/icones/descriptive-sheet/Logo_mono.svg" alt="" srcset=""
+                style="margin-top: -6px;height: 25px">
+        </button>
+    </div>
+
+    <ng-container *ngFor="let property of selectedFeature;let i = index">
+        <ng-container *ngIf="property.display ">
+            <div fxLayout class="descriptive-sheet-body" style="margin-bottom: 5px;">
+                <div fxFlex="38%" class="attribute">
+                    <span class="attribute-title"> {{ property.field| translate }} </span>
+                    <span class="attribute-two-points"> : </span>
+                </div>
+
+                <div fxFlex class="attribute-value">
+                    <div *ngIf="!(property.field == 'color' || property.field == 'roo_Color')"
+                        [innerHTML]="property.value"> </div>
+
+
+                    <div style="padding-left: 5px;display: flex;"
+                        *ngIf="property.field == 'color' || property.field == 'roo_color'">
+                        <span>{{formatColor(property.value)}}</span>
+                        <div style="height: 30px;width: 150px;display: flex;margin-left: 10px;"
+                            [ngStyle]="{'background-color': formatColor(property.value)}"> </div>
+                    </div>
+
+                </div>
+            </div>
+        </ng-container>
+    </ng-container>
+</div>
+
+
+<div>
+    <div id="osmMapDiv" #osmMapDiv>
+
+        <input id="osmMapDivSwipe" type="range" style="width: 100%" #osmMapDivSwipe>
+    </div>
+
+    <div id="popup" class="ol-popup" #osmPopup>
+        <a id="popup-closer" class="ol-popup-closer"></a>
+        <div id="popup-content" class="popup-content"></div>
+    </div>
+    <p class="bold" style="font-size: 15px;">
+        <span> Score de rapprochement : </span>
+        {{featureToUpdate.getProperties()["match_rnb_score"] * 100}} %
+    </p>
+    <form [formGroup]="osmForm">
+        <mat-form-field appearance="outline" class="osm-form" style="width: 100%;">
+            <mat-label> ref:FR:RNB</mat-label>
+            <input matInput formControlName="rnb">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="osm-form" style="width: 100%;">
+            <mat-label> diff:ref:FR:RNB </mat-label>
+            <mat-select formControlName="diff_rnb">
+                <mat-option [value]="diff_rnb_value.value" *ngFor="let diff_rnb_value of diff_rnb_values">
+                    ({{diff_rnb_value.value}}) {{diff_rnb_value.description}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+    </form>
+</div>
+
+<ng-container *ngIf="canGoToNExtFeature()[0]">
+    <p class="bold red" style="font-size: 15px;">{{canGoToNExtFeature()[1]}} </p>
+</ng-container>
+
+<div fxLayout fxLayoutGap="15px" fxLayoutAlign="center">
+    <button fxFlex="40%" mat-flat-button [disabled]="!osmForm.valid" class="black save-to-osm"
+        (click)="ignoreAndGoToNextFeature()">
+        Ignorer et continuer
+    </button>
+    <button fxFlex="40%" mat-flat-button [disabled]="!osmForm.valid || canGoToNExtFeature()[0]"
+        class="white save-to-osm" color="accent" (click)="saveAndGoToNextFeature()">
+        Sauvegarder et continuer
+    </button>
+</div>

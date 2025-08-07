@@ -294,8 +294,16 @@ export class SelectableMesh extends Mesh<BufferGeometry, ShaderMaterial, Object3
 
     }
 
+    get isSelected() {
+        return Boolean(this.material.uniforms.uFeatureUidSelected.value)
+    }
+
+    hasFeatureId(id: number) {
+        return this.geometry.attributes.aFeatureUid.array.includes(id)
+    }
+
     setFeatureUidSelected(uid: number) {
-        this.material.uniforms.uFeatureUidSelected.value = parseFloat(uid.toString())
+        this.material.uniforms.uFeatureUidSelected.value = parseInt(uid.toString())
         this.lockClearFeatureSelected = true
         setTimeout(() => {
             this.lockClearFeatureSelected = false
@@ -478,6 +486,7 @@ export class SelectableMesh extends Mesh<BufferGeometry, ShaderMaterial, Object3
 
                         intersection.faceIndex = Math.floor(i / 3); // triangle number in non-indexed buffer semantics
                         intersection.featureUid = this.geometry.attributes.aFeatureUid.getX(i)
+                        // console.log(this.geometry.attributes.aFeatureUid.array.includes(69221085), i, this.geometry.attributes.aFeatureUid.array.length)
                         intersects.push(intersection);
 
                     }

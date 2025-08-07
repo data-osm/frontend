@@ -86,7 +86,8 @@ export class ManageCompHelper {
       data: data,
       hasBackdrop: false,
       autoFocus: false,
-      position: position
+      position: position,
+      panelClass: ['dialog-primary-bg', "dialog-no-overflow"],
     }
 
     if (CartoHelper.isMobile()) {

@@ -1,0 +1,5 @@
+<button mat-raised-button color="accent" class="white bulk-save" (click)="bulkSave()" [disabled]="_loading">
+    Sauvegarder les modifications sur OpenStreetMap
+    ({{osmUpdateStoreService.osmFeaturesInUpdate.length}})
+</button>
+<notifier-container></notifier-container>

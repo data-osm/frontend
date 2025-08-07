@@ -55,6 +55,10 @@ export function getBuildingParams(
     buildingRoofColor: number;
     buildingWindows: boolean;
     buildingFoundation: boolean;
+    rnb: string
+    match_rnb_ids: string;
+    is_part: boolean;
+    building: string
 } {
     const fallbackLevels = 1;
 
@@ -127,6 +131,10 @@ export function getBuildingParams(
         buildingRoofMaterial: roofParams.material,
         buildingRoofColor: roofParams.color,
         buildingWindows: windows,
-        buildingFoundation: hasFoundation
+        buildingFoundation: hasFoundation,
+        rnb: building_properties.rnb,
+        match_rnb_ids: building_properties.match_rnb_ids,
+        is_part: building_properties.is_part,
+        building: building_properties.building
     };
 }

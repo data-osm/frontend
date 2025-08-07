@@ -27,6 +27,7 @@ import { InstancedBufferGeometry, Group as ThreeGroup, Mesh, Object3DEventMap, P
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { fromInstanceGiroEvent, fromMapGiroEvent } from '../../../shared/class/fromGiroEvent';
 import { manageDataHelper } from '../../../../helper/manage-data.helper';
+import { MatomoTracker } from 'ngx-matomo-client';
 /**
  * interface of the model to display a sheet properties
  */
@@ -167,6 +168,8 @@ export class DescriptiveSheetComponent implements OnInit {
     if (event.selected) {
       this.selectedEntityKey = null
       setTimeout(() => {
+
+        this.tracker.trackEvent("open", "feature", entity.data.type)
         this.selectedEntity = entity
         this.selectedEntityKey = Math.random()
         this.cdRef.detectChanges();
@@ -180,7 +183,8 @@ export class DescriptiveSheetComponent implements OnInit {
     public dialogRef: MatDialogRef<DescriptiveSheetComponent>,
     public dataOsmLayersServiceService: DataOsmLayersServiceService,
     private http: HttpClient,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    protected readonly tracker: MatomoTracker,
     // public manageCompHelper:ManageCompHelper,
     // public ShareServiceService:ShareServiceService
   ) {

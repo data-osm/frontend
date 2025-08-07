@@ -102,6 +102,7 @@ export default async function listElevation(coordinates_with_index: Array<[numbe
     // return _getCapabilities(CAPABILITIES_URL).then(async (capabilities) => {
     const olOptions = optionsFromCapabilities(capabilities, { layer: ELEVATION_LAYER });
 
+
     const source = new WMTS(olOptions)
 
     // Don't know why the origin_ is not set by OL
@@ -140,7 +141,6 @@ export default async function listElevation(coordinates_with_index: Array<[numbe
             }
         })
     );
-
 
     return elevationWithIndex
 

@@ -67,9 +67,6 @@ export const build3dBuildings = (features: { "properties": {}, "flatCoordinates"
         polygon.setCoordinates(newOuterAndInnerCoordinates)
         const olFeature = new Feature(polygon)
         olFeature.setProperties(feature.properties)
-        // @ts-expect-error
-        olFeature.ol_uid = feature.feature_id
-        // olFeature.setId(feature.feature_id)
         return olFeature
     })
 
@@ -84,7 +81,7 @@ export const build3dBuildings = (features: { "properties": {}, "flatCoordinates"
 
         for (let index = 0; index < vectors_areas.length; index++) {
             const element = vectors_areas[index];
-            featuresId.push(element.featureId)
+            featuresId.push(element.osmReference)
             const buildingGeometry = new Builder(element, worldBuildingPosition).getFeatures();
 
             const positions = (buildingGeometry.extruded.positionBuffer as Float32Array)
@@ -100,13 +97,20 @@ export const build3dBuildings = (features: { "properties": {}, "flatCoordinates"
             const buildingGeometry = new BufferGeometry();
 
             const colorBuffer = Float32Array.from(extrudedBuilding.colorBuffer)
+            const addOutLine = Int32Array.from({ length: (extrudedBuilding.positionBuffer as Float32Array).length / 3 }, () => {
+                if (Boolean(vectors_areas[index].descriptor.rnb) == false && Boolean(vectors_areas[index].descriptor.match_rnb_ids)) {
+                    return 1
+                }
+                return 0
+            })
 
             buildingGeometry.setAttribute("position", new BufferAttribute((extrudedBuilding.positionBuffer as Float32Array), 3))
             buildingGeometry.setAttribute("color", new BufferAttribute(colorBuffer.slice().map((v) => { return v / 255 }), 3))
             buildingGeometry.setAttribute("normal", new BufferAttribute((extrudedBuilding.normalBuffer as Float32Array), 3))
-            buildingGeometry.setAttribute("textureId", new BufferAttribute((extrudedBuilding.textureIdBuffer as Int32Array), 1))
+            buildingGeometry.setAttribute("textureId", new BufferAttribute((extrudedBuilding.textureIdBuffer as Uint8Array), 1))
             buildingGeometry.setAttribute("uv", new BufferAttribute((extrudedBuilding.uvBuffer as Float32Array), 2))
             buildingGeometry.setAttribute("aFeatureUid", new BufferAttribute(Int32Array.from({ length: buildingGeometry.getAttribute("position").count }, () => featuresId[index]), 1));
+            buildingGeometry.setAttribute("aAddOutLine", new BufferAttribute(addOutLine, 1));
             return buildingGeometry
         })
 

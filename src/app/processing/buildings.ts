@@ -1,7 +1,7 @@
 import { AddEquation, AdditiveBlending, AlwaysDepth, AlwaysStencilFunc, Box3, BufferAttribute, BufferGeometry, Color, CustomBlending, DataArrayTexture, DirectionalLight, DoubleSide, Fog, GLSL3, GreaterDepth, Group, InstancedBufferGeometry, LessDepth, Material, Matrix4, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshStandardMaterial, NormalBufferAttributes, Object3D, OneFactor, PerspectiveCamera, ReplaceStencilOp, ShaderLib, ShaderMaterial, Sphere, Texture, TypedArray, UniformsLib, UniformsUtils, Vector2, Vector3, ZeroFactor } from "three";
-import { concatMap, delay, filter, retryWhen, map as rxjsMap, take, tap } from "rxjs/operators"
+import { concatMap, debounceTime, delay, filter, retryWhen, map as rxjsMap, take, takeUntil, tap } from "rxjs/operators"
 import { Instance, Map as Giro3DMap, OLUtils, OrbitControls, Coordinates } from "../giro-3d-module";
-import { Feature, GeometryLayout, MVT, Polygon, TileState, VectorTileSource, GeoJSON, FeatureLike, getCenter, VectorSource, Extent, Coordinate } from "../ol-module";
+import { Feature, GeometryLayout, MVT, Polygon, TileState, VectorTileSource, GeoJSON, FeatureLike, getCenter, VectorSource, Extent, Coordinate, Geometry } from "../ol-module";
 import { fromInstanceGiroEvent } from "../shared/class/fromGiroEvent";
 import { createXYZ } from "ol/tilegrid";
 import { CartoHelper, CustomVectorSource, getAllFeaturesInVectorTileSource, getFeaturesFromTileCoord } from "../../helper/carto.helper";
@@ -13,24 +13,25 @@ import Earcut from 'earcut';
 import Flatbush from 'flatbush';
 import { FillStyle, StrokeStyle } from "@giro3d/giro3d/core/FeatureTypes";
 
-import { FeaturesStoreService } from "../data/store/features.store.service";
+import { FeaturesStoreService, OsmFeatureToChange } from "../data/store/features.store.service";
 import { AppInjector } from "../../helper/app-injector.helper";
 import { environment } from "../../environments/environment";
-import { PolygonOptions } from "./building/type";
+import { BuildingProperties, PolygonOptions } from "./building/type";
 import { Builder, createBuildingPolygons } from "./building/builder";
 import { polygon as turf_polygon, featureCollection } from "@turf/helpers";
 import { bbox } from "@turf/bbox";
 import { LEVEL_HEIGHT } from "./building/building-params";
 import VectorRenderTile from "ol/VectorRenderTile";
-import { getBottomLeft, getBottomRight, getTopLeft } from "ol/extent";
+import { buffer, containsCoordinate, getBottomLeft, getBottomRight, getTopLeft } from "ol/extent";
 import { BuildingsTile } from "./building/helper";
 import { build3dBuildings } from "./build3dBuilding";
 import { SelectableMesh } from "./custom-mesh";
-import { getUid } from "ol";
+import { getUid, Tile } from "ol";
 import listElevation from "./elevation/listElevation";
 import WMTSCapabilities from "ol/format/WMTSCapabilities";
 import WorkerPool, { BaseMessageMap } from "@giro3d/giro3d/utils/WorkerPool";
 import { createListElevationWorker, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "./elevation/pool";
+import { OSMUpdateStoreService } from "../data/store/osm-update.store.service";
 
 // class WorkerPoolL {
 //     current = 0;
@@ -97,6 +98,7 @@ export class BuildingLayer {
     noiseTexture: Texture
 
     featuresStoreService: FeaturesStoreService = AppInjector.get(FeaturesStoreService);
+    osmUpdateStoreService: OSMUpdateStoreService = AppInjector.get(OSMUpdateStoreService);
     worker: WorkerPool<MessageType, MessageMap> | null
     elevationWorker: WorkerPool<ListElevationsMessageType, ListElevationMessageMap> | null
 
@@ -106,6 +108,7 @@ export class BuildingLayer {
 
     constructor(
         map: Giro3DMap,
+        private groundTileVectorSource: VectorTileSource
     ) {
         this.featuresStoreService.addLayerVectorSource(
             LAYER_VECTOR_SOURCE_ID, this.buildingVectorSource
@@ -123,6 +126,147 @@ export class BuildingLayer {
 
         this.buildingGroup.renderOrder = 3
 
+        this.osmUpdateStoreService.isOsmBuildingUpdateEnabledObservable.pipe(
+            debounceTime(1000),
+            tap((enabled) => {
+                this.buildingGroup.traverse((obj) => {
+                    if (obj instanceof SelectableMesh) {
+                        obj.material.uniforms.isRingActive.value = enabled ? 1 : 0
+                    }
+                })
+                this.instance.notifyChange(this.buildingGroup, { immediate: true })
+            })
+        ).subscribe()
+
+        // Hide a building
+        this.featuresStoreService.latestChangedBuildingToHide$.pipe(
+
+            tap(() => {
+                const tile_position = this.featuresStoreService.latestChangedBuildingToHide$.getValue()
+                if (tile_position == undefined) return
+                const hasTile = this._tileSets.has(tile_position)
+                if (hasTile) {
+                    const [x, y] = tile_position.split("_").map(Number)
+                    const tileCoord = this.groundTileVectorSource.tileGrid.getTileCoordForCoordAndZ([x, y], 16)
+                    const tileExtent = this.groundTileVectorSource.tileGrid.getTileCoordExtent(tileCoord);
+                    const tileRange = this.groundTileVectorSource.tileGrid.getTileRangeForExtentAndZ(buffer(tileExtent, 1), 16);
+
+                    this.groundTileVectorSource.forEachLoadedTile(this.groundTileVectorSource.getProjection(), 16, tileRange, (tile) => {
+                        this.extentLoadEnd(this.groundTileVectorSource, [tile as VectorRenderTile], true)
+                    })
+                }
+
+            })
+        ).subscribe()
+
+        // Reload a building tile
+        this.featuresStoreService.reloadBuilding$.pipe(
+            filter((data) => data != undefined),
+            tap((data) => {
+
+                const [x, y] = getCenter(data.geometry.getExtent())
+                const tileCoord = this.groundTileVectorSource.tileGrid.getTileCoordForCoordAndZ([x, y], 16)
+                const tileExtent = this.groundTileVectorSource.tileGrid.getTileCoordExtent(tileCoord);
+                const tileRange = this.groundTileVectorSource.tileGrid.getTileRangeForExtentAndZ(buffer(tileExtent, 1), 16);
+
+                this.groundTileVectorSource.forEachLoadedTile(this.groundTileVectorSource.getProjection(), 16, tileRange, (tile) => {
+                    const tileCoord = tile.getTileCoord()
+                    const buildingTileCenter = getBottomLeft(this.groundTileVectorSource.tileGrid.getTileCoordExtent(tileCoord))
+                    const x = buildingTileCenter[0]
+                    const y = buildingTileCenter[1]
+                    tempVec2.set(x, y)
+                    const [isTileAlreadyCreated, buildingTile] = this.getBuildingsTile(tempVec2)
+                    if (buildingTile.children.length > 0) {
+                        if ((buildingTile.children[0] as SelectableMesh).hasFeatureId(data.osm_id)) {
+                            this.extentLoadEnd(this.groundTileVectorSource, [tile as VectorRenderTile], true)
+                        } else {
+
+                        }
+                    }
+
+
+                })
+
+            })
+        ).subscribe()
+
+        // Find the closest feature from coordinate and select him
+        this.osmUpdateStoreService.closestFeatureToUpdateListener$.pipe(
+            filter((coordinate) => coordinate != null),
+            tap((coordinate) => {
+                const osm_ids_to_exclude = this.osmUpdateStoreService.osmFeaturesInUpdate.map((feat) => feat.osm_id).concat(this.osmUpdateStoreService.ignoredFeatures)
+                const feature = this.getAndZoomToTheClosestBuilding(coordinate, osm_ids_to_exclude)
+                this.osmUpdateStoreService.closestFeatureToUpdateReciever$.next(feature)
+                if (feature == null) return
+                const tileCoord = this.groundTileVectorSource.tileGrid.getTileCoordForCoordAndZ(coordinate, 16)
+                const tileExtent = this.groundTileVectorSource.tileGrid.getTileCoordExtent(tileCoord);
+                const tileRange = this.groundTileVectorSource.tileGrid.getTileRangeForExtentAndZ(buffer(tileExtent, 1), 16);
+                this.groundTileVectorSource.forEachLoadedTile(this.groundTileVectorSource.getProjection(), 16, tileRange, (tile) => {
+                    // if (!containsCoordinate(this.groundTileVectorSource.tileGrid.getTileCoordExtent(tile.getTileCoord()), coordinate)) {
+                    //     return
+                    // }
+                    const tileCoord = tile.getTileCoord()
+                    const buildingTileCenter = getBottomLeft(this.groundTileVectorSource.tileGrid.getTileCoordExtent(tileCoord))
+                    const x = buildingTileCenter[0]
+                    const y = buildingTileCenter[1]
+                    tempVec2.set(x, y)
+                    const [isTileAlreadyCreated, buildingTile] = this.getBuildingsTile(tempVec2)
+                    const properties = feature.getProperties() as BuildingProperties
+                    if (buildingTile.children.length > 0) {
+
+                        if ((buildingTile.children[0] as SelectableMesh).hasFeatureId(properties.osm_id)) {
+                            (buildingTile.children[0] as SelectableMesh).setFeatureUidSelected(properties.osm_id)
+                            this.instance.notifyChange([buildingTile.children[0], this.instance.view.camera], { needsRedraw: true, immediate: true })
+                        } else {
+                            if ((buildingTile.children[0] as SelectableMesh).isSelected) {
+                                (buildingTile.children[0] as SelectableMesh).clearFeatureSelected()
+                            }
+                        }
+                    }
+                })
+            })
+        ).subscribe()
+
+        // Update a building feature
+        this.featuresStoreService.updateBuildingFeature.pipe(
+            filter((feature) => Boolean(feature)),
+            tap((feature) => {
+                this.updateBuildingFeature(feature)
+
+                const coordinate = getCenter(feature.geometry.getExtent())
+                const tileCoord = this.groundTileVectorSource.tileGrid.getTileCoordForCoordAndZ(coordinate, 16)
+                const tileExtent = this.groundTileVectorSource.tileGrid.getTileCoordExtent(tileCoord);
+                const tileRange = this.groundTileVectorSource.tileGrid.getTileRangeForExtentAndZ(buffer(tileExtent, 1), 16);
+                this.groundTileVectorSource.forEachLoadedTile(this.groundTileVectorSource.getProjection(), 16, tileRange, (tile) => {
+                    // if (!containsCoordinate(this.groundTileVectorSource.tileGrid.getTileCoordExtent(tile.getTileCoord()), coordinate)) {
+                    //     return
+                    // }
+                    const tileCoord = tile.getTileCoord()
+                    const buildingTileCenter = getBottomLeft(this.groundTileVectorSource.tileGrid.getTileCoordExtent(tileCoord))
+                    const x = buildingTileCenter[0]
+                    const y = buildingTileCenter[1]
+                    tempVec2.set(x, y)
+                    const [isTileAlreadyCreated, buildingTile] = this.getBuildingsTile(tempVec2)
+                    if (buildingTile.children.length > 0) {
+                        const buildingMesh = (buildingTile.children[0] as SelectableMesh)
+                        if (buildingMesh.hasFeatureId(feature.osm_id)) {
+                            const buildingIndexes = buildingMesh.geometry.attributes.aFeatureUid.array.map(((featureId, index) => {
+                                if (featureId == feature.osm_id) {
+                                    return index
+                                }
+                            })).filter(Boolean)
+                            buildingIndexes.map((buildingIndex) => {
+                                buildingMesh.geometry.attributes.aAddOutLine.setX(buildingIndex, 0)
+                                return buildingIndex
+                            })
+                            buildingMesh.geometry.attributes.aAddOutLine.needsUpdate = true
+
+                        }
+
+                    }
+                })
+            })
+        ).subscribe()
 
 
     }
@@ -168,7 +312,8 @@ export class BuildingLayer {
         
                 attribute vec3 color;
                 attribute float textureId;
-                attribute float aFeatureUid;
+                attribute int aFeatureUid;
+                attribute int aAddOutLine;
         
                 out vec3 vColor;
                 out vec2 vUv;
@@ -176,10 +321,12 @@ export class BuildingLayer {
                 out vec3 vNewPosition;
                 out vec3 vPosition;
                 out vec4 mvPosition;
-                out float vFeatureUid;
+                // out float vFeatureUid;
         
         
+                flat out int vFeatureUid;
                 flat out int vTextureId;
+                flat out int vAddOutLine;
                 
                 // uniform sampler2DArray tMap;
         
@@ -189,7 +336,8 @@ export class BuildingLayer {
                     vColor = color;
                     vUv = uv;
                     vTextureId = int(textureId);
-                    vFeatureUid = float(aFeatureUid);
+                    vFeatureUid = aFeatureUid;
+                    vAddOutLine = aAddOutLine;
         
                     
                     vNormal = vec3(modelViewMatrix * vec4(normal, 0));
@@ -239,10 +387,12 @@ export class BuildingLayer {
                 in vec3 vNewPosition;
                 in vec3 vPosition;
                 in vec4 mvPosition;
-                in float vFeatureUid;
+                // in float vFeatureUid;
         
         
+                flat in int vFeatureUid;
                 flat in int vTextureId;
+                flat in int vAddOutLine;
         
         
                 uniform sampler2DArray tMap;
@@ -252,7 +402,8 @@ export class BuildingLayer {
                 uniform float roughness;
                 uniform float metalness;
                 uniform float opacity;
-                uniform float uFeatureUidSelected;
+                uniform int uFeatureUidSelected;
+                uniform int isRingActive;
         
                 
                 out vec4 fragColor;
@@ -334,6 +485,13 @@ export class BuildingLayer {
                 }
         
                 void main(){
+                    if (vTextureId == 100) {
+                        if (vAddOutLine==0 || isRingActive==0) {
+                            discard;
+                        }
+                        fragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                        return;
+                    }
                     
                     vec3 mask = getMaskValue(vTextureId);
                     float noiseTextureWidth = vec2(textureSize(tNoise, 0)).r;
@@ -372,8 +530,8 @@ export class BuildingLayer {
                             float aoFactor = 1.0 - abs(dot(normalMap, lightDir));
                             diffuseColor *= (aoFactor + specularFactor) * 0.5;
         
-        
                             fragColor = vec4(diffuseColor, outColor.a);
+                            
                         }
                         else{
                         
@@ -466,7 +624,8 @@ export class BuildingLayer {
                         diffuse: { value: new Color(0x00ff00) },
                         opacity: { value: 1.0 },
                     },
-                ])
+                ]),
+                "isRingActive": { value: this.osmUpdateStoreService.isOsmBuildingUpdateEnabled ? 1 : 0 },
                 // fogColor: { value: (this.instance.scene.fog as Fog).color },
                 // fogNear: { value: (this.instance.scene.fog as Fog).near },
                 // fogFar: { value: (this.instance.scene.fog as Fog).far }
@@ -521,9 +680,22 @@ export class BuildingLayer {
         }
     }
 
+    updateBuildingFeature(osmFeatureToChange: OsmFeatureToChange) {
+        const buildingFeature = this.buildingVectorSource.getFeatures().find(feature => feature.getProperties()['osm_id'] == osmFeatureToChange.osm_id)
+        if (buildingFeature) {
+            const properties = buildingFeature.getProperties()
+            for (const key in osmFeatureToChange.changes) {
+                if (!properties.hasOwnProperty(key)) {
+                    continue
+                }
+                properties[key] = osmFeatureToChange.changes[key]
+            }
+            buildingFeature.setProperties(properties)
 
+        }
+    }
 
-    extentLoadEnd(vectorTileSource: VectorTileSource, tilesToLoad: VectorRenderTile[], for_reload: boolean = false) {
+    extentLoadEnd(vectorTileSource: VectorTileSource, tilesToLoad: Array<VectorRenderTile>, for_reload: boolean = false) {
 
         for (let index = 0; index < tilesToLoad.length; index++) {
             const tile = tilesToLoad[index];
@@ -537,8 +709,13 @@ export class BuildingLayer {
             }).map((entry) => {
                 return entry[0]
             })
+            let features = getFeaturesFromTileCoord(tile, 16)
+            if (for_reload == true) {
 
-            let features = getFeaturesFromTileCoord(tile, 16).filter(
+                features = this.buildingVectorSource.getFeaturesInExtent(vectorTileSource.tileGrid.getTileCoordExtent(tileCoord))
+            }
+
+            features = features.filter(
                 (feat) => ["bench", "construction", "streetLamp", "busStop"].indexOf(feat.getProperties()["type"]) == -1
             ).filter(
                 (feat) => (!this.uniqueBuildingPerTile.has(feat.getProperties()["osm_id"]) || this.uniqueBuildingPerTile.get(feat.getProperties()["osm_id"]) == tileCoord)
@@ -549,7 +726,10 @@ export class BuildingLayer {
 
             if (features.length > 0) {
                 if (!for_reload) {
-                    //@ts-expect-error
+                    features.forEach((feature) => {
+                        // @ts-expect-error
+                        feature.ol_uid = feature.getProperties()["osm_id"]
+                    })
                     this.buildingVectorSource.addFeatures(features)
                     features.forEach((feature) => {
                         this.uniqueBuildingPerTile.set(feature.getProperties()["osm_id"], tileCoord)
@@ -581,7 +761,7 @@ export class BuildingLayer {
 
             buildingFeatures.map((feature) => {
                 const properties = feature.getProperties()
-                const featureExtent = new Polygon(feature.getFlatCoordinates(), 'XY', feature.ends_).getExtent()
+                const featureExtent = feature.getGeometry().getExtent()
 
                 const rectangleIndexPosition = index.add(
                     featureExtent[0],
@@ -647,7 +827,7 @@ export class BuildingLayer {
         }
     }
 
-    addElevationAndSerializeFeatures(features: FeatureLike[], worldBuildingPosition: Vector3, key: string) {
+    addElevationAndSerializeFeatures(features: Feature[], worldBuildingPosition: Vector3, key: string) {
 
         const transformCoordinates = features.map((feature, index) => {
             const point = getCenter(feature.getGeometry().getExtent())
@@ -674,7 +854,7 @@ export class BuildingLayer {
                     features_in_key.map((feature, index) => {
                         const properties = feature.getProperties()
                         properties["elevation"] = elevations.get(index)
-
+                        feature.setProperties(properties)
                         if ((properties["elevation"] == -Infinity) || (properties["elevation"] == undefined)) {
                             console.warn("Une elevation n'a pas pu être trouvée", properties["elevation"])
                         }
@@ -683,15 +863,15 @@ export class BuildingLayer {
                         // @ts-expect-error
                         const flatCoordinates = feature.getGeometry().getOrientedFlatCoordinates()
                         const properties = feature.getProperties()
+                        delete properties["geometry"]
                         return {
                             "flatCoordinates": flatCoordinates,
                             // @ts-expect-error
                             "ends_": feature.ends_,
                             "properties": properties,
-                            "feature_id": parseInt(getUid(feature))
+                            "feature_id": properties.osm_id
                         }
                     })
-
                     this.buildBuildingsAndAddToMap(serializableFeatures, worldBuildingPosition, key)
                 })
             })
@@ -714,8 +894,18 @@ export class BuildingLayer {
 
         const geometry = new BufferGeometry()
         geometriesJson.map((geometryJson) => {
-            geometry.setAttribute(geometryJson.key, new BufferAttribute(new Float32Array(geometryJson.data.array), geometryJson.data.itemSize, geometryJson.data.normalized))
+            let valueList: TypedArray;
+
+            if (geometryJson.data.type == "Uint8Array") {
+                valueList = new Uint8Array(geometryJson.data.array)
+            } else if (geometryJson.data.type == "Int32Array") {
+                valueList = new Int32Array(geometryJson.data.array)
+            } else {
+                valueList = new Float32Array(geometryJson.data.array)
+            }
+            geometry.setAttribute(geometryJson.key, new BufferAttribute(valueList, geometryJson.data.itemSize, geometryJson.data.normalized))
         })
+
         const building = new SelectableMesh(geometry, this.getBuildingMaterial())
         building.userData.name = BUILDING_DESCRIPTION_SHEET_TITLE
         building.userData.couche_id = LAYER_VECTOR_SOURCE_ID
@@ -726,9 +916,14 @@ export class BuildingLayer {
         building.geometry.boundingBox = tmpBox3.clone()
         building.geometry.boundingSphere = tmpBox3.getBoundingSphere(tmpSphere).clone()
         building.frustumCulled = true
+        // We have to keep uniforms of the old building mesh if exist
+        if (buildingTile.children.length > 0) {
+            building.material.uniforms = (buildingTile.children[0] as SelectableMesh).material.uniforms
+        }
 
         buildingTile.clear()
         buildingTile.add(building)
+
         buildingTile.updateMatrixWorld()
 
 
@@ -803,75 +998,26 @@ export class BuildingLayer {
         }
     }
 
+    getAndZoomToTheClosestBuilding(coordinate: Coordinate, osm_ids: number[]): Feature<Geometry> | null {
 
-}
+        const closestFeature = this.buildingVectorSource.getClosestFeatureToCoordinate(coordinate, (feature) => {
+            const properties = feature.getProperties() as BuildingProperties
 
+            return osm_ids.indexOf(feature.getProperties()['osm_id']) == -1 && Boolean(properties.match_rnb_ids) == true && Boolean(properties.rnb) == false
 
-
-
-
-const VERT_STRIDE = 3; // 3 elements per vertex position (X, Y, Z)
-const X = 0;
-const Y = 1;
-const Z = 2;
-
-/**
- * This methods prepares vertices for three.js with coordinates coming from openlayers.
- *
- * It does 2 things:
- *
- * - flatten the array while removing the last vertex of each rings
- * - builds the new hole indices taking into account vertex removals
- *
- * @param coordinates - The coordinate of the closed shape that form the roof.
- * @param stride - The stride in the coordinate array (2 for XY, 3 for XYZ)
- * @param offset - The offset to apply to vertex positions.
- * the first/last point
- * @param elevation - The elevation.
- */
-export function createFloorVertices(
-    coordinates: Array<Array<[number, number, number]>> | Array<Array<Array<[number, number, number]>>>,
-    offset: Vector3,
-    ignoreZ: boolean,
-) {
-    const holesIndices: Array<number> = [];
-    const positions: Array<number> = [];
-    let currentIndex = 0;
-
-    // Helper pour traiter un seul polygon (anneaux)
-    function processPolygon(rings: Array<[number, number, number]>) {
-        if (currentIndex > 0) holesIndices.push(currentIndex);
-        for (let i = 0; i < rings.length - 1; i++) {
-            currentIndex++;
-            const coord = rings[i];
-            positions.push(coord[X] - offset.x);
-            positions.push(coord[Y] - offset.y);
-
-            let z = 0;
-            if (!ignoreZ) {
-                z = coord[Z];
-
-            }
-            z += offset.z;
-            positions.push(z);
+        })
+        if (closestFeature) {
+            tempVec3.set(coordinate[0], coordinate[1], this.instance.view.camera.position.z)
+            const el = this.instance.renderer.domElement;
+            const pixelX = -el.clientWidth / 4;
+            new CartoHelper(this.map).panTo(tempVec3, pixelX)
+            return closestFeature
         }
+        return null
     }
 
-    // Test si c’est un MultiPolygon
-    if (Array.isArray(coordinates[0][0][0])) {
-        // MultiPolygon
-        for (const polygon of coordinates as Array<Array<Array<[number, number, number]>>>) {
-            for (const ring of polygon) {
-                processPolygon(ring);
-            }
-        }
-    } else {
-        // Polygon
-        for (const ring of coordinates as Array<Array<[number, number, number]>>) {
-            processPolygon(ring);
-        }
-    }
 
-    return { flatCoordinates: positions, holes: holesIndices };
+
+
 }
 

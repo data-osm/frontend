@@ -60,7 +60,14 @@ export interface BuildingProperties {
     // roo_angle?: number
     roof_orientation?: BuildingRoofOrientation
     roof_material?: BuildingRoofMaterial
-    roof_type?: BuildingRoofType
+    roof_type?: BuildingRoofType,
+    rnb: string,
+    diff_rnb: string,
+    match_rnb_ids: string,
+    match_rnb_score: number,
+    match_rnb_diff: string
+    parent_and_children?: string
+    building: string
 }
 
 export interface VectorAreaDescriptor {
@@ -87,6 +94,10 @@ export interface VectorAreaDescriptor {
     buildingFoundation?: boolean;
     ombb?: OMBBResult;
     poi?: Vec3;
+    rnb: string
+    match_rnb_ids: string;
+    building: string
+    is_part: boolean
 }
 
 export enum RoofType {
@@ -121,5 +132,5 @@ export interface VectorArea {
     descriptor: VectorAreaDescriptor;
     rings: VectorAreaRing[];
     isBuildingPartInRelation?: boolean;
-    featureId: number
+    // featureId: number
 }

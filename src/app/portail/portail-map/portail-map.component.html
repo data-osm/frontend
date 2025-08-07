@@ -16,6 +16,22 @@
 
   <mat-sidenav-content class="sidenav-content">
     <app-header [instance]="instance" [map]="map"></app-header>
+
+
+    <div class="toggle-rnb-edit"
+      [ngClass]="{'toggle-rnb-edit-enabled': osmUpdateStoreService.isOsmBuildingUpdateEnabled, 'toggle-rnb-edit-disabled': !osmUpdateStoreService.isOsmBuildingUpdateEnabled}"
+      fxLayout (click)="toggleOsmBuildingUpdate()">
+      <img fxFlex="40px" src="assets/icones/logo.rnb.png" alt="">
+      <h3 fxFlex>
+
+        <ng-container *ngIf="!osmUpdateStoreService.isOsmBuildingUpdateEnabled"> Activer l'enregistrement du RNB dans
+          OSM
+        </ng-container>
+        <ng-container *ngIf="osmUpdateStoreService.isOsmBuildingUpdateEnabled"> Désactiver l'enregistrement du RNB dans
+          OSM </ng-container>
+
+      </h3>
+    </div>
     <!-- (contextmenu)="
           ContextMenuComp ? ContextMenuComp.setRightClickPixel($event) : undefined
         " [shAttachMenu]="ContextMenuComp ? ContextMenuComp.menu : undefined"

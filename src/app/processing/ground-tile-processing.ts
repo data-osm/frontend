@@ -2,11 +2,11 @@ import { ReplaySubject } from "rxjs/internal/ReplaySubject";
 import { Instance, Map as Giro3DMap, OLUtils, OrbitControls, tile } from "../giro-3d-module";
 import { fromInstanceGiroEvent } from "../shared/class/fromGiroEvent";
 import { concatMap, debounceTime, delay, filter, last, map, mergeAll, retryWhen, map as rxjsMap, shareReplay, switchMap, take, takeUntil, takeWhile, tap, withLatestFrom } from "rxjs/operators"
-import { Box3, Box3Helper, BoxGeometry, DataArrayTexture, ImageLoader, LinearFilter, LinearMipmapLinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, NearestFilter, PerspectiveCamera, RedFormat, RepeatWrapping, RGBAFormat, SRGBColorSpace, TextureLoader, UnsignedByteType, Vector3 } from "three";
+import { Box3, Box3Helper, BoxGeometry, ClampToEdgeWrapping, DataArrayTexture, ImageLoader, LinearFilter, LinearMipmapLinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, NearestFilter, PerspectiveCamera, RedFormat, RepeatWrapping, RGBAFormat, SRGBColorSpace, TextureLoader, TypedArray, UnsignedByteType, Vector2, Vector3 } from "three";
 import { createXYZ } from "ol/tilegrid";
 import { CartoHelper } from "../../helper/carto.helper";
 import { Projection } from "ol/proj";
-import { Feature, MVT, TileState, VectorTileSource } from "../ol-module";
+import { Feature, Geometry, MVT, TileState, VectorTileSource } from "../ol-module";
 import { environment } from "../../environments/environment";
 import { TileCoord } from "ol/tilecoord";
 import { BuildingLayer } from "./buildings";
@@ -18,11 +18,14 @@ import { SkeletonBuilder } from 'straight-skeleton';
 import VectorRenderTile from "ol/VectorRenderTile";
 import { FeaturesStoreService } from "../data/store/features.store.service";
 import { AppInjector } from "../../helper/app-injector.helper";
-import { TileRange } from "ol";
-import { buffer } from "ol/extent";
+import { getUid, TileRange } from "ol";
+import { buffer, getBottomLeft, getCenter } from "ol/extent";
+import { OSMUpdateStoreService } from "../data/store/osm-update.store.service";
+import { SelectableMesh } from "./custom-mesh";
+import { BuildingProperties } from "./building/type";
 
 const tmpBox3 = new Box3()
-
+const tempVec2 = new Vector2()
 const textures = {
     "roofGeneric1Diffuse": { "url": "assets/textures/buildings/roofs/generic1_diffuse.png", "type": "image" },
     "roofGeneric1Normal": { "url": "assets/textures/buildings/roofs/generic1_normal.png", "type": "image" },
@@ -217,9 +220,9 @@ const buildingTextures = [
 
 ]
 const noiseTextureUrl = "assets/textures/noise/noise.png"
-
 export class GroundTileProcessing {
-    featuresStoreService: FeaturesStoreService = AppInjector.get(FeaturesStoreService);
+    // featuresStoreService: FeaturesStoreService = AppInjector.get(FeaturesStoreService);
+    // osmUpdateStoreService: OSMUpdateStoreService = AppInjector.get(OSMUpdateStoreService);
     // threeGlbLoaded:Sub
     instance: Instance
     map: Giro3DMap
@@ -246,9 +249,7 @@ export class GroundTileProcessing {
         this.instance = map["_instance"]
         this.controls = this.instance.view.controls as OrbitControls
 
-        this.buildingLayer = new BuildingLayer(map = this.map)
-
-
+        this.buildingLayer = new BuildingLayer(this.map, this.vectorTileSource)
 
         const dracoLoader = new DRACOLoader()
         dracoLoader.setDecoderPath('assets/draco/')
@@ -264,28 +265,6 @@ export class GroundTileProcessing {
                 this.treeLayer = new TreeLayer(map = this.map, gltf)
             }
         )
-
-        this.featuresStoreService.latestChangedBuildingToHide$.pipe(
-            filter(() => threeGlbLoaded),
-            tap(() => {
-                const tile_position = this.featuresStoreService.latestChangedBuildingToHide$.getValue()
-                if (tile_position == undefined) return
-                const hasTile = this.buildingLayer._tileSets.has(tile_position)
-                if (hasTile) {
-                    const [x, y] = tile_position.split("_").map(Number)
-                    const tileCoord = this.vectorTileSource.tileGrid.getTileCoordForCoordAndZ([x, y], 16)
-                    const tileExtent = this.vectorTileSource.tileGrid.getTileCoordExtent(tileCoord);
-                    const tileRange = this.vectorTileSource.tileGrid.getTileRangeForExtentAndZ(buffer(tileExtent, 20), 16);
-
-                    this.vectorTileSource.forEachLoadedTile(this.vectorTileSource.getProjection(), 16, tileRange, (tile) => {
-                        // @ts-expect-error
-                        this.buildingLayer.extentLoadEnd(this.vectorTileSource, [tile], true)
-                    })
-                }
-
-            })
-        ).subscribe()
-
 
         fromInstanceGiroEvent(this.instance, "after-camera-update").pipe(
             // debounceTime(100),
@@ -331,7 +310,7 @@ export class GroundTileProcessing {
 
                 let target_resolution = mapWith / this.map["_instance"].domElement.width
 
-
+                // this.vectorTileSource.
                 const tilesToLoad: VectorRenderTile[] = []
                 this.vectorTileSource.tileGrid.forEachTileCoord(olExtent, 16, (tileCoord: TileCoord) => {
                     const z = tileCoord[0]
@@ -340,7 +319,7 @@ export class GroundTileProcessing {
 
 
                     const currentTile = this.vectorTileSource.getTile(z, x, y, target_resolution, targetProjection)
-
+                    // currentTile.
                     if (currentTile.getState() == TileState.IDLE) {
                         currentTile.getSourceTiles()
                         tilesToLoad.push(currentTile)
@@ -367,55 +346,14 @@ export class GroundTileProcessing {
                             MapRxjs(values => values.every(value => value != TileState.LOADING && value != TileState.IDLE)),
                             takeWhile(allLoaded => !allLoaded, true),
                             filter((allLoaded) => allLoaded),
-                            // switchMap(() => {
-                            //     return of(...tilesToLoad).pipe(concatMap(value => of(value).pipe(delay(10))))
-                            // }),
-                            // tap((tile) => {
-                            //     const parentX = Math.floor(tile.tileCoord[1] / 2);
-                            //     const parentY = Math.floor(tile.tileCoord[2] / 2);
-                            //     const parentZ = tile.tileCoord[0] - 1
 
-                            //     const parentTile = this.vectorTileSource.getTile(parentZ, parentX, parentY, target_resolution, targetProjection)
-
-                            //     this.treeLayer.extentLoadEnd(this.vectorTileSource, [tile])
-                            //     this.buildingLayer.extentLoadEnd(this.vectorTileSource, [tile], parentTile.tileCoord)
-                            //     updateTileStateSubscription.unsubscribe(); // Unsubscribing interval when condition met
-                            // })
-                            // concatMap((x, i) => of(i).pipe(delay(500)).pipe(
-                            //     tap((i) => {
-                            //         const tile = tilesToLoad[i]
-                            //         console.log(i, tilesToLoad.length)
-                            //         this.buildingLayer.extentLoadEnd(this.vectorTileSource, [tile])
-                            //         this.treeLayer.extentLoadEnd(this.vectorTileSource, [tile])
-                            //         updateTileStateSubscription.unsubscribe(); // Unsubscribing interval when condition met
-                            //     })
-                            // ))
                         ).subscribe(() => {
 
                             this.buildingLayer.extentLoadEnd(this.vectorTileSource, tilesToLoad)
-                            // this.treeLayer.extentLoadEnd(this.vectorTileSource, tilesToLoad)
-                            // for (let index = 0; index < tilesToLoad.length; index++) {
-                            //     // if (index >= 3) {
-                            //     //     break
-                            //     // }
-                            //     const tile = tilesToLoad[index];
-                            //     const parentX = Math.floor(tile.tileCoord[1] / 2);
-                            //     const parentY = Math.floor(tile.tileCoord[2] / 2);
-                            //     const parentZ = tile.tileCoord[0] - 1
 
-                            //     const parentTile = this.vectorTileSource.getTile(parentZ, parentX, parentY, target_resolution, targetProjection)
-
-                            //     this.buildingLayer.extentLoadEnd(this.vectorTileSource, [tile], parentTile.tileCoord)
-                            // }
                             updateTileStateSubscription.unsubscribe(); // Unsubscribing interval when condition met
                         })
-                    // .subscribe((i) => {
-                    //     const tile = tilesToLoad[i]
-                    //     console.log(i, tilesToLoad.length)
-                    //     this.buildingLayer.extentLoadEnd(this.vectorTileSource, [tile])
-                    //     this.treeLayer.extentLoadEnd(this.vectorTileSource, [tile])
-                    //     updateTileStateSubscription.unsubscribe(); // Unsubscribing interval when condition met
-                    // });
+
 
                 }
             }),
@@ -433,67 +371,10 @@ export class GroundTileProcessing {
         //     this.tileLoad$.next(undefined)
         // })
 
-        this.vectorTileSource.on("tileloadend", (event: any) => {
-            // this.tileLoad$.next(undefined)
-            // console.log(
-            //     [...new Set((event.tile.getFeatures() as Array<Feature>).map((feat) => feat.getProperties()["layer"]))], "layer",
-            // console.log([...new Set((event.tile.getFeatures().filter((feat) => feat.getProperties()["layer"] == "buildings") as Array<Feature>).map((feat) => feat.getProperties()["type"]))], "type")
-            // )
-            // Type : 
-            //"fence"
-            //  "wall"
-            // "building"
-            // "grass"
-            // "garden"
-            // "construction"
-            // "path"
-            // "treeRow"
-            // "busStop"
-            // "tree"
-            //: "statue"
-            //: "sculpture"
-            //: "streetLamp"
-            //: "flagpole"
-            //: "bench"
-            //: "fireHydrant"
-            //: "fountain"
-            //: "water"
-            // 
-
-            // let buildingFeatures = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "buildings" && ["bench", "construction", "streetLamp", "busStop"].indexOf(feat.getProperties()["type"]) == -1)
-            // Skillion 3543309932, 3543309922
-            // let buildingFeatures = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "buildings" && feat.getProperties()["roofType"] == "skillion" && [3543309922].indexOf(feat["id_"]) != -1)
-            //gabled 11968231872, 11968231882
-            // let buildingFeatures = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "buildings" && feat.getProperties()["roofType"] == "gabled" && [8222909922].indexOf(feat["id_"]) != -1) //&& 11968231882[8222909922].indexOf(feat["id_"]) != -1
-            // let buildingFeatures = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "buildings" && (feat.getProperties()["roofType"] == "gabled" || feat.getProperties()["roofType"] == "skillion"))
-            //hipped [538149142,538149192,11955590662]
-            // let buildingFeatures = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "buildings" && feat.getProperties()["roofType"] == "hipped")
-            //onion 7749609502, 7749609512, 7749609542, 7749609562, 7749609572, 7749609682, 7749609692
-            // gambrel
-            // let buildingFeatures = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "buildings" && feat.getProperties()["roofType"] == "onion")
-            // let buildingFeatures = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "buildings" && feat.getProperties()["roofType"] == "saltbox")
-            // let buildingFeatures = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "buildings").map((feat) => { feat.getProperties()["roofType"] = "flat"; return feat })
-            // trop de fenêtres 646236542 onion
-            // let buildingFeatures = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "buildings" && feat.getProperties()["roofType"] == "flat" && feat["id_"] == 646236542)
-            // Sans mur 690747272
-            // let buildingFeatures = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "buildings" && feat.getProperties()["roofType"] == "flat" && feat["id_"] == 690747272)
-            // L'exemple par defaut
-            // let buildingFeatures = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "buildings" && feat.getProperties()["roofType"] == "flat" && feat["id_"] == 698606862)
-            // http://localhost:4200/map?profil=1&layers=253,11,layer&pos=256600.6,6250747.9,262.7,256421.9,6250882.7,0
+        // this.vectorTileSource.on("tileloadend", (event: any) => {
 
 
-
-
-            // if (buildingFeatures.length > 0) {
-
-            //     this.buildingLayer.processFeatures(buildingFeatures)
-            // }
-
-            // let threeFeatures = (event.tile.getFeatures() as Array<Feature>).filter((feat) => feat.getProperties()["layer"] == "point" && feat.getProperties()["type"] == "tree")
-            // if (threeFeatures.length > 0) {
-            //     this.treeLayer.processFeatures(threeFeatures)
-            // }
-        })
+        // })
     }
 
     loadBuildingTextures() {

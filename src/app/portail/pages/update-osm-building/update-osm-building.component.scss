@@ -1,0 +1,162 @@
+.descriptive-sheet-body-url:hover {
+  text-decoration: underline;
+}
+.descriptive-sheet-body-display-attributes-number {
+  font-size: 14px;
+  color: inherit;
+  font-family: "Avenir Next Rounded Pro Italic";
+  text-decoration: underline;
+}
+.descriptive-sheet-body-header-btn {
+  margin-bottom: 10px;
+  button {
+    margin-right: 5px;
+    margin-left: 5px;
+    // height: 50px;
+    // width: 50px;
+    border: 2px solid #06aca7;
+    background-color: transparent;
+    box-shadow: none;
+  }
+  .descriptive-sheet-body-header-btn-osm {
+    background-color: #06aca7 !important;
+  }
+}
+
+::ng-deep .osm-form .mat-form-field-label {
+  color: #ffffff !important; // violet
+}
+
+::ng-deep .osm-form .mat-form-field-outline,
+::ng-deep .osm-form .mat-form-field-outline-thick {
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+::ng-deep .osm-form .mat-form-field-label {
+  color: #ffffff !important;
+}
+
+::ng-deep .osm-form.mat-focused .mat-form-field-label {
+  color: #ffffff !important;
+}
+
+::ng-deep .osm-form .mat-form-field-ripple {
+  background-color: #ffffff !important;
+}
+
+// /* Le texte saisi */
+::ng-deep .osm-form .mat-input-element {
+  color: #ffffff !important;
+}
+
+::ng-deep .osm-form .mat-select-value {
+  color: #ffffff !important;
+}
+
+/* Pour le texte dans le menu déroulant (facultatif si tu veux que tout soit violet aussi) */
+::ng-deep .osm-form .mat-option-text {
+  color: #ffffff !important;
+}
+
+#osmMapDiv {
+  width: 100%;
+  height: 400px;
+  margin-bottom: 15px;
+  position: relative;
+
+  #osmMapDivSwipe {
+    width: 100%;
+    position: absolute;
+    bottom: 5%;
+    z-index: 1;
+  }
+
+  /* WebKit (Chrome, Safari, Edge) */
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 24px;
+    width: 24px;
+    background-color: #1a1a1a;
+    border-radius: 50%;
+    border: none;
+    margin-top: -10px;
+    background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>\
+  <polyline points='9,12 6,9 9,6' stroke='%2313e4c6' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/>\
+  <polyline points='15,12 18,9 15,6' stroke='%2313e4c6' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/>\
+</svg>");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 20px;
+    cursor: ew-resize;
+  }
+
+  /* Firefox */
+  input[type="range"]::-moz-range-thumb {
+    height: 24px;
+    width: 24px;
+    background-color: #1a1a1a;
+    border: none;
+    border-radius: 50%;
+    background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>\
+  <polyline points='9,12 6,9 9,6' stroke='%2313e4c6' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/>\
+  <polyline points='15,12 18,9 15,6' stroke='%2313e4c6' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/>\
+</svg>");
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-size: 20px;
+    cursor: ew-resize;
+  }
+}
+
+.ol-popup {
+  position: absolute;
+  background-color: white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #cccccc;
+  bottom: 12px;
+  left: -50px;
+  min-width: 180px;
+  color: #001725;
+}
+.ol-popup:after,
+.ol-popup:before {
+  top: 100%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+.ol-popup:after {
+  border-top-color: white;
+  border-width: 10px;
+  left: 48px;
+  margin-left: -10px;
+}
+.ol-popup:before {
+  border-top-color: #cccccc;
+  border-width: 11px;
+  left: 48px;
+  margin-left: -11px;
+}
+.ol-popup-closer {
+  text-decoration: none;
+  position: absolute;
+  color: red;
+  top: 2px;
+  right: 8px;
+}
+.ol-popup-closer:after {
+  content: "✖";
+}
+
+.save-to-osm {
+  width: 100%;
+}

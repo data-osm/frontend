@@ -1,10 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
-@use '@angular/material' as mat;
+@use "@angular/material" as mat;
 @import "@angular/cdk/overlay-prebuilt.css";
 // @import 'ngx-sharebuttons/themes/circles/circles-dark-theme';
-@import 'ngx-sharebuttons/themes/circles';
-@import './app/theme';
-@import './style-ol.scss';
+@import "ngx-sharebuttons/themes/circles";
+@import "./app/theme";
+@import "./style-ol.scss";
 // TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
 //  The following line adds:
 //    1. Default typography styles for all components
@@ -15,58 +15,77 @@
 //    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
 @include mat.all-legacy-component-typographies();
 @include mat.legacy-core();
-@import './assets/font/avenir-next-rounded-pro-cufonfonts-webfont/style.scss';
+@import "./assets/font/avenir-next-rounded-pro-cufonfonts-webfont/style.scss";
 
-html, body { height: 100%;overflow: hidden; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-.pointer{
-    cursor: pointer;
+html,
+body {
+	height: 100%;
+	overflow: hidden;
+}
+body {
+	margin: 0;
+	font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-.text-center{
-  text-align: center;
+.pointer {
+	cursor: pointer;
 }
-.bold{
-  font-weight: bold !important;
+
+.text-center {
+	text-align: center;
+}
+.bold {
+	font-weight: bold !important;
 }
 
 .shadow_5px {
-  box-shadow: inset 0 0 1px #ccc, 0 0 2px #434343;
+	box-shadow:
+		inset 0 0 1px #ccc,
+		0 0 2px #434343;
 }
 
-::ng-deep .mat-dialog-container{
-  padding: 0px !important;
+::ng-deep .mat-dialog-container {
+	padding: 0px !important;
 }
 
-.mat-primary .mat-slider-thumb-label-text{
-  color:#fff !important;
+.mat-primary .mat-slider-thumb-label-text {
+	color: #fff !important;
 }
 
-input{
+input {
 	background: transparent !important;
 }
 
-.dialog-no-shadow .mat-dialog-container{
+.dialog-no-shadow .mat-dialog-container {
 	box-shadow: none !important;
 }
-
-.dialog-no-padding .mat-dialog-container{
+.dialog-primary-bg .mat-dialog-container {
+	background-color: #001725 !important;
+}
+.dialog-no-padding .mat-dialog-container {
 	padding-left: 5px !important;
-    padding-right: 5px !important;
+	padding-right: 5px !important;
 }
 
-.feedback-modal .mat-dialog-container{
+.dialog-bg-transparent .mat-mdc-dialog-surface {
+	background: transparent !important;
+}
+
+.dialog-no-overflow .mat-dialog-container {
+	overflow: hidden !important;
+}
+
+.feedback-modal .mat-dialog-container {
 	background-color: #eee;
 }
 
 .group-modal .mdc-dialog__container {
-	.mat-mdc-dialog-surface{
+	.mat-mdc-dialog-surface {
 		border-radius: 30px 30px 20px 20px;
-	background-color: #001725;
-	overflow: hidden;
+		background-color: #001725;
+		overflow: hidden;
 	}
-  }
+}
 /* ///// spinner ////////////// */
 
 .lds-ripple {
@@ -74,129 +93,120 @@ input{
 	position: relative;
 	width: 64px;
 	height: 64px;
-  }
-  .lds-ripple div {
+}
+.lds-ripple div {
 	position: absolute;
 	border: 4px solid $primary;
 	opacity: 1;
 	border-radius: 50%;
 	animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
-  }
-  .lds-ripple div:nth-child(2) {
+}
+.lds-ripple div:nth-child(2) {
 	animation-delay: -0.5s;
-  }
-  @keyframes lds-ripple {
+}
+@keyframes lds-ripple {
 	0% {
-	  top: 28px;
-	  left: 28px;
-	  width: 0;
-	  height: 0;
-	  opacity: 1;
+		top: 28px;
+		left: 28px;
+		width: 0;
+		height: 0;
+		opacity: 1;
 	}
 	100% {
-	  top: -1px;
-	  left: -1px;
-	  width: 58px;
-	  height: 58px;
-	  opacity: 0;
+		top: -1px;
+		left: -1px;
+		width: 58px;
+		height: 58px;
+		opacity: 0;
 	}
-  }
+}
 /* ////////////////////////////////////////// //spiner ////////////// */
-.scroll::-webkit-scrollbar-track
-{
+.scroll::-webkit-scrollbar-track {
 	-webkit-box-shadow: inset 0 0 6px #f7f7f7;
 	box-shadow: inset 0 0 6px #f7f7f7;
 	background-color: #f7f7f7;
 	// border-radius: 10px;
 }
 
-.scroll::-webkit-scrollbar
-{
+.scroll::-webkit-scrollbar {
 	width: 5px;
 	background-color: #f7f7f7;
 }
 
-.scroll::-webkit-scrollbar-thumb
-{
+.scroll::-webkit-scrollbar-thumb {
 	background-color: #747678;
 	border-radius: 10px;
-
 }
 
-.mat-drawer-inner-container{
-  overflow-x: hidden !important;
+.mat-drawer-inner-container {
+	overflow-x: hidden !important;
 }
 
-.mat-drawer-inner-container::-webkit-scrollbar-track
-{
+.mat-drawer-inner-container::-webkit-scrollbar-track {
 	-webkit-box-shadow: inset 0 0 6px #f7f7f7;
 	box-shadow: inset 0 0 6px #f7f7f7;
 	background-color: #f7f7f7;
 	// border-radius: 10px;
 }
 
-.mat-drawer-inner-container::-webkit-scrollbar
-{
+.mat-drawer-inner-container::-webkit-scrollbar {
 	width: 5px;
 	background-color: #f7f7f7;
 }
 
-.mat-drawer-inner-container::-webkit-scrollbar-thumb
-{
+.mat-drawer-inner-container::-webkit-scrollbar-thumb {
 	background-color: #747678;
 	border-radius: 10px;
-
 }
-mat-dialog-container::-webkit-scrollbar-track
-{
+mat-dialog-container::-webkit-scrollbar-track {
 	-webkit-box-shadow: inset 0 0 6px #f7f7f7;
 	box-shadow: inset 0 0 6px #f7f7f7;
 	background-color: #f7f7f7;
 	// border-radius: 10px;
 }
 
-mat-dialog-container::-webkit-scrollbar
-{
+mat-dialog-container::-webkit-scrollbar {
 	width: 5px;
 	background-color: #f7f7f7;
 }
 
-mat-dialog-container::-webkit-scrollbar-thumb
-{
+mat-dialog-container::-webkit-scrollbar-thumb {
 	background-color: #747678;
 	border-radius: 10px;
-
 }
 
-.state-badje{
-	padding: .3em .6em .35em;
+.state-badje {
+	padding: 0.3em 0.6em 0.35em;
 	border-radius: 3px;
 	white-space: nowrap;
 	border: 1px solid;
 	font-size: 15px;
 }
 
-.state-badje-good{
+.state-badje-good {
 	color: #0a0;
 }
 
-.state-badje-not_working{
+.state-badje-not_working {
 	color: rgb(170, 0, 28);
 }
 
-.state-badje-action_require{
-	color:  #f90;;
+.state-badje-action_require {
+	color: #f90;
 }
 
-.state-badje-unknow,.state-badje-null{
+.state-badje-unknow,
+.state-badje-null {
 	color: rgb(213, 221, 226);
 }
 
-.color-picker{
+.color-picker {
 	left: 30px !important;
 	position: absolute !important;
-    top: 25px !important;
+	top: 25px !important;
 }
-*, ::after, ::before{
-	box-sizing: initial ;
+*,
+::after,
+::before {
+	box-sizing: initial;
 }

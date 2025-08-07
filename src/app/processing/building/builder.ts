@@ -349,7 +349,6 @@ export function createBuildingPolygons(olFeatures: Feature<Polygon>[]) {
                     rings: [ring],
                     osmReference: olFeature.getProperties()["osm_id"],
                     elevation: olFeature.getProperties()["elevation"],
-                    featureId: parseInt(getUid(olFeature)),
                     descriptor: {
                         type: 'building',
                         ombb: getOMBB(olFeature.getProperties() as BuildingProperties),
@@ -529,6 +528,29 @@ export class Builder {
                 windowSeed: null
             });
         }
+
+
+        // if (
+        //     Boolean(this.feature.descriptor.rnb) == false && Boolean(this.feature.descriptor.match_rnb_ids)
+        // ) {
+        builder.addOutLine({
+            terrainHeight: facadeMinHeight,
+            type: roofParams.type,
+            buildingHeight: this.descriptor.buildingHeight,
+            minHeight: this.descriptor.buildingHeight - this.descriptor.buildingRoofHeight,
+            height: this.descriptor.buildingRoofHeight,
+            direction: this.descriptor.buildingRoofDirection,
+            orientation: this.descriptor.buildingRoofOrientation,
+            angle: this.descriptor.buildingRoofAngle,
+            textureId: roofParams.textureId,
+            color: roofParams.color,
+            scaleX: roofParams.scaleX,
+            scaleY: roofParams.scaleY,
+            isStretched: roofParams.isStretched,
+            flip: false
+        })
+        // } 
+
 
         let features = [
             builder.getGeometry(),

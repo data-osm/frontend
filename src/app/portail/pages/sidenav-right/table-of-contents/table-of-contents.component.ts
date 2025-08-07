@@ -223,7 +223,6 @@ export class TableOfContentsComponent implements OnInit {
     if (layer['properties']['type'] == 'carte') {
       this.dataOsmLayersServiceService.removeBaseMap(layer['properties']['couche_id'], this.map)
     } else if (layer['properties']['type'] == 'couche') {
-      console.log(layer)
       this.dataOsmLayersServiceService.removeLayer(layer['properties']['couche_id'], this.map)
     } else {
       layer.layer.map((lay) => new CartoHelper(this.map).removeLayerToMap(lay))

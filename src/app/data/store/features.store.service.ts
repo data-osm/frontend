@@ -5,6 +5,15 @@ import Flatbush from 'flatbush';
 import { CustomVectorSource } from '../../../helper/carto.helper';
 import { Box3, Vector2 } from 'three';
 import { LEVEL_HEIGHT } from '../../processing/building/building-params';
+import { Geometry } from 'ol/geom';
+
+export interface OsmFeatureToChange {
+    osm_id: number,
+    changes: object,
+    geometry: Geometry
+}
+
+
 
 @Injectable({
     providedIn: 'root'
@@ -17,11 +26,24 @@ export class FeaturesStoreService {
     buildingsIndex$ = new BehaviorSubject<Flatbush>(new Flatbush(1));
     buildingsToHide$: BehaviorSubject<Map<number, string>> = new BehaviorSubject<Map<number, string>>(new Map());
     latestChangedBuildingToHide$: BehaviorSubject<string> = new BehaviorSubject<string>(undefined);
+    // Reload a building tile of this feature
+    reloadBuilding$: BehaviorSubject<OsmFeatureToChange> = new BehaviorSubject<OsmFeatureToChange>(undefined);
+    // Update a building feature
+    private updateBuildingFeature$: BehaviorSubject<OsmFeatureToChange> = new BehaviorSubject<OsmFeatureToChange>(undefined);
     // Map of layer add as a vector layer using Three.GROUP with his vectorSource
     private layersVectorSources$: BehaviorSubject<Map<number | string, CustomVectorSource>> = new BehaviorSubject<Map<number, CustomVectorSource>>(new Map());
 
+    //
     constructor() {
 
+    }
+
+    get updateBuildingFeature() {
+        return this.updateBuildingFeature$.asObservable()
+    }
+
+    changeBuildingFeature(osmFeatureToChange: OsmFeatureToChange) {
+        this.updateBuildingFeature$.next(osmFeatureToChange)
     }
 
     getBuildingsToHide() {
@@ -111,6 +133,11 @@ export class FeaturesStoreService {
 
     layersVectorSourcesMap() {
         return this.layersVectorSources$.getValue()
+    }
+
+    reloadBuildingFeature(osm_id: number, changes: object, geometry: Geometry) {
+
+        this.reloadBuilding$.next({ osm_id, changes, geometry })
     }
 
 

@@ -1,44 +1,61 @@
-<div mat-dialog-content class="scroll white descriptive-sheet-content">
+<div mat-dialog-content class="scroll white building-descriptive-sheet-content">
+    <ng-container *ngIf="!isEditing">
+        <div class="text-center" *ngIf="selectedFeature$ | async as feat">
+            <div class="text-center descriptive-sheet-body-header-btn " style="margin-top: 10px;">
 
-    <div class="text-center" *ngIf="selectedFeature$ | async as feat">
-        <div class="text-center descriptive-sheet-body-header-btn " style="margin-top: 10px;">
+                <button [matTooltip]="'OpenStreetMap'" mat-mini-fab class="descriptive-sheet-body-header-btn-osm"
+                    (click)="openUrl(getOsmLink(feature))">
+                    <img src="assets/icones/descriptive-sheet/Logo_mono.svg" alt="" srcset=""
+                        style="margin-top: -6px;height: 25px">
+                </button>
+            </div>
 
-            <button [matTooltip]="'OpenStreetMap'" mat-mini-fab class="descriptive-sheet-body-header-btn-osm"
-                (click)="openUrl(getOsmLink(feature))">
-                <img src="assets/icones/descriptive-sheet/Logo_mono.svg" alt="" srcset=""
-                    style="margin-top: -6px;height: 25px">
-            </button>
-        </div>
+            <div *ngIf="should_display_rnb_edit() " class="text-center pointer edit-rnb " (click)="startEditBuilding()">
+                Ce bâtiment n’a pas d’ID-RNB. Un rapprochement géométrique suggère ce possible
+                ID :<span class="bold">{{feature.getProperties().match_rnb_ids}}.</span>
+                Avec un score de rapprochement de <span class="bold">{{feature.getProperties().match_rnb_score * 100}}%
+                </span>,
+                cliquez pour vérifier et valider dans OpenStreetMap.
 
-        <ng-container *ngFor="let property of feat;let i = index">
-            <ng-container *ngIf="property.display ">
-                <div fxLayout class="descriptive-sheet-body" style="margin-bottom: 5px;">
-                    <div fxFlex="38%" class="attribute">
-                        <span class="attribute-title"> {{ property.field| translate }} </span>
-                        <span class="attribute-two-points"> : </span>
-                    </div>
+                <a class="white"
+                    href="https://wiki.openstreetmap.org/wiki/FR:Key:ref:FR:RNB#D%C3%A9finition_d'un_b%C3%A2timent_dans_OSM"
+                    target="_blank" rel="noopener noreferrer">Plus d'informations entre OSM et RNB</a>
+            </div>
 
-                    <div fxFlex class="attribute-value">
-                        <div *ngIf="!(property.field == 'color' || property.field == 'roofColor')"
-                            [innerHTML]="property.value"> </div>
-
-
-                        <div style="padding-left: 5px;display: flex;"
-                            *ngIf="property.field == 'color' || property.field == 'roofColor'">
-                            <span>{{formatColor(property.value)}}</span>
-                            <div style="height: 30px;width: 150px;display: flex;margin-left: 10px;"
-                                [ngStyle]="{'background-color': formatColor(property.value)}"> </div>
+            <ng-container *ngFor="let property of feat;let i = index">
+                <ng-container *ngIf="property.display ">
+                    <div fxLayout class="descriptive-sheet-body" style="margin-bottom: 5px;">
+                        <div fxFlex="38%" class="attribute">
+                            <span class="attribute-title"> {{ property.field| translate }} </span>
+                            <span class="attribute-two-points"> : </span>
                         </div>
 
+                        <div fxFlex class="attribute-value">
+                            <div *ngIf="!(property.field == 'color' || property.field == 'roo_Color')"
+                                [innerHTML]="property.value"> </div>
+
+
+                            <div style="padding-left: 5px;display: flex;"
+                                *ngIf="property.field == 'color' || property.field == 'roo_color'">
+                                <span>{{formatColor(property.value)}}</span>
+                                <div style="height: 30px;width: 150px;display: flex;margin-left: 10px;"
+                                    [ngStyle]="{'background-color': formatColor(property.value)}"> </div>
+                            </div>
+
+                        </div>
                     </div>
-                </div>
+                </ng-container>
             </ng-container>
-        </ng-container>
-    </div>
+        </div>
+    </ng-container>
+
+    <app-update-osm-building [feature]="feature" *ngIf="isEditing"
+        (closeEditing)="stopEditBuilding()"></app-update-osm-building>
 
 </div>
 
-<div mat-dialog-actions class="text-center descriptive-sheet-actions ">
+
+<div *ngIf="!isEditing" mat-dialog-actions class="text-center descriptive-sheet-actions ">
     <button mat-raised-button (click)="zoomOnFeatureExtent()">
         <i class="fa fa-search-plus"> </i> {{'descriptive_sheet.zoomTo' | translate}}
     </button>

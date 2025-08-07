@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { MatomoTracker } from 'ngx-matomo-client';
 import { environment } from '../environments/environment';
-declare var tarteaucitron: any;
+
 
 @Component({
   selector: 'app-root',

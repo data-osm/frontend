@@ -5,11 +5,12 @@ import { Observable, Subscriber } from "rxjs";
 import { Collection, Map, VectorSourceEvent } from "../../ol-module";
 import BaseEvent from "ol/events/Event";
 import { VectorSourceEventTypes } from "ol/source/VectorEventType";
+import { LayerRenderEventTypes } from "ol/render/EventType";
 
-export function fromOpenLayerEvent<T extends BaseEvent | VectorSourceEventTypes>(element: BaseLayer | Collection<BaseLayer> | Source | any, eventName: EventTypes | VectorSourceEventTypes): Observable<T> {
+export function fromOpenLayerEvent<T extends BaseEvent | VectorSourceEventTypes | LayerRenderEventTypes>(element: BaseLayer | Collection<BaseLayer> | Source | any, eventName: EventTypes | VectorSourceEventTypes | LayerRenderEventTypes): Observable<T> {
 
   return new Observable((observer: Subscriber<T>) => {
-    const handler: (e: BaseEvent | VectorSourceEventTypes) => unknown = (e: T) => observer.next(e);
+    const handler: (e: BaseEvent | VectorSourceEventTypes | LayerRenderEventTypes) => unknown = (e: T) => observer.next(e);
 
     let eventKey = element.on(eventName, handler)
 

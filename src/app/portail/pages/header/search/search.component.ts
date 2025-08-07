@@ -207,7 +207,7 @@ export class SearchComponent implements OnInit {
             left: '10px',
           }
         }
-        this.dialog.open(RequestFeedbackComponent, properties)
+        // this.dialog.open(RequestFeedbackComponent, properties)
       }
     }, environment.production ? 5000 : 0)
   }

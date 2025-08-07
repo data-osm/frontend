@@ -17,19 +17,20 @@ $height: 100%;
   width: 100%;
   height: $height;
 }
-.toggle-group-dialog{
+.toggle-group-dialog {
   position: absolute;
   left: 27px;
   top: calc(5% + 70px);
   background-color: black !important;
   padding: 7px;
   padding-bottom: 5px;
-  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0px 3px 1px -2px rgba(0, 0, 0, 0.2),
+    0px 2px 2px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 5px 0px rgba(0, 0, 0, 0.12);
   border-radius: 10px 0px 0px 10px;
   transition: 500ms;
 }
-
-
 
 .sidenav-left {
   width: 320px;
@@ -56,32 +57,32 @@ $height: 100%;
 .sidenav-right-download {
   width: 300px !important;
 }
-.toogle-sidenav-right-button{
+.toogle-sidenav-right-button {
   min-width: 50px;
   width: 50px !important;
   border-radius: 0px;
   padding: 0px;
   background-color: #000 !important;
   cursor: pointer;
-  mat-icon{
+  mat-icon {
     font-size: 20px;
     // margin-left: -5px;
   }
-  i{
+  i {
     font-size: 15px;
     // margin-left: -5px;
   }
 }
-.toogle-sidenav-right-button-toc{
+.toogle-sidenav-right-button-toc {
   border-radius: 10px 10px 0px 0px;
 }
-.toogle-sidenav-right-button-legend{
+.toogle-sidenav-right-button-legend {
   border-radius: 0px 0px 10px 10px;
 }
 .sidenav-right {
   width: 0px;
   z-index: 2;
-  top: 5%;
+  top: 65px;
   right: 0px;
   visibility: hidden;
   position: absolute;
@@ -141,7 +142,7 @@ $height: 100%;
     right: 0;
     width: 100%;
     height: 100%;
-    #giro3d-inspector{
+    #giro3d-inspector {
       position: absolute;
       right: 10px;
       bottom: 0px;
@@ -174,7 +175,8 @@ $height: 100%;
       width: 25px;
       height: 25px;
       background: #fff;
-      box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2),
+      box-shadow:
+        0px 3px 5px -1px rgba(0, 0, 0, 0.2),
         0px 6px 10px 0px rgba(0, 0, 0, 0.14),
         0px 1px 18px 0px rgba(0, 0, 0, 0.12);
       border: 2px solid #fff;
@@ -184,7 +186,7 @@ $height: 100%;
         margin: 2px;
       }
     }
-    .compass{
+    .compass {
       position: absolute;
       bottom: 60px;
       text-align: center;
@@ -197,10 +199,11 @@ $height: 100%;
       color: #fff !important;
       background-color: black;
       z-index: 1;
-      box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2),
+      box-shadow:
+        0px 3px 5px -1px rgba(0, 0, 0, 0.2),
         0px 6px 10px 0px rgba(0, 0, 0, 0.14),
         0px 1px 18px 0px rgba(0, 0, 0, 0.12);
-        border-radius: 50%;
+      border-radius: 50%;
     }
   }
   .sidenav-content-toolbar {
@@ -211,5 +214,53 @@ $height: 100%;
     left: 0px;
     overflow: hidden;
   }
- 
+}
+.toggle-rnb-edit-enabled {
+  background-color: #ffff;
+}
+.toggle-rnb-edit-disabled {
+  background-color: #e3e3fd;
+}
+.toggle-rnb-edit {
+  position: absolute;
+  top: 55px;
+  right: 0px;
+  z-index: 1;
+  align-items: center;
+  width: 50px;
+  padding: 10px;
+  border-radius: 10px 0px 0px 10px;
+  h3 {
+    margin: 0px;
+    transform: translateX(100%);
+    height: 0px;
+  }
+  img {
+    height: 30px;
+    min-width: 30px !important;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+  }
+}
+.toggle-rnb-edit:hover {
+  cursor: pointer;
+  width: 260px;
+  border-radius: 20px 0px 0px 20px;
+
+  h3 {
+    width: 185px;
+    transform: unset;
+    height: inherit;
+  }
+  img {
+    height: 40px;
+    min-width: 40px !important;
+    margin-right: 5px;
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .toggle-rnb-edit {
+    display: none !important;
+  }
 }

@@ -82,6 +82,95 @@ export default class Tile3DMultipolygon {
         this.cachedPoleOfInaccessibility = poi;
     }
 
+
+
+    public getFootPrintAsOutlineArea({
+        height, thickness = 0.1
+
+    }: { height: number, thickness?: number }) {
+        const positions: number[] = [];
+        const uvs: number[] = [];
+        const normals: number[] = [];
+
+        const half = thickness / 2;
+
+        // On ne s'intéresse qu'aux anneaux “Outer” pour le pourtour
+        const outers = this.rings.filter(r => r.type === Tile3DRingType.Outer);
+        const inners = this.rings.filter(r => r.type === Tile3DRingType.Inner);
+
+        for (const outer of outers) {
+            const { vertices, holes } = this.getRingEarcutInput(outer, inners);
+            // Nombre de sommets de la boucle extérieure
+            const countOuter = holes.length > 0
+                ? holes[0]
+                : vertices.length / 2;
+
+            // On collecte les points 2D
+            const pts: { x: number; y: number }[] = [];
+            for (let i = 0; i < countOuter; i++) {
+                pts.push({
+                    x: vertices[2 * i],
+                    y: vertices[2 * i + 1]
+                });
+            }
+
+            // Pour chaque arête, on crée un quad (2 triangles)
+            for (let i = 0; i < countOuter; i++) {
+                const p0 = pts[i];
+                const p1 = pts[(i + 1) % countOuter];
+                // vecteur directeur et normale perpendiculaire
+                const dx = p1.x - p0.x;
+                const dy = p1.y - p0.y;
+                const len = Math.hypot(dx, dy) || 1;
+                const nx = -dy / len;
+                const ny = dx / len;
+
+                // points en “inner” et “outer” pour ce segment
+                const p0i = { x: p0.x - nx * half, y: p0.y - ny * half };
+                const p0o = { x: p0.x + nx * half, y: p0.y + ny * half };
+                const p1i = { x: p1.x - nx * half, y: p1.y - ny * half };
+                const p1o = { x: p1.x + nx * half, y: p1.y + ny * half };
+
+                // Triangle 1 : p0i, p0o, p1i
+                positions.push(
+                    p0i.x, p0i.y, height,
+                    p0o.x, p0o.y, height,
+                    p1i.x, p1i.y, height
+                );
+                uvs.push(
+                    0, 0,
+                    1, 0,
+                    0, 1
+                );
+                normals.push(
+                    0, 0, 1,
+                    0, 0, 1,
+                    0, 0, 1
+                );
+
+                // Triangle 2 : p1i, p0o, p1o
+                positions.push(
+                    p1i.x, p1i.y, height,
+                    p0o.x, p0o.y, height,
+                    p1o.x, p1o.y, height
+                );
+                uvs.push(
+                    0, 1,
+                    1, 0,
+                    1, 1
+                );
+                normals.push(
+                    0, 0, 1,
+                    0, 0, 1,
+                    0, 0, 1
+                );
+            }
+        }
+
+        return { positions, uvs, normals };
+    }
+
+
     public getFootprint(
         {
             height,

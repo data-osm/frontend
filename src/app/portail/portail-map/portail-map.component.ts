@@ -12,6 +12,9 @@ import { BaseMapsService } from '../../data/services/base-maps.service';
 import { ShareServiceService } from '../../services/share-service/share-service.service';
 import { MatomoTracker } from 'ngx-matomo-client';
 import { MatSidenavContainer } from '@angular/material/sidenav';
+import { OsmBulkSaveComponent } from '../../modal/osm-bulk-save/osm-bulk-save.component';
+import { OSMUpdateStoreService } from '../../data/store/osm-update.store.service';
+import { takeUntil, tap } from 'rxjs';
 
 @Component({
   selector: 'app-portail-map',
@@ -32,7 +35,7 @@ export class PortailMapComponent extends AbstractProfilComponent {
   @ViewChild('mapDiv') set myDiv(myDiv: ElementRef<HTMLDivElement>) {
     this.initialiseMap(myDiv)
   }
-
+  osmUpdateStoreService: OSMUpdateStoreService
 
   constructor(
     // ngZone: NgZone,
@@ -47,10 +50,85 @@ export class PortailMapComponent extends AbstractProfilComponent {
     baseMapService: BaseMapsService,
     shareServiceService: ShareServiceService,
     router: Router,
-    tracker: MatomoTracker
+    tracker: MatomoTracker,
+    private _osmUpdateStoreService: OSMUpdateStoreService
   ) {
-    // super()
+
+
     super(manageCompHelper, shareServiceService, notifierService, parametersService, translate, activatedRoute, mapService, router, dialog, baseMapService, dataOsmLayersService, tracker)
+    this.osmUpdateStoreService = _osmUpdateStoreService
+
+    this.osmUpdateStoreService.osmFeaturesInUpdateObservable.pipe(
+      takeUntil(this.destroyed$),
+      tap(() => {
+        const osmBulkSaveDialog = this.getOsmBulkUpdateModal()
+
+        if (osmBulkSaveDialog == undefined && this.osmUpdateStoreService.osmFeaturesInUpdate.length > 0) {
+          this.showBulkSaveOSMButton()
+        } else if (osmBulkSaveDialog != undefined && this.osmUpdateStoreService.osmFeaturesInUpdate.length == 0) {
+          osmBulkSaveDialog.close()
+        }
+      })
+    ).subscribe()
+    if (this.dialog.openDialogs.filter(dialog => {
+      return (
+        dialog.componentInstance instanceof OsmBulkSaveComponent
+      )
+    }).length == 0 && this.osmUpdateStoreService.osmFeaturesInUpdate.length > 0) {
+      this.showBulkSaveOSMButton()
+    }
+  }
+
+  showBulkSaveOSMButton() {
+    this.dialog.open(OsmBulkSaveComponent, {
+      hasBackdrop: false,
+      position: {
+        bottom: "10px",
+        right: "10px"
+      },
+      width: "360px",
+      height: "45px",
+      disableClose: true,
+      panelClass: ['dialog-no-padding', "dialog-no-shadow", "dialog-bg-transparent"],
+    })
+  }
+
+  getOsmBulkUpdateModal() {
+    const osmBulkSaveIsDialogs = this.dialog.openDialogs.filter(dialog => {
+      return (
+        dialog.componentInstance instanceof OsmBulkSaveComponent
+      )
+    })
+    if (osmBulkSaveIsDialogs.length > 0) {
+      return osmBulkSaveIsDialogs[0]
+    }
+    return undefined
+  }
+
+  toggleOsmBuildingUpdate() {
+    let shouldResetToggleRnbButton = true
+    if (this.osmUpdateStoreService.isOsmBuildingUpdateEnabled) {
+      this.tracker.trackEvent("toggleOsmBuildingUpdate", "disabled")
+      if (this.osmUpdateStoreService.osmFeaturesInUpdate.length > 0) {
+        shouldResetToggleRnbButton = false
+        this.notifierService.notify("warning", "Veuillez sauvegarder les modifications avant")
+      } else {
+        this.osmUpdateStoreService.disableOsmBuildingUpdate()
+
+      }
+
+    } else {
+      this.tracker.trackEvent("toggleOsmBuildingUpdate", "enabled")
+      this.osmUpdateStoreService.enableOsmBuildingUpdate()
+    }
+    if (shouldResetToggleRnbButton) {
+      // @ts-expect-error
+      document.getElementsByClassName("toggle-rnb-edit")[0].style.display = 'none'
+      setTimeout(() => {
+        // @ts-expect-error
+        document.getElementsByClassName("toggle-rnb-edit")[0].style.display = 'flex'
+      }, 1000);
+    }
 
   }
 

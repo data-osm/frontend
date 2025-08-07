@@ -114,7 +114,7 @@ export class MapMousseEvents {
                 const intersect = intersects[i]
                 const couche_id = intersect.object.userData.couche_id
                 const layers_vector_sources_map = this.featuresStoreService.getLayerVectorSource(couche_id)
-                // @ts-expect-error
+                //@ts-expect-error
                 const feature = layers_vector_sources_map.getFeatureByUid(intersect.featureUid)
                 const layer = cartoHelper.getLayerInToc(couche_id, "couche")
                 let descriptionSheetCapabilities = undefined

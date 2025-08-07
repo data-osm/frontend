@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { getCookie } from "../auth/login/csrf.interceptor";
-import { Observable, of, switchMap } from "rxjs";
+import { map, Observable, of, switchMap, tap } from "rxjs";
 import { environment } from "../../environments/environment";
 
 export abstract class OsmDataRequest {
@@ -20,7 +20,6 @@ export abstract class OsmDataRequest {
             withCredentials: true,
             headers: {
                 'X-CSRFToken': getCookie('csrftoken') || '',
-                // "withCredentials": "true",
                 'Content-Type': 'application/json'
             }
         }
