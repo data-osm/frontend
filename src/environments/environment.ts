@@ -17,7 +17,8 @@ export const environment = {
   building_tile: "https://buildings.dataosm.info/maps/osm_data/{z}/{x}/{y}.pbf",
   // building_tile: "http://localhost:7070/maps/osm_data/{z}/{x}/{y}.pbf",
   osm_auth_base_url: "http://127.0.0.1:8000",
-  revitURl: ""
+  revitURl: "",
+  enableTerrain: false
 };
 
 /*

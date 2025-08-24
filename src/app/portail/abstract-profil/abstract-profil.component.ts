@@ -77,7 +77,7 @@ const temp2Vec3 = new Vector3()
 
 const CAPABILITIES_URL = "https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities";
 const ELEVATION_LAYER = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES"
-const enableTerrain = true
+const enableTerrain = environment.enableTerrain
 
 @Injectable()
 export abstract class AbstractProfilComponent implements OnInit {

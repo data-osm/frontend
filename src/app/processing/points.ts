@@ -19,6 +19,7 @@ import { DataOSMLayer } from "../../helper/type";
 import { throttleTime, zip } from "rxjs/operators";
 import WorkerPool from "@giro3d/giro3d/utils/WorkerPool";
 import { createListElevationWorker, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "./elevation/pool";
+import { environment } from "../../environments/environment";
 
 
 export abstract class AbstractPointsTile extends Group {
@@ -455,34 +456,44 @@ export abstract class AbstractPointsLayer<T extends AbstractPointsTile> {
     }
 
     async addElevation(features: Feature<Point>[]) {
-        const transformCoordinates = features.map((feature, index) => {
-            const transformCoordinate = transform(feature.getGeometry().getCoordinates(), this.map.extent.crs, "IGNF:WGS84G")
-            const coordinate_with_index: [number, number, number] = [transformCoordinate[0], transformCoordinate[1], index]
-            return coordinate_with_index
-        })
 
-
-        if (this.elevationWorker == undefined) {
-            this.elevationWorker = new WorkerPool({ createWorker: createListElevationWorker });
-        }
-
-        return getCapabilities().then(async (capabilities) => {
-            const result = await this.elevationWorker.queue('ListElevation', { "capabilities": capabilities, "coordinates_with_index": transformCoordinates });
-            const elevations: Map<number | string, number> = result.elevations
-            if (transformCoordinates.length != Array.from(elevations.values()).length) {
-                console.warn(
-                    "Toutes élévations n'ont pas été trouvées pour les points",
-                )
-            }
+        if (!environment.enableTerrain) {
             for (let index = 0; index < features.length; index++) {
                 const properties = features[index].getProperties()
-                features[index].setProperties({ "elevation": elevations.get(index) })
-                if (properties["elevation"] == undefined || properties["elevation"] == -Infinity) {
-                    console.warn('Elevation de d un point non trouvée')
-                }
+                features[index].setProperties({ "elevation": 0 })
             }
             return features
-        })
+        } else {
+            const transformCoordinates = features.map((feature, index) => {
+                const transformCoordinate = transform(feature.getGeometry().getCoordinates(), this.map.extent.crs, "IGNF:WGS84G")
+                const coordinate_with_index: [number, number, number] = [transformCoordinate[0], transformCoordinate[1], index]
+                return coordinate_with_index
+            })
+
+
+            if (this.elevationWorker == undefined) {
+                this.elevationWorker = new WorkerPool({ createWorker: createListElevationWorker });
+            }
+
+            return getCapabilities().then(async (capabilities) => {
+                const result = await this.elevationWorker.queue('ListElevation', { "capabilities": capabilities, "coordinates_with_index": transformCoordinates });
+                const elevations: Map<number | string, number> = result.elevations
+                if (transformCoordinates.length != Array.from(elevations.values()).length) {
+                    console.warn(
+                        "Toutes élévations n'ont pas été trouvées pour les points",
+                    )
+                }
+                for (let index = 0; index < features.length; index++) {
+                    const properties = features[index].getProperties()
+                    features[index].setProperties({ "elevation": elevations.get(index) })
+                    if (properties["elevation"] == undefined || properties["elevation"] == -Infinity) {
+                        console.warn('Elevation de d un point non trouvée')
+                    }
+                }
+                return features
+            })
+        }
+
 
     }
 

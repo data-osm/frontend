@@ -835,49 +835,69 @@ export class BuildingLayer {
             const coordinate_with_index: [number, number, number] = [transformCoordinate[0], transformCoordinate[1], index]
             return coordinate_with_index
         })
+        if (!environment.enableTerrain) {
 
-        if (window.Worker && typeof Worker !== 'undefined') {
-            if (this.elevationWorker == undefined) {
-
-                this.elevationWorker = new WorkerPool({ createWorker: createListElevationWorker });
-            }
-            getCapabilities().then((capabilities) => {
-                const result = this.elevationWorker.queue('ListElevation', { "capabilities": capabilities, "coordinates_with_index": transformCoordinates });
-                result.then((data) => {
-                    const elevations: Map<number | string, number> = data.elevations
-                    const features_in_key = features
-                    if (features_in_key.length != Array.from(elevations.values()).length) {
-                        console.warn(
-                            "Toutes élévations n'ont pas été trouvées",
-                        )
-                    }
-                    features_in_key.map((feature, index) => {
-                        const properties = feature.getProperties()
-                        properties["elevation"] = elevations.get(index)
-                        feature.setProperties(properties)
-                        if ((properties["elevation"] == -Infinity) || (properties["elevation"] == undefined)) {
-                            console.warn("Une elevation n'a pas pu être trouvée", properties["elevation"])
-                        }
-                    })
-                    const serializableFeatures = features_in_key.map((feature) => {
-                        // @ts-expect-error
-                        const flatCoordinates = feature.getGeometry().getOrientedFlatCoordinates()
-                        const properties = feature.getProperties()
-                        delete properties["geometry"]
-                        return {
-                            "flatCoordinates": flatCoordinates,
-                            // @ts-expect-error
-                            "ends_": feature.ends_,
-                            "properties": properties,
-                            "feature_id": properties.osm_id
-                        }
-                    })
-                    this.buildBuildingsAndAddToMap(serializableFeatures, worldBuildingPosition, key)
-                })
+            const serializableFeatures = features.map((feature) => {
+                // @ts-expect-error
+                const flatCoordinates = feature.getGeometry().getOrientedFlatCoordinates()
+                const properties = feature.getProperties()
+                properties["elevation"] = 0
+                delete properties["geometry"]
+                return {
+                    "flatCoordinates": flatCoordinates,
+                    // @ts-expect-error
+                    "ends_": feature.ends_,
+                    "properties": properties,
+                    "feature_id": properties.osm_id
+                }
             })
+            this.buildBuildingsAndAddToMap(serializableFeatures, worldBuildingPosition, key)
+        } else {
+            if (window.Worker && typeof Worker !== 'undefined') {
+                if (this.elevationWorker == undefined) {
+
+                    this.elevationWorker = new WorkerPool({ createWorker: createListElevationWorker });
+                }
+                getCapabilities().then((capabilities) => {
+                    const result = this.elevationWorker.queue('ListElevation', { "capabilities": capabilities, "coordinates_with_index": transformCoordinates });
+                    result.then((data) => {
+                        const elevations: Map<number | string, number> = data.elevations
+                        const features_in_key = features
+                        if (features_in_key.length != Array.from(elevations.values()).length) {
+                            console.warn(
+                                "Toutes élévations n'ont pas été trouvées",
+                            )
+                        }
+                        features_in_key.map((feature, index) => {
+                            const properties = feature.getProperties()
+                            properties["elevation"] = elevations.get(index)
+                            feature.setProperties(properties)
+                            if ((properties["elevation"] == -Infinity) || (properties["elevation"] == undefined)) {
+                                console.warn("Une elevation n'a pas pu être trouvée", properties["elevation"])
+                            }
+                        })
+                        const serializableFeatures = features_in_key.map((feature) => {
+                            // @ts-expect-error
+                            const flatCoordinates = feature.getGeometry().getOrientedFlatCoordinates()
+                            const properties = feature.getProperties()
+                            delete properties["geometry"]
+                            return {
+                                "flatCoordinates": flatCoordinates,
+                                // @ts-expect-error
+                                "ends_": feature.ends_,
+                                "properties": properties,
+                                "feature_id": properties.osm_id
+                            }
+                        })
+                        this.buildBuildingsAndAddToMap(serializableFeatures, worldBuildingPosition, key)
+                    })
+                })
 
 
+            }
         }
+
+
 
     }
 
