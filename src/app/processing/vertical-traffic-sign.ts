@@ -192,7 +192,7 @@ export class VerticalTrafficSignLayer extends AbstractPointsLayer<VerticalTraffi
         ).subscribe()
     }
 
-    updateFeatureZWithBuildingHeight() {
+    async updateFeatureZWithBuildingHeight() {
 
     }
 

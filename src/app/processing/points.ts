@@ -1,6 +1,6 @@
-import { ReplaySubject, takeUntil, tap, map as rxjsMap, filter, delay, retryWhen, debounceTime, BehaviorSubject, take, startWith, of, last, from, map, Observable, interval, takeWhile, timer, concatMap } from "rxjs";
+import { ReplaySubject, takeUntil, tap, map as rxjsMap, filter, delay, retryWhen, debounceTime, BehaviorSubject, take, startWith, of, last, from, map, Observable, interval, takeWhile, timer, concatMap, Subject } from "rxjs";
 import { CustomVectorSource } from "../../helper/carto.helper";
-import { Instance, Map as Giro3DMap, OLUtils, OrbitControls, tile, LayerUpdateState } from "../giro-3d-module";
+import { Instance, Map as Giro3DMap, OLUtils, OrbitControls, tile, LayerUpdateState, WorkerPool } from "../giro-3d-module";
 import { Box3, Box3Helper, BoxGeometry, Camera, CylinderGeometry, DoubleSide, Fog, Group, InstancedBufferAttribute, InstancedBufferGeometry, Material, Matrix4, Mesh, MeshBasicMaterial, NearestFilter, Object3DEventMap, PerspectiveCamera, PlaneGeometry, Raycaster, ReplaceStencilOp, ShaderMaterial, Sphere, SRGBColorSpace, Texture, TextureLoader, Vector2, Vector3 } from "three";
 import { fromInstanceGiroEvent } from "../shared/class/fromGiroEvent";
 import { CartoHelper } from "../../helper/carto.helper";
@@ -16,9 +16,9 @@ import { getUid } from "ol";
 import { CustomInstancedBufferGeometry, PointMesh } from "./custom-mesh";
 import { mergeFloat32 } from "./utils";
 import { DataOSMLayer } from "../../helper/type";
-import { throttleTime, zip } from "rxjs/operators";
-import WorkerPool from "@giro3d/giro3d/utils/WorkerPool";
-import { createListElevationWorker, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "./elevation/pool";
+import { switchMap, throttleTime, zip } from "rxjs/operators";
+import { createListElevationWorker, ElevationFeature, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "./elevation/pool";
+import Vec2 from "./math/vector2";
 
 
 export abstract class AbstractPointsTile extends Group {
@@ -141,8 +141,6 @@ export abstract class AbstractPointsLayer<T extends AbstractPointsTile> {
     protected map: Giro3DMap
     private controls: OrbitControls
     protected camera: PerspectiveCamera
-    private buildingsHeights$: BehaviorSubject<Map<number, number>>
-    private buildingsIndex$: BehaviorSubject<Flatbush>
     protected couche: DataOSMLayer
 
     private destroyedInstancedMesh$: ReplaySubject<boolean>;
@@ -169,10 +167,10 @@ export abstract class AbstractPointsLayer<T extends AbstractPointsTile> {
 
         this.couche = couche
         this.map = map
-        this.buildingsHeights$ = this.featuresStoreService.buildingsHeights$
-        this.buildingsIndex$ = this.featuresStoreService.buildingsIndex$
         this.instance = map["_instance"]
         this.controls = this.instance.view.controls as OrbitControls
+
+
 
         this.camera = this.instance.view.camera as PerspectiveCamera
 
@@ -213,12 +211,12 @@ export abstract class AbstractPointsLayer<T extends AbstractPointsTile> {
         )
 
 
-        this.buildingsHeights$.pipe(
+        this.featuresStoreService.newBuildingHieghtLoaded.pipe(
             debounceTime(1000),
             takeUntil(this.destroyedInstancedMesh$),
-            filter(buildingsHeights => buildingsHeights.size > 0),
-            tap(() => {
-                this.updateFeatureZWithBuildingHeight()
+            // filter(buildingsHeights => buildingsHeights.size > 0),
+            switchMap(() => {
+                return of(this.updateFeatureZWithBuildingHeight())
             })
         ).subscribe()
 
@@ -455,10 +453,17 @@ export abstract class AbstractPointsLayer<T extends AbstractPointsTile> {
     }
 
     async addElevation(features: Feature<Point>[]) {
-        const transformCoordinates = features.map((feature, index) => {
-            const transformCoordinate = transform(feature.getGeometry().getCoordinates(), this.map.extent.crs, "IGNF:WGS84G")
-            const coordinate_with_index: [number, number, number] = [transformCoordinate[0], transformCoordinate[1], index]
-            return coordinate_with_index
+
+        const featuresForElevation: Array<ElevationFeature> = features.map((feature, index) => {
+            return {
+                "properties": feature.getProperties(),
+                "center": feature.getGeometry().getCoordinates(),
+                "geometryType": "Point",
+                "index": index
+            }
+            // const transformCoordinate = transform(feature.getGeometry().getCoordinates(), this.map.extent.crs, "IGNF:WGS84G")
+            // const coordinate_with_index: [number, number, number] = [transformCoordinate[0], transformCoordinate[1], index]
+            // return coordinate_with_index
         })
 
 
@@ -467,16 +472,17 @@ export abstract class AbstractPointsLayer<T extends AbstractPointsTile> {
         }
 
         return getCapabilities().then(async (capabilities) => {
-            const result = await this.elevationWorker.queue('ListElevation', { "capabilities": capabilities, "coordinates_with_index": transformCoordinates });
-            const elevations: Map<number | string, number> = result.elevations
-            if (transformCoordinates.length != Array.from(elevations.values()).length) {
-                console.warn(
-                    "Toutes élévations n'ont pas été trouvées pour les points",
-                )
-            }
+            const result = await this.elevationWorker.queue('ListElevation', { "capabilities": capabilities, "features": featuresForElevation, geometryType: "Point" });
+            result.map((featureWithElevation) => {
+                features[featureWithElevation.index].setProperties(featureWithElevation.properties)
+            })
+            // if (transformCoordinates.length != Array.from(elevations.values()).length) {
+            //     console.warn(
+            //         "Toutes élévations n'ont pas été trouvées pour les points",
+            //     )
+            // }
             for (let index = 0; index < features.length; index++) {
                 const properties = features[index].getProperties()
-                features[index].setProperties({ "elevation": elevations.get(index) })
                 if (properties["elevation"] == undefined || properties["elevation"] == -Infinity) {
                     console.warn('Elevation de d un point non trouvée')
                 }
@@ -486,7 +492,7 @@ export abstract class AbstractPointsLayer<T extends AbstractPointsTile> {
 
     }
 
-    abstract updateFeatureZWithBuildingHeight(): void
+    abstract updateFeatureZWithBuildingHeight(): Promise<void>
     abstract addFeaturesInMesh(extents: OLExtent): void
     abstract getMaterial(): Observable<ShaderMaterial>
 
@@ -505,7 +511,7 @@ export class PointsLayer extends AbstractPointsLayer<PointsTile> {
     }
 
 
-    updateFeatureZWithBuildingHeight() {
+    override async updateFeatureZWithBuildingHeight() {
         // const featureBox3dList: Array<Box3> = []
         for (let meshIndex = 0; meshIndex < this.pointGroup.children.length; meshIndex++) {
             const pointTile = this.pointGroup.children[meshIndex] as PointsTile
@@ -520,12 +526,11 @@ export class PointsLayer extends AbstractPointsLayer<PointsTile> {
                     mesh.geometry.attributes.aInstancePosition.getZ(index),
                 ).add(pointTile.position)
 
-                let z = this.featuresStoreService.getBuildingHeightAtPoint(tmpVec2.fromArray(
-                    [
-                        worldFeaturePosition.x,
-                        worldFeaturePosition.y
-                    ]
-                ))
+                const altitude = await this.featuresStoreService.getBuildingHeightAtPoint(new Vec2(worldFeaturePosition.x, worldFeaturePosition.y))
+                let z = 0
+                if (altitude.ok) {
+                    z = altitude.data
+                }
                 const elevation = mesh.geometry.attributes.aInstanceElevation.getX(index)
 
                 mesh.geometry.attributes.aInstancePosition.setZ(index, z + elevation)
@@ -560,7 +565,7 @@ export class PointsLayer extends AbstractPointsLayer<PointsTile> {
 
     }
 
-    getAllFeaturesPerTile(features: Feature<Geometry>[], tileCenter: Vector2): {
+    async getAllFeaturesPerTile(features: Feature<Geometry>[], tileCenter: Vector2): Promise<{
         [key: string]:
         {
             features: Array<Feature>,
@@ -568,7 +573,7 @@ export class PointsLayer extends AbstractPointsLayer<PointsTile> {
             instanceStickPositions: Array<Float32Array>
             instanceElevations: Array<Float32Array>
         }
-    } {
+    }> {
 
         const pointTileFeaturesMap: {
             [key: string]:
@@ -621,12 +626,13 @@ export class PointsLayer extends AbstractPointsLayer<PointsTile> {
                 instanceElevation
             )
 
-            const buildingHeightAtFeature = this.featuresStoreService.getBuildingHeightAtPoint(tmpVec2.fromArray(
-                [
-                    coordinate[0],
-                    coordinate[1]
-                ]
-            ))
+            const altitude = await this.featuresStoreService.getBuildingHeightAtPoint(new Vec2(coordinate[0], coordinate[0]))
+            let buildingHeightAtFeature = 0
+            if (altitude.ok) {
+                buildingHeightAtFeature = altitude.data
+            }
+
+
 
             instancePosition[0] = coordinate[0] - pointTile.position.x
             instancePosition[1] = coordinate[1] - pointTile.position.y
@@ -652,11 +658,11 @@ export class PointsLayer extends AbstractPointsLayer<PointsTile> {
             return
         }
         // @ts-expect-error
-        this.addElevation(features).then(() => {
+        this.addElevation(features).then(async () => {
 
             const pointTileCenter = getBottomLeft(extent)
 
-            const pointTileFeaturesMap = this.getAllFeaturesPerTile(features, new Vector2(pointTileCenter[0], pointTileCenter[1]))
+            const pointTileFeaturesMap = await this.getAllFeaturesPerTile(features, new Vector2(pointTileCenter[0], pointTileCenter[1]))
             for (const key in pointTileFeaturesMap) {
                 const element = pointTileFeaturesMap[key];
                 const pointTile = this._tileSets.get(key)

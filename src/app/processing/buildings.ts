@@ -1,22 +1,22 @@
-import { AddEquation, AdditiveBlending, AlwaysDepth, AlwaysStencilFunc, Box3, BufferAttribute, BufferGeometry, Color, CustomBlending, DataArrayTexture, DirectionalLight, DoubleSide, Fog, GLSL3, GreaterDepth, Group, InstancedBufferGeometry, LessDepth, Material, Matrix4, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshStandardMaterial, NormalBufferAttributes, Object3D, OneFactor, PerspectiveCamera, ReplaceStencilOp, ShaderLib, ShaderMaterial, Sphere, Texture, TypedArray, UniformsLib, UniformsUtils, Vector2, Vector3, ZeroFactor } from "three";
+import { AddEquation, AdditiveBlending, AlwaysDepth, AlwaysStencilFunc, Box3, BoxGeometry, BufferAttribute, BufferGeometry, Color, CustomBlending, DataArrayTexture, DirectionalLight, DoubleSide, Fog, Frustum, GLSL3, GreaterDepth, Group, InstancedBufferGeometry, LessDepth, Material, Matrix4, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshLambertMaterial, MeshNormalMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial, NormalBufferAttributes, Object3D, OneFactor, PerspectiveCamera, PlaneGeometry, Quaternion, ReplaceStencilOp, Scene, ShaderChunk, ShaderLib, ShaderMaterial, Sphere, Texture, TypedArray, UniformsLib, UniformsUtils, Vector2, Vector3, WebGLRenderTarget, ZeroFactor } from "three";
 import { concatMap, debounceTime, delay, filter, retryWhen, map as rxjsMap, take, takeUntil, tap } from "rxjs/operators"
-import { Instance, Map as Giro3DMap, OLUtils, OrbitControls, Coordinates } from "../giro-3d-module";
-import { Feature, GeometryLayout, MVT, Polygon, TileState, VectorTileSource, GeoJSON, FeatureLike, getCenter, VectorSource, Extent, Coordinate, Geometry } from "../ol-module";
-import { fromInstanceGiroEvent } from "../shared/class/fromGiroEvent";
+import { Instance, Map as Giro3DMap, OLUtils, OrbitControls, Coordinates, BaseMessageMap, WorkerPool } from "../giro-3d-module";
+import { Feature, GeometryLayout, MVT, Polygon, TileState, VectorTileSource, GeoJSON, FeatureLike, getCenter, VectorSource, Extent, Coordinate, Geometry, MultiPolygon, Point } from "../ol-module";
+import { fromInstanceGiroEvent, fromMapGiroEvent } from "../shared/class/fromGiroEvent";
 import { createXYZ } from "ol/tilegrid";
 import { CartoHelper, CustomVectorSource, getAllFeaturesInVectorTileSource, getFeaturesFromTileCoord } from "../../helper/carto.helper";
 import { Projection, transform } from "ol/proj";
-import { BehaviorSubject, of, ReplaySubject } from "rxjs";
+import { BehaviorSubject, forkJoin, of, ReplaySubject } from "rxjs";
 import { TileCoord } from "ol/tilecoord";
-import { BufferGeometryUtils, VertexNormalsHelper } from "three/examples/jsm/Addons";
+import { BufferGeometryUtils, EffectComposer, RenderPass, UnrealBloomPass, VertexNormalsHelper } from "three/examples/jsm/Addons";
 import Earcut from 'earcut';
 import Flatbush from 'flatbush';
-import { FillStyle, StrokeStyle } from "@giro3d/giro3d/core/FeatureTypes";
+
 
 import { FeaturesStoreService, OsmFeatureToChange } from "../data/store/features.store.service";
 import { AppInjector } from "../../helper/app-injector.helper";
 import { environment } from "../../environments/environment";
-import { BuildingProperties, PolygonOptions } from "./building/type";
+import { BuildingProperties, PolygonOptions, RetrieveBuilding, SourceFeature, SourceProperties } from "./building/type";
 import { Builder, createBuildingPolygons } from "./building/builder";
 import { polygon as turf_polygon, featureCollection } from "@turf/helpers";
 import { bbox } from "@turf/bbox";
@@ -29,10 +29,26 @@ import { SelectableMesh } from "./custom-mesh";
 import { getUid, Tile } from "ol";
 import listElevation from "./elevation/listElevation";
 import WMTSCapabilities from "ol/format/WMTSCapabilities";
-import WorkerPool, { BaseMessageMap } from "@giro3d/giro3d/utils/WorkerPool";
-import { createListElevationWorker, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "./elevation/pool";
-import { OSMUpdateStoreService } from "../data/store/osm-update.store.service";
 
+import { createListElevationWorker, ElevationFeature, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "./elevation/pool";
+import { OSMUpdateStoreService } from "../data/store/osm-update.store.service";
+import CSM from 'three-csm';
+import fragmentShader from "../../assets/shaders/building.fragment.glsl";
+import vertexShader from "../../assets/shaders/building.vertex.glsl";
+
+// Load custom shaders
+import buildingCommon from "../../assets/shaders/building.common.glsl";
+import { WireExtruded } from "./building-processing-worker/worker-packer";
+import Vec2 from "./math/vector2";
+import { SunSystem } from "./sunSystem";
+import Vec3 from "./math/vector3";
+import { LightAndShadowSystem } from "./lightAndShadowSystem";
+
+import PhysicalFragment from "../../assets/shaders/physical.fragment.glsl";
+import PhysicalVertex from "../../assets/shaders/physical.vertex.glsl";
+import computeShadowMask from "../../assets/shaders/compute_shadow_mask.glsl";
+ShaderChunk['building_common'] = buildingCommon;
+ShaderChunk['compute_shadow_mask'] = computeShadowMask;
 // class WorkerPoolL {
 //     current = 0;
 //     workers: Worker[]
@@ -92,10 +108,11 @@ export class BuildingLayer {
     buildingGroup: Group = new Group()
     _tileSets: Map<string, BuildingsTile> = new Map()
 
-    buildingsHeights$: BehaviorSubject<Map<number, number>>
-    buildingsIndex$: BehaviorSubject<Flatbush>;
+    private buildingsIndex: Flatbush
     buildingTexture: DataArrayTexture
+    maskTexture: DataArrayTexture
     noiseTexture: Texture
+
 
     featuresStoreService: FeaturesStoreService = AppInjector.get(FeaturesStoreService);
     osmUpdateStoreService: OSMUpdateStoreService = AppInjector.get(OSMUpdateStoreService);
@@ -105,26 +122,82 @@ export class BuildingLayer {
     buildingVectorSource: CustomVectorSource = new CustomVectorSource({})
     uniqueBuildingPerTile: Map<string, TileCoord> = new Map<string, TileCoord>()
 
+    csm: CSM
+    private buildingMaterial: ShaderMaterial
 
+    private tileOSMIDS: Map<string, Set<number>> = new Map<string, Set<number>>()
+    private OSMIDProperites: Map<number, SourceProperties> = new Map<number, SourceProperties>()
+    private tileFlatBush: Map<string, Flatbush> = new Map<string, Flatbush>()
+    private tileBuildingHeightMap: Map<string, Map<number, number>> = new Map<string, Map<number, number>>()
+    // need to recreate tiles flatBuffer
+    private tileExtents: Map<string, [number, number, number, number]> = new Map<string, [number, number, number, number]>()
+    private tileKeyWithFlatBufferIndex: Map<number, string> = new Map<number, string>()
+
+    private sunSystem: SunSystem
+    private subScene = new Scene();
     constructor(
         map: Giro3DMap,
-        private groundTileVectorSource: VectorTileSource
+        private groundTileVectorSource: VectorTileSource,
+        csm: CSM,
+        sunSystem: SunSystem
     ) {
-        this.featuresStoreService.addLayerVectorSource(
-            LAYER_VECTOR_SOURCE_ID, this.buildingVectorSource
-        )
+        this.sunSystem = sunSystem
+        this.csm = csm
+        this.featuresStoreService.addCustomVectorSource(LAYER_VECTOR_SOURCE_ID, this.getFeatureFromOSMId.bind(this))
+        // this.featuresStoreService.addLayerVectorSource(
+        //     LAYER_VECTOR_SOURCE_ID, this.buildingVectorSource
+        // )
 
-        this.buildingsHeights$ = this.featuresStoreService.buildingsHeights$
-        this.buildingsIndex$ = this.featuresStoreService.buildingsIndex$
 
         this.map = map
         this.instance = map["_instance"]
         this.controls = this.instance.view.controls as OrbitControls
         this.buildingGroup.name = "buildings"
         this.buildingGroup.matrixAutoUpdate = false
-        this.instance.add(this.buildingGroup)
+        this.instance.scene.add(this.buildingGroup)
 
-        this.buildingGroup.renderOrder = 3
+        this.featuresStoreService.sendRetrieveBuildingHeightEmitter$.start(async (req) => this.getBuildingHeightAtPoint(req))
+        // this.buildingGroup.renderOrder = 0
+
+        this.sunSystem.sunDirectionChangedObservable.pipe(
+            debounceTime(2000),
+            tap((sunDirection) => {
+                this.updateBuildingsUniforms({ updateSunDirection: true })
+            })
+        ).subscribe()
+        this.sunSystem.skyChangedObservable.pipe(
+            debounceTime(200),
+            tap(() => {
+                this.updateBuildingsUniforms({ updateSkyTexture: true })
+            })
+        ).subscribe()
+
+        // console.log(this.buildingGroup, "this.buildingGroup")
+
+        // fromInstanceGiroEvent(this.instance, "after-camera-update").pipe(
+        //     tap(() => {
+        //         const frustum = new Frustum();
+        //         const projScreenMatrix = new Matrix4();
+
+        //         const camera = this.instance.view.camera as PerspectiveCamera
+        //         this.instance.view.camera.updateMatrixWorld();
+        //         projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+        //         frustum.setFromProjectionMatrix(projScreenMatrix);
+        //         this.buildingGroup.traverse((mesh) => {
+        //             if (mesh instanceof SelectableMesh) {
+        //                 const isInView = frustum.intersectsObject(mesh);
+        //                 if (isInView && !mesh.visible) {
+        //                     // console.log(isInView)
+        //                     mesh.visible = true;
+        //                 } else if (!isInView && mesh.visible) {
+        //                     mesh.visible = false;
+        //                 }
+        //             }
+
+        //         })
+
+        //     })
+        // ).subscribe()
 
         this.osmUpdateStoreService.isOsmBuildingUpdateEnabledObservable.pipe(
             debounceTime(1000),
@@ -271,375 +344,149 @@ export class BuildingLayer {
 
     }
 
-    getBuildingMaterial() {
-        return new ShaderMaterial({
-            // depthTest: false,
-            // depthWrite: false,
-            // wireframe: true,
-            // transparent: true,
-            glslVersion: GLSL3,
-            side: DoubleSide,
-            fog: true,
-            // alphaTest: 999,
-            // blendEquation: AddEquation,
-            // blendSrc: OneFactor,
-            // blendDst: ZeroFactor,
-            // blending: CustomBlending,
-            // blending: AdditiveBlending,
+    setBuildingMeshSunDirection(object: SelectableMesh | ShaderMaterial) {
 
-
-            // blendAlpha: CustomBlending,
-            // blendSrcAlpha: OneFactor,
-            // blendDstAlpha: ZeroFactor,
-            // blendEquationAlpha: AddEquation,
-
-            // depthFunc: LessDepth,
-            // lights: true,
-            // depthFunc: GreaterDepth,
-            vertexShader: `
-                #define USE_FOG
-                #include <fog_pars_vertex>
-                
-                uniform float fogNear;
-                uniform float fogFar;
-        
-                precision highp float;
-                precision highp int;
-                precision highp sampler2D;
-                precision highp usampler2D;
-                precision highp sampler2DArray;
-                precision highp sampler3D;
-        
-                attribute vec3 color;
-                attribute float textureId;
-                attribute int aFeatureUid;
-                attribute int aAddOutLine;
-        
-                out vec3 vColor;
-                out vec2 vUv;
-                out vec3 vNormal;
-                out vec3 vNewPosition;
-                out vec3 vPosition;
-                out vec4 mvPosition;
-                // out float vFeatureUid;
-        
-        
-                flat out int vFeatureUid;
-                flat out int vTextureId;
-                flat out int vAddOutLine;
-                
-                // uniform sampler2DArray tMap;
-        
-                void main(){
-        
-        
-                    vColor = color;
-                    vUv = uv;
-                    vTextureId = int(textureId);
-                    vFeatureUid = aFeatureUid;
-                    vAddOutLine = aAddOutLine;
-        
-                    
-                    vNormal = vec3(modelViewMatrix * vec4(normal, 0));
-                    vPosition = vec3( position );
-                    mvPosition = modelViewMatrix * vec4(position, 1.);
-                    vNewPosition = vec3(mvPosition);
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                    // #include <fog_vertex>
-                    // float fogFactor = smoothstep( fogNear, fogFar, vFogDepth );
-                    // if (fogFactor > 0.9){
-                    //         gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
-                    // }
-                    // vec2 windowUV = vec2(
-                    //     floor((vUv.x + (floor(vUv.y) * 3.)) * 0.25),
-                    //     vUv.y
-                    // );
-        
-                    // if(windowUV.x <= 1.0 || windowUV.y <= 1.0){ 
-                    //     float displacement = texture(tMap, vec3(uv, vTextureId * 4 + 1)).r;
-                    //     vec3 newPosition = position + normal * displacement * 10.0; 
-                    //     gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
-                    // }else{
-                    //     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                    // }
-        
-                   
-                
-                }
-            `,
-            fragmentShader: `
-                #define USE_FOG
-                #include <fog_pars_fragment>
-        
-                precision highp float;
-                precision highp int;
-                precision highp sampler2D;
-                precision highp usampler2D;
-                precision highp sampler2DArray;
-                precision highp sampler3D;
-        
-                vec3 WINDOW_GLOW_COLOR  = vec3(1, 0.9, 0.7);
-                float windowLightThreshold = 0.0;  
-        
-                in vec3 vColor;
-                in vec2 vUv;
-                in vec3 vNormal;
-                in vec3 vNewPosition;
-                in vec3 vPosition;
-                in vec4 mvPosition;
-                // in float vFeatureUid;
-        
-        
-                flat in int vFeatureUid;
-                flat in int vTextureId;
-                flat in int vAddOutLine;
-        
-        
-                uniform sampler2DArray tMap;
-                uniform sampler2D tNoise;
-                uniform vec3 diffuse;
-                uniform vec3 emissive;
-                uniform float roughness;
-                uniform float metalness;
-                uniform float opacity;
-                uniform int uFeatureUidSelected;
-                uniform int isRingActive;
-        
-                
-                out vec4 fragColor;
-                // vec4 fragColor;
-        
-                // layout(location = 0) out vec4 outColor;
-                // layout(location = 1) out vec3 outNormal;
-                // layout(location = 5) out vec3 outGlow;
-        
-        
-                vec3 packNormal(vec3 normal) {
-                    return normal;
-                }
-        
-                vec3 getMotionVector(vec4 clipPos, vec4 prevClipPos) {
-                    return 0.5 * vec3(clipPos / clipPos.w - prevClipPos / prevClipPos.w);
-                }
-        
-                // mat3 getTBN(vec3 N, vec3 p, vec2 uv) {
-                //     /* get edge vectors of the pixel triangle */
-                //     vec3 dp1 = dFdx(p);
-                //     vec3 dp2 = dFdy(p);
-                //     vec2 duv1 = dFdx(uv);
-                //     vec2 duv2 = dFdy(uv);
-        
-                //     /* solve the linear system */
-                //     vec3 dp2perp = cross(dp2, N);
-                //     vec3 dp1perp = cross(N, dp1);
-                //     vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
-                //     vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
-        
-                //     /* construct a scale-invariant frame */
-                //     float invmax = inversesqrt(max(dot(T, T), dot(B, B)));
-                //     return mat3(T * invmax, -B * invmax, N);
-                // }
-        
-                mat3 getTBN(vec3 normal, vec3 position, vec2 uv) {
-                    // Get edge vectors of the pixel triangle
-                    vec3 dp1 = dFdx(position);  // Partial derivative of position with respect to x
-                    vec3 dp2 = dFdy(position);  // Partial derivative of position with respect to y
-                    vec2 duv1 = dFdx(uv);       // Partial derivative of UV with respect to x
-                    vec2 duv2 = dFdy(uv);       // Partial derivative of UV with respect to y
-        
-                    // Solve the linear system to compute tangent and bitangent vectors
-                    vec3 tangent = normalize(duv2.y * dp1 - duv1.y * dp2);  // Compute Tangent (T)
-                    vec3 bitangent = normalize(duv2.x * dp1 - duv1.x * dp2); // Compute Bitangent (B)
-        
-                    // Ensure that the tangent, bitangent, and normal form a right-handed coordinate system
-                    tangent = normalize(tangent) ;
-                    bitangent = normalize(cross(normal, tangent));  // Use cross product to get a corrected bitangent
-        
-                    // Construct the TBN matrix with scale-invariance
-                    return mat3(tangent, bitangent, -normal);  // TBN matrix with Z-up normal
-                }
-        
-                
-                vec4 getColorValue(int textureId, float mask, vec3 tintColor) {
-                    vec3 color = mix(vec3(1), tintColor, mask);
-                    return texture(tMap, vec3(vUv, textureId * 4)) * vec4(color, 1.0);
-                }
-        
-        
-                vec3 getMaskValue(int textureId) {
-                    return texture(tMap, vec3(vUv, textureId * 4 + 2)).xyz;
-                }
-        
-                vec3 getGlowColor(int textureId) {
-                    return texture(tMap, vec3(vUv, textureId * 4 + 3)).xyz;
-                }
-        
-                vec3 getNormalValue(int textureId) {
-                    mat3 tbn = getTBN(vNormal, vNewPosition, vec2(vUv.x, 1. - vUv.y));
-                    vec3 mapValue = texture(tMap, vec3(vUv, textureId * 4 + 1)).xyz * 2. - 1.;
-                    vec3 normal = normalize(tbn * mapValue);
-        
-                    normal *= float(gl_FrontFacing) * 2. - 1.;
-        
-                    return normal;
-                }
-        
-                void main(){
-                    if (vTextureId == 100) {
-                        if (vAddOutLine==0 || isRingActive==0) {
-                            discard;
-                        }
-                        fragColor = vec4(1.0, 0.0, 0.0, 1.0);
-                        return;
-                    }
-                    
-                    vec3 mask = getMaskValue(vTextureId);
-                    float noiseTextureWidth = vec2(textureSize(tNoise, 0)).r;
-        
-                    vec2 windowUV = vec2(
-                        floor((vUv.x + (floor(vUv.y) * 3.)) * 0.25),
-                        vUv.y
-                    ); 
-                    vec4 outColor = vec4(1.0);
-                    // outColor = vec4(windowUV.x,0.0,0.0,1.0);
-        
-                    vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0)); 
-                    vec3 normalMap = packNormal(getNormalValue(vTextureId));
-                    float diff = max(dot(normalMap, lightDir), 0.8);
-        
-                    if(windowUV.x <= 1.0 || windowUV.y <= 1.0){
-                        
-                    // is the roof
-                    // 0 -> color
-                    // 1 -> Normal
-                    // 2 -> ARM
-                    // outColor = vec4(1.0,0.0,0.0,1.0);
-                    
-                        
-                        // outColor =  getColorValue(vTextureId, mask.b, vColor);
-        
-                        if (vTextureId != 2){
-                            // our default texture for the roof
-                            outColor =   getColorValue(vTextureId, mask.b, vColor);
-        
-                            // calculate the final color based on the PBR model
-                            vec3 albedo = outColor.rgb * (1.0 - mask.r) + mask.r * outColor.rgb; // simple albedo calculation
-                            float specularFactor = 1.0 - mask.g;
-                            vec3 diffuseColor = albedo;
-                            // calculate the final color with some basic lighting effects (e.g., ambient occlusion)
-                            float aoFactor = 1.0 - abs(dot(normalMap, lightDir));
-                            diffuseColor *= (aoFactor + specularFactor) * 0.5;
-        
-                            fragColor = vec4(diffuseColor, outColor.a);
-                            
-                        }
-                        else{
-                        
-                            // vec4 color = texture(tMap, vec3(vUv, vTextureId * 4));
-                            // vec4 ormData = texture(tMap, vec3(vUv, vTextureId * 4 + 2));
-        
-                            // float ao = ormData.r;       // Ambient Occlusion from the R channel
-                            // float roughness = ormData.g; // Roughness from the G channel
-                            // float metalness = ormData.b; // Metalness from the B channel
-        
-                            // Sample the normal map texture and adjust the normal vector
-                            // vec3 normalTex =texture(tMap, vec3(vUv, vTextureId * 4 + 1)).rgb;
-                            // vec3 perturbedNormal = normalize(vNormal + (normalTex * 2.0 - 1.0));
-        
-                            // Shading logic (basic Phong-style shading for the example)
-                            // float diff = max(dot(perturbedNormal, lightDir), 0.0);
-        
-                            // Apply ambient occlusion, roughness, and metalness in shading
-                            // vec3 ambient = ao * color.rgb * 1.3; // AO affects ambient lighting
-                            // vec3 diffuse = color.rgb * diff * (1.0 - roughness);
-                            // vec3 specular = mix(vec3(0.4), color.rgb, metalness) * pow(diff, 16.0); // Adjust specular with metalness
-        
-                            // Final color output
-                            // vec3 finalColor = ambient + diffuse + specular;
-                            // // outColor = vec4(color.rgb, 1.0);
-                            
-                            outColor =  diff * getColorValue(vTextureId, mask.b, vColor);
-                            fragColor = outColor;
-                            // fragColor = vec4(1.0, 0.0,0.0, 1.0);
-                        }
-                        
-                    }
-                    
-                  
-                    else if (mask.b == 0.0 && mask.g > 0.9){
-                        // is the glass of the window here
-                        // > 0.9 to prevent to render the small white stroke around the window
-                        vec4 baseColor =  getColorValue(vTextureId, mask.b, vColor);
-                        vec3 outGlow = getGlowColor(vTextureId) * WINDOW_GLOW_COLOR * 1.4;
-        
-                        outColor =   vec4(baseColor.xyz+outGlow,baseColor.a);
-        
-                        // calculate the final color based on the PBR model
-                        vec3 albedo = outColor.rgb * (1.0 - mask.r) + mask.r * outColor.rgb; // simple albedo calculation
-                        float specularFactor = 1.0 - mask.g;
-                        vec3 diffuseColor = albedo;
-        
-                        // calculate the final color with some basic lighting effects (e.g., ambient occlusion)
-                        float aoFactor = 1.0 - abs(dot(normalMap, lightDir));
-                        diffuseColor *= (aoFactor + specularFactor) * 0.8;
-                        fragColor = vec4(diffuseColor, outColor.a);
-                        // outColor = diff * getColorValue(vTextureId, mask.b, vColor);
-                        // fragColor = outColor;
-        
-                    }else{
-                        // Wall
-                        // outColor =  vec4(0.0, 0.0, 0.0, 0.8);
-                        outColor =  getColorValue(vTextureId, mask.b, vColor);
-        
-                       // calculate the final color based on the PBR model
-                        vec3 albedo = outColor.rgb * (1.0 - mask.r) + mask.r * outColor.rgb; // simple albedo calculation
-                        float specularFactor = 1.0 - mask.g;
-                        vec3 diffuseColor = albedo;
-        
-                        // calculate the final color with some basic lighting effects (e.g., ambient occlusion)
-                        float aoFactor = 1.0 - abs(dot(normalMap, lightDir));
-                        diffuseColor *= (aoFactor + specularFactor) * 0.5;
-        
-                        fragColor = vec4(diffuseColor, outColor.a);
-                    }
-                    #ifdef USE_FOG
-                        float fogFactor = smoothstep( fogNear, fogFar, vFogDepth );
-                        // if (fogFactor > 0.4){
-                        //     discard;
-                        // }
-                        fragColor.rgb = mix( fragColor.rgb, fogColor, fogFactor );
-                    #endif
-
-                    if (uFeatureUidSelected == vFeatureUid){
-                        fragColor = fragColor * vec4(1.0, 0.0, 0.0, 0.4);
-                    }
-        
-                }
-            `,
-            uniforms: {
-                ...UniformsUtils.merge([
-                    UniformsLib['common'],
-                    UniformsLib['fog'],
-                    {
-                        diffuse: { value: new Color(0x00ff00) },
-                        opacity: { value: 1.0 },
-                    },
-                ]),
-                "isRingActive": { value: this.osmUpdateStoreService.isOsmBuildingUpdateEnabled ? 1 : 0 },
-                // fogColor: { value: (this.instance.scene.fog as Fog).color },
-                // fogNear: { value: (this.instance.scene.fog as Fog).near },
-                // fogFar: { value: (this.instance.scene.fog as Fog).far }
-            }
+        let materialToUpdate: ShaderMaterial
+        if (object instanceof SelectableMesh) {
+            materialToUpdate = object.material
+        } else if (object instanceof ShaderMaterial) {
+            materialToUpdate = object
+        } else {
+            throw new Error("No mesh or material provided")
         }
-        );
+        const sunDirection = this.sunSystem.sunDirection
+        tempVec3.set(sunDirection.x, sunDirection.y, sunDirection.z)
+
+
+        if (!materialToUpdate.uniforms.UdirectionLightDirection) {
+            materialToUpdate.uniforms.UdirectionLightDirection = { value: tempVec3.clone() }
+        } else {
+
+            materialToUpdate.uniforms.UdirectionLightDirection.value.copy(tempVec3)
+        }
+        if (!materialToUpdate.uniforms.directionLightColor) {
+            materialToUpdate.uniforms.directionLightColor = { value: this.sunSystem.sunLightColor.clone() }
+        } else {
+
+            materialToUpdate.uniforms.directionLightColor.value.copy(this.sunSystem.sunLightColor)
+        }
+
+
+        const directionLightIntensity = LightAndShadowSystem.getSunLightIntensity(sunDirection) + ""
+        const ambientLightIntensity = LightAndShadowSystem.getAmbientLightIntensity(sunDirection) + ""
+
+        materialToUpdate.uniforms.directionLightIntensity = { value: directionLightIntensity }
+        materialToUpdate.uniforms.ambientLightIntensity = { value: ambientLightIntensity }
+        materialToUpdate.needsUpdate = true
     }
 
-    setBuildingTexture(buildingTexture: DataArrayTexture, noiseTexture: Texture) {
+    setBuildingMeshSkyTexture(object: SelectableMesh | ShaderMaterial) {
+
+        let materialToUpdate: ShaderMaterial
+        if (object instanceof SelectableMesh) {
+            materialToUpdate = object.material
+            // console.log(materialToUpdate)
+        } else if (object instanceof ShaderMaterial) {
+            materialToUpdate = object
+        } else {
+            throw new Error("No mesh or material provided")
+        }
+        const environmentTextureProperties = this.sunSystem.getSkyTexture()
+        materialToUpdate.defines.CUBEUV_TEXEL_WIDTH = environmentTextureProperties.CUBEUV_TEXEL_WIDTH
+        materialToUpdate.defines.CUBEUV_TEXEL_HEIGHT = environmentTextureProperties.CUBEUV_TEXEL_HEIGHT
+        materialToUpdate.defines.CUBEUV_MAX_MIP = environmentTextureProperties.CUBEUV_MAX_MIP + ".0"
+        if (!Boolean(materialToUpdate.uniforms.tSkyTexture)) {
+            materialToUpdate.uniforms.tSkyTexture = {
+                value: environmentTextureProperties.texture
+            }
+        } else {
+            materialToUpdate.uniforms.tSkyTexture.value = environmentTextureProperties.texture
+        }
+
+        materialToUpdate.needsUpdate = true
+    }
+    updateBuildingsUniforms(options: { updateSunDirection?: boolean, updateSkyTexture?: boolean } = {}) {
+        this.buildingGroup.traverse((child) => {
+            if (child instanceof SelectableMesh) {
+                if (options.updateSunDirection) {
+
+                    this.setBuildingMeshSunDirection(child)
+                }
+                if (options.updateSkyTexture) {
+                    this.setBuildingMeshSkyTexture(child)
+                }
+            }
+        })
+    }
+
+
+    getBuildingMaterial() {
+        if (!Boolean(this.buildingMaterial)) {
+            this.buildingMaterial = new ShaderMaterial({
+
+                glslVersion: GLSL3,
+                side: DoubleSide,
+                // fog: true,
+                lights: true,
+                vertexShader: vertexShader,
+                fragmentShader: fragmentShader,
+                // wireframe: true,
+                uniforms: {
+                    ...UniformsUtils.merge([
+                        UniformsLib['common'],
+                        UniformsLib['fog'],
+                        UniformsLib['lights'],
+                        {
+                            diffuse: { value: new Color(0x00ff00) },
+                            opacity: { value: 1.0 },
+                        },
+                    ]),
+                    "isRingActive": { value: this.osmUpdateStoreService.isOsmBuildingUpdateEnabled ? 1 : 0 },
+                    // fogColor: { value: (this.instance.scene.fog as Fog).color },
+                    // fogNear: { value: (this.instance.scene.fog as Fog).near },
+                    // fogFar: { value: (this.instance.scene.fog as Fog).far }
+                },
+                defines: {
+                    ENVMAP_TYPE_CUBE_UV: '',
+                    ENVMAP_MODE_REFLECTION: ''
+                }
+            }
+            );
+
+            this.csm.setupMaterial(this.buildingMaterial);
+        }
+        if (!Boolean(this.buildingMaterial.uniforms.tMap)) {
+            this.buildingMaterial.uniforms.tMap = {
+                value: this.buildingTexture
+            }
+        }
+        if (!Boolean(this.buildingMaterial.uniforms.tNoise)) {
+            this.buildingMaterial.uniforms.tNoise = {
+                value: this.noiseTexture
+            }
+        }
+        if (!Boolean(this.buildingMaterial.uniforms.tMask)) {
+            this.buildingMaterial.uniforms.tMask = {
+                value: this.maskTexture
+            }
+        }
+        if (!Boolean(this.buildingMaterial.uniforms.tSkyTexture)) {
+            this.setBuildingMeshSkyTexture(this.buildingMaterial)
+        }
+        this.setBuildingMeshSunDirection(this.buildingMaterial)
+
+        return this.buildingMaterial
+
+    }
+
+    setBuildingTexture(buildingTexture: DataArrayTexture, maskTexture: DataArrayTexture, noiseTexture: Texture) {
         if (this.buildingTexture) {
             return
         }
         this.buildingTexture = buildingTexture
+        this.maskTexture = maskTexture
         this.noiseTexture = noiseTexture
+
     }
 
     getBuildingsTile(coordinate: Vector2): [boolean, BuildingsTile] {
@@ -648,7 +495,7 @@ export class BuildingLayer {
         //     Math.ceil(coordinate.x - BUILDING_TILE_SIZE),
         //     Math.ceil(coordinate.y - BUILDING_TILE_SIZE)
         // )
-
+        const scene = this.instance.scene
 
         const tilePosition = coordinate
         const tile_key = tilePosition.x + "_" + tilePosition.y
@@ -663,8 +510,8 @@ export class BuildingLayer {
             tilePosition.x, tilePosition.y, 0
         )
         // console.log(newBuildingTile.position)
-        newBuildingTile.updateMatrixWorld()
-        newBuildingTile.updateMatrix()
+        // newBuildingTile.updateMatrixWorld()
+        // newBuildingTile.updateMatrix()
 
         this.buildingGroup.add(newBuildingTile)
 
@@ -673,9 +520,9 @@ export class BuildingLayer {
     }
 
     currentZoomChanged(zoom: number) {
-        if (zoom < 16) {
+        if (zoom < 16 && this.buildingGroup.visible) {
             this.buildingGroup.visible = false
-        } else {
+        } else if (zoom >= 16 && !this.buildingGroup.visible) {
             this.buildingGroup.visible = true
         }
     }
@@ -693,6 +540,89 @@ export class BuildingLayer {
             buildingFeature.setProperties(properties)
 
         }
+    }
+    loadTile(tile: WireExtruded) {
+
+        const x = tile.worldBuildingPosition[0]
+        const y = tile.worldBuildingPosition[1]
+
+        const [isTileAlreadyCreated, buildingTile] = this.getBuildingsTile(new Vector2(x, y))
+
+        this.loadFeatureInScene(tile, buildingTile)
+
+    }
+
+    loadFeatures(tileResults: RetrieveBuilding[]) {
+        for (let index = 0; index < tileResults.length; index++) {
+            const tile = tileResults[index];
+            const osmIDsSet = new Set<number>()
+            for (let index = 0; index < tile.features.length; index++) {
+                const feature = tile.features[index];
+                this.OSMIDProperites.set(feature.properties.osm_id, feature.properties)
+                osmIDsSet.add(feature.properties.osm_id)
+            }
+            this.tileOSMIDS.set(tile.tile_key, osmIDsSet)
+            this.loadTileBuildingHeightIndex(tile)
+        }
+    }
+
+    loadTileBuildingHeightIndex(tileResult: RetrieveBuilding) {
+
+        const index = Flatbush.from(tileResult.flatBushData)
+        this.tileExtents.set(tileResult.tile_key, tileResult.tileExtent)
+
+        this.buildingsIndex = new Flatbush(this.tileExtents.size)
+        for (const entry of this.tileExtents.entries()) {
+            const tileIndex = this.buildingsIndex.add(entry[1][0], entry[1][1], entry[1][2], entry[1][3])
+            this.tileKeyWithFlatBufferIndex.set(tileIndex, entry[0])
+        }
+        this.buildingsIndex.finish()
+
+        this.tileFlatBush.set(tileResult.tile_key, index)
+        this.tileBuildingHeightMap.set(tileResult.tile_key, tileResult.tileHeightMap)
+
+        // Notify new building height loaded
+        this.featuresStoreService.newBuildingHieghtLoaded = null
+    }
+
+    getBuildingHeightAtPoint(point: Vec2) {
+        if (this.tileBuildingHeightMap.size == 0) {
+            return LEVEL_HEIGHT
+        }
+        // Tile Intersecting (index pour recup son tile index flatbush)
+        const tileIntersecting = this.buildingsIndex.neighbors(point.x, point.y, 1)
+        if (tileIntersecting.length > 0) {
+            // the tile key
+            const tile_key = this.tileKeyWithFlatBufferIndex.get(tileIntersecting[0])
+            // recuperation du flatbush du tile et du map (tileIndex, buildingHeight)
+            const tileFlatBushIndex = this.tileFlatBush.get(tile_key)
+            //  map (tileIndex, buildingHeight)
+            const tileBuildingHeightMap = this.tileBuildingHeightMap.get(tile_key)
+            if (tileFlatBushIndex && tileBuildingHeightMap) {
+                // Recup de l'index du batiment dans le flatbush du tile
+                const buildingIntersecting = tileFlatBushIndex.neighbors(point.x, point.y, 2)
+                if (buildingIntersecting.length > 0) {
+                    const buildingHeightAtPoint = Math.max(...buildingIntersecting.map((index) => tileBuildingHeightMap.get(index)));
+                    if (buildingHeightAtPoint) {
+                        return buildingHeightAtPoint
+                    }
+                    // const buildingHeightAtPoint = this.TileBuildingHeightMap.get(tileIntersecting[0]).get(buildingIntersecting[0])
+                }
+            }
+        }
+        return 10
+    }
+
+    getFeatureFromOSMId(osm_id: number) {
+        const properties = this.OSMIDProperites.get(osm_id)
+        if (properties == undefined) {
+            return
+        }
+
+        const feature = new Feature(new Point(properties.center))
+        feature.setProperties(properties)
+        return feature
+
     }
 
     extentLoadEnd(vectorTileSource: VectorTileSource, tilesToLoad: Array<VectorRenderTile>, for_reload: boolean = false) {
@@ -722,6 +652,7 @@ export class BuildingLayer {
             ).filter(
                 (feat) => !buildingsToHide.includes(feat.getProperties()["osm_id"])
             )
+            // .filter((feat) => feat.getProperties().osm_id === 69226554)
 
 
             if (features.length > 0) {
@@ -742,200 +673,175 @@ export class BuildingLayer {
 
 
                 const worldBuildingPosition = buildingTile.getWorldPosition(new Vector3())
-                this.addElevationAndSerializeFeatures(features, worldBuildingPosition, buildingTile.key)
+                // this.addElevationAndSerializeFeatures(features, worldBuildingPosition, buildingTile.key)
 
             }
         }
 
 
-        this.rebuildBuildingsHeightIndex(vectorTileSource)
+        // this.rebuildBuildingsHeightIndex(vectorTileSource)
 
     }
 
-    rebuildBuildingsHeightIndex(vectorTileSource: VectorTileSource) {
-        const buildingFeatures = getAllFeaturesInVectorTileSource(vectorTileSource).filter((feat) => feat.getProperties()["layer"] == "buildings")
-        if (buildingFeatures.length > 0) {
+    rebuildBuildingsHeightIndex() {
+        // let t0 = performance.now()
+        // const buildingsHeights = new Map()
+        // const index = new Flatbush(this.OSMIDProperites.size);
+        // index.data
+        // for (const entry of this.OSMIDProperites.entries()) {
+        //     const rectangleIndexPosition = index.add(entry[1].extent[0], entry[1].extent[1], entry[1].extent[2], entry[1].extent[3])
 
-            const buildingsHeights = new Map()
-            const index = new Flatbush(buildingFeatures.length);
+        //     buildingsHeights.set(rectangleIndexPosition, entry[1].buildingHeight)
+        // }
+        // index.finish()
+        // this.buildingsHeights$.next(buildingsHeights)
+        // this.buildingsIndex$.next(index)
+        // let t1 = performance.now()
+        // console.log(`Temps écoulé : ${(t1 - t0).toFixed(2)} ms`);
+        // console.log(buildingsHeights.size, "buildingsHeights");
 
-            buildingFeatures.map((feature) => {
-                const properties = feature.getProperties()
-                const featureExtent = feature.getGeometry().getExtent()
+        // if (buildingFeatures.length > 0) {
 
-                const rectangleIndexPosition = index.add(
-                    featureExtent[0],
-                    featureExtent[1],
-                    featureExtent[2],
-                    featureExtent[3],
-                )
-                buildingsHeights.set(rectangleIndexPosition, this.getBuildingParameters(properties)["height"] * 1.3)
-            })
-            index.finish()
-            this.buildingsHeights$.next(buildingsHeights)
-            this.buildingsIndex$.next(index)
-        }
+        //     const buildingsHeights = new Map()
+        //     const index = new Flatbush(buildingFeatures.length);
+
+        //     buildingFeatures.map((feature) => {
+        //         const properties = feature.getProperties()
+        //         const featureExtent = feature.getGeometry().getExtent()
+
+        //         const rectangleIndexPosition = index.add(
+        //             featureExtent[0],
+        //             featureExtent[1],
+        //             featureExtent[2],
+        //             featureExtent[3],
+        //         )
+        //         buildingsHeights.set(rectangleIndexPosition, this.getBuildingParameters(properties)["height"] * 1.3)
+        //     })
+        //     index.finish()
+        //     this.buildingsHeights$.next(buildingsHeights)
+        //     this.buildingsIndex$.next(index)
+        // }
     }
 
 
 
-    buildBuildingsAndAddToMap(
-        serializableFeatures: {
-            flatCoordinates: any;
-            ends_: any;
-            properties: {
-                [x: string]: any;
-            };
-            feature_id: number;
-        }[],
-        worldBuildingPosition: Vector3,
-        key: string
-    ) {
 
-
-        if (window.Worker && typeof Worker !== 'undefined') {
-            function createWorker() {
-                return new Worker(new URL('../processing.worker', import.meta.url), {
-                    type: 'module',
-                    name: 'ExtrudeBuildings',
-                });
-            }
-            // Create a new
-            if (this.worker == undefined) {
-                this.worker = new WorkerPool({ createWorker });
-                // this.worker = new Worker(new URL('../processing.worker', import.meta.url));
-            }
-            const result = this.worker.queue('ExtrudeBuildings', { "features": serializableFeatures, "worldBuildingPosition": worldBuildingPosition, "tile_key": key });
-            result.then((data) => {
-                // @ts-expect-error
-                let tile = this._tileSets.get(data.tile_key)
-                this.loadFeatureInScene(
-                    // @ts-expect-error
-                    data.geometriesJson,
-                    tile
-                )
-            })
-
-        } else {
-            let data = build3dBuildings(serializableFeatures, worldBuildingPosition, key)
-            let tile = this._tileSets.get(data.tile_key)
-            this.loadFeatureInScene(
-                // @ts-expect-error
-                data.geometriesJson,
-                tile
-            )
-        }
-    }
-
-    addElevationAndSerializeFeatures(features: Feature[], worldBuildingPosition: Vector3, key: string) {
-
-        const transformCoordinates = features.map((feature, index) => {
-            const point = getCenter(feature.getGeometry().getExtent())
-            const transformCoordinate = transform(point, this.map.extent.crs, "IGNF:WGS84G")
-            const coordinate_with_index: [number, number, number] = [transformCoordinate[0], transformCoordinate[1], index]
-            return coordinate_with_index
-        })
-
-        if (window.Worker && typeof Worker !== 'undefined') {
-            if (this.elevationWorker == undefined) {
-
-                this.elevationWorker = new WorkerPool({ createWorker: createListElevationWorker });
-            }
-            getCapabilities().then((capabilities) => {
-                const result = this.elevationWorker.queue('ListElevation', { "capabilities": capabilities, "coordinates_with_index": transformCoordinates });
-                result.then((data) => {
-                    const elevations: Map<number | string, number> = data.elevations
-                    const features_in_key = features
-                    if (features_in_key.length != Array.from(elevations.values()).length) {
-                        console.warn(
-                            "Toutes élévations n'ont pas été trouvées",
-                        )
-                    }
-                    features_in_key.map((feature, index) => {
-                        const properties = feature.getProperties()
-                        properties["elevation"] = elevations.get(index)
-                        feature.setProperties(properties)
-                        if ((properties["elevation"] == -Infinity) || (properties["elevation"] == undefined)) {
-                            console.warn("Une elevation n'a pas pu être trouvée", properties["elevation"])
-                        }
-                    })
-                    const serializableFeatures = features_in_key.map((feature) => {
-                        // @ts-expect-error
-                        const flatCoordinates = feature.getGeometry().getOrientedFlatCoordinates()
-                        const properties = feature.getProperties()
-                        delete properties["geometry"]
-                        return {
-                            "flatCoordinates": flatCoordinates,
-                            // @ts-expect-error
-                            "ends_": feature.ends_,
-                            "properties": properties,
-                            "feature_id": properties.osm_id
-                        }
-                    })
-                    this.buildBuildingsAndAddToMap(serializableFeatures, worldBuildingPosition, key)
-                })
-            })
-
-
-        }
-
-    }
-
-    loadFeatureInScene(geometriesJson: {
-        key: string;
-        data: {
-            itemSize: number;
-            type: string;
-            array: number[];
-            normalized: boolean;
-        },
-    }[], buildingTile: BuildingsTile) {
+    loadFeatureInScene(geometriesJson: WireExtruded, buildingTile: BuildingsTile) {
 
 
         const geometry = new BufferGeometry()
-        geometriesJson.map((geometryJson) => {
-            let valueList: TypedArray;
 
-            if (geometryJson.data.type == "Uint8Array") {
-                valueList = new Uint8Array(geometryJson.data.array)
-            } else if (geometryJson.data.type == "Int32Array") {
-                valueList = new Int32Array(geometryJson.data.array)
-            } else {
-                valueList = new Float32Array(geometryJson.data.array)
-            }
-            geometry.setAttribute(geometryJson.key, new BufferAttribute(valueList, geometryJson.data.itemSize, geometryJson.data.normalized))
+        geometriesJson.attrs.forEach((geometryJson) => {
+            geometry.setAttribute(geometryJson.key, new BufferAttribute(geometryJson.array, geometryJson.itemSize, geometryJson.normalized))
         })
-
-        const building = new SelectableMesh(geometry, this.getBuildingMaterial())
+        // const material = new MeshStandardMaterial({ side: DoubleSide, color: 0xffffff })
+        const physicalUniforms = ShaderLib.physical.uniforms
+        physicalUniforms.diffuse.value = new Color(0x00ff00)
+        // const material = new ShaderMaterial({
+        //     // side: DoubleSide,
+        //     fog: true,
+        //     lights: true,
+        //     vertexShader: PhysicalVertex,
+        //     fragmentShader: PhysicalFragment,
+        //     // wireframe: true,
+        //     uniforms: physicalUniforms,
+        //     // {
+        //     //     ...UniformsUtils.merge([
+        //     //         UniformsLib['common'],
+        //     //         UniformsLib['fog'],
+        //     //         UniformsLib['lights'],
+        //     //         {
+        //     //             diffuse: { value: new Color(0x00ff00) },
+        //     //             opacity: { value: 1.0 },
+        //     //         },
+        //     //     ]),
+        //     //     // fogColor: { value: (this.instance.scene.fog as Fog).color },
+        //     //     // fogNear: { value: (this.instance.scene.fog as Fog).near },
+        //     //     // fogFar: { value: (this.instance.scene.fog as Fog).far }
+        //     // },
+        //     defines: {
+        //         'STANDARD': '',
+        //         'PHYSICAL': ''
+        //     }
+        // })
+        const material = this.getBuildingMaterial()
+        // this.csm.setupMaterial(material);
+        // const material = new MeshLambertMaterial({ color: 0xffaa88 });
+        // const material = new MeshNormalMaterial({ flatShading: false });
+        this.csm.setupMaterial(material);
+        // this.instance.notifyChange()
+        const building = new SelectableMesh(geometry, material)
+        // const building = new Mesh(geometry, material)
+        building.castShadow = true
+        building.receiveShadow = true
         building.userData.name = BUILDING_DESCRIPTION_SHEET_TITLE
         building.userData.couche_id = LAYER_VECTOR_SOURCE_ID
         building.userData.descriptionSheetCapabilities = BUILDING_DESCRIPTION_SHEET
 
-        tmpBox3.setFromArray(building.geometry.attributes.position.array)
 
+        tmpBox3.setFromArray(geometriesJson.boundingBoxMinMax)
         building.geometry.boundingBox = tmpBox3.clone()
         building.geometry.boundingSphere = tmpBox3.getBoundingSphere(tmpSphere).clone()
         building.frustumCulled = true
+        // const mat = new MeshStandardMaterial({ color: new Color(0.5, 0, 0), side: DoubleSide });
+        // this.csm.setupMaterial(mat);
+        // const groupPlaneMesh = planeFromBox(tmpBox3, mat, { axis: 'z', where: 'center', margin: 0, segments: 1 })
+        // groupPlaneMesh.receiveShadow = true
+        // groupPlaneMesh.castShadow = true
+        // groupPlaneMesh.updateMatrix()
+        // groupPlaneMesh.updateMatrixWorld(true)
+        // groupPlaneMesh.name = "building_group_plane"
+
         // We have to keep uniforms of the old building mesh if exist
         if (buildingTile.children.length > 0) {
-            building.material.uniforms = (buildingTile.children[0] as SelectableMesh).material.uniforms
+            // building.material.uniforms = (buildingTile.children[0] as SelectableMesh).material.uniforms
         }
 
-        buildingTile.clear()
-        buildingTile.add(building)
+        // var material1 = new MeshPhysicalMaterial({ color: '#08d9d6' });
+        // this.csm.setupMaterial(material1);
 
+        // var material2 = new MeshPhysicalMaterial({ color: '#ff2e63' });
+        // this.csm.setupMaterial(material2);
+        // var box_geometry = new BoxGeometry(10, 10, 10);
+        // tmpBox3.getCenter(tempVec3)
+        // tempVec3.copy(tmpBox3.min)
+
+        // for (var i = 0; i < 10; i++) {
+
+        //     var cube1 = new Mesh(box_geometry, i % 2 === 0 ? customMaterial : material2);
+        //     cube1.castShadow = true;
+        //     cube1.receiveShadow = true;
+        //     cube1.rotateX(Math.PI / 2);
+        //     buildingTile.add(cube1);
+
+
+        //     cube1.position.set(tempVec3.x - i * 40, tempVec3.y + 10, tempVec3.z + 20);
+        //     cube1.scale.y = Math.random() * 2 + 6;
+
+        //     var cube2 = new Mesh(box_geometry, i % 2 === 0 ? material2 : customMaterial);
+        //     cube2.castShadow = true;
+        //     cube2.receiveShadow = true;
+        //     cube2.rotateX(Math.PI / 2);
+        //     buildingTile.add(cube2);
+        //     cube2.position.set(tempVec3.x + i * 40, tempVec3.y - 10, tempVec3.z + 20);
+        //     cube2.scale.y = Math.random() * 2 + 6;
+
+        // }
+
+        // buildingTile.clear()
+
+        // const W = 1024, H = 512;
+        // const offRT = new WebGLRenderTarget(W, H, { samples: 0 });
+        // const composer = new EffectComposer(this.instance.renderer, offRT);
+        // composer.addPass(new RenderPass(this.instance.scene, this.instance.view.camera));        // ta sous-scène
+        // composer.addPass(new UnrealBloomPass(new Vector2(W, H), 1.2, 0.4, 0.85));
+        // const mat = new MeshBasicMaterial({ map: composer.readBuffer.texture });
+        // mat.toneMapped = false;
+
+        buildingTile.add(building)
+        // buildingTile.add(groupPlaneMesh)
         buildingTile.updateMatrixWorld()
 
-
-
-        if (building.material.uniforms.tNoise == undefined) {
-            building.material.uniforms.tMap = {
-                value: this.buildingTexture
-            }
-            building.material.uniforms.tNoise = {
-                value: this.noiseTexture
-            }
-        }
         this.instance.notifyChange(buildingTile)
         // this.instance.notifyChange(this.instance.view.camera, {
         //     immediate: false,
@@ -944,59 +850,7 @@ export class BuildingLayer {
     }
 
 
-    getBuildingParameters(properties) {
 
-        let minLevel = <number>properties.minLevel ?? null;
-        let height = <number>properties.height ?? null;
-        let levels = <number>properties.levels ?? null;
-        let minHeight = <number>properties.minHeight ?? null;
-        const roofLevels = properties.roofLevels <= 0 ? 0.6 : <number>properties.roofLevels ?? 0;
-        let roofHeight = <number>properties.roofHeight ?? (roofLevels * LEVEL_HEIGHT);
-
-        if (height !== null) {
-            roofHeight = Math.min(roofHeight, height - (minHeight ?? 0));
-        }
-
-        if (height === null && levels === null) {
-            levels = (minLevel !== null) ? minLevel : 1;
-            height = levels * LEVEL_HEIGHT + roofHeight
-        } else if (height === null) {
-            height = levels * LEVEL_HEIGHT + roofHeight
-        } else if (levels === null) {
-            levels = Math.max(1, Math.round((height - roofHeight) / LEVEL_HEIGHT));
-        }
-
-        if (minLevel === null) {
-            if (minHeight !== null) {
-                minLevel = Math.min(levels - 1, Math.round(minHeight / LEVEL_HEIGHT));
-            } else {
-                minLevel = 0;
-            }
-        }
-
-        if (minHeight === null) {
-            minHeight = Math.min(minLevel * LEVEL_HEIGHT, height);
-        }
-        const isRoof = properties.buildingType === 'roof';
-        let buildingMinHeight = isRoof ? (height - roofHeight) : minHeight
-
-        // if (properties.height && !properties.minHeight && !properties.minLevel) {
-        //     return properties.height
-        // }else if (properties.height && properties.minHeight) {
-        //     return Math.max(properties.height - properties.minHeight, LEVEL_HEIGHT)
-        // }else if (properties.minHeight && !properties.height && properties.minLevel){
-        //     return Math.max(properties.height - properties.minLevel*LEVEL_HEIGHT, LEVEL_HEIGHT)
-        // }
-
-        // if (properties.levels && !properties.minLevel)
-        // if (properties.levels) {
-        //     return properties.levels * 1.5
-        // }
-        return {
-            height: height,
-            minHeight: buildingMinHeight
-        }
-    }
 
     getAndZoomToTheClosestBuilding(coordinate: Coordinate, osm_ids: number[]): Feature<Geometry> | null {
 
@@ -1021,3 +875,53 @@ export class BuildingLayer {
 
 }
 
+
+/**
+ * Crée un Mesh (PlaneGeometry) aligné sur une face de la Box3.
+ * @param {THREE.Box3} box
+ * @param {Object} opt
+ * @param {'x'|'y'|'z'} [opt.axis='z']   - normale du plan (x: plan YZ, y: plan XZ, z: plan XY)
+ * @param {'center'|'min'|'max'} [opt.where='center'] - position: au centre de la box, sur la face min ou max le long de l’axe
+ * @param {number} [opt.margin=0] - décalage supplémentaire le long de la normale
+ * @param {number} [opt.segments=1] - segments du plan
+ * @param {THREE.Material} [opt.material] - matériau optionnel
+ * @returns {THREE.Mesh}
+ */
+function planeFromBox(box, mat: Material, { axis = 'y', where = 'center', margin = 0, segments = 1 }) {
+    const size = new Vector3();
+    const center = new Vector3();
+    box.getSize(size);
+    box.getCenter(center);
+
+    // Dimensions du plan selon l’axe (normale)
+    let width, height;
+    if (axis === 'x') { width = size.z + 2 * margin; height = size.y + 2 * margin; } // plan YZ
+    else if (axis === 'y') { width = size.x + 2 * margin; height = size.z + 2 * margin; } // plan XZ
+    else { width = size.x + 2 * margin; height = size.y + 2 * margin; } // plan XY (+Z)
+
+    const geom = new PlaneGeometry(width, height, segments, segments);
+
+    // Orienter le plan : par défaut PlaneGeometry fait face à +Z
+    const from = new Vector3(0, 0, 1);
+    const to =
+        axis === 'x' ? new Vector3(1, 0, 0) :
+            axis === 'y' ? new Vector3(0, 1, 0) :
+                new Vector3(0, 0, 1);
+    const q = new Quaternion().setFromUnitVectors(from, to);
+    geom.applyQuaternion(q);
+
+
+    const mesh = new Mesh(geom, mat);
+
+    // Positionner au centre / face min / face max le long de l’axe
+    mesh.position.copy(center);
+    if (where !== 'center') {
+        const half = axis === 'x' ? size.x / 2 : axis === 'y' ? size.y / 2 : size.z / 2;
+        const delta = (where === 'min' ? -half - margin : half + margin);
+        if (axis === 'x') mesh.position.x += delta;
+        if (axis === 'y') mesh.position.y += delta;
+        if (axis === 'z') mesh.position.z += delta;
+    }
+
+    return mesh;
+}

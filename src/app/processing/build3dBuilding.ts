@@ -1,16 +1,56 @@
 import Feature, { FeatureLike } from "ol/Feature";
 import { BufferGeometryUtils } from "three/examples/jsm/Addons";
-import { Box3, BufferAttribute, BufferGeometry, DataArrayTexture, Mesh, ShaderMaterial, Sphere, Texture, Vector2, Vector3 } from "three";
+import { Box3, BufferAttribute, BufferAttributeJSON, BufferGeometry, DataArrayTexture, Mesh, ShaderMaterial, Sphere, Texture, Vector2, Vector3 } from "three";
 import { Builder, createBuildingPolygons } from "./building/builder";
 import { SkeletonBuilder } from "straight-skeleton";
 import { Coordinate, GeometryLayout, Polygon } from "../ol-module";
 import { getUid } from "ol";
+import { SourceFeature } from "./building/type";
+import { ExtrudedTile } from "./building-processing-worker/worker-packer";
+
+const tmpBox3 = new Box3()
+
+function flipTriangleWindingNonIndexed(geometry) {
+    const positionAttr = geometry.attributes.position;
+    const uvAttr = geometry.attributes.uv;
+
+    if (!positionAttr) {
+        console.warn('No position attribute found.');
+        return;
+    }
+
+    const posArray = positionAttr.array;
+    const uvArray = uvAttr ? uvAttr.array : null;
+
+    for (let i = 0; i < posArray.length; i += 9) {
+        // Swap vertex 0 and vertex 2 for positions
+        for (let j = 0; j < 3; j++) {
+            const temp = posArray[i + j];
+            posArray[i + j] = posArray[i + 6 + j];
+            posArray[i + 6 + j] = temp;
+        }
+    }
+
+    if (uvArray) {
+        for (let i = 0; i < uvArray.length; i += 6) {
+            // Each triangle has 3 UV points (2 floats per point)
+            // Swap UV0 and UV2
+            for (let j = 0; j < 2; j++) {
+                const temp = uvArray[i + j];
+                uvArray[i + j] = uvArray[i + 4 + j];
+                uvArray[i + 4 + j] = temp;
+            }
+        }
+        uvAttr.needsUpdate = true;
+    }
+
+    positionAttr.needsUpdate = true;
+}
+
+export const build3dBuildings = (features: SourceFeature[], worldBuildingPosition: [number, number, number], tile_key: string): ExtrudedTile => {
 
 
-export const build3dBuildings = (features: { "properties": {}, "flatCoordinates": Array<number>, "ends_": number[], "feature_id": number }[], worldBuildingPosition: Vector3, tile_key: string) => {
-
-
-    const olFeatures = features.map((feature) => {
+    let olFeatures = features.map((feature) => {
         // console.log(feature)
 
         const flatCoordinates: Array<number> = feature.flatCoordinates
@@ -20,9 +60,9 @@ export const build3dBuildings = (features: { "properties": {}, "flatCoordinates"
         const newFlatCoordinates = flatCoordinates.slice().map((coord, index) => {
             // pair => x
             if (index % 2 == 0) {
-                return coord - worldBuildingPosition.x
+                return coord - worldBuildingPosition[0]
             }
-            return coord - worldBuildingPosition.y
+            return coord - worldBuildingPosition[1]
         })
         // console.log(newFlatCoordinates)
 
@@ -53,8 +93,8 @@ export const build3dBuildings = (features: { "properties": {}, "flatCoordinates"
         }
 
 
-
-        const polygon = new Polygon(newFlatCoordinates, 'XY', feature.ends_)
+        // @ts-ignore
+        const polygon = new Polygon(newFlatCoordinates, 'XY', feature.ends)
         const newOuterAndInnerCoordinates = polygon.getLinearRings().map((ring, index) => {
             let outerRing = ring.getCoordinates();
             if (index == 0) {
@@ -76,11 +116,13 @@ export const build3dBuildings = (features: { "properties": {}, "flatCoordinates"
 
         const vectors_areas = createBuildingPolygons(olFeatures)
 
-        const buildFeature = []
-        const featuresId = []
+        let buildFeature = []
+        let featuresId = []
 
         for (let index = 0; index < vectors_areas.length; index++) {
             const element = vectors_areas[index];
+
+
             featuresId.push(element.osmReference)
             const buildingGeometry = new Builder(element, worldBuildingPosition).getFeatures();
 
@@ -91,7 +133,7 @@ export const build3dBuildings = (features: { "properties": {}, "flatCoordinates"
             buildFeature.push(buildingGeometry)
         }
 
-        const buildingGeometries = buildFeature.map((building, index) => {
+        let buildingGeometries = buildFeature.map((building, index) => {
 
             const extrudedBuilding = building.extruded
             const buildingGeometry = new BufferGeometry();
@@ -114,7 +156,20 @@ export const build3dBuildings = (features: { "properties": {}, "flatCoordinates"
             return buildingGeometry
         })
 
+
         const buildingGeometry = BufferGeometryUtils.mergeGeometries(buildingGeometries)
+
+        // clean up memory
+        featuresId = null
+        buildFeature = null
+        buildingGeometries = null
+        olFeatures = null
+
+        tmpBox3.setFromArray(buildingGeometry.attributes.position.array)
+        tmpBox3.min
+
+        flipTriangleWindingNonIndexed(buildingGeometry)
+        buildingGeometry.computeVertexNormals()
 
         const geometriesJson = Object.keys(buildingGeometry.attributes).map((key) => {
 
@@ -123,8 +178,10 @@ export const build3dBuildings = (features: { "properties": {}, "flatCoordinates"
                 "data": buildingGeometry.attributes[key].toJSON()
             }
         })
+
         return {
-            // "buildingGeometries": buildingGeometries,
+            "boundingBoxMinMax": [tmpBox3.min.x, tmpBox3.min.y, tmpBox3.min.z, tmpBox3.max.x, tmpBox3.max.y, tmpBox3.max.z],
+            worldBuildingPosition: worldBuildingPosition,
             "tile_key": tile_key,
             "geometriesJson": geometriesJson
         }

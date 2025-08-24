@@ -62,20 +62,16 @@ import {
 } from "../app/giro-3d-module"
 import { createXYZ } from 'ol/tilegrid'
 import { features } from 'process'
-import SurfaceMesh from '@giro3d/giro3d/renderer/geometries/SurfaceMesh'
-import PointMesh from '@giro3d/giro3d/renderer/geometries/PointMesh'
+
 import Projection from 'ol/proj/Projection'
 import { fromUserExtent, toUserExtent } from 'ol/proj'
 import { L } from '@angular/cdk/keycodes'
 import { fromInstanceGiroEvent, fromMapGiroEvent } from '../app/shared/class/fromGiroEvent'
 import { fromOpenLayerEvent } from '../app/shared/class/fromOpenLayerEvent'
-import Entity, { EntityUserData } from '@giro3d/giro3d/entities/Entity'
-import Entity3D, { Entity3DEventMap } from '@giro3d/giro3d/entities/Entity3D'
 import TileGrid from 'ol/tilegrid/TileGrid'
 import { fromKey, TileCoord } from 'ol/tilecoord'
 import { TileSourceEvent } from 'ol/source/Tile'
 
-import { FillStyle, StrokeStyle } from '@giro3d/giro3d/core/FeatureTypes'
 import { MapsService } from '../app/data/services/maps.service'
 import { Tile, VectorRenderTile } from 'ol'
 import { PointsLayer } from '../app/processing/points'
@@ -88,6 +84,10 @@ import { FlatLineStringLayer } from '../app/processing/linestring/flat-linestrin
 import { DataOSMLayer, LayerGiroUserData, LayersInMap, TypeLayer } from './type'
 import RenderFeature from 'ol/render/Feature'
 
+const _tmpBox3 = new Box3()
+const _tmp2Box3 = new Box3()
+const _tmpSphere = new Sphere()
+const _tmp2Sphere = new Sphere()
 
 /**
  * Handle diverse operation in link with the map
@@ -1090,6 +1090,38 @@ export class CartoHelper {
   //   return Extent.fromBox3("EPSG:3857", boundingBox)
 
   // }
+
+  static getVisibleTileBoundingBox(map: MapGiro3d) {
+    _tmpBox3.makeEmpty()
+    _tmp2Box3.makeEmpty()
+
+    map.traverseTiles(tile => {
+      if (tile.visible && tile.material.visible && map.instance.view.isBox3Visible(tile.boundingBox, tile.matrixWorld)) {
+        tile.getWorldSpaceBoundingBox(_tmp2Box3)
+        _tmpBox3.copy(_tmpBox3.union(_tmp2Box3))
+      }
+    });
+    return _tmpBox3
+  }
+
+  static getScreenBottomMiddlePosition(map: MapGiro3d) {
+    const instance = map.instance;
+    const camera = instance.view.camera as PerspectiveCamera
+    const canvasSize = instance.engine.getWindowSize();
+    const raycast = (x: number, y: number) => {
+      const results = instance.pickObjectsAt(new Vector2(x, y), { limit: 1, radius: 0, });
+      const point = results[0]?.point;
+      if (point) {
+        const result = new Coordinates(instance.referenceCrs, point.x, point.y, 1)
+          .as("EPSG:3857")
+          .toVector3();
+        result.z = 1;
+        return result;
+      }
+      return undefined;
+    };
+    return raycast(0, (canvasSize.y - 1) / 2)
+  }
 
   /**
    * Return the extent of the map in EPSG 3857

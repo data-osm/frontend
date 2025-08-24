@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Observable, throwError, BehaviorSubject, from, of } from 'rxjs';
+import { Observable, throwError, BehaviorSubject, from, of, Subject, filter, debounceTime } from 'rxjs';
 
 import Flatbush from 'flatbush';
 import { CustomVectorSource } from '../../../helper/carto.helper';
 import { Box3, Vector2 } from 'three';
 import { LEVEL_HEIGHT } from '../../processing/building/building-params';
 import { Geometry } from 'ol/geom';
+import { RequestReplyClient, RequestReplyServer, ReqMsg, ResMsg } from '../../../helper/request-reply';
+import Vec2 from '../../processing/math/vector2';
+import { Feature } from '../../ol-module';
 
 export interface OsmFeatureToChange {
     osm_id: number,
@@ -20,10 +23,8 @@ export interface OsmFeatureToChange {
 })
 export class FeaturesStoreService {
 
-    // Map of Index ID of a building in FlatBush index and his corresponding height
-    buildingsHeights$: BehaviorSubject<Map<number, number>> = new BehaviorSubject<Map<number, number>>(new Map());
-    // Index for fast searching building around a position
-    buildingsIndex$ = new BehaviorSubject<Flatbush>(new Flatbush(1));
+    private newBuildingHieghtLoaded$ = new Subject<void>();
+
     buildingsToHide$: BehaviorSubject<Map<number, string>> = new BehaviorSubject<Map<number, string>>(new Map());
     latestChangedBuildingToHide$: BehaviorSubject<string> = new BehaviorSubject<string>(undefined);
     // Reload a building tile of this feature
@@ -33,9 +34,33 @@ export class FeaturesStoreService {
     // Map of layer add as a vector layer using Three.GROUP with his vectorSource
     private layersVectorSources$: BehaviorSubject<Map<number | string, CustomVectorSource>> = new BehaviorSubject<Map<number, CustomVectorSource>>(new Map());
 
+    private customVectorSource$: BehaviorSubject<Map<number | string, (featureId: number | string) => Feature<Geometry>>> = new BehaviorSubject<Map<number | string, (featureId: number | string) => Feature<Geometry>>>(new Map());
+
+    // Send and retrieve a building height
+    private readonly sendRetrieveBuildingHeight$ = new Subject<ReqMsg<Vec2> | ResMsg<number>>();
+
+    sendRetrieveBuildingHeightEmitter$ = new RequestReplyServer<Vec2, number>(
+        this.sendRetrieveBuildingHeight$.pipe(filter((m): m is ReqMsg<Vec2> => m.type === 'req')),
+        { next: (msg) => this.sendRetrieveBuildingHeight$.next(msg) }
+    );
+
+
+    private readonly sendRetrieveBuildingHeightListener$ = new RequestReplyClient<Vec2, number>(
+        { next: (msg) => this.sendRetrieveBuildingHeight$.next(msg) },                // sink req
+        this.sendRetrieveBuildingHeight$.pipe(filter((m): m is ResMsg<number> => m.type === 'res')) // responses$
+    );
+
+
+
     //
     constructor() {
 
+    }
+    get newBuildingHieghtLoaded() {
+        return this.newBuildingHieghtLoaded$.pipe(debounceTime(1000))
+    }
+    set newBuildingHieghtLoaded(_) {
+        this.newBuildingHieghtLoaded$.next()
     }
 
     get updateBuildingFeature() {
@@ -85,31 +110,15 @@ export class FeaturesStoreService {
         }
     }
 
-    getBuildingHeights() {
-        return this.buildingsHeights$.getValue()
+
+    async getBuildingHeightAtPoint(point: Vec2) {
+        return await this.sendRetrieveBuildingHeightListener$.ask(point);
     }
 
-    getBuildingsIndex() {
-        return this.buildingsIndex$.getValue()
-    }
-
-    getBuildingHeightAtPoint(point: Vector2) {
-        if (this.buildingsHeights$.getValue().size == 0) {
-            return LEVEL_HEIGHT
-        }
-
-        const buildingsIntersecting = this.buildingsIndex$.getValue().neighbors(
-            point.x,
-            point.y,
-            2,
-        )
-        const buildingHeightAtPoint = Math.max(...buildingsIntersecting.map((index) => this.buildingsHeights$.getValue().get(index)))
-        if (buildingHeightAtPoint) {
-            // a bit higher to see the building + the stick
-            return buildingHeightAtPoint + 10
-        } else {
-            return 10
-        }
+    addCustomVectorSource(couche_id: number | string, customVectorSource: (featureId: number | string) => Feature<Geometry>) {
+        const customVectorSourceMap = this.customVectorSource$.getValue()
+        customVectorSourceMap.set(couche_id, customVectorSource)
+        this.customVectorSource$.next(customVectorSourceMap)
     }
 
     addLayerVectorSource(couche_id: number | string, layer_vector_source: CustomVectorSource) {
@@ -138,6 +147,19 @@ export class FeaturesStoreService {
     reloadBuildingFeature(osm_id: number, changes: object, geometry: Geometry) {
 
         this.reloadBuilding$.next({ osm_id, changes, geometry })
+    }
+
+    getFeatureFromLayer(couche_id: number | string, featureId: number): Feature<Geometry> | null {
+        const layer = this.getLayerVectorSource(couche_id)
+        if (layer) {
+            //@ts-expect-error
+            return layer.getFeatureByUid(osm_id)
+        }
+        const customVectorSource = this.customVectorSource$.getValue().get(couche_id)
+        if (customVectorSource) {
+            return customVectorSource(featureId)
+        }
+        return null
     }
 
 

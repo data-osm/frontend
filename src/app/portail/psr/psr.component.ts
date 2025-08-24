@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, NgZone, ViewChild } from '@angular/core';
 import { AbstractProfilComponent } from '../abstract-profil/abstract-profil.component';
 import { ParametersService } from '../../data/services/parameters.service';
 import { MapsService } from '../../data/services/maps.service';
@@ -25,12 +25,7 @@ import { createXYZ, TileGrid } from 'ol/tilegrid';
 import { BoxLineGeometry, XRButton, XRControllerModelFactory, VRButton } from 'three/examples/jsm/Addons';
 import WebXRPolyfill from 'webxr-polyfill';
 import { T } from '@angular/cdk/keycodes';
-import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
-import ColorMap from '@giro3d/giro3d/core/ColorMap';
 import { makeColorRamp } from '../../processing/pointClound/colormap';
-
-import BilFormat from "@giro3d/giro3d/formats/BilFormat.js";
-import { decodeRaster } from "@giro3d/giro3d/formats/bilWorker.js";
 
 import WMTS, { optionsFromCapabilities } from 'ol/source/WMTS.js';
 import WMTSCapabilities from 'ol/format/WMTSCapabilities';
@@ -80,10 +75,11 @@ export class PsrComponent extends AbstractProfilComponent {
     baseMapService: BaseMapsService,
     shareServiceService: ShareServiceService,
     router: Router,
-    tracker: MatomoTracker
+    tracker: MatomoTracker,
+    ngZone: NgZone,
   ) {
 
-    super(manageCompHelper, shareServiceService, notifierService, parametersService, translate, activatedRoute, mapService, router, dialog, baseMapService, dataOsmLayersService, tracker)
+    super(manageCompHelper, shareServiceService, notifierService, parametersService, translate, activatedRoute, mapService, router, dialog, baseMapService, dataOsmLayersService, tracker, ngZone)
 
     this.eventsListener.groupsLoaded.pipe(
       takeUntil(this.destroyed$),

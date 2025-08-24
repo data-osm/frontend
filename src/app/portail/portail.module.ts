@@ -42,8 +42,6 @@ import { BuildingSheetComponent } from './pages/descriptive-sheet/building-sheet
 import { UpdateOsmBuildingComponent } from './pages/update-osm-building/update-osm-building.component';
 import { OsmBulkSaveComponent } from '../modal/osm-bulk-save/osm-bulk-save.component';
 
-
-
 @NgModule({
   declarations: [
     PortailMapComponent,

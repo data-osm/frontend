@@ -16,7 +16,13 @@ export default class Vec2 {
 	}
 
 	public equals(v: Vec2): boolean {
-		return this.x === v.x && this.y === v.y;
+		try {
+			return this.x === v.x && this.y === v.y;
+
+		} catch (error) {
+			console.error(error);
+			console.error(error.stack)
+		}
 	}
 
 	public static add(a: Vec2, b: Vec2): Vec2 {

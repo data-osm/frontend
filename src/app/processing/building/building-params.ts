@@ -58,7 +58,7 @@ export function getBuildingParams(
     rnb: string
     match_rnb_ids: string;
     is_part: boolean;
-    building: string
+    building: string;
 } {
     const fallbackLevels = 1;
 
@@ -135,6 +135,6 @@ export function getBuildingParams(
         rnb: building_properties.rnb,
         match_rnb_ids: building_properties.match_rnb_ids,
         is_part: building_properties.is_part,
-        building: building_properties.building
+        building: building_properties.building,
     };
 }

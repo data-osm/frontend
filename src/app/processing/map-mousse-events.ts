@@ -10,7 +10,8 @@ import WMTSCapabilities from "ol/format/WMTSCapabilities";
 import { TileGrid } from "ol/tilegrid";
 import WMTS, { optionsFromCapabilities } from "ol/source/WMTS";
 import { transformExtent, transform } from "ol/proj";
-import { decodeRaster } from "@giro3d/giro3d/formats/bilWorker";
+
+import Vec2 from "./math/vector2";
 /**
  * interface that describe data get by a click on the map
  */
@@ -91,6 +92,13 @@ export class MapMousseEvents {
         //     pickOptions.raycaster = raycaster
         //     console.log(newMapCoord, pointElevation, "newMapCoord")
         // }
+        const where = this.instance.getObjects()
+        this.instance.scene.traverseVisible((object) => {
+            if (object instanceof Object3D && where.findIndex((o) => o.id === object.id) == -1) {
+                where.push(object)
+            }
+        })
+        pickOptions.where = where
         const map_pick_result = this.instance.pickObjectsAt(evt, pickOptions)
         if (map_pick_result.length == 0) {
             return
@@ -98,6 +106,7 @@ export class MapMousseEvents {
 
         const mousePositionInMap: Vector3 = map_pick_result[0].point
 
+        // console.log(map_pick_result, "map_pick_result")
         // @ts-expect-error
         if (map_pick_result.filter((res) => res.featureUid).length > 0) {
             // We remove duplicate
@@ -113,9 +122,12 @@ export class MapMousseEvents {
             for (let i = 0; i < intersects.length; i++) {
                 const intersect = intersects[i]
                 const couche_id = intersect.object.userData.couche_id
-                const layers_vector_sources_map = this.featuresStoreService.getLayerVectorSource(couche_id)
                 //@ts-expect-error
-                const feature = layers_vector_sources_map.getFeatureByUid(intersect.featureUid)
+                const feature = this.featuresStoreService.getFeatureFromLayer(couche_id, intersect.featureUid)
+
+                // const layers_vector_sources_map = this.featuresStoreService.getLayerVectorSource(couche_id)
+                // //@ts-expect-error
+                // const feature = layers_vector_sources_map.getFeatureByUid(intersect.featureUid)
                 const layer = cartoHelper.getLayerInToc(couche_id, "couche")
                 let descriptionSheetCapabilities = undefined
                 if (layer) {

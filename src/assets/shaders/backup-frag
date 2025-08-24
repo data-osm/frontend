@@ -1,0 +1,277 @@
+#define USE_FOG
+struct IncidentLight {
+    vec3 color;
+    vec3 direction;
+    bool visible;
+};
+
+vec3 inverseTransformDirection(in vec3 dir, in mat4 matrix) {
+
+                    // dir can be either a direction vector or a normal vector
+                    // upper-left 3x3 of matrix is assumed to be orthogonal
+
+    return normalize((vec4(dir, 0.0) * matrix).xyz);
+
+}
+vec3 pow2(const in vec3 x) {
+    return x * x;
+}
+float pow2(const in float x) {
+    return x * x;
+}
+float pow4(const in float x) {
+    float x2 = x * x;
+    return x2 * x2;
+}
+
+                #define saturate( a ) clamp( a, 0.0, 1.0 )
+                 #include <packing>
+                #include <fog_pars_fragment>
+                #include <lights_pars_begin>       
+                #include <shadowmap_pars_fragment> 
+
+precision highp float;
+precision highp int;
+precision highp sampler2D;
+precision highp usampler2D;
+precision highp sampler2DArray;
+precision highp sampler3D;
+
+vec3 WINDOW_GLOW_COLOR = vec3(1, 0.9, 0.7);
+float windowLightThreshold = 0.0;
+
+in vec3 vColor;
+in vec2 vUv;
+in vec3 vvNormal;
+in vec3 vNewPosition;
+in vec3 vPosition;
+in vec4 mvPosition;
+                // in float vFeatureUid;
+
+flat in int vFeatureUid;
+flat in int vTextureId;
+flat in int vAddOutLine;
+
+uniform sampler2DArray tMap;
+uniform sampler2D tNoise;
+uniform vec3 diffuse;
+uniform vec3 emissive;
+uniform float roughness;
+uniform float metalness;
+uniform float opacity;
+uniform int uFeatureUidSelected;
+uniform int isRingActive;
+
+out vec4 fragColor;
+                // vec4 fragColor;
+
+                // layout(location = 0) out vec4 outColor;
+                // layout(location = 1) out vec3 outNormal;
+                // layout(location = 5) out vec3 outGlow;
+
+vec3 packNormal(vec3 normal) {
+    return normal;
+}
+
+vec3 getMotionVector(vec4 clipPos, vec4 prevClipPos) {
+    return 0.5 * vec3(clipPos / clipPos.w - prevClipPos / prevClipPos.w);
+}
+
+                // mat3 getTBN(vec3 N, vec3 p, vec2 uv) {
+                //     /* get edge vectors of the pixel triangle */
+                //     vec3 dp1 = dFdx(p);
+                //     vec3 dp2 = dFdy(p);
+                //     vec2 duv1 = dFdx(uv);
+                //     vec2 duv2 = dFdy(uv);
+
+                //     /* solve the linear system */
+                //     vec3 dp2perp = cross(dp2, N);
+                //     vec3 dp1perp = cross(N, dp1);
+                //     vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
+                //     vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+
+                //     /* construct a scale-invariant frame */
+                //     float invmax = inversesqrt(max(dot(T, T), dot(B, B)));
+                //     return mat3(T * invmax, -B * invmax, N);
+                // }
+
+mat3 getTBN(vec3 normal, vec3 position, vec2 uv) {
+                    // Get edge vectors of the pixel triangle
+    vec3 dp1 = dFdx(position);  // Partial derivative of position with respect to x
+    vec3 dp2 = dFdy(position);  // Partial derivative of position with respect to y
+    vec2 duv1 = dFdx(uv);       // Partial derivative of UV with respect to x
+    vec2 duv2 = dFdy(uv);       // Partial derivative of UV with respect to y
+
+                    // Solve the linear system to compute tangent and bitangent vectors
+    vec3 tangent = normalize(duv2.y * dp1 - duv1.y * dp2);  // Compute Tangent (T)
+    vec3 bitangent = normalize(duv2.x * dp1 - duv1.x * dp2); // Compute Bitangent (B)
+
+                    // Ensure that the tangent, bitangent, and normal form a right-handed coordinate system
+    tangent = normalize(tangent);
+    bitangent = normalize(cross(normal, tangent));  // Use cross product to get a corrected bitangent
+
+                    // Construct the TBN matrix with scale-invariance
+    return mat3(tangent, bitangent, -normal);  // TBN matrix with Z-up normal
+}
+
+vec4 getColorValue(int textureId, float mask, vec3 tintColor) {
+    vec3 color = mix(vec3(1), tintColor, mask);
+    return texture(tMap, vec3(vUv, textureId * 4)) * vec4(color, 1.0);
+}
+
+vec3 getMaskValue(int textureId) {
+    return texture(tMap, vec3(vUv, textureId * 4 + 2)).xyz;
+}
+
+vec3 getGlowColor(int textureId) {
+    return texture(tMap, vec3(vUv, textureId * 4 + 3)).xyz;
+}
+
+vec3 getNormalValue(int textureId) {
+    mat3 tbn = getTBN(vvNormal, vNewPosition, vec2(vUv.x, 1. - vUv.y));
+    vec3 mapValue = texture(tMap, vec3(vUv, textureId * 4 + 1)).xyz * 2. - 1.;
+    vec3 normal = normalize(tbn * mapValue);
+
+    normal *= float(gl_FrontFacing) * 2. - 1.;
+
+    return normal;
+}
+
+void main() {
+    #include <logdepthbuf_fragment>
+    float shadow = 1.0;
+    for(int i = 0; i < NUM_DIR_LIGHT_SHADOWS; i++) {
+        shadow *= getShadow(directionalShadowMap[0], directionalLightShadows[0].shadowMapSize, directionalLightShadows[0].shadowIntensity, directionalLightShadows[0].shadowBias, directionalLightShadows[0].shadowRadius, vDirectionalShadowCoord[0]);
+    }
+
+                    // vec3 L = normalize( -directionalLights[0].direction );  
+                    // float NdotL = max( dot( vvNormal, L ), 0.0 );
+                    //  vec3 base = vec3(0.75);
+                    // gl_FragColor = vec4(base * (0.2 + 0.8 * NdotL), 1.0);
+
+    if(vTextureId == 100) {
+        if(vAddOutLine == 0 || isRingActive == 0) {
+            discard;
+        }
+        fragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        return;
+    }
+
+    vec3 mask = getMaskValue(vTextureId);
+    float noiseTextureWidth = vec2(textureSize(tNoise, 0)).r;
+
+    vec2 windowUV = vec2(floor((vUv.x + (floor(vUv.y) * 3.)) * 0.25), vUv.y);
+    vec4 outColor = vec4(1.0);
+                    // outColor = vec4(windowUV.x,0.0,0.0,1.0);
+
+    vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
+    vec3 normalMap = packNormal(getNormalValue(vTextureId));
+    float diff = max(dot(normalMap, lightDir), 0.8);
+
+    if(windowUV.x <= 1.0 || windowUV.y <= 1.0) {
+
+                    // is the roof
+                    // 0 -> color
+                    // 1 -> Normal
+                    // 2 -> ARM
+                    // outColor = vec4(1.0,0.0,0.0,1.0);
+
+                        // outColor =  getColorValue(vTextureId, mask.b, vColor);
+
+        if(vTextureId != 2) {
+                            // our default texture for the roof
+            outColor = getColorValue(vTextureId, mask.b, vColor);
+
+                            // calculate the final color based on the PBR model
+            vec3 albedo = outColor.rgb * (1.0 - mask.r) + mask.r * outColor.rgb; // simple albedo calculation
+            float specularFactor = 1.0 - mask.g;
+            vec3 diffuseColor = albedo;
+                            // calculate the final color with some basic lighting effects (e.g., ambient occlusion)
+            float aoFactor = 1.0 - abs(dot(normalMap, lightDir));
+            diffuseColor *= (aoFactor + specularFactor) * 0.5;
+
+            fragColor = vec4(diffuseColor, outColor.a);
+
+        } else {
+
+                            // vec4 color = texture(tMap, vec3(vUv, vTextureId * 4));
+                            // vec4 ormData = texture(tMap, vec3(vUv, vTextureId * 4 + 2));
+
+                            // float ao = ormData.r;       // Ambient Occlusion from the R channel
+                            // float roughness = ormData.g; // Roughness from the G channel
+                            // float metalness = ormData.b; // Metalness from the B channel
+
+                            // Sample the normal map texture and adjust the normal vector
+                            // vec3 normalTex =texture(tMap, vec3(vUv, vTextureId * 4 + 1)).rgb;
+                            // vec3 perturbedNormal = normalize(vvNormal + (normalTex * 2.0 - 1.0));
+
+                            // Shading logic (basic Phong-style shading for the example)
+                            // float diff = max(dot(perturbedNormal, lightDir), 0.0);
+
+                            // Apply ambient occlusion, roughness, and metalness in shading
+                            // vec3 ambient = ao * color.rgb * 1.3; // AO affects ambient lighting
+                            // vec3 diffuse = color.rgb * diff * (1.0 - roughness);
+                            // vec3 specular = mix(vec3(0.4), color.rgb, metalness) * pow(diff, 16.0); // Adjust specular with metalness
+
+                            // Final color output
+                            // vec3 finalColor = ambient + diffuse + specular;
+                            // // outColor = vec4(color.rgb, 1.0);
+
+            outColor = diff * getColorValue(vTextureId, mask.b, vColor);
+            fragColor = outColor;
+                            // fragColor = vec4(1.0, 0.0,0.0, 1.0);
+        }
+
+    } else if(mask.b == 0.0 && mask.g > 0.9) {
+                        // is the glass of the window here
+                        // > 0.9 to prevent to render the small white stroke around the window
+        vec4 baseColor = getColorValue(vTextureId, mask.b, vColor);
+        vec3 outGlow = getGlowColor(vTextureId) * WINDOW_GLOW_COLOR * 1.4;
+
+        outColor = vec4(baseColor.xyz + outGlow, baseColor.a);
+
+                        // calculate the final color based on the PBR model
+        vec3 albedo = outColor.rgb * (1.0 - mask.r) + mask.r * outColor.rgb; // simple albedo calculation
+        float specularFactor = 1.0 - mask.g;
+        vec3 diffuseColor = albedo;
+
+                        // calculate the final color with some basic lighting effects (e.g., ambient occlusion)
+        float aoFactor = 1.0 - abs(dot(normalMap, lightDir));
+        diffuseColor *= (aoFactor + specularFactor) * 0.8;
+        fragColor = vec4(diffuseColor, outColor.a);
+                        // outColor = diff * getColorValue(vTextureId, mask.b, vColor);
+                        // fragColor = outColor;
+
+    } else {
+                        // Wall
+                        // outColor =  vec4(0.0, 0.0, 0.0, 0.8);
+        outColor = getColorValue(vTextureId, mask.b, vColor);
+
+                       // calculate the final color based on the PBR model
+        vec3 albedo = outColor.rgb * (1.0 - mask.r) + mask.r * outColor.rgb; // simple albedo calculation
+        float specularFactor = 1.0 - mask.g;
+        vec3 diffuseColor = albedo;
+
+                        // calculate the final color with some basic lighting effects (e.g., ambient occlusion)
+        float aoFactor = 1.0 - abs(dot(normalMap, lightDir));
+        diffuseColor *= (aoFactor + specularFactor) * 0.5;
+
+        fragColor = vec4(diffuseColor, outColor.a);
+    }
+                    #ifdef USE_FOG
+    float fogFactor = smoothstep(fogNear, fogFar, vFogDepth);
+                        // if (fogFactor > 0.4){
+                        //     discard;
+                        // }
+    fragColor.rgb = mix(fragColor.rgb, fogColor, fogFactor);
+                    #endif
+
+    vec3 shadowTint = vec3(0.0, 0.0, 0.0);
+    float atten = 1.0 - (1.0 - shadow) * 0.3;
+    vec3 shade = mix(vec3(1.0), shadowTint, 1.0 - atten);
+    fragColor = fragColor * vec4(shade, 1.0);
+    if(uFeatureUidSelected == vFeatureUid) {
+        fragColor = fragColor * vec4(1.0, 0.0, 0.0, 0.4);
+    }
+
+}

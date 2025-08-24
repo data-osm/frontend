@@ -2,8 +2,8 @@ import { Vector3 } from "three";
 import { LineString, MultiLineString, LinearRing, Coordinate, Feature } from "../../ol-module";
 import { getLength } from 'ol/sphere';
 import { LinesStringWithZ, MultiLineStringWithZ } from "../../../helper/carto.helper";
-import WorkerPool from "@giro3d/giro3d/utils/WorkerPool";
-import { createListElevationWorker, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "../elevation/pool";
+import { createListElevationWorker, ElevationFeature, GeometryType, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "../elevation/pool";
+import { WorkerPool } from "../../giro-3d-module";
 
 const tmpVec3 = new Vector3()
 let elevationWorker: WorkerPool<ListElevationsMessageType, ListElevationMessageMap> | null = null
@@ -233,20 +233,30 @@ export function ensureLinesAreClosed(features: Feature<LineString | MultiLineStr
 export async function addElevationToLines(features: Feature<LineString | MultiLineString>[], featureCrs: string): Promise<Feature<LinesStringWithZ | MultiLineStringWithZ>[]> {
     const transformCoordinates: [number, number, number | string][] = []
 
-    features.map((feature, index) => {
-        const geometry = feature.getGeometry().clone().transform(featureCrs, "IGNF:WGS84G")
-        if (geometry instanceof LineString) {
-            const coordinates = geometry.getCoordinates()
-            coordinates.map((coordinate, coordinate_index) => {
-                transformCoordinates.push([coordinate[0], coordinate[1], index + "_" + "0" + "_" + coordinate_index])
-            })
-        } else if (geometry instanceof MultiLineString) {
-            geometry.getLineStrings().map((line_string, line_string_index) => {
-                line_string.getCoordinates().map((coordinate, coordinate_index) => {
-                    transformCoordinates.push([coordinate[0], coordinate[1], index + "_" + line_string_index + "_" + coordinate_index])
-                })
-            })
+    // features.map((feature, index) => {
+    //     const geometry = feature.getGeometry().clone().transform(featureCrs, "IGNF:WGS84G")
+    //     if (geometry instanceof LineString) {
+    //         const coordinates = geometry.getCoordinates()
+    //         coordinates.map((coordinate, coordinate_index) => {
+    //             transformCoordinates.push([coordinate[0], coordinate[1], index + "_" + "0" + "_" + coordinate_index])
+    //         })
+    //     } else if (geometry instanceof MultiLineString) {
+    //         geometry.getCoordinates()
+    //         geometry.getLineStrings().map((line_string, line_string_index) => {
+    //             line_string.getCoordinates().map((coordinate, coordinate_index) => {
+    //                 transformCoordinates.push([coordinate[0], coordinate[1], index + "_" + line_string_index + "_" + coordinate_index])
+    //             })
+    //         })
 
+    //     }
+    // })
+
+    const featureForElevation: ElevationFeature[] = features.map((feature, index) => {
+        return {
+            "properties": feature.getProperties(),
+            "geometryType": feature.getGeometry().getType() as GeometryType,
+            "coordinates": feature.getGeometry().getCoordinates(),
+            "index": index
         }
     })
 
@@ -256,44 +266,51 @@ export async function addElevationToLines(features: Feature<LineString | MultiLi
     }
 
     return getCapabilities().then(async (capabilities) => {
-        const result = await elevationWorker.queue('ListElevation', { "capabilities": capabilities, "coordinates_with_index": transformCoordinates });
-        const elevations: Map<number | string, number> = result.elevations
-        if (transformCoordinates.length != Array.from(elevations.values()).length) {
-            console.warn(
-                "Toutes élévations n'ont pas été trouvées pour les lignes",
-            )
-        }
-        for (let index = 0; index < features.length; index++) {
-            const feature = features[index]
-            const geometry = feature.getGeometry()
-            if (geometry instanceof LineString) {
-                const coordinatesWithZ: Array<[number, number, number]> = []
-                geometry.getCoordinates().map((coordinate, coordinate_index) => {
-                    const elevation = elevations.get(index + "_" + "0" + "_" + coordinate_index)
-                    if (elevation == undefined || elevation == -Infinity) {
-                        console.warn('Elevation de d une ligne non trouvée')
-                    }
-                    coordinatesWithZ.push([coordinate[0], coordinate[1], elevation])
-                })
-                const geometryWithZ = new LinesStringWithZ(geometry.getCoordinates(), geometry.getLayout(), coordinatesWithZ)
-                feature.setGeometry(geometryWithZ)
-            } else if (geometry instanceof MultiLineString) {
-                const coordinatesWithZ: Array<Array<[number, number, number]>> = []
-                geometry.getLineStrings().map((line_string, line_string_index) => {
-                    const lineStringCoordinatesWithZ: Array<[number, number, number]> = []
-                    line_string.getCoordinates().map((coordinate, coordinate_index) => {
-                        const elevation = elevations.get(index + "_" + line_string_index + "_" + coordinate_index)
-                        if (elevation == undefined || elevation == -Infinity) {
-                            console.warn('Elevation de d une ligne non trouvée')
-                        }
-                        lineStringCoordinatesWithZ.push([coordinate[0], coordinate[1], elevation])
-                    })
-                    coordinatesWithZ.push(lineStringCoordinatesWithZ)
-                })
-                const geometryWithZ = new MultiLineStringWithZ(geometry.getCoordinates(), geometry.getLayout(), coordinatesWithZ)
-                feature.setGeometry(geometryWithZ)
-            }
-        }
+        const result = await elevationWorker.queue('ListElevation', { "capabilities": capabilities, "features": featureForElevation });
+
+        result.map((featureWithElevation) => {
+            const feature = features[featureWithElevation.index]
+            // @ts-expect-error
+            const geometryWithZ = new LinesStringWithZ(feature.getGeometry().getCoordinates(), feature.getGeometry().getLayout(), featureWithElevation.coordinates)
+            feature.setGeometry(geometryWithZ)
+        })
+        // const elevations: Map<number | string, number> = result.elevations
+        // if (transformCoordinates.length != Array.from(elevations.values()).length) {
+        //     console.warn(
+        //         "Toutes élévations n'ont pas été trouvées pour les lignes",
+        //     )
+        // }
+        // for (let index = 0; index < features.length; index++) {
+        //     const feature = features[index]
+        //     const geometry = feature.getGeometry()
+        //     if (geometry instanceof LineString) {
+        //         const coordinatesWithZ: Array<[number, number, number]> = []
+        //         geometry.getCoordinates().map((coordinate, coordinate_index) => {
+        //             const elevation = elevations.get(index + "_" + "0" + "_" + coordinate_index)
+        //             if (elevation == undefined || elevation == -Infinity) {
+        //                 console.warn('Elevation de d une ligne non trouvée')
+        //             }
+        //             coordinatesWithZ.push([coordinate[0], coordinate[1], elevation])
+        //         })
+        //         const geometryWithZ = new LinesStringWithZ(geometry.getCoordinates(), geometry.getLayout(), coordinatesWithZ)
+        //         feature.setGeometry(geometryWithZ)
+        //     } else if (geometry instanceof MultiLineString) {
+        //         const coordinatesWithZ: Array<Array<[number, number, number]>> = []
+        //         geometry.getLineStrings().map((line_string, line_string_index) => {
+        //             const lineStringCoordinatesWithZ: Array<[number, number, number]> = []
+        //             line_string.getCoordinates().map((coordinate, coordinate_index) => {
+        //                 const elevation = elevations.get(index + "_" + line_string_index + "_" + coordinate_index)
+        //                 if (elevation == undefined || elevation == -Infinity) {
+        //                     console.warn('Elevation de d une ligne non trouvée')
+        //                 }
+        //                 lineStringCoordinatesWithZ.push([coordinate[0], coordinate[1], elevation])
+        //             })
+        //             coordinatesWithZ.push(lineStringCoordinatesWithZ)
+        //         })
+        //         const geometryWithZ = new MultiLineStringWithZ(geometry.getCoordinates(), geometry.getLayout(), coordinatesWithZ)
+        //         feature.setGeometry(geometryWithZ)
+        //     }
+        // }
         return features as Feature<LinesStringWithZ | MultiLineStringWithZ>[]
     })
 

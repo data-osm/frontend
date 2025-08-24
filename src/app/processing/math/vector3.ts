@@ -59,6 +59,16 @@ export default class Vec3 {
         return new Vec3(v.x + s, v.y + s, v.z + s);
     }
 
+    public static addScaledVector(source: Vec3, v: Vec3, s: number) {
+
+        source.x += v.x * s;
+        source.y += v.y * s;
+        source.z += v.z * s;
+
+        return source;
+
+    }
+
     public static multiplyScalar(v: Vec3, s: number): Vec3 {
         return new Vec3(v.x * s, v.y * s, v.z * s);
     }

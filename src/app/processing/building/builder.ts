@@ -14,6 +14,7 @@ import { getRoofTypeFromString } from "./roof/utils";
 import Vec2 from "../math/vector2";
 import Vec3 from "../math/vector3";
 import { getUid } from "ol";
+import { ColorParser } from "./color-parser";
 
 
 export enum VectorAreaRingType {
@@ -385,12 +386,12 @@ export class Builder {
     tilePosition: Vec3
     constructor(
         feature: VectorArea,
-        tilePosition: Vector3
+        tilePosition: [number, number, number]
     ) {
         this.feature = feature
         this.descriptor = feature.descriptor;
         this.rings = feature.rings;
-        this.tilePosition = new Vec3(tilePosition.x, tilePosition.y, tilePosition.z)
+        this.tilePosition = new Vec3(tilePosition[0], tilePosition[1], tilePosition[2]);
     }
 
 
@@ -763,7 +764,6 @@ export class Builder {
             isStretched: false
         };
     }
-    // "@giro3d/giro3d": "file:../../giro3d_gitlab/giro3d-giro3d-0.37.3.tgz",
 
 
 
@@ -774,7 +774,10 @@ export class Builder {
         textureIdWall: number;
     } {
         const material = this.descriptor.buildingFacadeMaterial;
-        let color = this.descriptor.buildingFacadeColor;
+        let color = <number>new ColorParser().parseColor(this.descriptor.buildingFacadeColor.toString());
+        if (!Boolean(color)) {
+            color = 0xffffff;
+        }
         const hasWindows = this.descriptor.buildingWindows;
 
         const materialToTextureId: Record<BuildingFacadeMaterial, {

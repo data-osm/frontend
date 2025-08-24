@@ -1,9 +1,11 @@
-import { FillStyle, StrokeStyle } from "@giro3d/giro3d/core/FeatureTypes";
+
 import { OMBBResult } from "./ombb-params";
 import { Coordinate } from "ol/coordinate";
 import { VectorAreaRing } from "./tile-3d-ring";
 
 import Vec3 from "../math/vector3";
+import { Extent } from "ol/extent";
+import { FillStyle, StrokeStyle } from "../../giro-3d-module";
 
 export type BaseOptions = {
     /**
@@ -68,6 +70,8 @@ export interface BuildingProperties {
     match_rnb_diff: string
     parent_and_children?: string
     building: string
+    elevation?: number;
+
 }
 
 export interface VectorAreaDescriptor {
@@ -133,4 +137,33 @@ export interface VectorArea {
     rings: VectorAreaRing[];
     isBuildingPartInRelation?: boolean;
     // featureId: number
+}
+
+export interface SourceProperties extends BuildingProperties {
+    extent: Extent
+    buildingHeight: number
+    center: Coordinate
+    // only polygon for known
+    coordinates: Coordinate[][]
+}
+
+export interface SourceFeature {
+    properties: SourceProperties,
+    ends: number[] | Array<Array<number>>,
+    coordinates: any,
+    flatCoordinates: Array<number>,
+    center: Coordinate,
+}
+
+export interface RetrieveBuilding {
+    features: SourceFeature[],
+    z: number,
+    x: number,
+    y: number,
+    id: number
+    tile_key: string,
+    worldBuildingPosition: [number, number, number],
+    flatBushData: ArrayBuffer,
+    tileHeightMap: Map<number, number>,
+    tileExtent: [number, number, number, number],
 }

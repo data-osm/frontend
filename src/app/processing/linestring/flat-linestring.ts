@@ -20,7 +20,6 @@ import Vec2 from "../math/vector2";
 import { projectAndAddGeometry, RoadBuilder } from "./line-builder";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils";
 import { VectorSourceEventTypes } from "ol/source/VectorEventType";
-import WorkerPool from "@giro3d/giro3d/utils/WorkerPool";
 import { createListElevationWorker, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "../elevation/pool";
 import Vec3 from "../math/vector3";
 

@@ -9,5 +9,6 @@ export const environment = {
   matomoSiteId: 1,
   building_tile: "https://buildings.dataosm.info/maps/osm_data/{z}/{x}/{y}.pbf",
   osm_auth_base_url: "https://demo.openstreetmap.fr",
+  enabledTerrain: true,
   revitURl: ""
 };

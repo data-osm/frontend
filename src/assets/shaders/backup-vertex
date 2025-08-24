@@ -1,0 +1,85 @@
+#define USE_FOG
+#include <fog_pars_vertex>
+#include <shadowmap_pars_vertex>
+
+    uniform float fogNear;
+    uniform float fogFar;
+
+    precision highp float;
+    precision highp int;
+    precision highp sampler2D;
+    precision highp usampler2D;
+    precision highp sampler2DArray;
+    precision highp sampler3D;
+
+    attribute vec3 color;
+    attribute float textureId;
+    attribute int aFeatureUid;
+    attribute int aAddOutLine;
+
+    out vec3 vColor;
+    out vec2 vUv;
+    out vec3 vvNormal;
+    out vec3 vNewPosition;
+    out vec3 vPosition;
+    out vec4 mvPosition;
+                // out float vFeatureUid;
+
+    flat out int vFeatureUid;
+    flat out int vTextureId;
+    flat out int vAddOutLine;
+
+                // uniform sampler2DArray tMap;
+    vec3 inverseTransformDirection(in vec3 dir, in mat4 matrix) {
+
+                    // dir can be either a direction vector or a normal vector
+                    // upper-left 3x3 of matrix is assumed to be orthogonal
+
+    return normalize((vec4(dir, 0.0) * matrix).xyz);
+
+    }
+
+    void main() {
+
+vColor = color;
+vUv = uv;
+vTextureId = int(textureId);
+vFeatureUid = aFeatureUid;
+vAddOutLine = aAddOutLine;
+
+vvNormal = vec4(modelViewMatrix * vec4(normal, 0.0)).xyz;
+vPosition = vec3(position);
+mvPosition = modelViewMatrix * vec4(position, 1.);
+vNewPosition = vec3(mvPosition);
+
+vec4 worldPosition = modelMatrix * vec4(vPosition, 1.0);
+
+gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    // #include <fog_vertex>
+                    // float fogFactor = smoothstep( fogNear, fogFar, vFogDepth );
+                    // if (fogFactor > 0.9){
+                    //         gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+                    // }
+                    // vec2 windowUV = vec2(
+                    //     floor((vUv.x + (floor(vUv.y) * 3.)) * 0.25),
+                    //     vUv.y
+                    // );
+
+                    // if(windowUV.x <= 1.0 || windowUV.y <= 1.0){ 
+                    //     float displacement = texture(tMap, vec3(uv, vTextureId * 4 + 1)).r;
+                    //     vec3 newPosition = position + normal * displacement * 10.0; 
+                    //     gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+                    // }else{
+                    //     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    // }
+
+vec3 transformedNormal = normalize(normalMatrix * normal);
+
+                    //  #include <beginnormal_vertex>
+                    // #include <morphnormal_vertex>
+                    // #include <skinbase_vertex>
+                    // #include <skinnormal_vertex>
+                    // #include <defaultnormal_vertex>
+
+                    //  #include <logdepthbuf_vertex> 
+                     #include <shadowmap_vertex> 
