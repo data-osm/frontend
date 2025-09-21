@@ -2,6 +2,21 @@
 
 varying vec3 vViewPosition;
 
+// in
+attribute vec3 color;
+attribute float textureId;
+attribute int aFeatureUid;
+attribute int aAddOutLine;
+
+// Out
+varying vec3 vColor;
+varying vec2 vUv;
+varying vec3 vModelNormal;
+varying vec3 vModelPosition;
+flat varying int vTextureId;
+flat varying int vAddOutLine;
+flat varying int vFeatureUid;
+
 #ifdef USE_TRANSMISSION
 
 varying vec3 vWorldPosition;
@@ -22,6 +37,13 @@ varying vec3 vWorldPosition;
 #include <clipping_planes_pars_vertex>
 
 void main() {
+
+	mat3 nWorld = transpose(inverse(mat3(modelMatrix)));
+	vec3 modelNormal = nWorld * normal;
+	vModelNormal = modelNormal.xyz;
+
+	vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+	vModelPosition = modelPosition.xyz;
 
 	#include <uv_vertex>
 	#include <color_vertex>
@@ -44,7 +66,14 @@ void main() {
 	#include <logdepthbuf_vertex>
 	#include <clipping_planes_vertex>
 
-    vViewPosition = -mvPosition.xyz;
+	vViewPosition = -mvPosition.xyz;
+
+	vColor = color;
+
+	vTextureId = int(textureId);
+	vUv = uv;
+	vAddOutLine = aAddOutLine;
+	vFeatureUid = aFeatureUid;
 
 	#include <worldpos_vertex>
 	#include <shadowmap_vertex>
@@ -52,7 +81,7 @@ void main() {
 
 #ifdef USE_TRANSMISSION
 
-    vWorldPosition = worldPosition.xyz;
+	vWorldPosition = worldPosition.xyz;
 
 #endif
 }

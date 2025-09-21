@@ -1,9 +1,9 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { environment } from '../../../../environments/environment';
 import { FeatureToDownload } from '../../../data/models/download';
 import { AdminBoundaryRespone } from '../../../data/models/parameters';
 import { Layer } from '../../../type/type';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 
 @Component({

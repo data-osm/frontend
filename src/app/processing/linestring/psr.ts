@@ -4,7 +4,7 @@ import { AlwaysDepth, Box3, Color, CurveType, CylinderGeometry, GreaterEqualDept
 
 import { FeatureInTile, TubeLineStringLayer } from "./tube-linestring";
 import { Feature } from "ol";
-import { CartoHelper, CustomVectorSource, LinesStringWithZ, MultiLineStringWithZ } from "../../../helper/carto.helper";
+import { CartoHelper, CustomVectorSource } from "../../../helper/carto.helper";
 import { getCenter } from "ol/extent";
 import LineString from "ol/geom/LineString";
 import MultiLineString from "ol/geom/MultiLineString";
@@ -15,66 +15,76 @@ interface FeatureInTileGroup {
     zOffset: number
 }
 
-const NetWorkTye: {
-    [key: string]: FeatureInTileGroup
-} = {
-    "ASS": {
-        "color": "#81300c",
-        "zOffset": 0,
-    },
-    "GAZ": {
-        "color": "#fff401",
-        "zOffset": 1.5,
-    },
-    "TEL": {
-        "color": "#008000",
-        "zOffset": 2,
-    },
-    "ELEC": {
-        "color": "#ff0000",
-        "zOffset": 2.5,
-    },
-    "AEP": {
-        "color": "#0000ff",
-        "zOffset": 3,
-    },
-    "MR": {
-        "color": "#ffc0cb",
-        "zOffset": 3.5,
-    },
-    "CC": {
-        "color": "#800080",
-        "zOffset": 4,
-    }
-}
+
 
 
 export class PsrLayer extends TubeLineStringLayer<FeatureInTileGroup> {
     getFeatures(vectorSource: CustomVectorSource): Feature<LineString | MultiLineString>[] {
         return vectorSource.getFeatures() as Feature<LineString | MultiLineString>[]
     }
-    getPointTileGroupByFromFeature(feature: Feature): string {
-        const featureNetworkName: string = feature.getProperties()["Reseau"]
 
-        return featureNetworkName
+    filterFeatureCondition(properties) {
+        return true
     }
 
-    initializeLineFeatureInTile(feature) {
-        const featureNetworkName: string = feature.getProperties()["Reseau"]
-        const featureNetwork = NetWorkTye[featureNetworkName]
-        return {
-            features: [],
-            instancePositions: [],
-            group: featureNetwork,
+    getFeatureId(properties) {
+        return properties["id"]
+    }
+
+    groupFeatureBy(properties) {
+        const NetWorkTye = {
+            "ASS": {
+                "color": "#81300c",
+                "zOffset": 0,
+            },
+            "GAZ": {
+                "color": "#fff401",
+                "zOffset": 1.5,
+            },
+            "TEL": {
+                "color": "#008000",
+                "zOffset": 2,
+            },
+            "ELEC": {
+                "color": "#ff0000",
+                "zOffset": 2.5,
+            },
+            "AEP": {
+                "color": "#0000ff",
+                "zOffset": 3,
+            },
+            "MR": {
+                "color": "#ffc0cb",
+                "zOffset": 3.5,
+            },
+            "CC": {
+                "color": "#800080",
+                "zOffset": 4,
+            }
         }
+        return NetWorkTye[properties["Reseau"]]
     }
 
-    getFeatureRadius(feature) {
-        const featureRadius: number = feature.getProperties()["Diametre"] ? feature.getProperties()["Diametre"] / 100 / 2 : 0.1
-        return featureRadius
+    getPointTileGroupByFromFeature(properties) {
+
+        return properties["Reseau"]
     }
 
-    onGeometryCreated(geometry: TubeGeometry, feature: Feature) {
+    // initializeLineFeatureInTile(feature) {
+    //     const featureNetworkName: string = feature.getProperties()["Reseau"]
+    //     const featureNetwork = NetWorkTye[featureNetworkName]
+    //     return {
+    //         features: [],
+    //         instancePositions: [],
+    //         group: featureNetwork,
+    //     }
+    // }
+
+    getFeatureRadius(properties) {
+        return properties["Diametre"] ? properties["Diametre"] / 100 / 2 : 0.1
+    }
+
+    onGeometryCreated(geometry, feature) {
         const featureNotUsed: boolean = feature.getProperties()["Abandon"] === 0 ? false : true
         const uvAttribute = geometry.attributes.uv;
 

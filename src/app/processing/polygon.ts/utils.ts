@@ -1,8 +1,8 @@
 import { M } from "@angular/cdk/keycodes";
-import { MultiPolygonWithZ, PolygonWithZ } from "../../../helper/carto.helper";
 import { MultiPolygon, Polygon, Coordinate, Feature } from "../../ol-module";
 import { createListElevationWorker, ElevationFeature, GeometryType, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "../elevation/pool";
 import { WorkerPool } from "../../giro-3d-module";
+import { MultiPolygonWithZ, PolygonWithZ } from "../utils";
 
 let elevationWorker: WorkerPool<ListElevationsMessageType, ListElevationMessageMap> | null = null
 

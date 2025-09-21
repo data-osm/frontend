@@ -9,6 +9,11 @@ import { fromInstanceGiroEvent, fromMapGiroEvent } from "../shared/class/fromGir
 import { debounceTime, tap } from "rxjs";
 import { E } from "@angular/cdk/keycodes";
 
+const DAY_SHADOW_BIAS = -0.0003
+const DAY_SHADOW_NORMAL_BIAS = -0.3
+const NIGHT_SHADOW_BIAS = 0.4
+// const NIGHT_SHADOW_NORMAL_BIAS = -0.3
+
 const tempVec3 = new Vector3()
 const temp2Vec3 = new Vector3()
 export class LightAndShadowSystem {
@@ -97,6 +102,7 @@ export class LightAndShadowSystem {
             cascades: 3,
             maxCascades: 4,
             shadowMapSize: 1024 * 2,
+            // lightColor: new Color(1, 1, 1),
             lightColor: this.sunSystem.sunLightColor.clone(),
             lightDirection: tempVec3.clone(),
             camera: this.instance.view.camera,
@@ -107,8 +113,8 @@ export class LightAndShadowSystem {
             // practicalModeLambda: 0.7,
             fade: true,
             lightMargin: 2000,
-            shadowBias: -0.0003,
-            shadowNormalBias: 0.9,
+            shadowBias: DAY_SHADOW_BIAS,
+            shadowNormalBias: DAY_SHADOW_NORMAL_BIAS,
         });
         this.csm.update()
         this.csm.updateFrustums();
@@ -122,7 +128,7 @@ export class LightAndShadowSystem {
         this.instance.add(csmHelper);
         csmHelper.update();
         this.csmHelper = csmHelper
-        // csmHelper.visible = false
+        csmHelper.visible = false
 
         this.updateCsmPlanes(this.instance.view.camera as PerspectiveCamera)
         // let i = 0
@@ -141,13 +147,13 @@ export class LightAndShadowSystem {
 
         // We first setup the materials of all existing tiles
         this.map.traverseMaterials((m) => {
-            this.setupMaterial(m)
+            this.csm.setupMaterial(m)
         })
         // We listen to new tiles to setup their materials
         fromMapGiroEvent(this.map, "object-created").pipe(
             tap((e) => {
                 this.map.traverseMaterials((m) => {
-                    this.setupMaterial(m)
+                    this.csm.setupMaterial(m)
                 }, e.obj)
             })
         ).subscribe()
@@ -172,6 +178,16 @@ export class LightAndShadowSystem {
                 tempVec3.set(sunDir.x, sunDir.y, sunDir.z).multiplyScalar(-1)
                 this.csm.lightDirection.copy(tempVec3);
                 this.csm.lightColor.copy(this.sunSystem.sunLightColor)
+
+                if (sunDir.z < 0) {
+                    if (this.csm.shadowBias != NIGHT_SHADOW_BIAS) {
+                        this.csm.shadowBias = NIGHT_SHADOW_BIAS
+                    }
+                } else {
+                    if (this.csm.shadowBias != DAY_SHADOW_BIAS) {
+                        this.csm.shadowBias = DAY_SHADOW_BIAS
+                    }
+                }
                 this.csm.update()
             })
         ).subscribe()
@@ -186,6 +202,7 @@ export class LightAndShadowSystem {
 
         // Update CSM
         this.updateCsmPlanes(this.instance.view.camera as PerspectiveCamera)
+
     }
 
     private updateSun() {
@@ -204,111 +221,33 @@ export class LightAndShadowSystem {
 
     }
 
-    setupMaterial(material: Material) {
-
-        const fn = (shader) => {
-
-            // @ts-expect-error
-            const breaksVec2 = this.csm.getExtendedBreaks();
-
-            const far = Math.min(this.csm.camera.far, this.csm.maxFar);
-
-            shader.uniforms.CSM_cascades = { value: breaksVec2 };
-            shader.uniforms.cameraNear = { value: Math.min(this.csm.maxFar, this.csm.camera.near) };
-            shader.uniforms.shadowFar = { value: far };
-
-            material.defines = material.defines || {};
-            material.defines.USE_CSM = 1;
-            material.defines.CSM_CASCADES = this.csm.cascades;
-            material.defines.CSM_FADE = this.csm.fade ? '' : undefined;
-
-            material.needsUpdate = true;
-            // @ts-expect-error
-            this.csm.shaders.set(material, shader);
-
-            material.addEventListener('dispose', () => {
-                // @ts-expect-error
-                this.csm.shaders.delete(material);
-
-            });
-
-        };
-
-        if (!material.onBeforeCompile) {
-
-            material.onBeforeCompile = fn;
-
-        } else {
-
-            const previousFn = material.onBeforeCompile.bind(material);
-
-            material.onBeforeCompile = (...args) => {
-
-                previousFn(...args);
-                fn(args[0]);
-
-            };
-
-        }
-
-    }
 
     updateCsmPlanes(camera: PerspectiveCamera) {
 
+        this.csm.update();
+        let i = 0
+        if (i < 20) {
+            this.csm.updateFrustums();
+            this.csm.frustums.forEach((_, index) => {
+                const light = this.csm.lights[index];
 
-        let mapPosition: Coordinates
-        let cameraPosition: Vector3
-
-        try {
-            const mapBoundingBox = CartoHelper.getVisibleTileBoundingBox(this.map)
-
-            if (mapBoundingBox.isEmpty()) {
-                throw new Error("Map bounding box is undefined when updating csm")
-            }
-
-            mapBoundingBox.getCenter(tempVec3)
-            mapBoundingBox.getSize(temp2Vec3)
-
-            const mapCenter = new Coordinates("EPSG:3857", tempVec3.x, tempVec3.y);
-            mapPosition = mapCenter.clone().as("EPSG:4326");
-
-            cameraPosition = new Vector3(tempVec3.x, tempVec3.y, camera.position.z)
-            const extentDimensions = temp2Vec3.clone()
-
-
-            const newMaxFar = Math.min(extentDimensions.x, extentDimensions.y)
-            // if (Math.abs(newMaxFar - this.csm.maxFar) > 200) {
-            //     this.csm.maxFar = Math.min(newMaxFar, 7000)
-            //     this.csm.updateFrustums();
-            //     // console.log("new max far", this.csm.maxFar)
-            // }
-
-            // console.log("ok")
-        } catch (error) {
-            // cameraPosition = camera.position
-            // mapPosition = new Coordinates("EPSG:3857", cameraPosition.x, cameraPosition.y).as("EPSG:4326");
-            console.error(error)
+                light.shadow.camera.updateMatrixWorld(true);
+                light.updateMatrixWorld(true)
+                light.target.updateMatrixWorld(true)
+            })
         }
 
-        this.csm.update();
-        this.csm.updateFrustums();
+        i++
 
 
-        this.csm.frustums.forEach((_, index) => {
-            const light = this.csm.lights[index];
-
-            light.shadow.camera.updateMatrixWorld(true);
-            light.updateMatrixWorld(true)
-            light.target.updateMatrixWorld(true)
-        })
 
 
     }
 
     static getSunLightIntensity(sunDirection: Vec3) {
-        return sunDirection.z < 0 ? 0.0 : 10.0
+        return sunDirection.z < 0 ? 8.0 : 15.0
     }
     static getAmbientLightIntensity(sunDirection: Vec3) {
-        return sunDirection.z < 0 ? 0.1 : 0.2
+        return sunDirection.z < 0 ? 3.0 : 3.0
     }
 }

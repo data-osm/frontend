@@ -22,6 +22,31 @@ export class TramLineString extends FlatLineStringLayer {
         super(map, couche, min_z)
     }
 
+    getPointTileGroupByFromFeature(properties) {
+        return ""
+    }
+    groupFeatureBy(properties) {
+        return {
+            color: ""
+        }
+    }
+
+    getFeatureRadius(properties) {
+        return 0
+    }
+
+    onGeometryCreated(geometry, properties) {
+
+    }
+
+    getFeatureId(properties) {
+        return properties["osm_id"] as number
+    }
+
+    filterFeatureCondition(properties) {
+        return true
+    }
+
     getTexture() {
         this.loader = new TextureLoader()
         const railTextures: {

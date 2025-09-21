@@ -9,6 +9,8 @@ import { Geometry } from 'ol/geom';
 import { RequestReplyClient, RequestReplyServer, ReqMsg, ResMsg } from '../../../helper/request-reply';
 import Vec2 from '../../processing/math/vector2';
 import { Feature } from '../../ol-module';
+import { PackedTiles } from '../../processing/building-elevation';
+import { Extent } from 'ol/extent';
 
 export interface OsmFeatureToChange {
     osm_id: number,
@@ -36,6 +38,9 @@ export class FeaturesStoreService {
 
     private customVectorSource$: BehaviorSubject<Map<number | string, (featureId: number | string) => Feature<Geometry>>> = new BehaviorSubject<Map<number | string, (featureId: number | string) => Feature<Geometry>>>(new Map());
 
+    private buildingHeightFlatBushIndex$: BehaviorSubject<PackedTiles> = new BehaviorSubject<PackedTiles>(null);
+    private tileFlatIndexBuildingHeight$: BehaviorSubject<Map<string, Map<number, number>>> = new BehaviorSubject<Map<string, Map<number, number>>>(new Map<string, Map<number, number>>());
+    private newBuildingsExtentsLoaded$: BehaviorSubject<Array<Extent>> = new BehaviorSubject<Array<Extent>>([]);
     // Send and retrieve a building height
     private readonly sendRetrieveBuildingHeight$ = new Subject<ReqMsg<Vec2> | ResMsg<number>>();
 
@@ -56,6 +61,25 @@ export class FeaturesStoreService {
     constructor() {
 
     }
+
+    get newBuildingsExtentsLoaded() {
+        return this.newBuildingsExtentsLoaded$.value
+    }
+    get tileFlatIndexBuildingHeight() {
+        return this.tileFlatIndexBuildingHeight$.value
+    }
+    set tileFlatIndexBuildingHeight(value: Map<string, Map<number, number>>) {
+        this.tileFlatIndexBuildingHeight$.next(value)
+    }
+
+    get buildingHeightFlatBushIndex() {
+        return this.buildingHeightFlatBushIndex$.value
+
+    }
+    set buildingHeightFlatBushIndex(value: PackedTiles) {
+
+        this.buildingHeightFlatBushIndex$.next(value)
+    }
     get newBuildingHieghtLoaded() {
         return this.newBuildingHieghtLoaded$.pipe(debounceTime(1000))
     }
@@ -65,6 +89,13 @@ export class FeaturesStoreService {
 
     get updateBuildingFeature() {
         return this.updateBuildingFeature$.asObservable()
+    }
+
+    addNewBuildingExtentLoaded(extent: Extent) {
+        this.newBuildingsExtentsLoaded$.next([...this.newBuildingsExtentsLoaded$.value, extent])
+    }
+    clearNewBuildingExtentLoaded() {
+        this.newBuildingsExtentsLoaded$.next([])
     }
 
     changeBuildingFeature(osmFeatureToChange: OsmFeatureToChange) {
@@ -121,6 +152,14 @@ export class FeaturesStoreService {
         this.customVectorSource$.next(customVectorSourceMap)
     }
 
+    removeCustomVectorSource(couche_id: number | string) {
+        const customVectorSourceMap = this.customVectorSource$.getValue()
+        if (customVectorSourceMap.has(couche_id)) {
+            customVectorSourceMap.delete(couche_id)
+            this.customVectorSource$.next(customVectorSourceMap)
+        }
+    }
+
     addLayerVectorSource(couche_id: number | string, layer_vector_source: CustomVectorSource) {
         const layers_vector_sources_map = this.layersVectorSources$.getValue()
         layers_vector_sources_map.set(couche_id, layer_vector_source)
@@ -152,8 +191,7 @@ export class FeaturesStoreService {
     getFeatureFromLayer(couche_id: number | string, featureId: number): Feature<Geometry> | null {
         const layer = this.getLayerVectorSource(couche_id)
         if (layer) {
-            //@ts-expect-error
-            return layer.getFeatureByUid(osm_id)
+            return layer.getFeatureByUid(featureId.toString())
         }
         const customVectorSource = this.customVectorSource$.getValue().get(couche_id)
         if (customVectorSource) {

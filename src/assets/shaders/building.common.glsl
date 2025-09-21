@@ -1,37 +1,104 @@
+const float GAMMA = 2.2;
+const float INV_GAMMA = 1.0 / GAMMA;
+
+vec3 LINEARtoSRGB(vec3 color) {
+    return pow(color, vec3(INV_GAMMA));
+}
+
+vec4 SRGBtoLINEAR(vec4 srgbIn) {
+    return vec4(pow(srgbIn.xyz, vec3(GAMMA)), srgbIn.w);
+}
+
 vec4 getColorValue(sampler2DArray tMap, vec2 vUv, int textureId, float mask, vec3 tintColor) {
     vec3 color = mix(vec3(1), tintColor, mask);
-    return texture(tMap, vec3(vUv, textureId * 4)) * vec4(color, 1.0);
+
+    return texture(tMap, vec3(vUv, textureId * 4)) * vec4(tintColor, 1.0);
+    // * vec4(color, 1.0)
 }
 
 vec3 getMaskValue(sampler2DArray tMap, vec2 vUv, int textureId) {
-    return texture(tMap, vec3(vUv, textureId)).xyz;
+    return texture(tMap, vec3(vUv, textureId * 4 + 2)).xyz;
 }
 
-mat3 getTBN(vec3 normal, vec3 position, vec2 uv) {
-                    // Get edge vectors of the pixel triangle
-    vec3 dp1 = dFdx(position);  // Partial derivative of position with respect to x
-    vec3 dp2 = dFdy(position);  // Partial derivative of position with respect to y
-    vec2 duv1 = dFdx(uv);       // Partial derivative of UV with respect to x
-    vec2 duv2 = dFdy(uv);       // Partial derivative of UV with respect to y
+// Normal Mapping Without Precomputed Tangents
+	// http://www.thetenthplanet.de/archives/1180
 
-                    // Solve the linear system to compute tangent and bitangent vectors
-    vec3 tangent = normalize(duv2.y * dp1 - duv1.y * dp2);  // Compute Tangent (T)
-    vec3 bitangent = normalize(duv2.x * dp1 - duv1.x * dp2); // Compute Bitangent (B)
+mat3 getTangentFrame(vec3 eye_pos, vec3 surf_norm, vec2 uv) {
 
-                    // Ensure that the tangent, bitangent, and normal form a right-handed coordinate system
-    tangent = normalize(tangent);
-    bitangent = normalize(cross(normal, tangent));  // Use cross product to get a corrected bitangent
+    vec3 q0 = dFdx(eye_pos.xyz);
+    vec3 q1 = dFdy(eye_pos.xyz);
+    vec2 st0 = dFdx(uv.st);
+    vec2 st1 = dFdy(uv.st);
 
-                    // Construct the TBN matrix with scale-invariance
-    return mat3(tangent, bitangent, normal);  // TBN matrix with Z-up normal
+    vec3 N = surf_norm; // normalized
+
+    vec3 q1perp = cross(q1, N);
+    vec3 q0perp = cross(N, q0);
+
+    vec3 T = q1perp * st0.x + q0perp * st1.x;
+    vec3 B = q1perp * st0.y + q0perp * st1.y;
+
+    float det = max(dot(T, T), dot(B, B));
+    float scale = (det == 0.0) ? 0.0 : inversesqrt(det);
+
+    return mat3(T * scale, B * scale, N);
+
+}
+
+mat3 getTBN(vec3 N, vec3 p, vec2 uv) {
+    /* get edge vectors of the pixel triangle */
+    vec3 dp1 = dFdx(p);
+    vec3 dp2 = dFdy(p);
+    vec2 duv1 = dFdx(uv);
+    vec2 duv2 = dFdy(uv);
+
+    /* solve the linear system */
+    vec3 dp2perp = cross(dp2, N);
+    vec3 dp1perp = cross(N, dp1);
+    vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
+    vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+
+    /* construct a scale-invariant frame */
+    float invmax = inversesqrt(max(dot(T, T), dot(B, B)));
+    return mat3(T * invmax, -B * invmax, N);
+}
+
+vec3 s(vec3 N, vec3 p, vec2 uv) {
+    /* get edge vectors of the pixel triangle */
+    vec3 dp1 = dFdx(p);
+    vec3 dp2 = dFdy(p);
+    vec2 duv1 = dFdx(uv);
+    vec2 duv2 = dFdy(uv);
+
+    /* solve the linear system */
+    vec3 dp2perp = cross(dp2, N);
+    vec3 dp1perp = cross(N, dp1);
+    vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
+    vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+
+    /* construct a scale-invariant frame */
+    float invmax = inversesqrt(max(dot(T, T), dot(B, B)));
+    float s = (dot(cross(N, T * invmax), -B * invmax) < 0.0) ? -1.0 : 1.0;
+    // float s = (dot(cross(N, * invmax), -B * invmax) < 0.0) ? -1.0 : 1.0;
+    // return mat3(T * invmax, -B * invmax, N);
+    return vec3(s * 0.5 + 0.5);
+    // return s;
 }
 
 vec3 getNormalValue(int textureId, sampler2DArray tMap, vec3 normal, vec3 position, vec2 uv) {
-    mat3 tbn = getTBN(normal, position, vec2(uv.x, 1. - uv.y));
-    vec3 mapValue = texture(tMap, vec3(uv, textureId * 4 + 1)).xyz * 2. - 1.;
-    vec3 normalValue = normalize(tbn * mapValue);
+    mat3 tbn = getTangentFrame(position, normal, uv);
+    // mat3 tbn = getTBN(normal, position, uv);
+    float faceDirection = gl_FrontFacing ? 1.0 : -1.0;
 
-    // normal *= float(gl_FrontFacing) * 2. - 1.;
+    tbn[0] *= faceDirection;
+    tbn[1] *= faceDirection;
 
-    return normalValue;
+    vec3 normalValue = texture(tMap, vec3(uv, textureId * 4 + 1)).xyz * 2.0 - 1.0;
+    // normalValue.xy = vec2(0.0);
+    // vec3 normalValue = vec3(0.0, 0.0, 1.0); 
+    float normalScale = 3.0;
+    normalValue.xy *= normalScale;
+    vec3 newNormal = normalize(tbn * normalValue);
+
+    return newNormal;
 }

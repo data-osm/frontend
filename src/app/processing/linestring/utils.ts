@@ -1,9 +1,9 @@
 import { Vector3 } from "three";
 import { LineString, MultiLineString, LinearRing, Coordinate, Feature } from "../../ol-module";
 import { getLength } from 'ol/sphere';
-import { LinesStringWithZ, MultiLineStringWithZ } from "../../../helper/carto.helper";
 import { createListElevationWorker, ElevationFeature, GeometryType, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "../elevation/pool";
 import { WorkerPool } from "../../giro-3d-module";
+import { LinesStringWithZ, MultiLineStringWithZ } from "../utils";
 
 const tmpVec3 = new Vector3()
 let elevationWorker: WorkerPool<ListElevationsMessageType, ListElevationMessageMap> | null = null
@@ -252,8 +252,10 @@ export async function addElevationToLines(features: Feature<LineString | MultiLi
     // })
 
     const featureForElevation: ElevationFeature[] = features.map((feature, index) => {
+        const properties = feature.getProperties()
+        delete properties["geometry"]
         return {
-            "properties": feature.getProperties(),
+            "properties": properties,
             "geometryType": feature.getGeometry().getType() as GeometryType,
             "coordinates": feature.getGeometry().getCoordinates(),
             "index": index

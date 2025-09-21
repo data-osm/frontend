@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import * as moment from 'moment'
 import { environment } from '../../../environments/environment';
 import { ParametersService } from '../../data/services/parameters.service';
+import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-info',
@@ -15,8 +15,8 @@ export class InfoComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<InfoComponent>,
-    public parameterService:ParametersService
-  ) { 
+    public parameterService: ParametersService
+  ) {
   }
 
   ngOnInit(): void {

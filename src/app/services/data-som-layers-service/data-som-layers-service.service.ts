@@ -30,12 +30,14 @@ export class DataOsmLayersServiceService {
   private readonly notifier: NotifierService;
 
   private baseMaps$: BehaviorSubject<Array<BaseMap>> = new BehaviorSubject<Array<BaseMap>>([])
-  public groupsLayerInMap: BehaviorSubject<Array<{
+  private groupsLayerInMap$: BehaviorSubject<Array<{
     group: Group,
-    layer: Layer
+    layer: Layer,
+    visible: boolean
   }>> = new BehaviorSubject<Array<{
     group: Group,
-    layer: Layer
+    layer: Layer,
+    visible: boolean
   }>>([])
 
   private _constructLayer: (DataOSMLayer) => ColorLayer
@@ -54,22 +56,30 @@ export class DataOsmLayersServiceService {
     }
 
     this.getLayerInMap = (layer_id: number): { group: Group, layer: Layer } => {
-      return this.groupsLayerInMap.getValue().find((groupLayer) => groupLayer.layer.layer_id == layer_id)
+      return this.groupsLayerInMap$.getValue().find((groupLayer) => groupLayer.layer.layer_id == layer_id)
     }
 
     this.destroyLayer = (layer_id: number) => {
-      let groupLayers = this.groupsLayerInMap.getValue().filter((groupLayer) => groupLayer.layer.layer_id != layer_id)
-      this.groupsLayerInMap.next(groupLayers)
+      let groupLayers = this.groupsLayerInMap$.getValue().filter((groupLayer) => groupLayer.layer.layer_id != layer_id)
+      this.groupsLayerInMap$.next(groupLayers)
     }
 
     this.storeLayer = (group: Group, layer: Layer) => {
       if (!this.getLayerInMap(layer.layer_id)) {
-        let groupLayers = this.groupsLayerInMap.getValue()
-        groupLayers.push({ group: group, layer: layer })
-        this.groupsLayerInMap.next(groupLayers)
+        let groupLayers = this.groupsLayerInMap$.getValue()
+        groupLayers.push({ group: group, layer: layer, visible: true })
+        this.groupsLayerInMap$.next(groupLayers)
       }
     }
 
+  }
+
+  get groupsLayerInMapObservable() {
+    return this.groupsLayerInMap$.asObservable()
+  }
+
+  get groupsLayerInMap() {
+    return this.groupsLayerInMap$.getValue()
   }
 
   /**
@@ -202,6 +212,14 @@ export class DataOsmLayersServiceService {
       })
     }
 
+  }
+
+  updateLayerVisibility(layerId: number, isVisible: boolean) {
+    let groupLayer = this.groupsLayerInMap$.getValue().find((groupLayer) => groupLayer.layer.layer_id == layerId)
+    if (groupLayer) {
+      groupLayer.visible = isVisible
+      this.groupsLayerInMap$.next(this.groupsLayerInMap$.getValue())
+    }
   }
 
   /**

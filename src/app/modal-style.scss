@@ -1,4 +1,4 @@
-@import './theme.scss';
+@import "./theme.scss";
 
 .close {
   font-size: 18px;
@@ -22,25 +22,58 @@
   max-height: calc(100% - 112px) !important;
   height: calc(100% - 112px) !important;
   padding: 24px !important;
-  background: #eeeeee;
+  background-color: #001725 !important;
+  color: #fff !important;
 }
-
+.without-actions {
+  height: 100% !important;
+  max-height: 100% !important;
+}
 ::ng-deep .mat-dialog-title {
   text-align: center !important;
-  margin-left: -24px !important;
-  margin-right: -24px !important;
-  margin-top: -24px !important;
-  margin-bottom: 0px !important;
-  padding: 6px 10px !important;
-  background-color: $primary_transparent_bg !important;
+  line-height: 0px !important;
+  margin: 0px !important;
+  height: 50px;
+  padding: 0px 10px;
+  // background-color: $primary_transparent_bg !important;
+  background-color: black !important;
+  flex-direction: row;
+  box-sizing: border-box;
+  display: flex;
+  place-content: center;
+  align-items: center;
+
+  .dialog-title-start-icon {
+    height: 25px;
+    align-self: center;
+    flex: 1 1 25px;
+    box-sizing: border-box;
+    max-width: 25px;
+    min-width: 25px;
+  }
+  .dialog-title-text {
+    align-self: center;
+    flex: 1 1 0%;
+    box-sizing: border-box;
+  }
+  .dialog-title-end-icon {
+    align-self: center;
+    height: 20px;
+    align-self: center;
+    flex: 1 1 20px;
+    box-sizing: border-box;
+    max-width: 20px;
+    min-width: 20px;
+    cursor: pointer;
+  }
 }
 
 ::ng-deep .mat-dialog-actions {
-  margin: 0px -24px -24px !important;
+  justify-content: center;
   background: rgba(255, 255, 255, 0.8) !important;
-  padding: 8px 15px !important;
-  min-height: 40px !important;
-  display: block !important;
+  // padding: 8px 15px !important;
+  // min-height: 40px !important;
+  // display: block !important;
 }
 
 p,

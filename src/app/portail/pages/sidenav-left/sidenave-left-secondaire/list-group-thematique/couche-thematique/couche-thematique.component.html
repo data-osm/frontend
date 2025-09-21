@@ -1,8 +1,8 @@
-<mat-list-option [matTooltip]="layer.name" matTooltipClass="couche-toolipt" class="couche-option"
-  matTooltipPosition="right" [selected]="isLayerInMap(layer)" [disabled]="shouldDisabled(layer)" [value]="layer">
+<mat-list-option [lines]="2" [matTooltip]="layer.name" matTooltipClass="couche-toolipt" class="couche-option"
+  matTooltipPosition="right" [selected]="layer.isSelected" [disabled]="layer.shouldDisabled" [value]="layer">
+  <!-- [selected]="isLayerInMap(layer)" -->
+  <img class="couche-img" matListItemIcon src="{{ environment.backend + layer.cercle_icon }}" />
 
-  <img class="couche-img" src="{{ environment.backend + layer.cercle_icon }}" mat-list-icon />
-
-  <div mat-line class="couche-title">{{ layer.name }}</div>
+  <div matListItemTitle class="couche-title">{{ layer.name }}</div>
 </mat-list-option>
 <!-- <mat-divider style="margin-left: 50px" [inset]="true"></mat-divider> -->

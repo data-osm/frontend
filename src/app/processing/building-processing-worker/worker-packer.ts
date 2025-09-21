@@ -119,3 +119,51 @@ export function packExtrudedForTransfer(
 
     return { wire, transfers };
 }
+
+
+export const formatBufferGeometryAttributes = function (geometriesJson: {
+    key: string;
+    data: BufferAttributeJSON | {
+        isInterleavedBufferAttribute: true;
+        itemSize: number;
+        data: string;
+        offset: number;
+        normalized: boolean;
+    };
+}[]) {
+    const attrs: WireAttr[] = [];
+    for (const g of geometriesJson) {
+        const d: any = g.data;
+
+        if (d.isInterleavedBufferAttribute) {
+            // Interleaved: data est une chaîne -> ArrayBuffer -> TypedArray
+            const ab = base64ToAB(d.data);
+            const arr = toTyped(d.type ?? 'Float32Array', ab);
+            const stride = (d.stride ?? d.itemSize) | 0;
+
+            attrs.push({
+                kind: 'interleaved',
+                key: g.key,
+                itemSize: d.itemSize | 0,
+                normalized: !!d.normalized,
+                stride,
+                offset: d.offset | 0,
+                array: arr,
+            });
+
+
+        } else {
+            // BufferAttribute simple: array:number[] -> TypedArray
+            const arr = toTyped(d.type, d.array);
+            attrs.push({
+                kind: 'attr',
+                key: g.key,
+                itemSize: d.itemSize | 0,
+                normalized: !!d.normalized,
+                array: arr,
+            });
+
+        }
+    }
+    return attrs
+}

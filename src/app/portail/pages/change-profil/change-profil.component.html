@@ -6,18 +6,19 @@
 
 <mat-dialog-content>
     <ng-container *ngIf="profils$|async as profils">
-        <div fxLayout="row wrap" fxLayoutGap="20px" >
-            <mat-card fxFlex="250px" class="pointer" *ngFor="let profil of profils" (click)="changeProfil(profil.map_id)" > 
-                <span style="text-transform: uppercase;">  {{profil.name}}  </span>
-               
-                <mat-chip-list *ngIf="map_id === profil.map_id">
-                    <mat-chip color="primary" class="white"  selected> ACTIF </mat-chip>
-                </mat-chip-list>
+        <div fxLayout="row wrap" fxLayoutGap="20px">
+            <mat-card fxFlex="250px" class="pointer" *ngFor="let profil of profils"
+                (click)="changeProfil(profil.map_id)">
+                <span style="text-transform: uppercase;"> {{profil.name}} </span>
+
+                <mat-chip-listbox *ngIf="map_id === profil.map_id">
+                    <mat-chip color="primary" class="white" selected> ACTIF </mat-chip>
+                </mat-chip-listbox>
             </mat-card>
         </div>
     </ng-container>
 </mat-dialog-content>
 
 <div mat-dialog-actions>
-   
+
 </div>

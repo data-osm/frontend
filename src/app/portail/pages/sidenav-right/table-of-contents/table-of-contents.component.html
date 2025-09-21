@@ -1,14 +1,9 @@
 <div cdkDropList style="padding-bottom: 150px;" (cdkDropListDropped)="drop($event)">
-  <div *ngFor="let layer of layersInToc " cdkDrag cdkDragLockAxis="y">
+  <div *ngFor="let layer of layersInToc; trackBy: itemTrackBy" cdkDrag cdkDragLockAxis="y">
     <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
     <mat-card class="table-of-contents-card">
 
-      <mat-chip-list style="position: absolute;bottom: 20px;left: 5px;" *ngIf="layer.badge">
-        <mat-chip style="padding: 5px 5px;min-height: 20px;font-size: 11px;background: rgba(10, 10, 10, 0.42);"
-          class="white">
-          {{layer.badge.text}}
-        </mat-chip>
-      </mat-chip-list>
+
 
       <div *ngIf="layer['properties']['type'] == 'couche'" mat-card-image class="table-of-contents-card-img-round">
         <img [src]="layer.image" [alt]="layer.nom">
@@ -18,9 +13,14 @@
         <img [src]="layer.image" [alt]="layer.nom">
       </div>
 
-      <mat-card-content>
+      <mat-card-content fxLayout>
+        <mat-chip-listboxboxbox fxFlex fxFlexAlign="start" *ngIf="layer.badge">
+          <mat-chip style="height: 20px;font-size: 11px;background: rgba(10, 10, 10, 0.42);" class="white">
+            {{layer.badge.text}}
+          </mat-chip>
+        </mat-chip-listboxboxbox>
 
-        <p class="actions">
+        <p class="actions" fxFlex fxFlexAlign="end">
           <i class="fa fa-info-circle pointer primaryColor" *ngIf="layer['properties']['type'] == 'couche'"
             matTooltip="{{ 'couche_en_cours.information_couche' | translate }}"
             style="margin-right: 10px;font-size: 17px;" (click)="openMetadata(layer)"></i>
@@ -38,8 +38,7 @@
 
       </mat-card-content>
       <mat-card-actions>
-        <mat-checkbox labelPosition="after" color="primary" [(ngModel)]="layer.visible"
-          (change)="setVisibleOfLayer($event,layer)">
+        <mat-checkbox labelPosition="after" [(ngModel)]="layer.visible" (change)="setVisibleOfLayer($event,layer)">
           {{layer.nom}}
         </mat-checkbox>
       </mat-card-actions>

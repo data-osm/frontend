@@ -234,8 +234,8 @@ export class SearchComponent implements OnInit {
         var cartoClass = new CartoHelper(this.map)
 
         fromMapGiroEvent<"layer-order-changed">(this.map, "layer-order-changed").pipe(
+          debounceTime(2000),
           filter(_ => this.map.getLayers((layer) => layer.name == "searchResultLayer").length > 0),
-          debounceTime(1000),
           tap(() => {
             let searchResultLayer = cartoClass.getLayerByName('searchResultLayer')[0]
             cartoClass.moveLayerOnTop(searchResultLayer)

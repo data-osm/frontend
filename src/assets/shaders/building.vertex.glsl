@@ -63,32 +63,32 @@ void main() {
 	#include <logdepthbuf_vertex>
 	#include <clipping_planes_vertex>
 
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 
     // Out
-    vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-    vPosition = modelPosition.xyz;
+  vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+  vPosition = modelPosition.xyz;
 
-    mat3 nWorld = transpose(inverse(mat3(modelMatrix)));
-    vec3 modelNormal = nWorld * normal;
-    vNormal = modelNormal.xyz;
+  mat3 nWorld = transpose(inverse(mat3(modelMatrix)));
+  vec3 modelNormal = nWorld * normal;
+  vNormal = modelNormal.xyz;
 
     // vWorldDirection = transformDirection(position, modelMatrix);
 
-    vUv = uv;
+  vUv = uv;
 
-    vColor = color;
+  vColor = color;
 
-    vTextureId = int(textureId);
+  vTextureId = int(textureId);
 
-    vFeatureUid = aFeatureUid;
+  vFeatureUid = aFeatureUid;
 
-    vAddOutLine = aAddOutLine;
+  vAddOutLine = aAddOutLine;
 
-    vViewPosition = -mvPosition.xyz;
+  vViewPosition = -mvPosition.xyz;
 
-    // vec3 transformedNormal = normalize(normalMatrix * normal);
-    // VTransformedNormal = transformedNormal;
+  // vec3 transformedNormal = normalize(normalMatrix * normal);
+  VTransformedNormal = transformedNormal;
     #include <worldpos_vertex>
     #include <shadowmap_vertex> 
     #include <fog_vertex>

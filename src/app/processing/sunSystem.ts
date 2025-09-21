@@ -150,12 +150,17 @@ function kelvinToRGB(K) {
 function sunKelvinFromAltitude(altRad) {
     const altDeg = MathUtils.radToDeg(altRad);
     const curve = [
-        { alt: -6, K: 2000 }, // crépuscule civil
+        { alt: -6, K: 2000 }, // crépuscule 
+        { alt: -3, K: 2400 },
         { alt: 0, K: 3000 }, // horizon
-        { alt: 10, K: 3800 },
-        { alt: 30, K: 5000 },
-        { alt: 60, K: 6500 },
-        { alt: 90, K: 6500 },
+        { alt: 5, K: 3400 },
+        { alt: 10, K: 4000 },
+        { alt: 20, K: 5000 },
+        { alt: 35, K: 5800 },
+        { alt: 50, K: 6200 },
+        { alt: 65, K: 6500 },
+        { alt: 80, K: 6600 },
+        { alt: 90, K: 6600 }, // zénith
     ];
     if (altDeg <= curve[0].alt) return curve[0].K;
     for (let i = 0; i < curve.length - 1; i++) {

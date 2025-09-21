@@ -1,4 +1,4 @@
-import { AddEquation, AdditiveBlending, AlwaysDepth, AlwaysStencilFunc, Box3, BoxGeometry, BufferAttribute, BufferGeometry, Color, CustomBlending, DataArrayTexture, DirectionalLight, DoubleSide, Fog, Frustum, GLSL3, GreaterDepth, Group, InstancedBufferGeometry, LessDepth, Material, Matrix4, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshLambertMaterial, MeshNormalMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial, NormalBufferAttributes, Object3D, OneFactor, PerspectiveCamera, PlaneGeometry, Quaternion, ReplaceStencilOp, Scene, ShaderChunk, ShaderLib, ShaderMaterial, Sphere, Texture, TypedArray, UniformsLib, UniformsUtils, Vector2, Vector3, WebGLRenderTarget, ZeroFactor } from "three";
+import { AddEquation, AdditiveBlending, AlwaysDepth, AlwaysStencilFunc, Box3, BoxGeometry, BufferAttribute, BufferGeometry, Color, CustomBlending, DataArrayTexture, DirectionalLight, DoubleSide, Fog, Frustum, GLSL3, GreaterDepth, Group, InstancedBufferGeometry, LessDepth, Material, Matrix4, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshLambertMaterial, MeshNormalMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial, NormalBufferAttributes, Object3D, OneFactor, PerspectiveCamera, Plane, PlaneGeometry, Quaternion, ReplaceStencilOp, Scene, ShaderChunk, ShaderLib, ShaderMaterial, Sphere, Texture, TypedArray, UniformsLib, UniformsUtils, Vector2, Vector3, WebGLRenderTarget, ZeroFactor } from "three";
 import { concatMap, debounceTime, delay, filter, retryWhen, map as rxjsMap, take, takeUntil, tap } from "rxjs/operators"
 import { Instance, Map as Giro3DMap, OLUtils, OrbitControls, Coordinates, BaseMessageMap, WorkerPool } from "../giro-3d-module";
 import { Feature, GeometryLayout, MVT, Polygon, TileState, VectorTileSource, GeoJSON, FeatureLike, getCenter, VectorSource, Extent, Coordinate, Geometry, MultiPolygon, Point } from "../ol-module";
@@ -11,7 +11,6 @@ import { TileCoord } from "ol/tilecoord";
 import { BufferGeometryUtils, EffectComposer, RenderPass, UnrealBloomPass, VertexNormalsHelper } from "three/examples/jsm/Addons";
 import Earcut from 'earcut';
 import Flatbush from 'flatbush';
-
 
 import { FeaturesStoreService, OsmFeatureToChange } from "../data/store/features.store.service";
 import { AppInjector } from "../../helper/app-injector.helper";
@@ -38,7 +37,7 @@ import vertexShader from "../../assets/shaders/building.vertex.glsl";
 
 // Load custom shaders
 import buildingCommon from "../../assets/shaders/building.common.glsl";
-import { WireExtruded } from "./building-processing-worker/worker-packer";
+import { WireAttr, WireExtruded } from "./building-processing-worker/worker-packer";
 import Vec2 from "./math/vector2";
 import { SunSystem } from "./sunSystem";
 import Vec3 from "./math/vector3";
@@ -47,6 +46,8 @@ import { LightAndShadowSystem } from "./lightAndShadowSystem";
 import PhysicalFragment from "../../assets/shaders/physical.fragment.glsl";
 import PhysicalVertex from "../../assets/shaders/physical.vertex.glsl";
 import computeShadowMask from "../../assets/shaders/compute_shadow_mask.glsl";
+import { getRoofParams } from "./building/roof-params";
+import { addTile, PackedTiles } from "./building-elevation";
 ShaderChunk['building_common'] = buildingCommon;
 ShaderChunk['compute_shadow_mask'] = computeShadowMask;
 // class WorkerPoolL {
@@ -99,6 +100,9 @@ export interface MessageMap extends BaseMessageMap<MessageType> {
         tile_key: string
     };
 }
+
+
+
 export class BuildingLayer {
 
     instance: Instance
@@ -108,9 +112,8 @@ export class BuildingLayer {
     buildingGroup: Group = new Group()
     _tileSets: Map<string, BuildingsTile> = new Map()
 
-    private buildingsIndex: Flatbush
+    // private buildingsIndex: Flatbush
     buildingTexture: DataArrayTexture
-    maskTexture: DataArrayTexture
     noiseTexture: Texture
 
 
@@ -125,13 +128,25 @@ export class BuildingLayer {
     csm: CSM
     private buildingMaterial: ShaderMaterial
 
+    private buildingHeightFlatBushIndex: PackedTiles = {
+        buffer: new ArrayBuffer(Math.max(0, 1 << 20)),
+        used: 0,
+        // Buffer of FlatBuffer must be a multiple of 8
+        align: 8,
+        index: [],
+        posByTileKey: new Map<string, number>(),
+    };
+
     private tileOSMIDS: Map<string, Set<number>> = new Map<string, Set<number>>()
     private OSMIDProperites: Map<number, SourceProperties> = new Map<number, SourceProperties>()
     private tileFlatBush: Map<string, Flatbush> = new Map<string, Flatbush>()
-    private tileBuildingHeightMap: Map<string, Map<number, number>> = new Map<string, Map<number, number>>()
+    // <tileKey,<building flat index, building height>>
+    private tileFlatIndexBuildingHeight: Map<string, Map<number, number>> = new Map<string, Map<number, number>>()
+    // flatBush index - osm id
+    private tileFlatIndexBuildingOsmId: Map<string, Map<number, number>> = new Map<string, Map<number, number>>()
     // need to recreate tiles flatBuffer
     private tileExtents: Map<string, [number, number, number, number]> = new Map<string, [number, number, number, number]>()
-    private tileKeyWithFlatBufferIndex: Map<number, string> = new Map<number, string>()
+    // private tileKeyWithFlatBufferIndex: Map<number, string> = new Map<number, string>()
 
     private sunSystem: SunSystem
     private subScene = new Scene();
@@ -154,7 +169,7 @@ export class BuildingLayer {
         this.controls = this.instance.view.controls as OrbitControls
         this.buildingGroup.name = "buildings"
         this.buildingGroup.matrixAutoUpdate = false
-        this.instance.scene.add(this.buildingGroup)
+        this.instance.add(this.buildingGroup)
 
         this.featuresStoreService.sendRetrieveBuildingHeightEmitter$.start(async (req) => this.getBuildingHeightAtPoint(req))
         // this.buildingGroup.renderOrder = 0
@@ -199,6 +214,7 @@ export class BuildingLayer {
         //     })
         // ).subscribe()
 
+        // Add ring outline on buildings
         this.osmUpdateStoreService.isOsmBuildingUpdateEnabledObservable.pipe(
             debounceTime(1000),
             tap((enabled) => {
@@ -238,6 +254,8 @@ export class BuildingLayer {
             tap((data) => {
 
                 const [x, y] = getCenter(data.geometry.getExtent())
+
+
                 const tileCoord = this.groundTileVectorSource.tileGrid.getTileCoordForCoordAndZ([x, y], 16)
                 const tileExtent = this.groundTileVectorSource.tileGrid.getTileCoordExtent(tileCoord);
                 const tileRange = this.groundTileVectorSource.tileGrid.getTileRangeForExtentAndZ(buffer(tileExtent, 1), 16);
@@ -268,35 +286,22 @@ export class BuildingLayer {
             filter((coordinate) => coordinate != null),
             tap((coordinate) => {
                 const osm_ids_to_exclude = this.osmUpdateStoreService.osmFeaturesInUpdate.map((feat) => feat.osm_id).concat(this.osmUpdateStoreService.ignoredFeatures)
-                const feature = this.getAndZoomToTheClosestBuilding(coordinate, osm_ids_to_exclude)
-                this.osmUpdateStoreService.closestFeatureToUpdateReciever$.next(feature)
-                if (feature == null) return
-                const tileCoord = this.groundTileVectorSource.tileGrid.getTileCoordForCoordAndZ(coordinate, 16)
-                const tileExtent = this.groundTileVectorSource.tileGrid.getTileCoordExtent(tileCoord);
-                const tileRange = this.groundTileVectorSource.tileGrid.getTileRangeForExtentAndZ(buffer(tileExtent, 1), 16);
-                this.groundTileVectorSource.forEachLoadedTile(this.groundTileVectorSource.getProjection(), 16, tileRange, (tile) => {
-                    // if (!containsCoordinate(this.groundTileVectorSource.tileGrid.getTileCoordExtent(tile.getTileCoord()), coordinate)) {
-                    //     return
-                    // }
-                    const tileCoord = tile.getTileCoord()
-                    const buildingTileCenter = getBottomLeft(this.groundTileVectorSource.tileGrid.getTileCoordExtent(tileCoord))
-                    const x = buildingTileCenter[0]
-                    const y = buildingTileCenter[1]
-                    tempVec2.set(x, y)
-                    const [isTileAlreadyCreated, buildingTile] = this.getBuildingsTile(tempVec2)
-                    const properties = feature.getProperties() as BuildingProperties
-                    if (buildingTile.children.length > 0) {
-
-                        if ((buildingTile.children[0] as SelectableMesh).hasFeatureId(properties.osm_id)) {
-                            (buildingTile.children[0] as SelectableMesh).setFeatureUidSelected(properties.osm_id)
-                            this.instance.notifyChange([buildingTile.children[0], this.instance.view.camera], { needsRedraw: true, immediate: true })
-                        } else {
-                            if ((buildingTile.children[0] as SelectableMesh).isSelected) {
-                                (buildingTile.children[0] as SelectableMesh).clearFeatureSelected()
-                            }
+                const { closestFeature, tileKey } = this.getAndZoomToTheClosestBuilding(coordinate, osm_ids_to_exclude)
+                this.osmUpdateStoreService.closestFeatureToUpdateReciever$.next(closestFeature)
+                if (closestFeature == null) return
+                const properties = closestFeature.getProperties()
+                this.buildingGroup.traverseVisible((obj) => {
+                    if (obj instanceof SelectableMesh) {
+                        if (obj.userData.tileKey == tileKey) {
+                            obj.setFeatureUidSelected(properties.osm_id);
+                        } else if (
+                            obj.isSelected
+                        ) {
+                            obj.clearFeatureSelected()
                         }
                     }
                 })
+
             })
         ).subscribe()
 
@@ -304,40 +309,30 @@ export class BuildingLayer {
         this.featuresStoreService.updateBuildingFeature.pipe(
             filter((feature) => Boolean(feature)),
             tap((feature) => {
-                this.updateBuildingFeature(feature)
+                const properties = this.updateBuildingFeature(feature)
+                if (!properties) {
+                    return
+                }
 
-                const coordinate = getCenter(feature.geometry.getExtent())
-                const tileCoord = this.groundTileVectorSource.tileGrid.getTileCoordForCoordAndZ(coordinate, 16)
-                const tileExtent = this.groundTileVectorSource.tileGrid.getTileCoordExtent(tileCoord);
-                const tileRange = this.groundTileVectorSource.tileGrid.getTileRangeForExtentAndZ(buffer(tileExtent, 1), 16);
-                this.groundTileVectorSource.forEachLoadedTile(this.groundTileVectorSource.getProjection(), 16, tileRange, (tile) => {
-                    // if (!containsCoordinate(this.groundTileVectorSource.tileGrid.getTileCoordExtent(tile.getTileCoord()), coordinate)) {
-                    //     return
-                    // }
-                    const tileCoord = tile.getTileCoord()
-                    const buildingTileCenter = getBottomLeft(this.groundTileVectorSource.tileGrid.getTileCoordExtent(tileCoord))
-                    const x = buildingTileCenter[0]
-                    const y = buildingTileCenter[1]
-                    tempVec2.set(x, y)
-                    const [isTileAlreadyCreated, buildingTile] = this.getBuildingsTile(tempVec2)
-                    if (buildingTile.children.length > 0) {
-                        const buildingMesh = (buildingTile.children[0] as SelectableMesh)
-                        if (buildingMesh.hasFeatureId(feature.osm_id)) {
-                            const buildingIndexes = buildingMesh.geometry.attributes.aFeatureUid.array.map(((featureId, index) => {
+                this.buildingGroup.traverseVisible((obj) => {
+                    if (obj instanceof SelectableMesh) {
+                        if (obj.userData.tileKey == properties.tileKey && obj.hasFeatureId(properties.osm_id)) {
+
+                            const buildingIndexes = obj.geometry.attributes.aFeatureUid.array.map(((featureId, index) => {
                                 if (featureId == feature.osm_id) {
                                     return index
                                 }
                             })).filter(Boolean)
                             buildingIndexes.map((buildingIndex) => {
-                                buildingMesh.geometry.attributes.aAddOutLine.setX(buildingIndex, 0)
+                                obj.geometry.attributes.aAddOutLine.setX(buildingIndex, 0)
                                 return buildingIndex
                             })
-                            buildingMesh.geometry.attributes.aAddOutLine.needsUpdate = true
-
+                            obj.geometry.attributes.aAddOutLine.needsUpdate = true
+                            // this.instance.notifyChange([buildingTile.children[0], this.instance.view.camera], { needsRedraw: true, immediate: true })
                         }
-
                     }
                 })
+
             })
         ).subscribe()
 
@@ -358,26 +353,26 @@ export class BuildingLayer {
         tempVec3.set(sunDirection.x, sunDirection.y, sunDirection.z)
 
 
-        if (!materialToUpdate.uniforms.UdirectionLightDirection) {
-            materialToUpdate.uniforms.UdirectionLightDirection = { value: tempVec3.clone() }
-        } else {
+        // if (!materialToUpdate.uniforms.UdirectionLightDirection) {
+        //     materialToUpdate.uniforms.UdirectionLightDirection = { value: tempVec3.clone() }
+        // } else {
 
-            materialToUpdate.uniforms.UdirectionLightDirection.value.copy(tempVec3)
-        }
-        if (!materialToUpdate.uniforms.directionLightColor) {
-            materialToUpdate.uniforms.directionLightColor = { value: this.sunSystem.sunLightColor.clone() }
-        } else {
+        //     materialToUpdate.uniforms.UdirectionLightDirection.value.copy(tempVec3)
+        // }
+        // if (!materialToUpdate.uniforms.directionLightColor) {
+        //     materialToUpdate.uniforms.directionLightColor = { value: this.sunSystem.sunLightColor.clone() }
+        // } else {
 
-            materialToUpdate.uniforms.directionLightColor.value.copy(this.sunSystem.sunLightColor)
-        }
+        //     materialToUpdate.uniforms.directionLightColor.value.copy(this.sunSystem.sunLightColor)
+        // }
 
 
         const directionLightIntensity = LightAndShadowSystem.getSunLightIntensity(sunDirection) + ""
         const ambientLightIntensity = LightAndShadowSystem.getAmbientLightIntensity(sunDirection) + ""
 
-        materialToUpdate.uniforms.directionLightIntensity = { value: directionLightIntensity }
-        materialToUpdate.uniforms.ambientLightIntensity = { value: ambientLightIntensity }
-        materialToUpdate.needsUpdate = true
+        // materialToUpdate.uniforms.directionLightIntensity = { value: directionLightIntensity }
+        // materialToUpdate.uniforms.ambientLightIntensity = { value: ambientLightIntensity }
+        // materialToUpdate.needsUpdate = true
     }
 
     setBuildingMeshSkyTexture(object: SelectableMesh | ShaderMaterial) {
@@ -395,15 +390,17 @@ export class BuildingLayer {
         materialToUpdate.defines.CUBEUV_TEXEL_WIDTH = environmentTextureProperties.CUBEUV_TEXEL_WIDTH
         materialToUpdate.defines.CUBEUV_TEXEL_HEIGHT = environmentTextureProperties.CUBEUV_TEXEL_HEIGHT
         materialToUpdate.defines.CUBEUV_MAX_MIP = environmentTextureProperties.CUBEUV_MAX_MIP + ".0"
-        if (!Boolean(materialToUpdate.uniforms.tSkyTexture)) {
-            materialToUpdate.uniforms.tSkyTexture = {
+        if (!Boolean(materialToUpdate.uniforms.envMap)) {
+            materialToUpdate.uniforms.envMap = {
                 value: environmentTextureProperties.texture
             }
+            materialToUpdate.uniforms.envMapIntensity.value = 0.7
         } else {
-            materialToUpdate.uniforms.tSkyTexture.value = environmentTextureProperties.texture
+            materialToUpdate.uniforms.envMap.value = environmentTextureProperties.texture
+            materialToUpdate.uniforms.envMapIntensity.value = 0.7
         }
 
-        materialToUpdate.needsUpdate = true
+        // materialToUpdate.needsUpdate = true
     }
     updateBuildingsUniforms(options: { updateSunDirection?: boolean, updateSkyTexture?: boolean } = {}) {
         this.buildingGroup.traverse((child) => {
@@ -421,70 +418,107 @@ export class BuildingLayer {
 
 
     getBuildingMaterial() {
-        if (!Boolean(this.buildingMaterial)) {
+        let buildingMaterial: ShaderMaterial
+        if (!this.buildingMaterial) {
+            const physicalUniforms = ShaderLib.physical.uniforms
+
+            physicalUniforms.diffuse.value = new Color(0x00ff00)
+            physicalUniforms.sheen.value = 1.0
+            physicalUniforms.isRingActive = { value: this.osmUpdateStoreService.isOsmBuildingUpdateEnabled ? 1 : 0 }
             this.buildingMaterial = new ShaderMaterial({
-
-                glslVersion: GLSL3,
-                side: DoubleSide,
-                // fog: true,
+                // side: DoubleSide,
+                fog: true,
                 lights: true,
-                vertexShader: vertexShader,
-                fragmentShader: fragmentShader,
+                vertexShader: PhysicalVertex,
+                fragmentShader: PhysicalFragment,
                 // wireframe: true,
-                uniforms: {
-                    ...UniformsUtils.merge([
-                        UniformsLib['common'],
-                        UniformsLib['fog'],
-                        UniformsLib['lights'],
-                        {
-                            diffuse: { value: new Color(0x00ff00) },
-                            opacity: { value: 1.0 },
-                        },
-                    ]),
-                    "isRingActive": { value: this.osmUpdateStoreService.isOsmBuildingUpdateEnabled ? 1 : 0 },
-                    // fogColor: { value: (this.instance.scene.fog as Fog).color },
-                    // fogNear: { value: (this.instance.scene.fog as Fog).near },
-                    // fogFar: { value: (this.instance.scene.fog as Fog).far }
-                },
+                uniforms: physicalUniforms,
+                // {
+                //     ...UniformsUtils.merge([
+                //         UniformsLib['common'],
+                //         UniformsLib['fog'],
+                //         UniformsLib['lights'],
+                //         {
+                //             diffuse: { value: new Color(0x00ff00) },
+                //             opacity: { value: 1.0 },
+                //         },
+                //     ]),
+                //     // fogColor: { value: (this.instance.scene.fog as Fog).color },
+                //     // fogNear: { value: (this.instance.scene.fog as Fog).near },
+                //     // fogFar: { value: (this.instance.scene.fog as Fog).far }
+                // },
                 defines: {
-                    ENVMAP_TYPE_CUBE_UV: '',
-                    ENVMAP_MODE_REFLECTION: ''
+                    'STANDARD': '',
+                    'PHYSICAL': '',
+                    'USE_ENVMAP': '',
+                    'ENVMAP_TYPE_CUBE_UV': '',
+                    'USE_SHEEN': '',
                 }
-            }
-            );
+            })
 
-            this.csm.setupMaterial(this.buildingMaterial);
+
+            // this.buildingMaterial = new ShaderMaterial({
+
+            //     glslVersion: GLSL3,
+            //     side: DoubleSide,
+            //     // fog: true,
+            //     lights: true,
+            //     vertexShader: vertexShader,
+            //     fragmentShader: fragmentShader,
+            //     // wireframe: true,
+            //     uniforms: {
+            //         ...UniformsUtils.merge([
+            //             UniformsLib['common'],
+            //             UniformsLib['fog'],
+            //             UniformsLib['lights'],
+            //             {
+            //                 diffuse: { value: new Color(0x00ff00) },
+            //                 opacity: { value: 1.0 },
+            //             },
+            //         ]),
+            // "isRingActive": { value: this.osmUpdateStoreService.isOsmBuildingUpdateEnabled ? 1 : 0 },
+            //         // fogColor: { value: (this.instance.scene.fog as Fog).color },
+            //         // fogNear: { value: (this.instance.scene.fog as Fog).near },
+            //         // fogFar: { value: (this.instance.scene.fog as Fog).far }
+            //     },
+            //     defines: {
+            //         ENVMAP_TYPE_CUBE_UV: '',
+            //         ENVMAP_MODE_REFLECTION: ''
+            //     }
+            // }
+            // );
+            buildingMaterial = this.buildingMaterial
+        } else {
+            buildingMaterial = this.buildingMaterial.clone()
         }
-        if (!Boolean(this.buildingMaterial.uniforms.tMap)) {
-            this.buildingMaterial.uniforms.tMap = {
+
+        this.csm.setupMaterial(buildingMaterial);
+        if (!Boolean(buildingMaterial.uniforms.tMap)) {
+
+            buildingMaterial.uniforms.tMap = {
                 value: this.buildingTexture
             }
         }
-        if (!Boolean(this.buildingMaterial.uniforms.tNoise)) {
-            this.buildingMaterial.uniforms.tNoise = {
+        if (!Boolean(buildingMaterial.uniforms.tNoise)) {
+            buildingMaterial.uniforms.tNoise = {
                 value: this.noiseTexture
             }
         }
-        if (!Boolean(this.buildingMaterial.uniforms.tMask)) {
-            this.buildingMaterial.uniforms.tMask = {
-                value: this.maskTexture
-            }
-        }
-        if (!Boolean(this.buildingMaterial.uniforms.tSkyTexture)) {
-            this.setBuildingMeshSkyTexture(this.buildingMaterial)
-        }
-        this.setBuildingMeshSunDirection(this.buildingMaterial)
 
-        return this.buildingMaterial
+        if (!Boolean(buildingMaterial.uniforms.tSkyTexture)) {
+            this.setBuildingMeshSkyTexture(buildingMaterial)
+        }
+        this.setBuildingMeshSunDirection(buildingMaterial)
+
+        return buildingMaterial
 
     }
 
-    setBuildingTexture(buildingTexture: DataArrayTexture, maskTexture: DataArrayTexture, noiseTexture: Texture) {
+    setBuildingTexture(buildingTexture: DataArrayTexture, noiseTexture: Texture) {
         if (this.buildingTexture) {
             return
         }
         this.buildingTexture = buildingTexture
-        this.maskTexture = maskTexture
         this.noiseTexture = noiseTexture
 
     }
@@ -524,24 +558,26 @@ export class BuildingLayer {
             this.buildingGroup.visible = false
         } else if (zoom >= 16 && !this.buildingGroup.visible) {
             this.buildingGroup.visible = true
+            this.instance.notifyChange()
         }
     }
 
-    updateBuildingFeature(osmFeatureToChange: OsmFeatureToChange) {
-        const buildingFeature = this.buildingVectorSource.getFeatures().find(feature => feature.getProperties()['osm_id'] == osmFeatureToChange.osm_id)
-        if (buildingFeature) {
-            const properties = buildingFeature.getProperties()
-            for (const key in osmFeatureToChange.changes) {
-                if (!properties.hasOwnProperty(key)) {
-                    continue
-                }
-                properties[key] = osmFeatureToChange.changes[key]
+    updateBuildingFeature(osmFeatureToChange: OsmFeatureToChange): SourceProperties {
+        const properties = this.OSMIDProperites.get(osmFeatureToChange.osm_id)
+        if (!properties) {
+            return
+        }
+        for (const key in osmFeatureToChange.changes) {
+            if (!properties.hasOwnProperty(key)) {
+                continue
             }
-            buildingFeature.setProperties(properties)
-
+            properties[key] = osmFeatureToChange.changes[key]
         }
+        this.OSMIDProperites.set(osmFeatureToChange.osm_id, properties)
+
+        return properties
     }
-    loadTile(tile: WireExtruded) {
+    loadTile(tile: RetrieveBuilding) {
 
         const x = tile.worldBuildingPosition[0]
         const y = tile.worldBuildingPosition[1]
@@ -549,6 +585,7 @@ export class BuildingLayer {
         const [isTileAlreadyCreated, buildingTile] = this.getBuildingsTile(new Vector2(x, y))
 
         this.loadFeatureInScene(tile, buildingTile)
+
 
     }
 
@@ -563,54 +600,64 @@ export class BuildingLayer {
             }
             this.tileOSMIDS.set(tile.tile_key, osmIDsSet)
             this.loadTileBuildingHeightIndex(tile)
+            this.loadTile(tile)
+            // console.log(tile.tile_key, "loading")
         }
     }
 
     loadTileBuildingHeightIndex(tileResult: RetrieveBuilding) {
+        addTile(this.buildingHeightFlatBushIndex, { tileKey: tileResult.tile_key, buffer: tileResult.flatBushData });
+        this.featuresStoreService.buildingHeightFlatBushIndex = this.buildingHeightFlatBushIndex
 
         const index = Flatbush.from(tileResult.flatBushData)
         this.tileExtents.set(tileResult.tile_key, tileResult.tileExtent)
 
-        this.buildingsIndex = new Flatbush(this.tileExtents.size)
-        for (const entry of this.tileExtents.entries()) {
-            const tileIndex = this.buildingsIndex.add(entry[1][0], entry[1][1], entry[1][2], entry[1][3])
-            this.tileKeyWithFlatBufferIndex.set(tileIndex, entry[0])
-        }
-        this.buildingsIndex.finish()
-
+        // this.buildingsIndex = new Flatbush(this.tileExtents.size)
+        // for (const entry of this.tileExtents.entries()) {
+        //     const tileIndex = this.buildingsIndex.add(entry[1][0], entry[1][1], entry[1][2], entry[1][3])
+        //     this.tileKeyWithFlatBufferIndex.set(tileIndex, entry[0])
+        // }
+        // this.buildingsIndex.finish()
+        this.featuresStoreService.addNewBuildingExtentLoaded(tileResult.tileExtent)
         this.tileFlatBush.set(tileResult.tile_key, index)
-        this.tileBuildingHeightMap.set(tileResult.tile_key, tileResult.tileHeightMap)
-
+        this.tileFlatIndexBuildingHeight.set(tileResult.tile_key, tileResult.flatIndexBuildingHeight)
+        this.tileFlatIndexBuildingOsmId.set(tileResult.tile_key, tileResult.flatIndexOsmId)
+        this.featuresStoreService.tileFlatIndexBuildingHeight = this.tileFlatIndexBuildingHeight
         // Notify new building height loaded
         this.featuresStoreService.newBuildingHieghtLoaded = null
     }
 
-    getBuildingHeightAtPoint(point: Vec2) {
-        if (this.tileBuildingHeightMap.size == 0) {
-            return LEVEL_HEIGHT
+    getTileKeyFromPosition(point: Vec2): string | undefined {
+        const pointTileCoord = this.groundTileVectorSource.tileGrid.getTileCoordForCoordAndZ([point.x, point.y], 16)
+        if (pointTileCoord) {
+            return pointTileCoord[1] + "_" + pointTileCoord[2]
         }
-        // Tile Intersecting (index pour recup son tile index flatbush)
-        const tileIntersecting = this.buildingsIndex.neighbors(point.x, point.y, 1)
-        if (tileIntersecting.length > 0) {
-            // the tile key
-            const tile_key = this.tileKeyWithFlatBufferIndex.get(tileIntersecting[0])
-            // recuperation du flatbush du tile et du map (tileIndex, buildingHeight)
+    }
+
+    getBuildingHeightAtPoint(point: Vec2) {
+        if (this.tileFlatIndexBuildingHeight.size == 0) {
+            return 20
+        }
+        const tile_key = this.getTileKeyFromPosition(point)
+        if (Boolean(tile_key)) {
             const tileFlatBushIndex = this.tileFlatBush.get(tile_key)
             //  map (tileIndex, buildingHeight)
-            const tileBuildingHeightMap = this.tileBuildingHeightMap.get(tile_key)
-            if (tileFlatBushIndex && tileBuildingHeightMap) {
+            const flatIndexOsmId = this.tileFlatIndexBuildingHeight.get(tile_key)
+            if (tileFlatBushIndex && flatIndexOsmId) {
                 // Recup de l'index du batiment dans le flatbush du tile
                 const buildingIntersecting = tileFlatBushIndex.neighbors(point.x, point.y, 2)
                 if (buildingIntersecting.length > 0) {
-                    const buildingHeightAtPoint = Math.max(...buildingIntersecting.map((index) => tileBuildingHeightMap.get(index)));
+
+                    const buildingHeightAtPoint = Math.max(...buildingIntersecting.filter((index) => this.OSMIDProperites.has(flatIndexOsmId.get(index))).map((index) => this.OSMIDProperites.get(flatIndexOsmId.get(index)).buildingHeight));
                     if (buildingHeightAtPoint) {
-                        return buildingHeightAtPoint
+                        return Math.max(buildingHeightAtPoint, 20)
                     }
                     // const buildingHeightAtPoint = this.TileBuildingHeightMap.get(tileIntersecting[0]).get(buildingIntersecting[0])
                 }
             }
         }
-        return 10
+
+        return 20
     }
 
     getFeatureFromOSMId(osm_id: number) {
@@ -619,7 +666,7 @@ export class BuildingLayer {
             return
         }
 
-        const feature = new Feature(new Point(properties.center))
+        const feature = new Feature(new Polygon(properties.coordinates))
         feature.setProperties(properties)
         return feature
 
@@ -726,49 +773,22 @@ export class BuildingLayer {
 
 
 
-    loadFeatureInScene(geometriesJson: WireExtruded, buildingTile: BuildingsTile) {
+    loadFeatureInScene(tile: RetrieveBuilding, buildingTile: BuildingsTile) {
 
 
         const geometry = new BufferGeometry()
 
-        geometriesJson.attrs.forEach((geometryJson) => {
+        tile.extrudeResult.geometryAttribute.forEach((geometryJson) => {
             geometry.setAttribute(geometryJson.key, new BufferAttribute(geometryJson.array, geometryJson.itemSize, geometryJson.normalized))
         })
         // const material = new MeshStandardMaterial({ side: DoubleSide, color: 0xffffff })
-        const physicalUniforms = ShaderLib.physical.uniforms
-        physicalUniforms.diffuse.value = new Color(0x00ff00)
-        // const material = new ShaderMaterial({
-        //     // side: DoubleSide,
-        //     fog: true,
-        //     lights: true,
-        //     vertexShader: PhysicalVertex,
-        //     fragmentShader: PhysicalFragment,
-        //     // wireframe: true,
-        //     uniforms: physicalUniforms,
-        //     // {
-        //     //     ...UniformsUtils.merge([
-        //     //         UniformsLib['common'],
-        //     //         UniformsLib['fog'],
-        //     //         UniformsLib['lights'],
-        //     //         {
-        //     //             diffuse: { value: new Color(0x00ff00) },
-        //     //             opacity: { value: 1.0 },
-        //     //         },
-        //     //     ]),
-        //     //     // fogColor: { value: (this.instance.scene.fog as Fog).color },
-        //     //     // fogNear: { value: (this.instance.scene.fog as Fog).near },
-        //     //     // fogFar: { value: (this.instance.scene.fog as Fog).far }
-        //     // },
-        //     defines: {
-        //         'STANDARD': '',
-        //         'PHYSICAL': ''
-        //     }
-        // })
+
+
         const material = this.getBuildingMaterial()
         // this.csm.setupMaterial(material);
         // const material = new MeshLambertMaterial({ color: 0xffaa88 });
         // const material = new MeshNormalMaterial({ flatShading: false });
-        this.csm.setupMaterial(material);
+        // this.csm.setupMaterial(material);
         // this.instance.notifyChange()
         const building = new SelectableMesh(geometry, material)
         // const building = new Mesh(geometry, material)
@@ -777,9 +797,9 @@ export class BuildingLayer {
         building.userData.name = BUILDING_DESCRIPTION_SHEET_TITLE
         building.userData.couche_id = LAYER_VECTOR_SOURCE_ID
         building.userData.descriptionSheetCapabilities = BUILDING_DESCRIPTION_SHEET
+        building.userData.tileKey = tile.tile_key
 
-
-        tmpBox3.setFromArray(geometriesJson.boundingBoxMinMax)
+        tmpBox3.setFromArray(tile.extrudeResult.boundingBoxMinMax)
         building.geometry.boundingBox = tmpBox3.clone()
         building.geometry.boundingSphere = tmpBox3.getBoundingSphere(tmpSphere).clone()
         building.frustumCulled = true
@@ -791,9 +811,11 @@ export class BuildingLayer {
         // groupPlaneMesh.updateMatrix()
         // groupPlaneMesh.updateMatrixWorld(true)
         // groupPlaneMesh.name = "building_group_plane"
+        // getPlanesFromBoxSides(tmpBox3)
 
         // We have to keep uniforms of the old building mesh if exist
         if (buildingTile.children.length > 0) {
+            console.log("tu fou quoi ici", buildingTile.children)
             // building.material.uniforms = (buildingTile.children[0] as SelectableMesh).material.uniforms
         }
 
@@ -852,22 +874,49 @@ export class BuildingLayer {
 
 
 
-    getAndZoomToTheClosestBuilding(coordinate: Coordinate, osm_ids: number[]): Feature<Geometry> | null {
+    getAndZoomToTheClosestBuilding(coordinate: Coordinate, osm_ids_to_exclude: number[]): { closestFeature: Feature<Geometry>, tileKey: string } {
 
-        const closestFeature = this.buildingVectorSource.getClosestFeatureToCoordinate(coordinate, (feature) => {
-            const properties = feature.getProperties() as BuildingProperties
 
-            return osm_ids.indexOf(feature.getProperties()['osm_id']) == -1 && Boolean(properties.match_rnb_ids) == true && Boolean(properties.rnb) == false
+        const [x, y] = coordinate
+        const tileKey = this.getTileKeyFromPosition(new Vec2(x, y))
+        if (tileKey) {
+            // the tile key
+            // recuperation du flatbush du tile et du map (tileIndex, buildingHeight)
+            const tileFlatBushIndex = this.tileFlatBush.get(tileKey)
+            //  map (tileIndex, buildingHeight)
+            const flatIndexOsmId = this.tileFlatIndexBuildingOsmId.get(tileKey)
+            if (tileFlatBushIndex && flatIndexOsmId) {
+                // Recup de l'index du batiment dans le flatbush du tile
+                const buildingIntersecting = tileFlatBushIndex.neighbors(x, y, 1, Infinity, (osm_id_index) => {
 
-        })
-        if (closestFeature) {
-            tempVec3.set(coordinate[0], coordinate[1], this.instance.view.camera.position.z)
-            const el = this.instance.renderer.domElement;
-            const pixelX = -el.clientWidth / 4;
-            new CartoHelper(this.map).panTo(tempVec3, pixelX)
-            return closestFeature
+                    if (this.OSMIDProperites.has(flatIndexOsmId.get(osm_id_index))) {
+                        const properties = this.OSMIDProperites.get(flatIndexOsmId.get(osm_id_index))
+                        if (osm_ids_to_exclude.indexOf(properties.osm_id) == -1) {
+                            return Boolean(properties.match_rnb_ids) == true && Boolean(properties.rnb) == false
+                        }
+                    }
+
+                    return false
+                })
+                if (buildingIntersecting.length > 0) {
+                    const properties = this.OSMIDProperites.get(flatIndexOsmId.get(buildingIntersecting[0]))
+                    const closestFeature = new Feature(new Polygon(properties.coordinates))
+                    closestFeature.setProperties(properties)
+                    tempVec3.set(properties.center[0], properties.center[1], this.instance.view.camera.position.z)
+                    const el = this.instance.renderer.domElement;
+                    const pixelX = -el.clientWidth / 4;
+                    // const box3 = new Box3(tempVec3, tempVec3)
+
+                    // this.instance.view.goTo(this.instance.view.getDefaultPointOfView(box3))
+                    new CartoHelper(this.map).panTo(tempVec3, pixelX)
+                    return { closestFeature, tileKey }
+                }
+
+            }
         }
-        return null
+
+
+        return { closestFeature: null, tileKey: null }
     }
 
 

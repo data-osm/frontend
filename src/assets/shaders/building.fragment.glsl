@@ -10,7 +10,7 @@
 #include <shadowmap_pars_fragment> 
 #include <lights_pars_begin>   
 // #include <lights_lambert_pars_fragment>   
-// #include <lights_physical_pars_fragment> 
+// #include <lights_physical_pars_fragment>
 
 out highp vec4 fragColor;
 #define gl_FragColor fragColor
@@ -37,7 +37,7 @@ flat in int vAddOutLine;
 
 // Uniform
 uniform sampler2DArray tMap;
-uniform sampler2DArray tMask;
+// uniform sampler2DArray tMask;
 uniform sampler2D tSkyTexture;
 
 uniform sampler2D tNoise;
@@ -103,7 +103,7 @@ void main() {
         if(vAddOutLine == 0 || isRingActive == 0) {
             discard;
         }
-        fragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
         return;
     }
 
@@ -114,16 +114,20 @@ void main() {
     vec3 normal = normalize(vNormal);
     ////// The normal from texture
     vec3 normalMap = getNormalValue(vTextureId, tMap, normal, vPosition, vUv);
+    normal = normalMap;
     ////// The mask
     ///// mask.r => roughness, masg.g => metalness
-    vec3 mask = getMaskValue(tMask, vUv, vTextureId);
+    vec3 mask = getMaskValue(tMap, vUv, vTextureId);
     float metalness = mask.g;
     float roughness = mask.r;
+    // float metalness = mask.z;
+    // float roughness = mask.y;
     ////// The glow: glow.r == 0 => should have transparency, glow.r==1.0 => should not have transparency
     vec3 glow = texture(tMap, vec3(vUv, vTextureId * 4 + 3)).xyz;
     ////// Base Color
-    vec4 baseColor = getColorValue(tMap, vUv, vTextureId, mask.b, vColor);
+    vec4 baseColor = (getColorValue(tMap, vUv, vTextureId, mask.b, vColor));
     vec3 albedo = baseColor.xyz;
+
     ////// Noise for the windows
     float noiseTextureWidth = vec2(textureSize(tNoise, 0)).r;
     vec2 windowUV = vec2(floor((vUv.x + (floor(vUv.y) * 3.)) * 0.25), vUv.y) / noiseTextureWidth;
@@ -138,8 +142,24 @@ void main() {
         glowFactor = fract(windowNoise * 10.) * 0.6 + 0.4;
     }
     vec3 windowColor = glow * WINDOW_GLOW_COLOR * glowFactor;
-    albedo += windowColor * 1.0;
+    // albedo += windowColor * 1.0;
 
+    vec4 diffuseColor = baseColor;
+    ReflectedLight reflectedLight = ReflectedLight(vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
+    float metalnessFactor = 1.0;
+    float roughnessFactor = 1.0;
+    // transformedNormal = VTransformedNormal;
+    vec3 nonPerturbedNormal = normal;
+    // accumulation
+	// #include <lights_physical_fragment>
+	// #include <lights_fragment_begin>
+	// #include <lights_fragment_maps>
+	// #include <lights_fragment_end>
+
+    // vec3 totalDiffuse = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse;
+    // vec3 totalSpecular = reflectedLight.directSpecular + reflectedLight.indirectSpecular;
+    // gl_FragColor = vec4(totalDiffuse + totalSpecular, 1.0);
+    // return;
     // Lights
     vec3 Lo = vec3(0.0);
     vec3 F0 = vec3(0.04);
@@ -171,13 +191,15 @@ void main() {
     // Get shadow mask
     float shadow = computeShadowMask();
     vec3 shadowTint = vec3(0.0, 0.0, 0.0);
-    float atten = 1.0 - (1.0 - shadow) * 0.4;
+    float atten = 1.0 - (1.0 - shadow) * 0.6;
     vec3 shade = mix(vec3(1.0), shadowTint, 1.0 - atten);
-    // gl_FragColor = vec4(shade, 1.0);
+    // gl_FragColor = vec4(albedo, 1.0);
 
     // Final
     gl_FragColor = vec4((envCol + color) * shade, 1.0);
-
+    if(uFeatureUidSelected == vFeatureUid) {
+        gl_FragColor = gl_FragColor * vec4(1.0, 0.0, 0.0, 0.4);
+    }
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
 }

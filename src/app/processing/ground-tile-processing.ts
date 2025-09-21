@@ -44,9 +44,15 @@ const textures = {
     "roofGeneric2Diffuse": { "url": "assets/textures/buildings/roofs/generic2_diffuse.png", "type": "image" },
     "roofGeneric2Normal": { "url": "assets/textures/buildings/roofs/generic2_normal.png", "type": "image" },
 
-    "roofGeneric3Diffuse": { "url": "assets/textures/buildings/roofs/grey_roof_01_diff_1k.jpg", "type": "image" },
+    "roofGeneric3Diffuse": { "url": "assets/textures/buildings/roofs/Plastic018A_1K-JPG_Color.jpg", "type": "image" },
+    "roofGeneric3Normal": { "url": "assets/textures/buildings/roofs/Plastic018A_1K-JPG_NormalGL.png", "type": "image" },
+    "roofGeneric3Mask": { "url": "assets/textures/buildings/roofs/Plastic018A_1K-JPG_Roughness.png", "type": "image" },
+    // "roofGeneric3Diffuse": { "url": "assets/textures/buildings/roofs/Plastic001_1K-JPG_Color.jpg", "type": "image" },
+    // "roofGeneric3Normal": { "url": "assets/textures/buildings/roofs/Plastic001_1K-JPG_NormalGL.jpg", "type": "image" },
+    // "roofGeneric3Mask": { "url": "assets/textures/buildings/roofs/Plastic001_1K-JPG_Roughness.jpg", "type": "image" },
+    // "roofGeneric3Diffuse": { "url": "assets/textures/buildings/roofs/grey_roof_01_diff_1k.jpg", "type": "image" },
     // "roofGeneric3Diffuse": { "url": "assets/textures/buildings/roofs/generic3_diffuse.png", "type": "image" },
-    "roofGeneric3Normal": { "url": "assets/textures/buildings/roofs/grey_roof_01_nor_dx_1k.jpg", "type": "image" },
+    // "roofGeneric3Normal": { "url": "assets/textures/buildings/roofs/grey_roof_01_nor_dx_1k.jpg", "type": "image" },
     // "roofGeneric3Normal": { "url": "assets/textures/buildings/roofs/generic3_normal.png", "type": "image" },
     "roofGeneric4Diffuse": { "url": "assets/textures/buildings/roofs/generic4_diffuse.png", "type": "image" },
     "roofGeneric4Normal": { "url": "assets/textures/buildings/roofs/generic4_normal.png", "type": "image" },
@@ -92,16 +98,18 @@ const textures = {
     "facadeBrickWallMask": { "url": "assets/textures/buildings/facades/brick_wall_mask.png", "type": "image" },
     "facadeBrickWindowDiffuse": { "url": "assets/textures/buildings/facades/brick_window_diffuse.png", "type": "image" },
 
+
+    "facadePlasterWallDiffuse": { "url": "assets/textures/buildings/facades/plastered_wall_02_diff_1k.jpg", "type": "image" },
+    "facadePlasterWallNormal": { "url": "assets/textures/buildings/facades/plastered_wall_02_nor_gl_1k.jpg", "type": "image" },
+    "facadePlasterWallMask": { "url": "assets/textures/buildings/facades/plastered_wall_02_arm_1k.png", "type": "image" },
+
     "facadeBrickWindowNormal": { "url": "assets/textures/buildings/facades/brick_window_normal.png", "type": "image" },
     "facadeBrickWindowMask": { "url": "assets/textures/buildings/facades/brick_window_mask.png", "type": "image" },
-    "facadePlasterWallDiffuse": { "url": "assets/textures/buildings/facades/plaster_wall_diffuse.png", "type": "image" },
-    "facadePlasterWallNormal": { "url": "assets/textures/buildings/facades/plaster_wall_normal.png", "type": "image" },
-
+    // "facadePlasterWallDiffuse": { "url": "assets/textures/buildings/facades/plaster_wall_diffuse.png", "type": "image" },
+    // "facadePlasterWallNormal": { "url": "assets/textures/buildings/facades/plaster_wall_normal.png", "type": "image" },
     // "facadePlasterWallMask": { "url": "assets/textures/buildings/facades/plaster_wall_mask.png", "type": "image" },
-    // "facadePlasterWindowDiffuse": { "url": "assets/textures/buildings/facades/window_001_basecolor.jpg", "type": "image" },
-    // "facadePlasterWindowNormal": { "url": "assets/textures/buildings/facades/window_001_normal.jpg", "type": "image" },
-    // "facadePlasterWindowMask": { "url": "assets/textures/buildings/facades/window_001_opacity.jpg", "type": "image" },
-    "facadePlasterWallMask": { "url": "assets/textures/buildings/facades/plaster_wall_mask.png", "type": "image" },
+
+
     "facadePlasterWindowDiffuse": { "url": "assets/textures/buildings/facades/plaster_window_diffuse.png", "type": "image" },
     "facadePlasterWindowNormal": { "url": "assets/textures/buildings/facades/plaster_window_normal.png", "type": "image" },
     "facadePlasterWindowMask": { "url": "assets/textures/buildings/facades/plaster_window_mask.png", "type": "image" },
@@ -140,7 +148,7 @@ const buildingTextures = [
 
     textures['roofGeneric3Diffuse'],
     textures['roofGeneric3Normal'],
-    textures['roofCommonMask'],
+    textures['roofGeneric3Mask'],
     textures['noGlow'],
 
     textures['roofGeneric4Diffuse'],
@@ -277,7 +285,7 @@ export class GroundTileProcessing {
 
         this.buildingProcessingWorker = new StreamWorkerPool<buildingProcessingMessageType, BuildingProcessingMessageMap>({ createWorker: createBuildingProcessingWorker });
 
-        this.worker = new StreamWorkerPool({ createWorker: createExtrudeWorker, concurrency: 1 });
+        this.worker = new StreamWorkerPool({ createWorker: createExtrudeWorker, concurrency: 2 });
 
         this.map = map
         this.instance = map["_instance"]
@@ -334,6 +342,7 @@ export class GroundTileProcessing {
 
         const onTileSucceed = (id: number) => {
             const tileId = pending.get(id);
+            // console.log("onTileSucceed", tileId, pending.delete(id))
             pending.delete(id);
             inflightByTile.delete(tileId);
             cachedTiles.set(tileId, tileId);
@@ -390,35 +399,18 @@ export class GroundTileProcessing {
                 if (!Boolean(data.tileResult)) {
                     onTIleFailed(data.id)
                     return
-                }
-
-                this.buildingLayer.loadFeatures(data.tileResult);
-
-                (this.worker.queue('ExtrudeBuildings', { "exec": "extrude", tiles: data.tileResult }) as PoolWorker).addEventListener('message', (e) => {
-
-                    //@ts-expect-error
-                    const payload = e.data.payload
-                    if (Array.isArray(payload)) {
-                        const tile: WireExtruded = payload[0]
-                        // TODO :  worker sending same tile many times (to be check)
+                } else {
+                    const tiles = data.tileResult
+                    const tilesToLoad = []
+                    for (const tile of tiles) {
                         if (!pending.has(tile.id)) {
-                            return
+                            continue
                         }
                         onTileSucceed(tile.id)
-                        this.buildingLayer.loadTile(tile)
-                    } else {
-                        const errorTile: { "error": boolean, "abort": boolean, "tile_key": string, id: number, tileId: string } = payload
-                        if (!pending.has(errorTile.id)) {
-                            return
-                        }
-                        onTIleFailed(errorTile.id)
+                        tilesToLoad.push(tile)
                     }
-
-                    // if (inflightByTile.size == 0) {
-                    //     this.buildingLayer.rebuildBuildingsHeightIndex()
-                    // }
-
-                })
+                    this.buildingLayer.loadFeatures(tilesToLoad);
+                }
 
             })
 
@@ -427,111 +419,7 @@ export class GroundTileProcessing {
 
 
 
-        /**
-         * Raccourcit une Box3 le long de la direction de vue de la caméra pour que
-         * sa profondeur (projetée sur l'axe de vue) soit au plus `maxDepth`.
-         * Le rognage se fait depuis le "loin" vers le "près" (on rapproche le plan lointain).
-         *
-         * @param box  Box3 en coordonnées monde
-         * @param camera  THREE.Camera
-         * @param maxDepth  profondeur max (ex: 2000)
-         * @returns nouvelle Box3 (AABB monde) rognée, ou clone si pas besoin
-         */
-        function clampBoxByViewDepth(
-            box: Box3,
-            camera: PerspectiveCamera,
-            maxDepth = 2000
-        ): Box3 {
-            camera.getWorldPosition(tempVec3);
-            const camPos = new Vec3(tempVec3.x, tempVec3.y, tempVec3.z);
-
-            camera.getWorldDirection(tempVec3).normalize();
-            const viewDir = new Vec3(tempVec3.x, tempVec3.y, tempVec3.z);
-
-            // 1) Récupère les 8 coins de la box
-            const { min, max } = box;
-            const corners: Vec3[] = [
-                new Vec3(min.x, min.y, min.z), // 0
-                new Vec3(max.x, min.y, min.z), // 1
-                new Vec3(min.x, max.y, min.z), // 2
-                new Vec3(max.x, max.y, min.z), // 3
-                new Vec3(min.x, min.y, max.z), // 4
-                new Vec3(max.x, min.y, max.z), // 5
-                new Vec3(min.x, max.y, max.z), // 6
-                new Vec3(max.x, max.y, max.z), // 7
-            ];
-
-            // 12 arêtes de la box (indices des coins)
-            const edges: [number, number][] = [
-                [0, 1], [0, 2], [0, 4],
-                [1, 3], [1, 5],
-                [2, 3], [2, 6],
-                [3, 7],
-                [4, 5], [4, 6],
-                [5, 7],
-                [6, 7]
-            ];
-
-            // 2) Distance signée de chaque coin projetée sur l'axe de vue
-            //    s = (p - camPos) ⋅ viewDir ; minS ~ près, maxS ~ loin
-            const sVals = corners.map(p => {
-                const v = Vec3.sub(p, camPos);
-
-                // const v = new Vector3().subVectors(p, camPos);
-                return Vec3.dot(v, viewDir);
-            });
-            const minS = Math.min(...sVals);
-            const maxS = Math.max(...sVals);
-            const depth = maxS - minS;
-
-            if (depth <= maxDepth) {
-                return box.clone(); // rien à faire
-            }
-
-            // 3) On garde la moitié-espace s <= allowedMaxS (on coupe côté "loin")
-            const allowedMaxS = minS + maxDepth;
-
-            // Points du polyèdre rogné = coins "dedans" + intersections arête/plan s=allowedMaxS
-            const insidePts: Vec3[] = [];
-            const isInside = (s: number) => s <= allowedMaxS + 1e-6; // tolérance numérique
-
-            // Ajoute coins à l'intérieur
-            for (let i = 0; i < corners.length; i++) {
-                if (isInside(sVals[i])) insidePts.push(Vec3.clone(corners[i]));
-            }
-
-            // Intersections arêtes/plan
-            for (const [i, j] of edges) {
-                const si = sVals[i], sj = sVals[j];
-                const insideI = isInside(si), insideJ = isInside(sj);
-                if (insideI !== insideJ) {
-                    // t tel que s(i + t*(j-i)) = allowedMaxS
-                    const t = (allowedMaxS - si) / (sj - si); // 0..1
-                    const pi = corners[i], pj = corners[j];
-                    const p = Vec3.lerp(pi, pj, t);
-                    insidePts.push(p);
-                }
-            }
-
-            // Sécurité : si rien (ne devrait pas arriver), renvoyer box minime côté près
-            if (insidePts.length === 0) {
-
-                const planePoint = Vec3.addScaledVector(Vec3.clone(camPos), viewDir, allowedMaxS);
-                Vec3.clone(planePoint)
-                const threePlanetPoint = new Vector3(planePoint.x, planePoint.y, planePoint.z);
-                return new Box3(threePlanetPoint.clone(), threePlanetPoint.clone());
-            }
-
-            // 4) Nouvelle AABB monde = enveloppe des points rognés
-            let flatDeep = (arr) => {
-                return arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? flatDeep(val) : val), []);
-            };
-
-            const out = new Box3().setFromArray(flatDeep(insidePts.map((v) => Vec3.toArray(v))));
-            return out;
-        }
-
-        const computeVisibleTiles = (olExtent: [number, number, number, number], z: number) => {
+        const computeVisibleTiles = (olExtent: Extent, z: number) => {
             const tiles: Array<{ z: number; x: number; y: number }> = [];
             this.vectorTileSource.tileGrid.forEachTileCoord(olExtent as any, z, (tc) => {
                 tiles.push({ z: tc[0], x: tc[1], y: tc[2] });
@@ -571,7 +459,7 @@ export class GroundTileProcessing {
         forceInit.x = forceInit.x + 200
 
         textures$.subscribe((texture) => {
-            this.buildingLayer.setBuildingTexture(texture.buildingTexture, texture.maskTexture, texture.noiseTexture)
+            this.buildingLayer.setBuildingTexture(texture.buildingTexture, texture.noiseTexture)
         })
         elevationCapabilities$.subscribe((caps) => {
             this.capabilities = caps
@@ -582,10 +470,10 @@ export class GroundTileProcessing {
             withLatestFrom(treeGltf$),
             withLatestFrom(textures$),
             switchMap(() => cameraPos$.pipe(startWith(forceInit))),
-            distinctUntilChanged((prev, curr) => {
-                const distance = Math.abs(Vec3.distance(prev, curr))
-                return distance < 100
-            }),
+            // distinctUntilChanged((prev, curr) => {
+            //     const distance = Math.abs(Vec3.distance(prev, curr))
+            //     return distance < 100
+            // }),
             rxjsMap(() => {
                 // console.log("cameraMoved")
                 const camera = this.instance.view.camera as PerspectiveCamera
@@ -612,9 +500,8 @@ export class GroundTileProcessing {
             filter(() => cameraLoading === 0),
             rxjsMap((zAndMapWith) => {
                 cameraLoading = 1
-                // const mapExtent = CartoHelper.getMapExtent(this.map)
                 const mapWith = zAndMapWith[1]
-                let mapBoundingBox = CartoHelper.getVisibleTileBoundingBox(this.map)
+                let mapBoundingBox = CartoHelper.getVisibleTileBoundingBox(this.map, 10000)
                 if (mapBoundingBox.isEmpty()) {
                     cameraLoading = 0
                     throw new Error("Map bounding box is undefined when updating sun position")
@@ -624,18 +511,22 @@ export class GroundTileProcessing {
                 const maxBoundingBoxSize = Math.max(tempVec3.x, tempVec3.y)
                 if (maxBoundingBoxSize < 10000) {
                     mapBoundingBox = mapBoundingBox.expandByScalar((10000 - maxBoundingBoxSize) / 2)
-                } else {
-
-                    mapBoundingBox = clampBoxByViewDepth(mapBoundingBox.clone(), (this.map.instance.view.camera as PerspectiveCamera), 10000)
                 }
+                //  else {
 
-                const mapExtent = Extent.fromBox3("EPSG:3857", mapBoundingBox);
+                //     // mapBoundingBox = clampBoxByViewDepth(mapBoundingBox.clone(), (this.map.instance.view.camera as PerspectiveCamera), 10000)
+                // }
+                const controlTarget = (map.instance.view.controls as OrbitControls).target
+                // 10000
 
-                const olExtent = OLUtils.toOLExtent(mapExtent);
+                const mapExtent = Extent.fromCenterAndSize("EPSG:3857", { x: controlTarget.x, y: controlTarget.y }, 10000, 10000)
+                // const mapExtent = Extent.fromBox3("EPSG:3857", mapBoundingBox);
+                //@ts-ignore
+                const olExtent = OLUtils.toOLExtent(mapExtent) as Extent;
 
 
                 const center3857 = { x: this.controls.target.x, y: this.controls.target.y }
-                // @ts-expect-error
+
                 const visibleTiles = computeVisibleTiles(olExtent, 16)
 
                 // // abortTileProcessing
@@ -646,7 +537,7 @@ export class GroundTileProcessing {
                 // }).filter(({ z, x, y }) => {
                 //     const tileId = `${z}/${x}/${y}`;
                 //     const bool = !mapExtent.intersectsExtent(inflightByTileExtent.get(tileId))
-                //     console.log("ici", bool)
+                //     // console.log("ici", bool)
                 //     return bool
                 // }).map(({ z, x, y }, index) => {
                 //     const tileId = `${z}/${x}/${y}`;
@@ -654,8 +545,8 @@ export class GroundTileProcessing {
 
                 //     return inflightByTile.get(tileId)
                 // })
-                // if (inflightTileIds.length > 0) {
-                //     console.log(inflightTileIds, "tiles to abort")
+                // if (inflightByTile.size > 0) {
+                //     console.log(inflightByTile.size, "tiles to abort")
                 //     // abortTileProcessing(inflightTileIds)
                 // }
 
@@ -705,177 +596,7 @@ export class GroundTileProcessing {
 
 
 
-    initializeCSM() {
-        const center = getCenter(this.parametersService.projectPolygon.getGeometry().getExtent())
-        const origin = new Vector3(center[0], center[1], 0).normalize()
-        const camera = this.instance.view.camera as PerspectiveCamera
 
-        var params = {
-            orthographic: false,
-            fade: true,
-            far: 1000,
-            mode: 'practical',
-            lightX: - 0.3,
-            lightY: - 0.2,
-            lightZ: - 1,
-            margin: 100,
-            lightFar: 10000,
-            lightNear: 1,
-            shadowBias: 0,
-            autoUpdateHelper: true,
-            lightIntensity: 2,
-            lightColor: 'white',
-            originX: origin.x,
-            originY: origin.y,
-            originZ: origin.z,
-            update: () => {
-                csmHelper.update();
-                this.updateSunPositionAndTarget(camera)
-                this.instance.notifyChange()
-
-            }
-        };
-
-        // const sun = this.instance.getObjects().find((child) => child.name == "Sun light") as DirectionalLight
-        this.csm = new CSM({
-            maxFar: params.far,
-            // lightFar: 3000,
-            // lightNear: 1,
-            cascades: 3,
-            shadowMapSize: 1024 * 2,
-            lightColor: new Color(params.lightColor),
-            lightDirection: new Vector3(-0.3, -0.2, -1).normalize(),
-            camera: camera,
-            parent: this.instance.scene,
-            lightDirectionUp: new Vector3(0, 0, 1),
-            lightIntensity: 2,
-            mode: 'uniform',
-            // margin: 100,
-            shadowBias: 0.0001,
-            shadowNormalBias: 1,
-            // origin: origin
-            // origin: new Vector3(center[0], center[1], 0),
-        });
-
-
-
-        // console.log(new Matrix4().lookAt(new Vector3(center[0], center[1], 0), new Vector3(1, 1, 1).normalize(), new Vector3(0, 1, 0)), "matrix rotation")
-        const csmHelper = new CSM.Helper(this.csm);
-        csmHelper.displayFrustum = true
-        csmHelper.displayPlanes = true
-        csmHelper.displayShadowBounds = true
-        csmHelper.name = "CSM Helper"
-        this.instance.add(csmHelper);
-        csmHelper.visible = false
-
-        // this.updateSunPositionAndTarget(camera)
-
-        // setTimeout(() => {
-        //     this.csm.lights.forEach((_, index) => {
-        //         const light = this.csm.lights[index];
-        //         light.shadow.camera.updateProjectionMatrix();
-        //     })
-        //     csmHelper.update();
-        //     this.updateSunPositionAndTarget(camera)
-        // }, 1000);
-        fromInstanceGiroEvent(this.instance, "before-render").pipe(
-            debounceTime(500),
-            // throttleTime(2000, asyncScheduler, { leading: false, trailing: true }),
-            tap((e) => {
-                const camera = this.instance.view.camera as PerspectiveCamera
-
-                camera.updateProjectionMatrix();
-                camera.updateMatrixWorld();
-                this.updateSunPositionAndTarget(camera)
-            })
-        ).subscribe()
-
-        // const inspector = new Inspector("giro3d-inspector", this.instance)
-
-        // inspector.gui.add(params, 'far', 1000, 100000).step(1000).name('Max far').onChange((value) => {
-
-        //     this.csm.maxFar = value;
-        //     this.csm.updateFrustums();
-        //     // this.csm.update();
-        //     csmHelper.update();
-        //     this.updateSunPositionAndTarget(camera)
-        //     // this.instance.notifyChange()
-
-        // });
-
-
-        // inspector.gui.addColor(params, 'lightColor').name('light color').onChange((value) => {
-        //     this.csm.frustums.forEach((_, index) => {
-        //         const light = this.csm.lights[index];
-        //         light.color = new Color(value)
-        //     })
-        //     this.csm.lightColor = new Color(value)
-        //     this.instance.notifyChange()
-        // });
-
-        // inspector.gui.add(params, 'lightIntensity', 1, 40).name('light intensity').onChange((value) => {
-        //     this.csm.frustums.forEach((_, index) => {
-        //         const light = this.csm.lights[index];
-        //         light.intensity = value
-        //     })
-        //     this.csm.lightIntensity = value
-        //     this.instance.notifyChange()
-        // });
-        // inspector.gui.add(params, 'update').name('Update csm');
-
-    }
-
-
-    updateSunPositionAndTarget(camera: PerspectiveCamera) {
-
-        // camera.getWorldDirection(cameraPosition)
-        let mapPosition: Coordinates
-        let cameraPosition: Vector3
-        try {
-            // const mapExtent = CartoHelper.getMapExtent(this.map)
-            const mapBoundingBox = CartoHelper.getVisibleTileBoundingBox(this.map)
-
-            if (mapBoundingBox.isEmpty()) {
-                throw new Error("Map bounding box is undefined when updating sun position")
-            }
-
-            mapBoundingBox.getCenter(tempVec3)
-            mapBoundingBox.getSize(temp2Vec3)
-            const mapCenter = new Coordinates("EPSG:3857", tempVec3.x, tempVec3.y);
-            mapPosition = mapCenter.clone().as("EPSG:4326");
-            cameraPosition = new Vector3(mapCenter.x, mapCenter.y, camera.position.z)
-            const extentDimensions = temp2Vec3.clone()
-            //.divideScalar(2)
-
-            const newMaxFar = Math.max(extentDimensions.x, extentDimensions.y)
-            if (Math.abs(newMaxFar - this.csm.maxFar) > 200) {
-                this.csm.maxFar = newMaxFar
-                this.csm.updateFrustums();
-            }
-
-        } catch (error) {
-            cameraPosition = camera.position
-            mapPosition = new Coordinates("EPSG:3857", cameraPosition.x, cameraPosition.y).as("EPSG:4326");
-            console.error(error)
-        }
-
-
-        const date = new Date()
-        date.setHours(13)
-
-        const sunDir = this.sunSystem.sunDirection
-        // Object { x: -0.8687647520126677, y: -0.11361125596310763, z: -0.4820168961549515 }
-        this.csm.lightDirection.set(sunDir.x, sunDir.y, sunDir.z)
-        this.csm.update();
-        this.csm.frustums.forEach((_, index) => {
-            const light = this.csm.lights[index];
-            light.shadow.camera.updateProjectionMatrix();
-            light.updateMatrixWorld(true)
-            light.target.updateMatrixWorld(true)
-            // console.log(light.position.z, this.csm.maxFar, "light position z")
-        })
-        // this.instance.notifyChange()
-    }
 
     loadBuildingTextures() {
         const textureSWidth = 512
@@ -885,37 +606,37 @@ export class GroundTileProcessing {
         const textureData = new Uint8Array(depth);
         const loadTextures$: Array<Observable<ImageData>> = []
 
-        const maskDepth = textureSWidth * textureSHeight * Object.keys(buildingTextures).length / 4 * 4;  // one mask per 4 images and RGBA, 4 channels per pixel
-        const loadMaskTextures$: Array<Observable<ImageData>> = []
-        const maskTextureData = new Uint8Array(maskDepth);
+        // const maskDepth = textureSWidth * textureSHeight * Object.keys(buildingTextures).length / 4 * 4;  // one mask per 4 images and RGBA, 4 channels per pixel
+        // const loadMaskTextures$: Array<Observable<ImageData>> = []
+        // const maskTextureData = new Uint8Array(maskDepth);
 
-        for (let index = 0; index < Object.keys(buildingTextures).length / 4; index++) {
-            const position = (index * 4) + 2
-            const element = buildingTextures[position];
-            loadMaskTextures$.push(
-                of(element).pipe(
-                    switchMap((element) => {
-                        return from(this.loader.loadAsync(element.url)).pipe((map((image) => { return { image, index } })))
-                    }),
-                    map((parameter) => {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = textureSWidth;
-                        canvas.height = textureSHeight;
-                        const context = canvas.getContext('2d');
-                        context.drawImage(parameter.image, 0, 0);
-                        const imageData = context.getImageData(0, 0, textureSWidth, textureSHeight);
-                        maskTextureData.set(
-                            imageData.data,
-                            parameter.index * textureSWidth * textureSHeight * 4
-                        );
+        // for (let index = 0; index < Object.keys(buildingTextures).length / 4; index++) {
+        //     const position = (index * 4) + 2
+        //     const element = buildingTextures[position];
+        //     loadMaskTextures$.push(
+        //         of(element).pipe(
+        //             switchMap((element) => {
+        //                 return from(this.loader.loadAsync(element.url)).pipe((map((image) => { return { image, index } })))
+        //             }),
+        //             map((parameter) => {
+        //                 const canvas = document.createElement('canvas');
+        //                 canvas.width = textureSWidth;
+        //                 canvas.height = textureSHeight;
+        //                 const context = canvas.getContext('2d');
+        //                 context.drawImage(parameter.image, 0, 0);
+        //                 const imageData = context.getImageData(0, 0, textureSWidth, textureSHeight);
+        //                 maskTextureData.set(
+        //                     imageData.data,
+        //                     parameter.index * textureSWidth * textureSHeight * 4
+        //                 );
 
 
-                        return imageData
-                    }),
-                    last(), // load only once and replay the same last response
-                )
-            )
-        }
+        //                 return imageData
+        //             }),
+        //             last(), // load only once and replay the same last response
+        //         )
+        //     )
+        // }
 
         for (let index = 0; index < buildingTextures.length; index++) {
             const element = buildingTextures[index];
@@ -950,7 +671,7 @@ export class GroundTileProcessing {
 
         return combineLatest(loadTextures$).pipe(
             last(),// load only once and replay the same last response
-            withLatestFrom(...loadMaskTextures$),
+            // withLatestFrom(...loadMaskTextures$),
             withLatestFrom(loader.loadAsync(noiseTextureUrl)),
             map(([_, noiseTexture]) => {
                 const buildingTexture = new DataArrayTexture(textureData, textureSWidth, textureSHeight, buildingTextures.length);
@@ -968,19 +689,19 @@ export class GroundTileProcessing {
                 buildingTexture.needsUpdate = true;
                 buildingTexture.anisotropy = this.instance.renderer.capabilities.getMaxAnisotropy();
 
-                const maskTexture = new DataArrayTexture(maskTextureData, textureSWidth, textureSHeight, buildingTextures.length / 4);
-                maskTexture.colorSpace = SRGBColorSpace;
-                // buildingTexture.format = RGBAFormat;
-                // buildingTexture.type = UnsignedByteType;
-                // maskTexture.generateMipmaps = true;
-                maskTexture.magFilter = LinearFilter;
-                maskTexture.minFilter = LinearFilter;
-                // maskTexture.minFilter = LinearMipmapLinearFilter;
-                maskTexture.wrapS = RepeatWrapping
-                maskTexture.wrapT = RepeatWrapping
-                // maskTexture.flipY = true
-                maskTexture.needsUpdate = true;
-                maskTexture.anisotropy = this.instance.renderer.capabilities.getMaxAnisotropy();
+                // const maskTexture = new DataArrayTexture(maskTextureData, textureSWidth, textureSHeight, buildingTextures.length / 4);
+                // maskTexture.colorSpace = SRGBColorSpace;
+                // // buildingTexture.format = RGBAFormat;
+                // // buildingTexture.type = UnsignedByteType;
+                // // maskTexture.generateMipmaps = true;
+                // maskTexture.magFilter = LinearFilter;
+                // maskTexture.minFilter = LinearFilter;
+                // // maskTexture.minFilter = LinearMipmapLinearFilter;
+                // maskTexture.wrapS = RepeatWrapping
+                // maskTexture.wrapT = RepeatWrapping
+                // // maskTexture.flipY = true
+                // maskTexture.needsUpdate = true;
+                // maskTexture.anisotropy = this.instance.renderer.capabilities.getMaxAnisotropy();
 
 
                 noiseTexture.format = RGBAFormat;
@@ -994,10 +715,10 @@ export class GroundTileProcessing {
                 noiseTexture.minFilter = NearestFilter;
                 // noiseTexture.flipY = true
                 noiseTexture.needsUpdate = true;
-                // noiseTexture.anisotropy = 16;
+                noiseTexture.anisotropy = 16;
 
 
-                return { buildingTexture, maskTexture, noiseTexture }
+                return { buildingTexture, noiseTexture }
             })
         )
 

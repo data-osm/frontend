@@ -64,7 +64,7 @@
     "suncalc": "^1.9.0",
     "tarteaucitronjs": "^1.19.0",
     "three": "^0.170.0",
-    "three-csm": "file:../../three-csm/three-csm-4.0.2.tgz",
+    "three-csm": "file:../../three-csm/three-csm-4.0.0.tgz",
     "tslib": "^2.0.0",
     "webxr-polyfill": "^2.0.3",
     "zone.js": "~0.11.4"

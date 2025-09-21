@@ -1,3 +1,4 @@
+import { Skeleton } from "straight-skeleton";
 import getFacadeParamsFromTags from "./facade-params";
 import getRoofOrientation, { getRoofParams } from "./roof-params";
 import { BuildingFacadeMaterial, BuildingProperties, BuildingRoofMaterial, BuildingRoofOrientation, BuildingRoofType } from "./type";
@@ -59,6 +60,7 @@ export function getBuildingParams(
     match_rnb_ids: string;
     is_part: boolean;
     building: string;
+    skeleton: Skeleton;
 } {
     const fallbackLevels = 1;
 
@@ -136,5 +138,6 @@ export function getBuildingParams(
         match_rnb_ids: building_properties.match_rnb_ids,
         is_part: building_properties.is_part,
         building: building_properties.building,
+        skeleton: building_properties.skeleton ? JSON.parse(building_properties.skeleton) : null
     };
 }

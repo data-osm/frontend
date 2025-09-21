@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, Inject, ViewChild, ViewChildren, QueryList } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-// import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { MatLegacySelectionList as MatSelectionList, MatLegacySelectionListChange as MatSelectionListChange } from '@angular/material/legacy-list';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';

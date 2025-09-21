@@ -1,6 +1,8 @@
 import { set } from "ol/transform";
 import { BackSide, Box3, BufferGeometry, Color, FrontSide, InstancedBufferGeometry, Material, Matrix4, Mesh, MeshStandardMaterial, Object3DEventMap, PerspectiveCamera, Ray, Raycaster, ShaderMaterial, Sphere, Triangle, Vector2, Vector3 } from "three";
 import { LineSegmentsGeometry } from "three/examples/jsm/Addons";
+import { PointsTile } from "./points/meshes";
+import { LineTile } from "./linestring/meshes";
 
 const _inverseMatrix = /*@__PURE__*/ new Matrix4();
 const _ray = /*@__PURE__*/ new Ray();
@@ -34,6 +36,46 @@ const _intersectionPointWorld = /*@__PURE__*/ new Vector3();
 
 
 const tmpVec3 = new Vector3()
+
+abstract class SelectableMeshBase<G extends BufferGeometry | InstancedBufferGeometry> extends Mesh<G, ShaderMaterial, Object3DEventMap> {
+    readonly isSelectable = true
+    private lockClearFeatureSelected = false
+    uniformWithFeatureIdName: string = "uFeatureUidSelected"
+    constructor(geometry: G, material = new ShaderMaterial()) {
+
+        super(geometry, material);
+
+        this.material.uniforms[this.uniformWithFeatureIdName] = { value: null }
+
+    }
+
+    get isSelected() {
+        return Boolean(this.material.uniforms[this.uniformWithFeatureIdName].value)
+    }
+
+    setFeatureUidSelected(uid: number) {
+        this.material.uniforms[this.uniformWithFeatureIdName].value = parseInt(this.getFeatureIdFromSelectedId(uid).toString())
+        this.lockClearFeatureSelected = true
+        // this.material.needsUpdate = true
+        setTimeout(() => {
+            this.lockClearFeatureSelected = false
+        }, 300)
+    }
+
+    clearFeatureSelected() {
+        if (this.lockClearFeatureSelected) return
+        this.material.uniforms[this.uniformWithFeatureIdName].value = null
+
+    }
+
+    hasFeatureId(id: number) {
+        return this.geometry.attributes.aFeatureUid.array.includes(id)
+    }
+
+    getFeatureIdFromSelectedId(selectedId: number): number {
+        return selectedId
+    }
+}
 
 export class CustomInstancedBufferGeometry extends InstancedBufferGeometry {
     instanceBoundingSphere: Sphere = null
@@ -158,31 +200,20 @@ export class CustomInstancedBufferGeometry extends InstancedBufferGeometry {
     }
 }
 
-export class PointMesh extends Mesh<CustomInstancedBufferGeometry, ShaderMaterial, Object3DEventMap> {
-    readonly isSelectable = true
-    private lockClearFeatureSelected = false
+export class PointMesh extends SelectableMeshBase<CustomInstancedBufferGeometry> {
+
     camera: PerspectiveCamera
 
     constructor(geometry = new CustomInstancedBufferGeometry(), material = new ShaderMaterial(), camera: PerspectiveCamera) {
-
         super(geometry, material);
         this.camera = camera
-        this.material.uniforms.uFeatureUidSelected = { value: undefined }
     }
 
-    setFeatureUidSelected(uid: number) {
-        this.material.uniforms.uFeatureUidSelected.value = parseFloat(uid.toString())
-        this.lockClearFeatureSelected = true
-        setTimeout(() => {
-            this.lockClearFeatureSelected = false
-        }, 300)
+    getFeatureIdFromSelectedId(osmId: number): number {
+        const pointTile = (this.parent as PointsTile)
+        return pointTile.osmIdsFeatureIndex.get(osmId)
     }
 
-    clearFeatureSelected() {
-        if (this.lockClearFeatureSelected) return
-        this.material.uniforms.uFeatureUidSelected = { value: undefined }
-
-    }
 
     raycast(raycaster: Raycaster, intersects) {
         this.updateMatrix()
@@ -218,7 +249,7 @@ export class PointMesh extends Mesh<CustomInstancedBufferGeometry, ShaderMateria
             tmpVec3.applyMatrix4(matrixWorld);
 
             const halfW = 60 * scaleFactor / 2;
-            const halfH = 60 * scaleFactor / 2; // si tes planes sont carrés ; sinon ajuste
+            const halfH = 60 * scaleFactor / 2;
             const radius = Math.sqrt(halfW * halfW + halfH * halfH);
 
 
@@ -227,14 +258,13 @@ export class PointMesh extends Mesh<CustomInstancedBufferGeometry, ShaderMateria
 
             const point = raycaster.ray.intersectSphere(_sphere, new Vector3());
             if (point) {
-
                 // new Intersection
                 intersects.push({
                     distance: raycaster.ray.origin.distanceTo(point),
                     point: point.clone(),
                     object: this,
                     instanceId: instanceId,
-                    featureUid: this.geometry.attributes.aFeatureUid.getX(instanceId)
+                    featureUid: (this.parent as PointsTile).featureIndexOsmId.get(this.geometry.attributes.aFeatureUid.getX(instanceId))
                 })
                 // intersect.featureUid = this.geometry.attributes.aFeatureUid.getX(instanceId)
                 // intersect.instanceId = instanceId;
@@ -276,44 +306,16 @@ export class PointMesh extends Mesh<CustomInstancedBufferGeometry, ShaderMateria
 
 }
 
+
 /**
  * Selectable Mesh
  * - When raycasting, return featureId store in aFeatureUid attribute
  * - Can pass a feature ID to select him
  */
-export class SelectableMesh extends Mesh<BufferGeometry, ShaderMaterial, Object3DEventMap> {
+export class SelectableMesh extends SelectableMeshBase<BufferGeometry> {
 
-    readonly isSelectable = true
-    private lockClearFeatureSelected = false
-
-    constructor(geometry = new BufferGeometry(), material = new ShaderMaterial()) {
-
-        super(geometry, material);
-
-        this.material.uniforms.uFeatureUidSelected = { value: undefined }
-
-    }
-
-    get isSelected() {
-        return Boolean(this.material.uniforms.uFeatureUidSelected.value)
-    }
-
-    hasFeatureId(id: number) {
-        return this.geometry.attributes.aFeatureUid.array.includes(id)
-    }
-
-    setFeatureUidSelected(uid: number) {
-        this.material.uniforms.uFeatureUidSelected.value = parseInt(uid.toString())
-        this.lockClearFeatureSelected = true
-        setTimeout(() => {
-            this.lockClearFeatureSelected = false
-        }, 300)
-    }
-
-    clearFeatureSelected() {
-        if (this.lockClearFeatureSelected) return
-        this.material.uniforms.uFeatureUidSelected = { value: undefined }
-
+    getFeatureIdFromMaterial(featureId: number): number {
+        return featureId
     }
 
     raycast(raycaster, intersects) {
@@ -399,7 +401,7 @@ export class SelectableMesh extends Mesh<BufferGeometry, ShaderMaterial, Object3
 
                             intersection.faceIndex = Math.floor(j / 3); // triangle number in indexed buffer semantics
                             intersection.face.materialIndex = group.materialIndex;
-                            intersection.featureUid = this.geometry.attributes.aFeatureUid.getX(index.getX(j))
+                            intersection.featureUid = this.getFeatureIdFromMaterial(this.geometry.attributes.aFeatureUid.getX(index.getX(j)))
                             intersects.push(intersection);
 
                         }
@@ -424,7 +426,7 @@ export class SelectableMesh extends Mesh<BufferGeometry, ShaderMaterial, Object3
                     if (intersection) {
 
                         intersection.faceIndex = Math.floor(i / 3); // triangle number in indexed buffer semantics
-                        intersection.featureUid = this.geometry.attributes.aFeatureUid.getX(index.getX(i))
+                        intersection.featureUid = this.getFeatureIdFromMaterial(this.geometry.attributes.aFeatureUid.getX(index.getX(i)))
 
                         intersects.push(intersection);
 
@@ -460,7 +462,7 @@ export class SelectableMesh extends Mesh<BufferGeometry, ShaderMaterial, Object3
 
                             intersection.faceIndex = Math.floor(j / 3); // triangle number in non-indexed buffer semantics
                             intersection.face.materialIndex = group.materialIndex;
-                            intersection.featureUid = this.geometry.attributes.aFeatureUid.getX(j)
+                            intersection.featureUid = this.getFeatureIdFromMaterial(this.geometry.attributes.aFeatureUid.getX(j))
                             intersects.push(intersection);
 
                         }
@@ -485,7 +487,7 @@ export class SelectableMesh extends Mesh<BufferGeometry, ShaderMaterial, Object3
                     if (intersection) {
 
                         intersection.faceIndex = Math.floor(i / 3); // triangle number in non-indexed buffer semantics
-                        intersection.featureUid = this.geometry.attributes.aFeatureUid.getX(i)
+                        intersection.featureUid = this.getFeatureIdFromMaterial(this.geometry.attributes.aFeatureUid.getX(i))
                         // console.log(this.geometry.attributes.aFeatureUid.array.includes(69221085), i, this.geometry.attributes.aFeatureUid.array.length)
                         intersects.push(intersection);
 
@@ -498,6 +500,19 @@ export class SelectableMesh extends Mesh<BufferGeometry, ShaderMaterial, Object3
         }
 
     }
+}
+
+export class SelectableLineMesh extends SelectableMesh {
+    getFeatureIdFromMaterial(featureId: number): number {
+
+        return (this.parent as LineTile).featureIndexOsmId.get(featureId)
+    }
+
+    getFeatureIdFromSelectedId(osmId: number): number {
+        const lineTile = (this.parent as LineTile)
+        return lineTile.osmIdsFeatureIndex.get(osmId)
+    }
+
 }
 
 // From three/src/objects/Mesh.js

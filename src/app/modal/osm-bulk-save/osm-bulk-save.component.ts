@@ -3,8 +3,7 @@ import { OSMUpdateStoreService } from '../../data/store/osm-update.store.service
 import { OsmService, UpdateOSMInfo } from '../../data/services/osm.service';
 import { catchError, EMPTY, take, tap } from 'rxjs';
 import { NotifierService } from 'angular-notifier';
-import { MatDialogRef } from '@angular/material/dialog';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { DescriptiveSheetComponent } from '../../portail/pages/descriptive-sheet/descriptive-sheet.component';
 @Component({
   selector: 'app-osm-bulk-save',
@@ -40,6 +39,7 @@ export class OsmBulkSaveComponent {
       this.osmService.updateOSMFeature(osmFeaturesToUpdate).pipe(
         tap(() => {
           this.notifier.notify('success', 'Modifications sauvegardées avec succès')
+          console.log(dialog.openDialogs)
           dialog.openDialogs.filter(dialog => {
             return (
               dialog.componentInstance instanceof DescriptiveSheetComponent

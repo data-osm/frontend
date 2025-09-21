@@ -1,4 +1,4 @@
-import { AbstractPointsLayer, AbstractPointsTile } from "./points";
+import { AbstractPointsLayer } from "./points/points";
 import { Coordinate } from "ol/coordinate";
 import { AdditiveBlending, AlwaysDepth, Box3, BufferAttribute, BufferGeometry, ClampToEdgeWrapping, DoubleSide, Fog, GLSL3, GreaterEqualDepth, Group, InstancedBufferAttribute, InstancedInterleavedBuffer, InterleavedBufferAttribute, LessDepth, Line, LinearFilter, LinearMipmapLinearFilter, LineBasicMaterial, Material, Mesh, MeshBasicMaterial, MeshPhysicalMaterial, MeshStandardMaterial, MultiplyBlending, NearestFilter, NeverDepth, NormalBlending, Object3DEventMap, PerspectiveCamera, PlaneGeometry, RepeatWrapping, ShaderMaterial, Sphere, SRGBColorSpace, Texture, TextureLoader, Vector2, Vector3, WebGLProgramParametersWithUniforms } from "three";
 import { Instance, Map as Giro3DMap, OrbitControls, OLUtils, tile } from "../giro-3d-module";
@@ -11,6 +11,8 @@ import { CustomInstancedBufferGeometry, PointMesh } from "./custom-mesh";
 import { Feature, Geometry, Point } from "../ol-module";
 import { getUid } from "ol";
 import { mergeFloat32 } from "./utils";
+import { PointFeatureByExtent } from "./points/type";
+import { AbstractPointsTile } from "./points/meshes";
 
 
 export interface ModelRessource {
@@ -419,7 +421,10 @@ export class VerticalTrafficSignLayer extends AbstractPointsLayer<VerticalTraffi
         return pointTileFeaturesMap
     }
 
-    //@ts-expect-error
+    addFeaturesInScene(featuresByExtent: PointFeatureByExtent[]) {
+
+    }
+
     addFeaturesInMesh(new_features: Array<Feature> = []) {
 
         // this.loaded_features_count = this.vectorSource.getFeatures().length

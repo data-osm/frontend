@@ -6,6 +6,8 @@ import { VectorAreaRing } from "./tile-3d-ring";
 import Vec3 from "../math/vector3";
 import { Extent } from "ol/extent";
 import { FillStyle, StrokeStyle } from "../../giro-3d-module";
+import { Skeleton } from "straight-skeleton";
+import { ExtrudedTile, WireAttr } from "../building-processing-worker/worker-packer";
 
 export type BaseOptions = {
     /**
@@ -71,6 +73,7 @@ export interface BuildingProperties {
     parent_and_children?: string
     building: string
     elevation?: number;
+    skeleton?: string
 
 }
 
@@ -102,6 +105,7 @@ export interface VectorAreaDescriptor {
     match_rnb_ids: string;
     building: string
     is_part: boolean
+    skeleton?: Skeleton
 }
 
 export enum RoofType {
@@ -143,6 +147,7 @@ export interface SourceProperties extends BuildingProperties {
     extent: Extent
     buildingHeight: number
     center: Coordinate
+    tileKey: string //x + "_" + y
     // only polygon for known
     coordinates: Coordinate[][]
 }
@@ -164,6 +169,13 @@ export interface RetrieveBuilding {
     tile_key: string,
     worldBuildingPosition: [number, number, number],
     flatBushData: ArrayBuffer,
-    tileHeightMap: Map<number, number>,
+    // faltBush index - Building height
+    flatIndexBuildingHeight: Map<number, number>,
+    // flatBush index - osm id
+    flatIndexOsmId: Map<number, number>,
     tileExtent: [number, number, number, number],
+    extrudeResult: {
+        geometryAttribute: WireAttr[],
+        boundingBoxMinMax: [number, number, number, number, number, number]
+    }
 }

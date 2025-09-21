@@ -1,18 +1,15 @@
-<h1 mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane"
-  style="margin-top: -70px !important;padding-bottom: 15px !important;" class="descriptive-sheet-header white">
+<h1 mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" class="descriptive-sheet-header white">
   <div class="descriptive-sheet-header-ghost" cdkDragHandle></div>
 
-  <div fxLayout>
-    <ng-container *ngIf="getModalIcon() as modalIcon">
-      <img fxFlex="25px" [src]="modalIcon" alt="" srcset="" class="icon_header" style="margin-top: 4px;height: 25px;">
-    </ng-container>
+  <ng-container *ngIf="getModalIcon() as modalIcon">
+    <img [src]="modalIcon" alt="" srcset="" class="dialog-title-start-icon" style="margin-top: 4px;height: 25px;">
+  </ng-container>
 
-    <span fxFlex>
-      <i class="fa fa-arrows-alt white" style="font-size:20px" aria-hidden="true"></i>
-      {{ getModalName()}}
-    </span>
-    <i fxFlexAlign="center" class="fa fa-times-circle " (click)="closeModal()"></i>
-  </div>
+  <span class="dialog-title-text">
+    <i class="fa fa-arrows-alt white" style="font-size:20px" aria-hidden="true"></i>
+    {{ getModalName()}}
+  </span>
+  <i class="fa fa-times-circle dialog-title-end-icon" (click)="closeModal()"></i>
 
 </h1>
 

@@ -10,11 +10,8 @@ export enum RoadSide {
 }
 
 export class RoadBuilder {
-    group: Group
     constructor(
-        group: Group
     ) {
-        this.group = group
     }
     public build(
         {

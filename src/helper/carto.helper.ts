@@ -74,7 +74,7 @@ import { TileSourceEvent } from 'ol/source/Tile'
 
 import { MapsService } from '../app/data/services/maps.service'
 import { Tile, VectorRenderTile } from 'ol'
-import { PointsLayer } from '../app/processing/points'
+import { PointsLayer } from '../app/processing/points/points'
 import { layer } from '@fortawesome/fontawesome-svg-core'
 import { TRUE } from 'ol/functions'
 import { gsap } from "gsap";
@@ -83,12 +83,14 @@ import { TubeLineStringLayer } from '../app/processing/linestring/tube-linestrin
 import { FlatLineStringLayer } from '../app/processing/linestring/flat-linestring'
 import { DataOSMLayer, LayerGiroUserData, LayersInMap, TypeLayer } from './type'
 import RenderFeature from 'ol/render/Feature'
+import { vec2 } from 'three/src/nodes/TSL'
+import Vec2 from '../app/processing/math/vector2'
 
 const _tmpBox3 = new Box3()
 const _tmp2Box3 = new Box3()
 const _tmpSphere = new Sphere()
 const _tmp2Sphere = new Sphere()
-
+const _tempVec3 = new Vector3()
 /**
  * Handle diverse operation in link with the map
  */
@@ -1091,14 +1093,25 @@ export class CartoHelper {
 
   // }
 
-  static getVisibleTileBoundingBox(map: MapGiro3d) {
+  static getVisibleTileBoundingBox(map: MapGiro3d, maxDistanceFromControl?: number) {
     _tmpBox3.makeEmpty()
     _tmp2Box3.makeEmpty()
-
+    const controlTarget = (map.instance.view.controls as OrbitControls).target
+    const controlTargetVec2 = new Vec2(controlTarget.x, controlTarget.y)
     map.traverseTiles(tile => {
       if (tile.visible && tile.material.visible && map.instance.view.isBox3Visible(tile.boundingBox, tile.matrixWorld)) {
         tile.getWorldSpaceBoundingBox(_tmp2Box3)
-        _tmpBox3.copy(_tmpBox3.union(_tmp2Box3))
+        if (maxDistanceFromControl) {
+          _tmp2Box3.getCenter(_tempVec3)
+
+          if (Math.abs(Vec2.distance(new Vec2(_tempVec3.x, _tempVec3.y), controlTargetVec2)) <= maxDistanceFromControl) {
+            _tmpBox3.copy(_tmpBox3.union(_tmp2Box3))
+          }
+
+        } else {
+
+          _tmpBox3.copy(_tmpBox3.union(_tmp2Box3))
+        }
       }
     });
     return _tmpBox3
@@ -1771,10 +1784,6 @@ export class CustomVectorSource extends VectorSource {
   //   return extents;
   // }
 
-  isExtentLoad = function (extent: OLExtent) {
-    return this._tileLoaded.has(extent.join("_"))
-
-  }
 
   tilesCoordToExtent(tilesCoord: TileCoord[], projection) {
     return tilesCoord.map((tileCoord) => toUserExtent(this.tileGrid.getTileCoordExtent(tileCoord), projection))
@@ -1789,56 +1798,53 @@ export class CustomVectorSource extends VectorSource {
   loadFeatures = function (extent, resolution, projection) {
     const loadedExtentsRtree = this.loadedExtentsRtree_;
 
-    const tilesCoords = this.getTileCoordFromExtent(extent, resolution)
-    const extentsToLoad = this.tilesCoordToExtent(tilesCoords, projection).filter(extent => !this.isExtentLoad(extent))
-
+    const extentsToLoad = this.strategy_(extent, resolution, projection);
 
     for (let i = 0, ii = extentsToLoad.length; i < ii; ++i) {
       const extentToLoad = extentsToLoad[i];
-      // const alreadyLoaded = loadedExtentsRtree.forEachInExtent(
-      //   extentToLoad,
-      //   /**
-      //    * @param {{extent: import("../extent.js").Extent}} object Object.
-      //    * @return {boolean} Contains.
-      //    */
-      //   function (object) {
-      //     return containsExtent(object.extent, extentToLoad);
-      //   }
-      // );
-      // if (!alreadyLoaded) {
-      ++this.loadingExtentsCount_;
-      this.dispatchEvent(
-        new VectorSourceEvent(VectorEventType.FEATURESLOADSTART)
-      );
-      this.loader_.call(
-        this,
+      const alreadyLoaded = loadedExtentsRtree.forEachInExtent(
         extentToLoad,
-        resolution,
-        projection,
-        function (features) {
-          --this.loadingExtentsCount_;
-
-          this.dispatchEvent(
-            new VectorSourceExtentEvent(
-              VectorEventType.FEATURESLOADEND,
-              undefined,
-              features,
-              extentToLoad
-            )
-          );
-        }.bind(this),
-        function () {
-          --this.loadingExtentsCount_;
-
-          this.dispatchEvent(
-            new VectorSourceExtentEvent(VectorEventType.FEATURESLOADERROR, undefined, undefined, extentToLoad)
-          );
-        }.bind(this)
+        /**
+         * @param {{extent: import("../extent.js").Extent}} object Object.
+         * @return {boolean} Contains.
+         */
+        function (object) {
+          return containsExtent(object.extent, extentToLoad);
+        }
       );
+      if (!alreadyLoaded) {
+        ++this.loadingExtentsCount_;
+        this.dispatchEvent(
+          new VectorSourceEvent(VectorEventType.FEATURESLOADSTART)
+        );
+        this.loader_.call(
+          this,
+          extentToLoad,
+          resolution,
+          projection,
+          function (features) {
+            --this.loadingExtentsCount_;
 
-      // }
-      this._tileLoaded.set(extentToLoad.join("_"), true)
-      loadedExtentsRtree.insert(extentToLoad, { extent: extentToLoad.slice() });
+            this.dispatchEvent(
+              new VectorSourceExtentEvent(
+                VectorEventType.FEATURESLOADEND,
+                undefined,
+                features,
+                extentToLoad
+              )
+            );
+          }.bind(this),
+          function () {
+            --this.loadingExtentsCount_;
+
+            this.dispatchEvent(
+              new VectorSourceExtentEvent(VectorEventType.FEATURESLOADERROR, undefined, undefined, extentToLoad)
+            );
+          }.bind(this)
+        );
+        loadedExtentsRtree.insert(extentToLoad, { extent: extentToLoad.slice() });
+      }
+
     }
     this.loading =
       this.loader_.length < 4 ? false : this.loadingExtentsCount_ > 0;
@@ -1988,54 +1994,3 @@ export function getFeaturesFromTileCoord(tile: VectorRenderTile, z: number) {
   return features;
 }
 
-export class LinesStringWithZ extends LineString {
-  protected _coordinatesWithZ: Array<[number, number, number]>
-
-  constructor(coordinates: Coordinate[], layout, coordinatesWithZ: Array<[number, number, number]>) {
-    super(coordinates, layout);
-    this._coordinatesWithZ = coordinatesWithZ
-  }
-
-  get coordinatesWithZ(): Array<[number, number, number]> {
-    return this._coordinatesWithZ
-  }
-}
-
-export class MultiLineStringWithZ extends MultiLineString {
-  protected _coordinatesWithZ: Array<Array<[number, number, number]>>
-
-  constructor(coordinates: Array<Coordinate[]>, layout, coordinatesWithZ: Array<Array<[number, number, number]>>) {
-    super(coordinates, layout);
-    this._coordinatesWithZ = coordinatesWithZ
-  }
-
-  get coordinatesWithZ(): Array<Array<[number, number, number]>> {
-    return this._coordinatesWithZ
-  }
-}
-
-export class PolygonWithZ extends Polygon {
-  protected _coordinatesWithZ: Array<Array<[number, number, number]>>
-
-  constructor(coordinates: Array<Array<Coordinate>>, layout, ends?: Array<number>, coordinatesWithZ?: Array<Array<[number, number, number]>>) {
-    super(coordinates, layout, ends);
-    this._coordinatesWithZ = coordinatesWithZ
-  }
-
-  get coordinatesWithZ(): Array<Array<[number, number, number]>> {
-    return this._coordinatesWithZ
-  }
-}
-
-export class MultiPolygonWithZ extends MultiPolygon {
-  protected _coordinatesWithZ: Array<Array<Array<[number, number, number]>>>
-
-  constructor(coordinates: Array<Array<Array<Coordinate>> | Polygon> | Array<number>, layout, endss?: number[][] | undefined, coordinatesWithZ?: Array<Array<Array<[number, number, number]>>>) {
-    super(coordinates, layout, endss);
-    this._coordinatesWithZ = coordinatesWithZ
-  }
-
-  get coordinatesWithZ(): Array<Array<Array<[number, number, number]>>> {
-    return this._coordinatesWithZ
-  }
-}

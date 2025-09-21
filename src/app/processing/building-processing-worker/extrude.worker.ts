@@ -28,7 +28,6 @@ self.onmessage = async (e) => {
     const command: {
         exec: "extrude" | "abort"; tiles: RetrieveBuilding[]; tilesToAbort: number[]
     } = data.payload
-
     if (command.exec == "abort") {
 
         await clearAll()
@@ -49,6 +48,7 @@ self.onmessage = async (e) => {
 
         if (m.length === 0) return
         for (const t of m) q.push(() => runOne(t, worker_id)); // réutilise ta pump()/concurrency
+
         pump();
     }
 }
@@ -92,7 +92,7 @@ self.onmessage = async (e) => {
 
 // });
 
-
+let results: InputExtruded[] = []
 
 function pump() {
     while (running < concurrency && q.length) q.shift()!();
@@ -143,6 +143,18 @@ const runOne = async function (tile: {
         extruded.id = tile.id
         // @ts-expect-error
         extruded.tileId = tileId
+        // results.push(extruded as InputExtruded)
+        // if (results.length >= 5 || q.length === 0) {
+        //     let { wire, transfers } = packExtrudedForTransfer(results);
+        //     postMessage(
+        //         {
+        //             requestId: worker_id,
+        //             payload: wire,
+        //         },
+        //         transfers
+        //     );
+        //     results = []
+        // }
         let { wire, transfers } = packExtrudedForTransfer([extruded as InputExtruded]);
 
         postMessage(

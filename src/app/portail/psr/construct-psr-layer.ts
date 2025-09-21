@@ -2,7 +2,7 @@ import { ColorLayer, Instance, OrbitControls, TiledImageSource, Map as Giro3DMap
 import { DataOSMLayer, } from "../../../helper/type"
 import { getProjection, OSM, TileWMS, VectorSource, GeoJSON, VectorLayer, Cluster, Style, CircleStyle, Stroke, Fill, Icon, transformExtent } from "../../ol-module"
 import { filter, ReplaySubject, takeUntil, map as rxjsMap, tap, retryWhen, delayWhen, timer, take } from "rxjs"
-import { PointsLayer } from "../../processing/points"
+import { PointsLayer } from "../../processing/points/points"
 import { fromInstanceGiroEvent } from "../../shared/class/fromGiroEvent"
 import { CartoHelper } from "../../../helper/carto.helper"
 import { PerspectiveCamera } from "three"

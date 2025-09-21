@@ -28,8 +28,8 @@ export default class FlatRoofBuilder implements RoofBuilder {
 
             const rotated = Vec2.rotate(Vec2.sub(new Vec2(x, y), ombbOrigin), angle);
 
-            footprint.uvs[i] = rotated.x / ombbScaleFactor.x;
-            footprint.uvs[i + 1] = rotated.y / ombbScaleFactor.y;
+            // footprint.uvs[i] = rotated.x / ombbScaleFactor.x;
+            // footprint.uvs[i + 1] = rotated.y / ombbScaleFactor.y;
         }
 
         return {

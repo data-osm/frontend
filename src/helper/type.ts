@@ -1,6 +1,7 @@
 import { Group } from "three"
 import { Layer, LayerEvents, LayerUserData } from "../app/giro-3d-module"
 import { ReplaySubject } from "rxjs"
+import { SafeUrl } from "@angular/platform-browser"
 
 /**
  * Interface of the table of contents capabilities
@@ -30,7 +31,7 @@ export interface legendCapabilitiesInterface {
     /**
      * url of the img icon
      */
-    urlImg?: string
+    urlImg?: SafeUrl
     /**
      * use legend from the carto server
      */

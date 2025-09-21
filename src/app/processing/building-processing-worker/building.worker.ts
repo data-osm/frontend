@@ -8,8 +8,11 @@ import { SkeletonBuilder } from "straight-skeleton";
 import { inflateCoordinatesArray } from "ol/geom/flat/inflate";
 import { LEVEL_HEIGHT } from '../building/building-params';
 import Flatbush from 'flatbush';
+import { ExtrudedTile, formatBufferGeometryAttributes, WireAttr } from './worker-packer';
+import { build3dBuildings } from '../build3dBuilding';
+import { collectTransferables } from '../points/type';
 
-const MAX_BATCH_ITEMS = 10;
+const MAX_BATCH_ITEMS = 5;
 interface Tile {
     id: number; url: string; z: number; x: number; y: number; tileExtent: [number, number, number, number], tileBottomLeft: [number, number]
 }
@@ -32,13 +35,16 @@ type DoneMsg = {
 };
 type ErrMsg = { type: 'error'; id: number; message?: string; name?: string };
 
+let moduleReady: Promise<void>;
 const inflight = new Map<number, AbortController>();
 const q: (() => Promise<void>)[] = [];
 let running = 0;
 let concurrency = 5;
 
 addEventListener('message', async ({ data }) => {
+    await moduleReady
     await dbPromise
+
     // await clearAll();
 
     const m = data.payload;
@@ -48,7 +54,9 @@ addEventListener('message', async ({ data }) => {
     if (m.type === 'fetch') {
 
         m.batchTile.sort((a, b) => a.id - b.id)
-
+        // for (const t of m.batchTile) {
+        //     console.log(t.x + "_" + t.y)
+        // };
         for (const t of m.batchTile) q.push(() => runOne(t, m.capabilities, worker_id)); // réutilise ta pump()/concurrency
         pump(worker_id);
     }
@@ -72,7 +80,11 @@ let tileResult: { [id: string]: RetrieveBuilding } = {}
 let errors = []
 
 function flushBatch(worker_id) {
-    postMessage({ requestId: worker_id, payload: { type: 'done', tileResult: Object.values(tileResult) } });
+    // for (const t of Object.keys(tileResult)) {
+    //     console.log(t)
+    // };
+    const payload = { requestId: worker_id, payload: { type: 'done', tileResult: Object.values(tileResult) } }
+    postMessage(payload, collectTransferables(payload));
     tileResult = {}; errors = [];
 }
 function enqueueResult(worker_id) {
@@ -94,7 +106,7 @@ function startNext(worker_id) {
         })
         .finally(() => {
             running--;
-            pump(worker_id); // ← relance pour remplir le slot libre
+            pump(worker_id); // relance pour remplir le slot libre
             if (running === 0 && q.length === 0) {
                 flushBatch(worker_id);
                 // // const { wire, transfers } = packTile(tileResult);
@@ -140,13 +152,16 @@ async function runOne(tile: Tile, capabilities, worker_id) {
             }
             return osm_id_in_tile.indexOf(f.getProperties()["osm_id"]) != -1
         }).map((f) => {
+            const coordinates = inflateCoordinatesArray(f.getOrientedFlatCoordinates(), 0, f.getEnds(), 2)
             const properties = f.getProperties() as SourceProperties;
             properties.buildingHeight = getBuildingParameters(properties).height * 1.3
             properties.center = f.getFlatMidpoint()
             properties.extent = f.getExtent()
+            properties.coordinates = coordinates
+            properties.tileKey = tile_key
             return {
                 "properties": f.getProperties(),
-                "coordinates": inflateCoordinatesArray(f.getOrientedFlatCoordinates(), 0, f.getEnds(), 2),
+                "coordinates": coordinates,
                 "flatCoordinates": f.getFlatCoordinates(),
                 "ends": f.getEnds(),
                 "center": f.getFlatMidpoint(),
@@ -156,7 +171,6 @@ async function runOne(tile: Tile, capabilities, worker_id) {
         })
 
 
-
         if (data.length === 0) {
             inflight.delete(id);
             postMessage({ requestId: worker_id, payload: { type: 'no_data', id: tile.id } });
@@ -164,10 +178,12 @@ async function runOne(tile: Tile, capabilities, worker_id) {
         };
 
         const index = new Flatbush(data.length);
-        const tileHeightMap = new Map<number, number>()
+        const flatIndexBuildingHeight = new Map<number, number>()
+        const flatIndexOsmId = new Map<number, number>()
         for (let i = 0; i < data.length; i++) {
             const buildingIndex = index.add(data[i].extent[0], data[i].extent[1], data[i].extent[2], data[i].extent[3]);
-            tileHeightMap.set(buildingIndex, data[i].buildingHeight)
+            flatIndexBuildingHeight.set(buildingIndex, data[i].properties.buildingHeight)
+            flatIndexOsmId.set(buildingIndex, data[i].properties.osm_id)
         }
         index.finish();
 
@@ -179,9 +195,33 @@ async function runOne(tile: Tile, capabilities, worker_id) {
         if (osmIdsToStore.length > 0) {
             await storeOsmIdsInTile(tile_key, osmIdsToStore)
         }
+
+        const extrudeResult: {
+            geometryAttribute: WireAttr[],
+            boundingBoxMinMax: [number, number, number, number, number, number]
+        } = {
+            geometryAttribute: null,
+            boundingBoxMinMax: null
+        }
+        try {
+            const extruded = build3dBuildings(result, worldBuildingPosition, tile_key)
+            extrudeResult.boundingBoxMinMax = extruded.boundingBoxMinMax
+            extrudeResult.geometryAttribute = formatBufferGeometryAttributes(extruded.geometriesJson)
+        } catch (error) {
+            console.error(error)
+            inflight.delete(id);
+            postMessage({ requestId: worker_id, payload: { type: 'can not extrude', id: tile.id } });
+            return
+            // extruded = null
+        }
+        // if (extruded) {
+        //     // @ts-expect-error
+        //     extruded.id = tile.id
+        //     // @ts-expect-error
+        //     extruded.tileId = tileId
+        // }
         // clean up memory
         data = null
-
         // console.log(index.numItems, indexBytes.length << 2, id, "worker")
         tileResult[tile_key] = {
             z,
@@ -192,8 +232,10 @@ async function runOne(tile: Tile, capabilities, worker_id) {
             worldBuildingPosition,
             features: result,
             flatBushData: index.data,
-            tileHeightMap,
-            tileExtent
+            flatIndexBuildingHeight,
+            flatIndexOsmId,
+            tileExtent,
+            extrudeResult: extrudeResult
         }
 
 
@@ -334,3 +376,7 @@ function openDB(): Promise<IDBDatabase> {
         req.onerror = () => reject(req.error);
     });
 }
+
+moduleReady = SkeletonBuilder.init().then(() => {
+    // console.log('Module initialized');
+});

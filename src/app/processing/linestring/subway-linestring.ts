@@ -16,30 +16,45 @@ interface FeatureInTileGroup {
 }
 export class SubwayLineLineStringLayer extends TubeLineStringLayer<FeatureInTileGroup> {
 
-    getPointTileGroupByFromFeature(feature: Feature) {
-        return feature.getProperties()["name"]
+    getPointTileGroupByFromFeature(properties) {
+
+        return properties["name"]
     }
 
-    initializeLineFeatureInTile(feature: Feature) {
+    groupFeatureBy(properties) {
         return {
-            features: [],
-            instancePositions: [],
-            group: {
-                color: feature.getProperties()["colour"]
-            },
+            color: properties["colour"]
         }
     }
 
-    getFeatureRadius(feature) {
+    getFeatureId(properties) {
+        return properties["osm_id"] as number
+    }
+
+    // initializeLineFeatureInTile(feature: Feature) {
+    //     return {
+    //         features: [],
+    //         instancePositions: [],
+    //         group: {
+    //             color: feature.getProperties()["colour"]
+    //         },
+    //     }
+    // }
+
+    getFeatureRadius(properties) {
         return 2
     }
-    onGeometryCreated(geometry, feature) {
+    onGeometryCreated(geometry, properties) {
 
     }
 
-    getFeatures(vectorSource: CustomVectorSource): Feature<LineString | MultiLineString>[] {
-        return vectorSource.getFeatures().filter((f) => f.getProperties()["is_closed"] == false) as Feature<LineString | MultiLineString>[]
+    filterFeatureCondition(properties) {
+        return properties["is_closed"] == false
     }
+
+    // getFeatures(vectorSource: CustomVectorSource): Feature<LineString | MultiLineString>[] {
+    //     return vectorSource.getFeatures().filter((f) => f.getProperties()["is_closed"] == false) as Feature<LineString | MultiLineString>[]
+    // }
 
     // addFeaturesInMesh_(new_features: Array<Feature> = []) {
 
@@ -215,9 +230,9 @@ export class SubwayLineLineStringLayer extends TubeLineStringLayer<FeatureInTile
             lights: true, // Enable lighting
             side: DoubleSide
         });
+
         material.uniforms.roughness.value = 0.5;
         material.uniforms.metalness.value = 0.5;
-        // material.uniforms.uFeatureUidSelected = { value: undefined }
 
         material.onBeforeCompile = (shader) => {
 

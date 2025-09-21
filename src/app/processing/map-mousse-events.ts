@@ -92,20 +92,22 @@ export class MapMousseEvents {
         //     pickOptions.raycaster = raycaster
         //     console.log(newMapCoord, pointElevation, "newMapCoord")
         // }
-        const where = this.instance.getObjects()
-        this.instance.scene.traverseVisible((object) => {
-            if (object instanceof Object3D && where.findIndex((o) => o.id === object.id) == -1) {
-                where.push(object)
-            }
-        })
-        pickOptions.where = where
+        // const where = this.instance.getObjects()
+        // this.instance.scene.traverseVisible((object) => {
+        //     if (object instanceof Object3D && where.findIndex((o) => o.id === object.id) == -1) {
+        //         where.push(object)
+        //     }
+        // })
+        // pickOptions.where = where
         const map_pick_result = this.instance.pickObjectsAt(evt, pickOptions)
         if (map_pick_result.length == 0) {
             return
         }
 
         const mousePositionInMap: Vector3 = map_pick_result[0].point
-
+        // this.featuresStoreService.getBuildingHeightAtPoint(new Vec2(mousePositionInMap.x, mousePositionInMap.y)).then((height) => {
+        //     console.log(height, "building height")
+        // })
         // console.log(map_pick_result, "map_pick_result")
         // @ts-expect-error
         if (map_pick_result.filter((res) => res.featureUid).length > 0) {
