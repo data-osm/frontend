@@ -1,30 +1,42 @@
 import { ReplaySubject } from "rxjs/internal/ReplaySubject";
-import { Instance, Map as Giro3DMap, OLUtils, OrbitControls, tile } from "../giro-3d-module";
+import { Instance, Map as Giro3DMap, OLUtils, OrbitControls, tile, Coordinates, Extent, PoolWorker } from "../giro-3d-module";
 import { fromInstanceGiroEvent } from "../shared/class/fromGiroEvent";
-import { concatMap, debounceTime, delay, filter, last, map, mergeAll, retryWhen, map as rxjsMap, shareReplay, switchMap, take, takeUntil, takeWhile, tap, withLatestFrom } from "rxjs/operators"
-import { Box3, Box3Helper, BoxGeometry, ClampToEdgeWrapping, DataArrayTexture, ImageLoader, LinearFilter, LinearMipmapLinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, NearestFilter, PerspectiveCamera, RedFormat, RepeatWrapping, RGBAFormat, SRGBColorSpace, TextureLoader, TypedArray, UnsignedByteType, Vector2, Vector3 } from "three";
+import { concatMap, debounceTime, delay, distinctUntilChanged, filter, last, map, mergeAll, retryWhen, map as rxjsMap, shareReplay, startWith, switchMap, take, takeUntil, takeWhile, tap, throttleTime, withLatestFrom } from "rxjs/operators"
+import { Box3, Box3Helper, BoxGeometry, BoxHelper, ClampToEdgeWrapping, Color, DataArrayTexture, DirectionalLight, ImageLoader, Line, LinearFilter, LinearMipmapLinearFilter, LinearMipmapNearestFilter, LinearSRGBColorSpace, Matrix4, Mesh, MeshBasicMaterial, MeshStandardMaterial, NearestFilter, PerspectiveCamera, RedFormat, RepeatWrapping, RGBAFormat, RGBIntegerFormat, SRGBColorSpace, TextureLoader, TypedArray, UnsignedByteType, Vector2, Vector3 } from "three";
 import { createXYZ } from "ol/tilegrid";
 import { CartoHelper } from "../../helper/carto.helper";
 import { Projection } from "ol/proj";
-import { Feature, Geometry, MVT, TileState, VectorTileSource } from "../ol-module";
+import { Feature, Geometry, getCenter, MVT, TileState, VectorTileSource } from "../ol-module";
 import { environment } from "../../environments/environment";
 import { TileCoord } from "ol/tilecoord";
 import { BuildingLayer } from "./buildings";
 import { TreeLayer } from "./trees";
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
-import { BehaviorSubject, combineLatest, forkJoin, from, interval, merge, Observable, of, Subject, zip, map as MapRxjs } from "rxjs";
+import { BehaviorSubject, combineLatest, forkJoin, from, interval, merge, Observable, of, Subject, zip, map as MapRxjs, asyncScheduler, defer, OperatorFunction } from "rxjs";
 import { SkeletonBuilder } from 'straight-skeleton';
 import VectorRenderTile from "ol/VectorRenderTile";
-import { FeaturesStoreService } from "../data/store/features.store.service";
-import { AppInjector } from "../../helper/app-injector.helper";
-import { getUid, TileRange } from "ol";
-import { buffer, getBottomLeft, getCenter } from "ol/extent";
-import { OSMUpdateStoreService } from "../data/store/osm-update.store.service";
-import { SelectableMesh } from "./custom-mesh";
-import { BuildingProperties } from "./building/type";
+import CSM from 'three-csm';
+import { ParametersService } from "../data/services/parameters.service";
 
-const tmpBox3 = new Box3()
+import Vec2 from "./math/vector2";
+import Vec3 from "./math/vector3";
+import { AppInjector } from "../../helper/app-injector.helper";
+import { HttpClient } from "@angular/common/http";
+import { createTileStateJob, JobQueue } from "./job-queue";
+import { getBottomLeft } from "ol/extent";
+import { createListElevationWorker, getCapabilities } from "./elevation/pool";
+import { BuildingProcessingMessageMap, buildingProcessingMessageType, createBuildingProcessingWorker, createExtrudeWorker, RequestBuildingProcessing } from "./building-processing-worker/pool";
+import { StreamWorkerPool } from "./worker-pool";
+import { WireExtruded } from "./building-processing-worker/worker-packer";
+import { on } from "events";
+import { RetrieveBuilding, SourceFeature } from "./building/type";
+import { SunSystem } from "./sunSystem";
+
+const _tempCameraVec3 = new Vector3()
+const tempBox3 = new Box3()
+const tempVec3 = new Vector3()
+const temp2Vec3 = new Vector3()
 const tempVec2 = new Vector2()
 const textures = {
     "roofGeneric1Diffuse": { "url": "assets/textures/buildings/roofs/generic1_diffuse.png", "type": "image" },
@@ -32,9 +44,15 @@ const textures = {
     "roofGeneric2Diffuse": { "url": "assets/textures/buildings/roofs/generic2_diffuse.png", "type": "image" },
     "roofGeneric2Normal": { "url": "assets/textures/buildings/roofs/generic2_normal.png", "type": "image" },
 
-    "roofGeneric3Diffuse": { "url": "assets/textures/buildings/roofs/grey_roof_01_diff_1k.jpg", "type": "image" },
+    "roofGeneric3Diffuse": { "url": "assets/textures/buildings/roofs/Plastic018A_1K-JPG_Color.jpg", "type": "image" },
+    "roofGeneric3Normal": { "url": "assets/textures/buildings/roofs/Plastic018A_1K-JPG_NormalGL.png", "type": "image" },
+    "roofGeneric3Mask": { "url": "assets/textures/buildings/roofs/Plastic018A_1K-JPG_Roughness.png", "type": "image" },
+    // "roofGeneric3Diffuse": { "url": "assets/textures/buildings/roofs/Plastic001_1K-JPG_Color.jpg", "type": "image" },
+    // "roofGeneric3Normal": { "url": "assets/textures/buildings/roofs/Plastic001_1K-JPG_NormalGL.jpg", "type": "image" },
+    // "roofGeneric3Mask": { "url": "assets/textures/buildings/roofs/Plastic001_1K-JPG_Roughness.jpg", "type": "image" },
+    // "roofGeneric3Diffuse": { "url": "assets/textures/buildings/roofs/grey_roof_01_diff_1k.jpg", "type": "image" },
     // "roofGeneric3Diffuse": { "url": "assets/textures/buildings/roofs/generic3_diffuse.png", "type": "image" },
-    "roofGeneric3Normal": { "url": "assets/textures/buildings/roofs/grey_roof_01_nor_dx_1k.jpg", "type": "image" },
+    // "roofGeneric3Normal": { "url": "assets/textures/buildings/roofs/grey_roof_01_nor_dx_1k.jpg", "type": "image" },
     // "roofGeneric3Normal": { "url": "assets/textures/buildings/roofs/generic3_normal.png", "type": "image" },
     "roofGeneric4Diffuse": { "url": "assets/textures/buildings/roofs/generic4_diffuse.png", "type": "image" },
     "roofGeneric4Normal": { "url": "assets/textures/buildings/roofs/generic4_normal.png", "type": "image" },
@@ -80,12 +98,18 @@ const textures = {
     "facadeBrickWallMask": { "url": "assets/textures/buildings/facades/brick_wall_mask.png", "type": "image" },
     "facadeBrickWindowDiffuse": { "url": "assets/textures/buildings/facades/brick_window_diffuse.png", "type": "image" },
 
+
+    "facadePlasterWallDiffuse": { "url": "assets/textures/buildings/facades/plastered_wall_02_diff_1k.jpg", "type": "image" },
+    "facadePlasterWallNormal": { "url": "assets/textures/buildings/facades/plastered_wall_02_nor_gl_1k.jpg", "type": "image" },
+    "facadePlasterWallMask": { "url": "assets/textures/buildings/facades/plastered_wall_02_arm_1k.png", "type": "image" },
+
     "facadeBrickWindowNormal": { "url": "assets/textures/buildings/facades/brick_window_normal.png", "type": "image" },
     "facadeBrickWindowMask": { "url": "assets/textures/buildings/facades/brick_window_mask.png", "type": "image" },
-    "facadePlasterWallDiffuse": { "url": "assets/textures/buildings/facades/plaster_wall_diffuse.png", "type": "image" },
-    "facadePlasterWallNormal": { "url": "assets/textures/buildings/facades/plaster_wall_normal.png", "type": "image" },
+    // "facadePlasterWallDiffuse": { "url": "assets/textures/buildings/facades/plaster_wall_diffuse.png", "type": "image" },
+    // "facadePlasterWallNormal": { "url": "assets/textures/buildings/facades/plaster_wall_normal.png", "type": "image" },
+    // "facadePlasterWallMask": { "url": "assets/textures/buildings/facades/plaster_wall_mask.png", "type": "image" },
 
-    "facadePlasterWallMask": { "url": "assets/textures/buildings/facades/plaster_wall_mask.png", "type": "image" },
+
     "facadePlasterWindowDiffuse": { "url": "assets/textures/buildings/facades/plaster_window_diffuse.png", "type": "image" },
     "facadePlasterWindowNormal": { "url": "assets/textures/buildings/facades/plaster_window_normal.png", "type": "image" },
     "facadePlasterWindowMask": { "url": "assets/textures/buildings/facades/plaster_window_mask.png", "type": "image" },
@@ -124,7 +148,7 @@ const buildingTextures = [
 
     textures['roofGeneric3Diffuse'],
     textures['roofGeneric3Normal'],
-    textures['roofCommonMask'],
+    textures['roofGeneric3Mask'],
     textures['noGlow'],
 
     textures['roofGeneric4Diffuse'],
@@ -195,7 +219,6 @@ const buildingTextures = [
     textures['facadePlasterWindowDiffuse'],
     textures['facadePlasterWindowNormal'],
     textures['facadePlasterWindowMask'],
-
     textures['window1Glow'],
 
     textures['facadeWoodWallDiffuse'],
@@ -220,10 +243,10 @@ const buildingTextures = [
 
 ]
 const noiseTextureUrl = "assets/textures/noise/noise.png"
+
+
 export class GroundTileProcessing {
-    // featuresStoreService: FeaturesStoreService = AppInjector.get(FeaturesStoreService);
-    // osmUpdateStoreService: OSMUpdateStoreService = AppInjector.get(OSMUpdateStoreService);
-    // threeGlbLoaded:Sub
+
     instance: Instance
     map: Giro3DMap
     controls: OrbitControls
@@ -237,19 +260,39 @@ export class GroundTileProcessing {
 
     buildingLayer: BuildingLayer
     treeLayer: TreeLayer
+    capabilities: any
 
     // private loader: TextureLoader = new TextureLoader();
     private loader = new ImageLoader();
+    csm: CSM
+    parametersService: ParametersService
+    sunSystem: SunSystem
+
+    buildingProcessingWorker: StreamWorkerPool<buildingProcessingMessageType, BuildingProcessingMessageMap>
+    //@ts-expect-error
+    worker: StreamWorkerPool
+
+    requestTile: (b: Array<RequestBuildingProcessing>) => void
 
     constructor(
         map: Giro3DMap,
+        parametersService: ParametersService,
+        sunSystem: SunSystem,
+        csm: CSM
     ) {
+        this.sunSystem = sunSystem
+        this.parametersService = parametersService
+
+        this.buildingProcessingWorker = new StreamWorkerPool<buildingProcessingMessageType, BuildingProcessingMessageMap>({ createWorker: createBuildingProcessingWorker });
+
+        this.worker = new StreamWorkerPool({ createWorker: createExtrudeWorker, concurrency: 2 });
 
         this.map = map
         this.instance = map["_instance"]
         this.controls = this.instance.view.controls as OrbitControls
+        this.buildingLayer = new BuildingLayer(this.map, this.vectorTileSource, csm, this.sunSystem)
 
-        this.buildingLayer = new BuildingLayer(this.map, this.vectorTileSource)
+
 
         const dracoLoader = new DRACOLoader()
         dracoLoader.setDecoderPath('assets/draco/')
@@ -257,26 +300,182 @@ export class GroundTileProcessing {
         const gltfLoader = new GLTFLoader()
         gltfLoader.setDRACOLoader(dracoLoader)
 
-        let threeGlbLoaded = false
-        gltfLoader.load(
-            'assets/models/tree/tree.glb',
-            (gltf) => {
-                threeGlbLoaded = true
-                this.treeLayer = new TreeLayer(map = this.map, gltf)
-            }
-        )
+        const treeGltf$ = defer(() =>
+            new Observable<GLTF>((observer) => {
+                const loader = gltfLoader; // ton instance existante
+                loader.load(
+                    'assets/models/tree/tree.glb',
+                    (gltf) => { observer.next(gltf); observer.complete(); },
+                    undefined,
+                    (err) => observer.error(err)
+                );
+            })
+        ).pipe(
+            take(1),
+            shareReplay(1)
+        );
+        treeGltf$.subscribe((gltf) => {
+            this.treeLayer = new TreeLayer((this.map), gltf);
+        });
+        // will also init skeleton
+        // (this.worker.queue('ExtrudeBuildings', []) as PoolWorker);
 
-        fromInstanceGiroEvent(this.instance, "after-camera-update").pipe(
-            // debounceTime(100),
-            filter(() => threeGlbLoaded),
-            withLatestFrom(this.loadBuildingTextures()),
-            // withLatestFrom(from("undefined").pipe(take(1))),
-            withLatestFrom(from(SkeletonBuilder.init()).pipe(take(1))),
-            rxjsMap(([[instanceCamera, texture], skeleton]) => {
+        this.buildingProcessingWorker.queue("buildingProcessing", { type: 'config', concurrency: 8 });
 
 
-                this.buildingLayer.setBuildingTexture(texture.buildingTexture, texture.noiseTexture)
 
+        let nextId = 1;
+        const pending = new Map<number, string>();   // jobId -> tileId "z/x/y"
+        const inflightByTile = new Map<string, number>(); // tileId -> jobId
+        const cachedTiles = new Map<string, string>();
+
+        const inflightByTileExtent = new Map<string, Extent>();
+
+        const failedTile = new Set<string>();
+
+        const onTIleFailed = (id: number) => {
+            const tileId = pending.get(id);
+            pending.delete(id);
+            inflightByTile.delete(tileId);
+            failedTile.add(tileId)
+        }
+
+        const onTileSucceed = (id: number) => {
+            const tileId = pending.get(id);
+            // console.log("onTileSucceed", tileId, pending.delete(id))
+            pending.delete(id);
+            inflightByTile.delete(tileId);
+            cachedTiles.set(tileId, tileId);
+        }
+
+        // const abortTileProcessing = (tileIds: number[]) => {
+        //     // uniqueWorker.postMessage({
+        //     //     id: null,
+        //     //     payload: { "exec": "abort", tiles: [], tilesToAbort: [1] },
+        //     //     type: "buildingProcessing",
+        //     // }, [])
+        //     // return
+        //     const workers = [...this.worker._workers];
+        //     // for (const w of workers) {
+        //     //     (w.worker as PoolWorker).postMessage({
+        //     //         id: null,
+        //     //         payload: { "exec": "abort", tiles: [], "tilesToAbort": tileIds },
+        //     //         type: "buildingProcessing",
+        //     //     }, [])
+        //     // }
+        //     for (const tileId of tileIds) {
+        //         const id = pending.get(tileId);
+        //         pending.delete(tileId);
+        //         inflightByTile.delete(id);
+        //     }
+        //     if (workers.length > 0) {
+        //         (workers[0].worker as PoolWorker).postMessage({
+        //             id: null,
+        //             payload: { "exec": "abort", tiles: [], "tilesToAbort": tileIds },
+        //             type: "buildingProcessing",
+        //         }, [])
+        //     }
+
+        // }
+
+        this.requestTile = (batchTile) => {
+
+            batchTile.forEach(tile => {
+                const tileId = `${tile.z}/${tile.x}/${tile.y}`;
+                pending.set(tile.id, tileId);
+
+            })
+            // console.log(batchTile.length, 'tiles to fetch');
+
+            this.buildingProcessingWorker.queue("buildingProcessing", { type: 'fetch', batchTile, capabilities: this.capabilities }).addEventListener('message', (e) => {
+                const data: {
+                    type: string
+                    id?: number
+                    tileResult: RetrieveBuilding[],
+                    // @ts-expect-error
+                } = e.data.payload
+
+                // Tile have no features
+                if (!Boolean(data.tileResult)) {
+                    onTIleFailed(data.id)
+                    return
+                } else {
+                    const tiles = data.tileResult
+                    const tilesToLoad = []
+                    for (const tile of tiles) {
+                        if (!pending.has(tile.id)) {
+                            continue
+                        }
+                        onTileSucceed(tile.id)
+                        tilesToLoad.push(tile)
+                    }
+                    this.buildingLayer.loadFeatures(tilesToLoad);
+                }
+
+            })
+
+
+        }
+
+
+
+        const computeVisibleTiles = (olExtent: Extent, z: number) => {
+            const tiles: Array<{ z: number; x: number; y: number }> = [];
+            this.vectorTileSource.tileGrid.forEachTileCoord(olExtent as any, z, (tc) => {
+                tiles.push({ z: tc[0], x: tc[1], y: tc[2] });
+            });
+            return tiles;
+        }
+
+        function tilePriority(t: { z: number; x: number; y: number }, c: { x: number; y: number }) {
+            const R = 6378137, n = 2 ** t.z;
+            const fx = (t.x + 0.5) / n, fy = (t.y + 0.5) / n;
+            const mx = (fx - 0.5) * 2 * Math.PI * R;
+            const my = (0.5 - fy) * 2 * Math.PI * R;
+            const dx = mx - c.x, dy = my - c.y;
+            return dx * dx + dy * dy;
+        }
+
+        const getCamPos = () => {
+            this.instance.view.camera.getWorldPosition(_tempCameraVec3);
+            return new Vec3(_tempCameraVec3.x, _tempCameraVec3.y, _tempCameraVec3.z);
+        };
+
+        const elevationCapabilities$ = from(getCapabilities()).pipe(shareReplay({ bufferSize: 1, refCount: true }));
+        const textures$ = this.loadBuildingTextures().pipe(shareReplay({ bufferSize: 1, refCount: true }));
+        const skeleton$ = from(SkeletonBuilder.init()).pipe(take(1), shareReplay({ bufferSize: 1, refCount: true }));
+
+        const cameraPos$ = fromInstanceGiroEvent(this.instance, "after-camera-update").pipe(
+            // filter(() => threeGlbLoaded),
+            rxjsMap((ev) => {
+                // const controlTarget = new Vec3(this.controls.target.x, this.controls.target.y, this.controls.target.z)
+                return getCamPos()
+            }),
+            debounceTime(150),
+
+        );
+
+        let forceInit: Vec3 = getCamPos()
+        forceInit.x = forceInit.x + 200
+
+        textures$.subscribe((texture) => {
+            this.buildingLayer.setBuildingTexture(texture.buildingTexture, texture.noiseTexture)
+        })
+        elevationCapabilities$.subscribe((caps) => {
+            this.capabilities = caps
+        })
+        let cameraLoading = 0
+        cameraPos$.pipe(
+            withLatestFrom(elevationCapabilities$),
+            withLatestFrom(treeGltf$),
+            withLatestFrom(textures$),
+            switchMap(() => cameraPos$.pipe(startWith(forceInit))),
+            // distinctUntilChanged((prev, curr) => {
+            //     const distance = Math.abs(Vec3.distance(prev, curr))
+            //     return distance < 100
+            // }),
+            rxjsMap(() => {
+                // console.log("cameraMoved")
                 const camera = this.instance.view.camera as PerspectiveCamera
                 const focalLength = camera.position.distanceTo(this.controls.target);
                 const fov = camera.fov * (Math.PI / 180);
@@ -293,69 +492,93 @@ export class GroundTileProcessing {
                     target_resolution
                 );
                 this.buildingLayer.currentZoomChanged(z)
-                this.treeLayer.currentZoomChanged(z)
+                // this.treeLayer.currentZoomChanged(z)
+
                 return [z, mapWith]
             }),
             filter((zAndMapWith) => zAndMapWith[0] >= 16),
+            filter(() => cameraLoading === 0),
             rxjsMap((zAndMapWith) => {
-                const mapExtent = CartoHelper.getMapExtent(this.map)
-
-                if (mapExtent == undefined) {
-                    throw "Could not compute the map extent";
+                cameraLoading = 1
+                const mapWith = zAndMapWith[1]
+                let mapBoundingBox = CartoHelper.getVisibleTileBoundingBox(this.map, 10000)
+                if (mapBoundingBox.isEmpty()) {
+                    cameraLoading = 0
+                    throw new Error("Map bounding box is undefined when updating sun position")
                 }
 
-                const olExtent = OLUtils.toOLExtent(mapExtent);
-                const targetProjection = new Projection({ code: "EPSG:3857" });
-                let mapWith = zAndMapWith[1]
-
-                let target_resolution = mapWith / this.map["_instance"].domElement.width
-
-                // this.vectorTileSource.
-                const tilesToLoad: VectorRenderTile[] = []
-                this.vectorTileSource.tileGrid.forEachTileCoord(olExtent, 16, (tileCoord: TileCoord) => {
-                    const z = tileCoord[0]
-                    const x = tileCoord[1]
-                    const y = tileCoord[2]
-
-
-                    const currentTile = this.vectorTileSource.getTile(z, x, y, target_resolution, targetProjection)
-                    // currentTile.
-                    if (currentTile.getState() == TileState.IDLE) {
-                        currentTile.getSourceTiles()
-                        tilesToLoad.push(currentTile)
-                    }
-                })
-
-                if (tilesToLoad.length > 0) {
-                    const getTileState_ = (): { tile: VectorRenderTile, state: number }[] => {
-                        return tilesToLoad.map((tile) => ({ tile, state: tile.getState() }));
-                    };
-
-                    const getTileState = () => {
-                        return tilesToLoad.map((tile) => tile.getState())
-                    };
-                    const getTileState$ = new BehaviorSubject(getTileState());
-
-                    // Periodically update the BehaviorSubject with new tile states
-                    const updateTileStateSubscription = interval(500).subscribe(() => {
-                        getTileState$.next(getTileState());
-                    });
-
-                    getTileState$
-                        .pipe(
-                            MapRxjs(values => values.every(value => value != TileState.LOADING && value != TileState.IDLE)),
-                            takeWhile(allLoaded => !allLoaded, true),
-                            filter((allLoaded) => allLoaded),
-
-                        ).subscribe(() => {
-
-                            this.buildingLayer.extentLoadEnd(this.vectorTileSource, tilesToLoad)
-
-                            updateTileStateSubscription.unsubscribe(); // Unsubscribing interval when condition met
-                        })
-
-
+                mapBoundingBox.clone().getSize(tempVec3)
+                const maxBoundingBoxSize = Math.max(tempVec3.x, tempVec3.y)
+                if (maxBoundingBoxSize < 10000) {
+                    mapBoundingBox = mapBoundingBox.expandByScalar((10000 - maxBoundingBoxSize) / 2)
                 }
+                //  else {
+
+                //     // mapBoundingBox = clampBoxByViewDepth(mapBoundingBox.clone(), (this.map.instance.view.camera as PerspectiveCamera), 10000)
+                // }
+                const controlTarget = (map.instance.view.controls as OrbitControls).target
+                // 10000
+
+                const mapExtent = Extent.fromCenterAndSize("EPSG:3857", { x: controlTarget.x, y: controlTarget.y }, 10000, 10000)
+                // const mapExtent = Extent.fromBox3("EPSG:3857", mapBoundingBox);
+                //@ts-ignore
+                const olExtent = OLUtils.toOLExtent(mapExtent) as Extent;
+
+
+                const center3857 = { x: this.controls.target.x, y: this.controls.target.y }
+
+                const visibleTiles = computeVisibleTiles(olExtent, 16)
+
+                // // abortTileProcessing
+                // const inflightTileIds = visibleTiles.filter(({ z, x, y }, index) => {
+                //     const tileId = `${z}/${x}/${y}`;
+                //     // console.log("ici", inflightByTile.has(tileId), inflightByTileExtent.has(tileId))
+                //     return inflightByTile.has(tileId) && inflightByTileExtent.has(tileId);
+                // }).filter(({ z, x, y }) => {
+                //     const tileId = `${z}/${x}/${y}`;
+                //     const bool = !mapExtent.intersectsExtent(inflightByTileExtent.get(tileId))
+                //     // console.log("ici", bool)
+                //     return bool
+                // }).map(({ z, x, y }, index) => {
+                //     const tileId = `${z}/${x}/${y}`;
+                //     // parmis ceux ci encore en loading, quelles sont ceux qui ne sont pas la nouvelle vue => abort
+
+                //     return inflightByTile.get(tileId)
+                // })
+                // if (inflightByTile.size > 0) {
+                //     console.log(inflightByTile.size, "tiles to abort")
+                //     // abortTileProcessing(inflightTileIds)
+                // }
+
+                let fresh = visibleTiles.filter(({ z, x, y }) => {
+                    const tileId = `${z}/${x}/${y}`;
+                    return !inflightByTile.has(tileId) && !cachedTiles.has(tileId);
+                });
+
+                if (fresh.length == 0) {
+                    cameraLoading = 0
+                    return
+                }
+
+                fresh.sort((a, b) => tilePriority(a, center3857) - tilePriority(b, center3857));
+
+                const batch = fresh.map(({ z, x, y }) => {
+                    const tileId = `${z}/${x}/${y}`;
+                    const id = nextId++;
+                    inflightByTile.set(tileId, id);
+                    const url = "https://buildings.dataosm.info/maps/osm_data/" + z + "/" + x + "/" + y + ".pbf"
+                    const tileExtent = this.vectorTileSource.tileGrid.getTileCoordExtent([z, x, y])
+                    const tileBottomLeft = getBottomLeft(this.vectorTileSource.tileGrid.getTileCoordExtent([z, x, y]))
+
+                    inflightByTileExtent.set(tileId, OLUtils.fromOLExtent(tileExtent, "EPSG:3857"));
+                    return { id, z, x, y, url, tileExtent, tileBottomLeft: [tileBottomLeft[0], tileBottomLeft[1]] as [number, number] };
+                });
+                this.requestTile(batch);
+                cameraLoading = 0
+
+
+
+
             }),
             retryWhen((errors) => {
                 return errors.pipe(
@@ -367,23 +590,54 @@ export class GroundTileProcessing {
         )
             .subscribe()
 
-        // this.vectorTileSource.on("tileloaderror", () => {
-        //     this.tileLoad$.next(undefined)
-        // })
-
-        // this.vectorTileSource.on("tileloadend", (event: any) => {
 
 
-        // })
     }
+
+
+
+
 
     loadBuildingTextures() {
         const textureSWidth = 512
         const textureSHeight = 512
+
         const depth = textureSWidth * textureSHeight * Object.keys(buildingTextures).length * 4;  // RGBA, 4 channels per pixel
         const textureData = new Uint8Array(depth);
-
         const loadTextures$: Array<Observable<ImageData>> = []
+
+        // const maskDepth = textureSWidth * textureSHeight * Object.keys(buildingTextures).length / 4 * 4;  // one mask per 4 images and RGBA, 4 channels per pixel
+        // const loadMaskTextures$: Array<Observable<ImageData>> = []
+        // const maskTextureData = new Uint8Array(maskDepth);
+
+        // for (let index = 0; index < Object.keys(buildingTextures).length / 4; index++) {
+        //     const position = (index * 4) + 2
+        //     const element = buildingTextures[position];
+        //     loadMaskTextures$.push(
+        //         of(element).pipe(
+        //             switchMap((element) => {
+        //                 return from(this.loader.loadAsync(element.url)).pipe((map((image) => { return { image, index } })))
+        //             }),
+        //             map((parameter) => {
+        //                 const canvas = document.createElement('canvas');
+        //                 canvas.width = textureSWidth;
+        //                 canvas.height = textureSHeight;
+        //                 const context = canvas.getContext('2d');
+        //                 context.drawImage(parameter.image, 0, 0);
+        //                 const imageData = context.getImageData(0, 0, textureSWidth, textureSHeight);
+        //                 maskTextureData.set(
+        //                     imageData.data,
+        //                     parameter.index * textureSWidth * textureSHeight * 4
+        //                 );
+
+
+        //                 return imageData
+        //             }),
+        //             last(), // load only once and replay the same last response
+        //         )
+        //     )
+        // }
+
         for (let index = 0; index < buildingTextures.length; index++) {
             const element = buildingTextures[index];
 
@@ -417,24 +671,41 @@ export class GroundTileProcessing {
 
         return combineLatest(loadTextures$).pipe(
             last(),// load only once and replay the same last response
+            // withLatestFrom(...loadMaskTextures$),
             withLatestFrom(loader.loadAsync(noiseTextureUrl)),
             map(([_, noiseTexture]) => {
                 const buildingTexture = new DataArrayTexture(textureData, textureSWidth, textureSHeight, buildingTextures.length);
                 buildingTexture.format = RGBAFormat;
-                buildingTexture.internalFormat = "RGBA8"
-                buildingTexture.type = UnsignedByteType;
+                // buildingTexture.internalFormat = "RGBA8"
+                // buildingTexture.type = UnsignedByteType;
                 buildingTexture.colorSpace = SRGBColorSpace;
                 buildingTexture.generateMipmaps = true;
-                buildingTexture.magFilter = LinearFilter
+                buildingTexture.magFilter = LinearFilter;
+                buildingTexture.minFilter = LinearMipmapLinearFilter;
+                // buildingTexture.minFilter = LinearMipmapLinearFilter;
                 buildingTexture.wrapS = RepeatWrapping
                 buildingTexture.wrapT = RepeatWrapping
-                buildingTexture.minFilter = LinearMipmapLinearFilter;
                 // buildingTexture.flipY = true
                 buildingTexture.needsUpdate = true;
-                buildingTexture.anisotropy = 16;
+                buildingTexture.anisotropy = this.instance.renderer.capabilities.getMaxAnisotropy();
+
+                // const maskTexture = new DataArrayTexture(maskTextureData, textureSWidth, textureSHeight, buildingTextures.length / 4);
+                // maskTexture.colorSpace = SRGBColorSpace;
+                // // buildingTexture.format = RGBAFormat;
+                // // buildingTexture.type = UnsignedByteType;
+                // // maskTexture.generateMipmaps = true;
+                // maskTexture.magFilter = LinearFilter;
+                // maskTexture.minFilter = LinearFilter;
+                // // maskTexture.minFilter = LinearMipmapLinearFilter;
+                // maskTexture.wrapS = RepeatWrapping
+                // maskTexture.wrapT = RepeatWrapping
+                // // maskTexture.flipY = true
+                // maskTexture.needsUpdate = true;
+                // maskTexture.anisotropy = this.instance.renderer.capabilities.getMaxAnisotropy();
+
 
                 noiseTexture.format = RGBAFormat;
-                noiseTexture.internalFormat = "RGBA8"
+                // noiseTexture.internalFormat = "RGBA8"
                 noiseTexture.type = UnsignedByteType;
                 noiseTexture.colorSpace = SRGBColorSpace;
                 // noiseTexture.generateMipmaps = true;
@@ -453,4 +724,7 @@ export class GroundTileProcessing {
 
 
     }
+
+
+
 }

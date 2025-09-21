@@ -1,23 +1,25 @@
-<h1 mat-dialog-title class="primaryColorBG white">
-  <mat-icon class="icon_header" style="font-size: 23px;">download</mat-icon>
-  <i class="fa fa-times-circle close" (click)="closeModal()"></i>
-  {{ 'dowloadLayers.title' | translate }} sur {{parameter.name}}
+<h1 mat-dialog-title>
+  <mat-icon class="dialog-title-start-icon">download</mat-icon>
+  <span class="dialog-title-text"> {{ 'dowloadLayers.title' | translate }} sur {{parameter.name}} </span>
+  <i class="fa fa-times-circle dialog-title-end-icon" (click)="closeModal()"></i>
 </h1>
 
-<div mat-dialog-content style="background: #eeeeee;align-items: stretch;" fxLayout="row wrap" fxLayoutGap="15px">
+<div mat-dialog-content>
+  <div fxLayout="row wrap" fxLayoutGap="15px" style="background: #eeeeee;align-items: stretch;">
+    <app-card-download-layer *ngFor="let layer_name of objectKeys.keys(data)" [layer]="data[layer_name]"
+      [layer_name]="layer_name" [provider_vector_id]="parameter.provider_vector_id" [table_id]="parameter.table_id"
+      [boundary_name]="parameter.name">
+    </app-card-download-layer>
 
-  <app-card-download-layer *ngFor="let layer_name of objectKeys.keys(data)" [layer]="data[layer_name]"
-    [layer_name]="layer_name" [provider_vector_id]="parameter.provider_vector_id" [table_id]="parameter.table_id"
-    [boundary_name]="parameter.name">
-  </app-card-download-layer>
-
-  <div style="margin-top: 15px;">
-    <div>Un point licence important… donc nous soulignons et repètons:</div>
-    <div>ces données sont sous Licence ODbL,</div>
-    <div>elles doivent rester en ODbL, même si elles sont republiées ailleurs,
-      toutes les améliorations, corrections, combinaisons doivent aussi être publiées et en ODbL.</div>
+    <div style="margin-top: 15px;">
+      <div>Un point licence important… donc nous soulignons et repètons:</div>
+      <div>ces données sont sous Licence ODbL,</div>
+      <div>elles doivent rester en ODbL, même si elles sont republiées ailleurs,
+        toutes les améliorations, corrections, combinaisons doivent aussi être publiées et en ODbL.</div>
+    </div>
   </div>
 </div>
+
 
 <div mat-dialog-actions>
   <img src="assets/icones/osm.svg" width="25px" alt="" style="    vertical-align: middle;">

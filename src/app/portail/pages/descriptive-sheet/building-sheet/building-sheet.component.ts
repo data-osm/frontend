@@ -14,7 +14,6 @@ import { DescriptiveSheetComponent, FeatureForSheet } from '../descriptive-sheet
 import { catchError, EMPTY, map, Observable, ReplaySubject, Subject, take, takeUntil, tap } from 'rxjs';
 import { NotifierService } from "angular-notifier";
 import { AttributeInterface, ConfigTagsOsm } from '../osm-sheet/osm-sheet.component';
-import { MatLegacyChip as MatChip, MatLegacyChipList as MatChipList } from '@angular/material/legacy-chips';
 import { BackendApiService } from '../../../../services/backend-api/backend-api.service';
 import { HttpClient } from '@angular/common/http';
 import { manageDataHelper } from '../../../../../helper/manage-data.helper';
@@ -25,13 +24,13 @@ import { buffer, getCenter } from 'ol/extent';
 import { FeaturesStoreService } from '../../../../data/store/features.store.service';
 import { ParametersService } from '../../../../data/services/parameters.service';
 import { BuildingProperties } from '../../../../processing/building/type';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { environment } from '../../../../../environments/environment';
 import { OsmService } from '../../../../data/services/osm.service';
 import { OsmLoginComponent } from '../../../../modal/osm-login/osm-login.component';
 import { MatomoTracker } from 'ngx-matomo-client';
 import { formatColor, formatFeatureAttributes, getFields, getOsmLink } from './utils';
 import { OSMUpdateStoreService } from '../../../../data/store/osm-update.store.service';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-building-sheet',
@@ -270,7 +269,6 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
     this.onInitInstance()
     for (let index = 0; index < this.dialog.openDialogs.length; index++) {
       const elementDialog = this.dialog.openDialogs[index];
-
       if (elementDialog.componentInstance instanceof DescriptiveSheetComponent && document.getElementById(elementDialog.id) && document.getElementById(elementDialog.id).parentElement) {
         elementDialog.updateSize(
           (window.innerWidth / 3) + "px",
@@ -320,7 +318,7 @@ export class BuildingSheetComponent implements OnInit, OnChanges {
               // @ts-expect-error 
               this._oldModalContentHeight = elementDialog._containerInstance._elementRef.nativeElement.querySelector(".building-descriptive-sheet-content").clientHeight
               // @ts-expect-error
-              elementDialog._containerInstance._elementRef.nativeElement.querySelector(".building-descriptive-sheet-content").style.setProperty("height", (window.innerHeight - 80) + "px", "important")
+              elementDialog._containerInstance._elementRef.nativeElement.querySelector(".building-descriptive-sheet-content").style.setProperty("height", (window.innerHeight - 50) + "px", "important")
             } catch (error) {
 
             }

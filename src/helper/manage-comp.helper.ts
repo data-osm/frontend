@@ -1,7 +1,7 @@
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SocialShareComponent } from '../app/social-share/social-share.component'
 import { Injectable, ComponentFactoryResolver, ApplicationRef, Injector, EmbeddedViewRef, ComponentRef } from '@angular/core';
-import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
+// import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
 import { AddGeosignetComponent } from '../app/portail/pages/context-menu/add-geosignet/add-geosignet.component'
 import { AddStyle, DataForPreview, groupCarteInterface, groupThematiqueInterface, Style, VectorProvider } from '../app/type/type';
 import { AddVectorProviderComponent } from '../app/admin/modules/provider/pages/add-vector-provider/add-vector-provider.component';
@@ -16,6 +16,7 @@ import { Map } from 'ol';
 import { CartoHelper } from './carto.helper';
 import LayerGroup from 'ol/layer/Group';
 import { DescriptiveSheetComponent, DescriptiveSheetData } from '../app/portail/pages/descriptive-sheet/descriptive-sheet.component';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 /**
  * Open some componenents like social share, loading,modal etc...
  * Dynamically add component in html

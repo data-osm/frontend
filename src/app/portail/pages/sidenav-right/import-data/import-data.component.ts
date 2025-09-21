@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
-import { Coordinates, Map, OrbitControls, PickObjectsAtOptions } from "../../../../giro-3d-module"
+import { Coordinates, COPCSource, Map, OrbitControls, PickObjectsAtOptions, PointCloud, PointCloudAttribute, PointCloudMetadata } from "../../../../giro-3d-module"
 import { UntypedFormGroup, UntypedFormBuilder, UntypedFormControl, Validators, AbstractControl } from '@angular/forms';
 import { delay, EMPTY, filter, forkJoin, from, fromEvent, iif, interval, map, merge, of, ReplaySubject, retryWhen, startWith, Subject, switchMap, takeUntil, takeWhile, tap } from 'rxjs';
 import * as OBC from "@thatopen/components";
@@ -9,13 +9,13 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { FeaturesStoreService } from '../../../../data/store/features.store.service';
 import * as FRAGS from "@thatopen/fragments";
 
-import COPCSource from '@giro3d/giro3d/sources/COPCSource.js';
-import PointCloud from '@giro3d/giro3d/entities/PointCloud.js';
+
+
 import { makeColorRamp } from '../../../../processing/pointClound/colormap';
-import ColorMap from '@giro3d/giro3d/core/ColorMap';
+
 import ImportIfc from '../../../../processing/ifc/importIfc';
 import ImportPointCloud from '../../../../processing/pointClound/importPointCloud';
-import { PointCloudAttribute, PointCloudMetadata } from '@giro3d/giro3d/sources/PointCloudSource';
+
 import { MatSelectionListChange } from '@angular/material/list';
 
 

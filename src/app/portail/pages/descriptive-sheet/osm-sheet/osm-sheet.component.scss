@@ -1,13 +1,13 @@
-.descriptive-sheet-body{
-  font-family:'Avenir Next Rounded Pro Regular';
+.descriptive-sheet-body {
+  font-family: "Avenir Next Rounded Pro Regular";
   font-size: 15px;
   margin-bottom: 10px;
-  .attribute{
+  .attribute {
     padding-right: 10px;
     text-align: right;
     position: relative;
-    .attribute-title{
-      font-family:'Avenir Next Rounded Pro Medium';
+    .attribute-title {
+      font-family: "Avenir Next Rounded Pro Medium";
       font-weight: bold;
       text-align: right;
       overflow-wrap: break-word;
@@ -15,34 +15,37 @@
       // hyphens: auto;
       display: block;
     }
-    .attribute-two-points{
+    .attribute-two-points {
       position: absolute;
       top: calc(50% - 10px);
       margin-left: 5px;
     }
   }
-  .attribute-value{
+  .attribute-value {
     padding-left: 5px;
   }
 }
-.descriptive-sheet-body-url{
+.descriptive-sheet-body-url {
   color: inherit;
   font-size: 16px;
   text-decoration: none;
 }
 
-.descriptive-sheet-body-url:hover{
+.descriptive-sheet-body-url:hover {
   text-decoration: underline;
 }
-.descriptive-sheet-body-display-attributes-number{
+.descriptive-sheet-body-display-attributes-number {
   font-size: 14px;
   color: inherit;
-  font-family: 'Avenir Next Rounded Pro Italic';
+  font-family: "Avenir Next Rounded Pro Italic";
   text-decoration: underline;
 }
-.descriptive-sheet-body-header-btn{
-  margin-bottom: 10px;
-  button{
+.descriptive-sheet-body-header-btn {
+  display: flex;
+  place-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+  button {
     margin-right: 5px;
     margin-left: 5px;
     // height: 50px;
@@ -51,30 +54,30 @@
     background-color: transparent;
     box-shadow: none;
   }
-  .descriptive-sheet-body-header-btn-osm{
+  .descriptive-sheet-body-header-btn-osm {
     background-color: #06aca7 !important;
   }
 }
 
-.mat-chip.mat-standard-chip.mat-chip-selected.mat-primary{
+.mat-chip.mat-standard-chip.mat-chip-selected.mat-primary {
   color: #fff !important;
 }
 
-.opening_hours{
+.opening_hours {
   margin-top: 10px;
   box-shadow: none;
-  .day{
+  .day {
     justify-content: center;
     margin-top: 10px;
     align-items: center;
   }
 }
 
-.descriptive-sheet-actions{
+.descriptive-sheet-actions {
   background-color: black !important;
 }
 
-.descriptive-sheet-content{
+.descriptive-sheet-content {
   padding-top: 5px;
   max-height: 250px !important;
   background-color: #001725 !important;

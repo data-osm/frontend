@@ -2,17 +2,16 @@
 
 
 import listElevation from "./listElevation";
+import { ElevationFeature, GeometryType } from "./pool";
 
 
 addEventListener('message', async ({ data }) => {
     // const t0 = performance.now();
     const payload = data.payload
-    await listElevation(payload.coordinates_with_index, payload.capabilities).then((result) => {
+    await listElevation(payload.features as Array<ElevationFeature>, payload.capabilities).then((result) => {
         postMessage({
             requestId: data.id,
-            payload: {
-                "elevations": result,
-            },
+            payload: result,
         });
     })
     // const t1 = performance.now();

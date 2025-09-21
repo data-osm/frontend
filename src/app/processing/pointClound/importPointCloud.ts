@@ -1,8 +1,6 @@
-import ColorMap from '@giro3d/giro3d/core/ColorMap';
-import PointCloud from '@giro3d/giro3d/entities/PointCloud';
-import COPCSource from '@giro3d/giro3d/sources/COPCSource.js';
-import { PointCloudAttribute } from '@giro3d/giro3d/sources/PointCloudSource';
-import type { Getter } from 'copc';
+
+
+import { ColorMap, COPCSource, PointCloud, PointCloudAttribute } from '../../giro-3d-module';
 import { makeColorRamp } from './colormap';
 
 function createFileGetter(file: File): (begin: number, end: number) => Promise<Uint8Array> {

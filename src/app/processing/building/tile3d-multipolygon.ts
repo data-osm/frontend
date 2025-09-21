@@ -65,11 +65,14 @@ export default class Tile3DMultipolygon {
     private cachedOMBB: OMBBResult;
     private cachedPoleOfInaccessibility: Vec3 = null;
 
-    public constructor() {
+    osmId
+    public constructor(osmId) {
+        this.osmId = osmId
     }
 
     public addRing(ring: Tile3DRing): void {
         this.rings.push(ring);
+
     }
 
     public setOMBB(ombb: OMBBResult): void {
@@ -274,9 +277,14 @@ export default class Tile3DMultipolygon {
 
         return centralEdge;
     }
-
+    skeleton
+    public setStraightSkeleton(skeleton: Skeleton) {
+        this.skeleton = skeleton
+        this.cachedStraightSkeleton = new StraightSkeletonResult(skeleton);
+    }
     public getStraightSkeleton(): StraightSkeletonResult {
         if (!this.cachedStraightSkeleton) {
+            console.log("Skeleton non généré en back", this.osmId)
             const inputRings = this.getStraightSkeletonInput();
 
             if (inputRings.length === 0) {
@@ -287,6 +295,7 @@ export default class Tile3DMultipolygon {
 
             try {
                 skeleton = SkeletonBuilder.buildFromPolygon(inputRings);
+
             } catch (e) {
                 console.error('Failed to build straight skeleton\n', e);
             }

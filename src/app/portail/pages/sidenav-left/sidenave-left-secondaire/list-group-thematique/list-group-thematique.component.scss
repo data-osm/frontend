@@ -1,80 +1,86 @@
-@import '../../../../../theme.scss';
+@import "../../../../../theme.scss";
 
-.group-select-form-option{
+.group-select-form-option {
+  color: white;
+  .mat-selected {
+    background-color: #00ada7;
     color: white;
-    .mat-selected{
-      background-color: #00ada7;
-      color: white;
-    }
+  }
 }
-.group-select-form-option:hover{
+.group-select-form-option:hover {
   background-color: #00ada75e !important;
 }
 
-.group-select-form-option.mat-selected{
+.group-select-form-option.mat-selected {
   background-color: #00ada7 !important;
   color: white !important;
 }
-::ng-deep .group-select-form-option-panel{
+::ng-deep .group-select-form-option-panel {
   margin-left: 16.5px;
   margin-top: 39px;
-  min-width: calc(100% + 10px) !important;
+  // min-width: calc(100% + 10px) !important;
   box-shadow: none !important;
   background-color: #023f5ff7;
   border-radius: 0px !important;
   border-width: 0px !important;
 }
 
-.group-select-form-ghost{
+.group-select-form-ghost {
   height: 40px;
   display: none;
 }
-.group-select-form{
-  width: 400px;
-    width: calc(100% + 10px);
-    margin-left: -5px;
-    z-index: 9;
-    // margin-top: -25px;
-    border-radius: 30px 30px 0px 0px;
-    background-color: #000;
 
-  mat-form-field{
+::ng-deep .group-select-form .mdc-text-field--filled {
+  background-color: #000;
+}
+::ng-deep .group-select-form .mat-mdc-form-field-focus-overlay {
+  background-color: #000;
+}
+.group-select-form {
+  width: 400px;
+  width: calc(100% + 10px);
+  margin-left: -5px;
+  z-index: 9;
+  // margin-top: -25px;
+  border-radius: 30px 30px 0px 0px;
+  // background-color: #000;
+
+  mat-form-field {
     width: 100%;
   }
 
-  .group-select-form-select-trigger{
+  .group-select-form-select-trigger {
     color: white;
     padding-left: 10px;
-    span{
+    span {
       font-size: 19px;
-    font-weight: bold;
+      font-weight: bold;
     }
   }
 
-  ::ng-deep .mat-form-field-wrapper{
+  ::ng-deep .mat-form-field-wrapper {
     padding-bottom: 0px;
   }
 
-  ::ng-deep .mat-form-field-underline{
+  ::ng-deep .mat-form-field-underline {
     display: none;
   }
-  ::ng-deep .mat-form-field-infix{
+  ::ng-deep .mat-form-field-infix {
     border: none;
   }
-  ::ng-deep .mat-select-arrow-wrapper{
+  ::ng-deep .mat-select-arrow-wrapper {
     transform: none;
-    .mat-select-arrow{
+    .mat-select-arrow {
       color: white;
     }
   }
 }
-.cdk-overlay-container .cdk-overlay-pane .group-select{
+.cdk-overlay-container .cdk-overlay-pane .group-select {
   height: 45px;
 }
-.list-sub-group{
+.list-sub-group {
   overflow-y: auto;
-    height: calc(100% - 20px);
-
+  height: calc(100% - 20px);
 }
 
 .couche-thematique {
@@ -95,26 +101,24 @@
     border: 0.5px solid #023f5f3d;
     box-shadow: none;
   }
-  .couche-thematique-panel-header{
+  .couche-thematique-panel-header {
     background-color: #001725;
     color: white;
   }
 
-  mat-panel-title{
+  mat-panel-title {
     // color: #fff !important;
     font-size: 16px;
     font-weight: 400;
   }
-  
-  ::ng-deep .mat-expansion-indicator::after{
+
+  ::ng-deep .mat-expansion-indicator::after {
     color: white !important;
     // color: #fff !important;
   }
 
-  ::ng-deep .mat-expansion-panel-content{
+  ::ng-deep .mat-expansion-panel-content {
     // overflow: auto;
     // background-color: $color_prim_300 !important;
   }
-
-
 }

@@ -72,12 +72,12 @@
 </ng-container>
 
 <div fxLayout fxLayoutGap="15px" fxLayoutAlign="center">
-    <button fxFlex="40%" mat-flat-button [disabled]="!osmForm.valid" class="black save-to-osm"
+    <button fxFlex="40%" mat-flat-button [disabled]="!osmForm.valid" class="blackBG save-to-osm"
         (click)="ignoreAndGoToNextFeature()">
         Ignorer et continuer
     </button>
-    <button fxFlex="40%" mat-flat-button [disabled]="!osmForm.valid || canGoToNExtFeature()[0]"
-        class="white save-to-osm" color="accent" (click)="saveAndGoToNextFeature()">
+    <button fxFlex mat-flat-button [disabled]="!osmForm.valid || canGoToNExtFeature()[0]"
+        class="white save-to-osm accentColorBG" (click)="saveAndGoToNextFeature()">
         Sauvegarder et continuer
     </button>
 </div>

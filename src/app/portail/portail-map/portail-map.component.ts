@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, NgZone, ViewChild } from '@angular/core';
 import { AbstractProfilComponent } from '../abstract-profil/abstract-profil.component';
 import { ParametersService } from '../../data/services/parameters.service';
 import { MapsService } from '../../data/services/maps.service';
@@ -15,6 +15,12 @@ import { MatSidenavContainer } from '@angular/material/sidenav';
 import { OsmBulkSaveComponent } from '../../modal/osm-bulk-save/osm-bulk-save.component';
 import { OSMUpdateStoreService } from '../../data/store/osm-update.store.service';
 import { takeUntil, tap } from 'rxjs';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { Vector2 } from 'three';
+import { RenderPass } from 'three/examples/jsm/Addons';
+import { fromInstanceGiroEvent } from '../../shared/class/fromGiroEvent';
+
+const _tempVec2 = new Vector2();
 
 @Component({
   selector: 'app-portail-map',
@@ -51,11 +57,12 @@ export class PortailMapComponent extends AbstractProfilComponent {
     shareServiceService: ShareServiceService,
     router: Router,
     tracker: MatomoTracker,
+    ngZone: NgZone,
     private _osmUpdateStoreService: OSMUpdateStoreService
   ) {
 
 
-    super(manageCompHelper, shareServiceService, notifierService, parametersService, translate, activatedRoute, mapService, router, dialog, baseMapService, dataOsmLayersService, tracker)
+    super(manageCompHelper, shareServiceService, notifierService, parametersService, translate, activatedRoute, mapService, router, dialog, baseMapService, dataOsmLayersService, tracker, ngZone)
     this.osmUpdateStoreService = _osmUpdateStoreService
 
     this.osmUpdateStoreService.osmFeaturesInUpdateObservable.pipe(
@@ -131,6 +138,7 @@ export class PortailMapComponent extends AbstractProfilComponent {
     }
 
   }
+
 
 
 

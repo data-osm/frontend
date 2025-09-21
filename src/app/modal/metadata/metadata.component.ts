@@ -1,5 +1,4 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { FormBuilder } from '@angular/forms';
 import { Layer, Metadata, OsmQuerry, SigFile } from '../../type/type';
 import { EMPTY, merge, Observable, ReplaySubject } from 'rxjs';
@@ -10,6 +9,7 @@ import { NotifierService } from 'angular-notifier';
 import { OsmQuerryService } from '../../admin/administration/service/osm-querry.service';
 import { SigFileService } from '../../admin/administration/service/sig-file.service';
 import { environment } from '../../../environments/environment';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 export interface MetaDataInterface {
   metadata

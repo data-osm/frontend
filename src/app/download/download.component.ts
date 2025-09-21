@@ -7,7 +7,7 @@ import { Map, Overlay } from 'ol';
 import { ObjectEvent } from 'ol/Object';
 import { Style, Stroke, Fill } from 'ol/style';
 import { EMPTY, iif, ReplaySubject, Subject } from 'rxjs';
-import { catchError, filter, map, mergeMap, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { catchError, debounceTime, filter, map, mergeMap, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { CartoHelper } from '../../helper/carto.helper';
 import { FeatureToDownload } from '../data/models/download';
@@ -21,8 +21,8 @@ import { Layer } from '../type/type';
 // import { ChartOverlayComponent } from './pages/chart-overlay/chart-overlay.component';
 import { Instance, Map as Giro3DMap, VectorSource, OrbitControls, tile } from "../giro-3d-module";
 import { fromMapGiroEvent } from '../shared/class/fromGiroEvent';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { ListDownloadLayersComponent } from './pages/list-download-layers/list-download-layers.component';
+import { MatDialog } from '@angular/material/dialog';
 
 export enum ExportCategory {
   TotalExport,
@@ -103,6 +103,7 @@ export class DownloadComponent implements OnInit {
         })
 
       if (this.layersArrayControl.length == 0) {
+
         this.layersArrayControl.push(new UntypedFormControl())
       }
 
@@ -307,11 +308,19 @@ export class DownloadComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  public itemTrackBy(index: number, item: UntypedFormControl) {
+
+    return item.value?.layer_id;
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes.map) {
       if (this.map) {
-        fromMapGiroEvent<"layer-order-changed">(this.map, "layer-order-changed").pipe(
+
+        this.dataOsmLayersServiceService.groupsLayerInMapObservable.pipe(
+          startWith(this.dataOsmLayersServiceService.groupsLayerInMap),
           takeUntil(this.destroyed$),
+          debounceTime(2000),
           // filter(() => this.elementRef.nativeElement.offsetParent === null),
           tap(() => {
             this.onInitInstance()

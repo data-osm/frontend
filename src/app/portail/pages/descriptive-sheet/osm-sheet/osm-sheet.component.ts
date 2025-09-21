@@ -12,7 +12,6 @@ import { measureUtil } from '../../../../../utils/measureUtils'
 import { Feature, getUid } from 'ol';
 import { Group, Layer } from '../../../../type/type';
 import WMSGetFeatureInfo from 'ol/format/WMSGetFeatureInfo';
-import { MatLegacyChip as MatChip, MatLegacyChipList as MatChipList } from '@angular/material/legacy-chips';
 import { getCenter, buffer } from 'ol/extent';
 import { FeatureForSheet } from '../descriptive-sheet.component';
 import { environment } from '../../../../../environments/environment';
@@ -241,11 +240,10 @@ export class OsmSheetComponent implements OnInit, OnChanges {
   addFeatureToMesh(feature: FeatureForSheet) {
 
     const instance = this.map.instance
-
     // @ts-expect-error
     if (this.object && this.object.isSelectable == true) {
       // @ts-expect-error
-      this.object.setFeatureUidSelected(getUid(feature))
+      this.object.setFeatureUidSelected(feature.getProperties().osm_id)
       instance.notifyChange([this.object])
       return
     }

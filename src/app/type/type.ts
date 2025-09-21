@@ -663,6 +663,8 @@ export interface Layer {
   sub: number,
   principal: boolean
   providers: Array<LayerProviders>
+  shouldDisabled?: boolean
+  isSelected?: boolean
 }
 
 export interface LayerProviders {

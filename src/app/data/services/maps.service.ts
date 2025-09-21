@@ -29,13 +29,8 @@ export class MapsService extends OsmDataRequest {
     this.notifier = notifierService;
   }
 
-  getBuildingHeights() {
-    return this.buildingsHeights$.getValue()
-  }
 
-  getBuildingsIndex() {
-    return this.buildingsIndex$.getValue()
-  }
+
 
   getLocalMapBoxStyle() {
     return this.http_.get("./assets/dark-v11.json")

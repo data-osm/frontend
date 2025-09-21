@@ -51,7 +51,11 @@ export default class GabledRoofBuilder extends HippedRoofBuilder {
                     const extrudedPoint = polygon.vertices.find(p => {
                         return !p.equals(begin) && !p.equals(end);
                     });
-
+                    if (extrudedPoint === undefined) {
+                        console.log(
+                            polygon, "polygon"
+                        )
+                    }
                     const prevPolygonExtrudedPoint = prevPolygon.vertices.find(v => v.equals(extrudedPoint));
                     const nextPolygonExtrudedPoint = nextPolygon.vertices.find(v => v.equals(extrudedPoint));
 

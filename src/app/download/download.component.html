@@ -22,7 +22,8 @@
 </p>
 
 <form [formGroup]="fromDownload">
-    <app-search-layer *ngFor="let control of layersArrayControl.controls ; let i = index" [selected]="control">
+    <app-search-layer *ngFor="let control of layersArrayControl.controls ; let i = index; trackBy:itemTrackBy"
+        [selected]="control">
     </app-search-layer>
 
     <h5 class="bold white primaryColorBG group-download" style="margin-top: 40px;">

@@ -302,6 +302,7 @@ export class UpdateOsmBuildingComponent {
   }
 
   ngOnDestroy(): void {
+
     this.destroyed$.next(true);
     this.destroyed$.complete();
   }

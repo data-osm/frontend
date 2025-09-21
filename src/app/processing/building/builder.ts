@@ -14,7 +14,8 @@ import { getRoofTypeFromString } from "./roof/utils";
 import Vec2 from "../math/vector2";
 import Vec3 from "../math/vector3";
 import { getUid } from "ol";
-
+import { ColorParser } from "./color-parser";
+import { Skeleton } from "straight-skeleton";
 
 export enum VectorAreaRingType {
     Inner,
@@ -385,19 +386,19 @@ export class Builder {
     tilePosition: Vec3
     constructor(
         feature: VectorArea,
-        tilePosition: Vector3
+        tilePosition: [number, number, number]
     ) {
         this.feature = feature
         this.descriptor = feature.descriptor;
         this.rings = feature.rings;
-        this.tilePosition = new Vec3(tilePosition.x, tilePosition.y, tilePosition.z)
+        this.tilePosition = new Vec3(tilePosition[0], tilePosition[1], tilePosition[2]);
     }
 
 
 
     public getMultipolygon(): Tile3DMultipolygon {
         if (this.multipolygon == undefined) {
-            this.multipolygon = new Tile3DMultipolygon();
+            this.multipolygon = new Tile3DMultipolygon(this.feature.osmReference);
 
             for (const ring of this.rings) {
                 const type = ring.type === VectorAreaRingType.Inner ? Tile3DRingType.Inner : Tile3DRingType.Outer;
@@ -419,55 +420,28 @@ export class Builder {
                 })
                 this.multipolygon.setOMBB(newOmbb as OMBBResult);
             }
+            if (Boolean(this.descriptor.skeleton)) {
+                const skeleton = this.descriptor.skeleton
+                try {
+                    for (let index = 0; index < skeleton.vertices.length; index++) {
+                        const vertex = skeleton.vertices[index];
+                        vertex[0] -= this.tilePosition.x
+                        vertex[1] -= this.tilePosition.y
+                    }
+                    this.multipolygon.setStraightSkeleton(skeleton)
+                } catch (error) {
+                    console.error(error, this.feature.osmReference, this.descriptor)
+                }
 
-            // if (this.descriptor.poi) {
-            //     this.multipolygon.setPoleOfInaccessibility(this.descriptor.poi);
-            // }
+            }
+
+
         }
 
         return this.multipolygon;
     }
 
-    // test() {
-    //     const multipolygon = this.getMultipolygon();
-    //     let builder = new BuildingBuilder(multipolygon)
-    //     const noDefaultRoof = builder.getAreaToOMBBRatio() < 0.75 || multipolygon.getArea() < 10;
-    //     const roofParams = this.getRoofParams(noDefaultRoof);
-    //     const facadeMinHeight = this.descriptor.buildingFoundation ? TERRAINMAXHEIGHT : TERRAINMINHEIGHT;
 
-    //     const { skirt, facadeHeightOverride } = builder.addRoof({
-    //         terrainHeight: facadeMinHeight,
-    //         type: roofParams.type,
-    //         buildingHeight: this.descriptor.buildingHeight,
-    //         minHeight: this.descriptor.buildingHeight - this.descriptor.buildingRoofHeight,
-    //         height: this.descriptor.buildingRoofHeight,
-    //         direction: this.descriptor.buildingRoofDirection,
-    //         orientation: this.descriptor.buildingRoofOrientation,
-    //         angle: this.descriptor.buildingRoofAngle,
-    //         textureId: roofParams.textureId,
-    //         color: roofParams.color,
-    //         scaleX: roofParams.scaleX,
-    //         scaleY: roofParams.scaleY,
-    //         isStretched: roofParams.isStretched,
-    //         flip: false
-    //     });
-
-    //     const facadeParams = this.getFacadeParams();
-
-    //     builder.addWalls({
-    //         terrainHeight: facadeMinHeight,
-    //         levels: this.descriptor.buildingLevels,
-    //         windowWidth: facadeParams.windowWidth,
-    //         minHeight: this.descriptor.buildingMinHeight,
-    //         height: facadeHeightOverride ?? (this.descriptor.buildingHeight - this.descriptor.buildingRoofHeight),
-    //         skirt: skirt,
-    //         color: facadeParams.color,
-    //         textureIdWall: facadeParams.textureIdWall,
-    //         textureIdWindow: facadeParams.textureIdWindow,
-    //         windowSeed: null
-    //     });
-
-    // }
     private handleBuilding() {
         const multipolygon = this.getMultipolygon();
 
@@ -712,9 +686,37 @@ export class Builder {
         const scaleFactor = 1
 
 
-        if (buildingWithOneLevel) {
-            let id = ExtrudedTextures.RoofConcrete
-            let scale = textureIdToScale[id]
+        // if (buildingWithOneLevel) {
+        //     let id = ExtrudedTextures.RoofConcrete
+        //     let scale = textureIdToScale[id]
+        //     return {
+        //         type: roofType,
+        //         textureId: id,
+        //         color: roofColor,
+        //         scaleX: scale.x * scaleFactor,
+        //         scaleY: scale.y * scaleFactor,
+        //         isStretched: false
+        //     };
+        // }
+
+
+
+
+        if (roofMaterial === 'default') {
+            return {
+                type: roofType,
+                // textureId: defaultTextures[(this.osmReference.id || 0) % defaultTextures.length],
+                textureId: ExtrudedTextures.RoofGeneric3,
+                color: 0xFF333333,
+                scaleX: 32 * scaleFactor,
+                scaleY: 32 * scaleFactor,
+                isStretched: false
+            }
+        } else {
+
+            let id = materialToTextureId[roofMaterial];
+            let scale = textureIdToScale[id] ?? new Vector2(1, 1);
+
             return {
                 type: roofType,
                 textureId: id,
@@ -724,9 +726,6 @@ export class Builder {
                 isStretched: false
             };
         }
-
-
-
 
         if (roofType === RoofType.Flat && roofMaterial === 'default' && !noDefaultRoof) {
             const defaultTextures = [
@@ -763,7 +762,6 @@ export class Builder {
             isStretched: false
         };
     }
-    // "@giro3d/giro3d": "file:../../giro3d_gitlab/giro3d-giro3d-0.37.3.tgz",
 
 
 
@@ -774,9 +772,12 @@ export class Builder {
         textureIdWall: number;
     } {
         const material = this.descriptor.buildingFacadeMaterial;
-        let color = this.descriptor.buildingFacadeColor;
-        const hasWindows = this.descriptor.buildingWindows;
-
+        let color = <number>new ColorParser().parseColor(this.descriptor.buildingFacadeColor.toString());
+        if (!Boolean(color)) {
+            color = 0xffffff;
+        }
+        // const hasWindows = this.descriptor.buildingWindows;
+        const hasWindows = false;
         const materialToTextureId: Record<BuildingFacadeMaterial, {
             wall: number;
             window: number;

@@ -14,7 +14,7 @@ import { MatLegacyCheckboxChange as MatCheckboxChange } from '@angular/material/
 import { map, catchError, debounceTime, tap, startWith, takeUntil } from 'rxjs/operators';
 import { coucheInterface, carteInterface } from '../../../../type/type';
 import { environment } from '../../../../../environments/environment';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+// import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MetadataLayerComponent } from '../../../../modal/metadata/metadata.component';
 import { DataOsmLayersServiceService } from '../../../../services/data-som-layers-service/data-som-layers-service.service';
 import BaseLayer from 'ol/layer/Base';
@@ -34,6 +34,7 @@ import {
 import { Group, Mesh } from 'three';
 import { MatomoTracker } from 'ngx-matomo-client';
 import { LayersInMap } from '../../../../../helper/type';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-table-of-contents',
@@ -72,15 +73,20 @@ export class TableOfContentsComponent implements OnInit {
         // this.map.addEventListener("")
 
         merge(
-          fromMapGiroEvent<"layer-order-changed">(this.map, "layer-order-changed"),
+          this.dataOsmLayersServiceService.groupsLayerInMapObservable.pipe(
+            startWith(this.dataOsmLayersServiceService.groupsLayerInMap)
+          ),
         ).pipe(
-          debounceTime(500),
+          debounceTime(1000),
           tap(() => { this.getAllLayersForTOC() }),
           takeUntil(this.destroyed$)
         ).subscribe()
 
       }
     }
+  }
+  public itemTrackBy(index: number, item: LayersInMap) {
+    return item.properties.couche_id;
   }
 
   /**
@@ -205,6 +211,7 @@ export class TableOfContentsComponent implements OnInit {
     //   obj.visible = event.checked
     //   return obj
     // })
+
     layer.layer.map((lay) => {
       lay.visible = event.checked
     })
@@ -321,7 +328,7 @@ export class TableOfContentsComponent implements OnInit {
    */
   openMetadata(layer: LayersInMap) {
     let data = this.dataOsmLayersServiceService.getLayerInMap(layer.properties.couche_id)
-    this.dialog.open(MetadataLayerComponent, { data: data.layer })
+    this.dialog.open(MetadataLayerComponent, { data: data.layer, panelClass: ['dialog-primary-bg', "dialog-no-overflow"] })
 
   }
 

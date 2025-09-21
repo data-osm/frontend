@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { Observable, fromEvent, merge as observerMerge, ReplaySubject } from 'rxjs';
-import { debounceTime, map, takeUntil, tap } from 'rxjs/operators';
+import { auditTime, debounceTime, map, shareReplay, startWith, takeUntil, tap } from 'rxjs/operators';
 import { DomSanitizer } from '@angular/platform-browser';
 import * as $ from 'jquery'
 import {
@@ -18,7 +18,7 @@ import { LayersInMap } from '../../../../../helper/type';
 @Component({
   selector: 'app-legend',
   templateUrl: './legend.component.html',
-  styleUrls: ['./legend.component.scss']
+  styleUrls: ['./legend.component.scss'],
 })
 /**
  * handle legend of layers in the TOC
@@ -32,7 +32,7 @@ export class LegendComponent implements OnInit {
 
 
   constructor(
-    public DomSanitizer: DomSanitizer,
+    public domSanitizer: DomSanitizer,
     public dataOsmLayersServiceService: DataOsmLayersServiceService,
   ) { }
 
@@ -44,11 +44,18 @@ export class LegendComponent implements OnInit {
     this.destroyed$.complete()
   }
 
+
+  public itemTrackBy(index: number, item: LayersInMap) {
+    return item.properties.couche_id;
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes.map) {
       if (this.map) {
 
-        fromMapGiroEvent<"layer-order-changed">(this.map, "layer-order-changed").pipe(
+        this.dataOsmLayersServiceService.groupsLayerInMapObservable.pipe(
+          startWith(this.dataOsmLayersServiceService.groupsLayerInMap),
+          debounceTime(2000),
           tap(() => {
             this.layersInTocWithLegend = new CartoHelper(this.map).getAllLayersInToc()
               .filter((layerProp) => layerProp.type_layer == 'geosmCatalogue' && layerProp.properties['type'] == 'couche')
@@ -60,16 +67,18 @@ export class LegendComponent implements OnInit {
 
               })
               .map((layerProp) => {
+
                 let layer = this.dataOsmLayersServiceService.getLayerInMap(layerProp.properties['couche_id']).layer
                 layerProp.legendCapabilities = []
                 layer.providers
                   .filter((provider) => { return provider.vp.state == 'good' && provider.vp.id_server != undefined })
                   .map((provider) => {
+                    const url = $.trim(environment.url_carto + provider.vp.path_qgis + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=" + provider.vp.id_server + "&STYLE=" + provider.vs.name + "&SLD_VERSION=1.1.0&LAYERTITLE=false&RULELABEL=true");
 
                     layerProp.legendCapabilities.push(
                       {
                         description: provider.vs.description,
-                        urlImg: $.trim(environment.url_carto + provider.vp.path_qgis + "&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetLegendGraphic&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=" + provider.vp.id_server + "&STYLE=" + provider.vs.name + "&SLD_VERSION=1.1.0&LAYERTITLE=false&RULELABEL=true")
+                        urlImg: this.domSanitizer.bypassSecurityTrustUrl(url)
                       }
                     )
 

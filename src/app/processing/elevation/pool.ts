@@ -1,19 +1,30 @@
-import { BaseMessageMap } from "@giro3d/giro3d/utils/WorkerPool";
+import { Coordinate } from "ol/coordinate";
 import WMTSCapabilities from "ol/format/WMTSCapabilities";
 import { Vector3 } from "three";
+import { BaseMessageMap } from "../../giro-3d-module";
 
 const CAPABILITIES_URL = "https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities";
 
+export type GeometryType = 'Point' | 'LineString' | 'LinearRing' | 'Polygon' | 'MultiPoint' | 'MultiLineString' | "MultiPolygon";
+
 export type ListElevationsMessageType = 'ListElevation';
+
+export interface ElevationFeature {
+    properties: { [key: string]: any },
+    // default value is 'Point'
+    geometryType?: GeometryType
+    center?: Coordinate
+    coordinates?: Coordinate[] | Array<Array<Coordinate>> | Array<Array<Array<Coordinate>>>
+    [key: string]: any
+}
+
 export interface ListElevationMessageMap extends BaseMessageMap<ListElevationsMessageType> {
     ListElevation: {
         capabilities: any
-        // [longitude, latitude, index]
-        coordinates_with_index: [number, number, number | string][],
+
+        features: Array<ElevationFeature>
         payload: unknown;
-        response: {
-            elevations: Map<number | string, number>
-        };
+        response: Array<ElevationFeature>
     };
 }
 

@@ -1,6 +1,6 @@
 import { AlwaysDepth, AlwaysStencilFunc, Box3, BoxGeometry, BufferAttribute, BufferGeometry, DoubleSide, DynamicDrawUsage, GreaterDepth, Group, InstancedBufferGeometry, InstancedMesh, LessDepth, LinearFilter, LinearMipmapLinearFilter, Material, Matrix4, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshStandardMaterial, NoBlending, Object3D, PerspectiveCamera, PlaneGeometry, Points, Quaternion, RepeatWrapping, ReplaceStencilOp, ShaderMaterial, SRGBColorSpace, TextureLoader, Vector2, Vector3 } from "three";
 import { delay, filter, materialize, retryWhen, map as rxjsMap, take, tap } from "rxjs/operators"
-import { Instance, Map as Giro3DMap, OLUtils, OrbitControls } from "../giro-3d-module";
+import { Instance, Map as Giro3DMap, OLUtils, OrbitControls, WorkerPool } from "../giro-3d-module";
 import { Feature, GeometryLayout, MVT, Polygon, TileState, VectorTileSource, GeoJSON, Point } from "../ol-module";
 import { fromInstanceGiroEvent } from "../shared/class/fromGiroEvent";
 import { createXYZ } from "ol/tilegrid";
@@ -11,14 +11,12 @@ import { TileCoord } from "ol/tilecoord";
 import { BufferGeometryUtils, GLTF } from "three/examples/jsm/Addons";
 import Earcut from 'earcut';
 import Flatbush from 'flatbush';
-import { FillStyle, StrokeStyle } from "@giro3d/giro3d/core/FeatureTypes";
 import { FeaturesStoreService } from "../data/store/features.store.service";
 import { AppInjector } from "../../helper/app-injector.helper";
 import { environment } from "../../environments/environment";
 import VectorRenderTile from "ol/VectorRenderTile";
 import { getBottomLeft } from "ol/extent";
 import { createListElevationWorker, getCapabilities, ListElevationMessageMap, ListElevationsMessageType } from "./elevation/pool";
-import WorkerPool from "@giro3d/giro3d/utils/WorkerPool";
 
 
 
@@ -213,17 +211,17 @@ export class TreeLayer {
             this.elevationWorker = new WorkerPool({ createWorker: createListElevationWorker });
         }
 
-        await getCapabilities().then(async (capabilities) => {
-            const result = await this.elevationWorker.queue('ListElevation', { "capabilities": capabilities, "coordinates_with_index": transformCoordinates });
-            const elevations: Map<number | string, number> = result.elevations
-            if (transformCoordinates.length != Array.from(elevations.values()).length) {
-                console.warn(
-                    "Toutes élévations n'ont pas été trouvées pour les arbres",
-                )
-            }
-            threeTile.elevations = elevations
+        // await getCapabilities().then(async (capabilities) => {
+        //     const result = await this.elevationWorker.queue('ListElevation', { "capabilities": capabilities, "coordinates_with_index": transformCoordinates });
+        //     const elevations: Map<number | string, number> = result.elevations
+        //     if (transformCoordinates.length != Array.from(elevations.values()).length) {
+        //         console.warn(
+        //             "Toutes élévations n'ont pas été trouvées pour les arbres",
+        //         )
+        //     }
+        //     threeTile.elevations = elevations
 
-        })
+        // })
 
     }
 

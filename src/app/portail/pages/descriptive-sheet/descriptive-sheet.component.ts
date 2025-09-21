@@ -1,6 +1,5 @@
 import { Component, OnInit, Inject, SimpleChanges, OnChanges, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { Group, Layer } from '../../../type/type';
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { CartoHelper } from '../../../../helper/carto.helper';
 // import { ManageCompHelper } from '../../../../helper/manage-comp.helper';
 import { environment } from '../../../../environments/environment';
@@ -28,6 +27,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { fromInstanceGiroEvent, fromMapGiroEvent } from '../../../shared/class/fromGiroEvent';
 import { manageDataHelper } from '../../../../helper/manage-data.helper';
 import { MatomoTracker } from 'ngx-matomo-client';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 /**
  * interface of the model to display a sheet properties
  */
@@ -388,8 +388,8 @@ export class DescriptiveSheetComponent implements OnInit {
 
     fromMapGiroEvent<"layer-order-changed">(this.map, "layer-order-changed").pipe(
       takeUntil(this.destroyed$),
+      debounceTime(2000),
       filter(_ => this.map.getLayers((layer) => layer.name == this.HighlightLayer.name).length > 0),
-      debounceTime(1000),
       tap(() => {
         let searchResultLayer = cartoClass.getLayerByName(this.HighlightLayer.name)[0]
         cartoClass.moveLayerOnTop(searchResultLayer)

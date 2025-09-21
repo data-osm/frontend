@@ -7,7 +7,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { NotifierService } from 'angular-notifier';
 import { BehaviorSubject, combineLatest, concat, EMPTY, forkJoin, from, fromEvent, iif, interval, merge, Observable, of, ReplaySubject, Subject, Subscriber, timer } from 'rxjs';
-import { catchError, debounceTime, delay, delayWhen, filter, map, mergeMap, retryWhen, shareReplay, startWith, switchMap, take, takeUntil, takeWhile, tap, toArray, withLatestFrom } from 'rxjs/operators';
+import { catchError, debounceTime, delay, delayWhen, distinctUntilChanged, filter, map, mergeMap, retryWhen, shareReplay, startWith, switchMap, take, takeUntil, takeWhile, tap, toArray, withLatestFrom } from 'rxjs/operators';
 import { CartoHelper } from '../../../helper/carto.helper';
 import { ManageCompHelper } from '../../../helper/manage-comp.helper';
 import { BaseMap } from '../../data/models/base-maps';
@@ -15,6 +15,7 @@ import { MapsService } from '../../data/services/maps.service';
 import { ParametersService } from '../../data/services/parameters.service';
 import {
   GeoJSON,
+  getCenter,
 } from '../../ol-module';
 import { environment } from '../../../environments/environment';
 
@@ -28,8 +29,8 @@ import { ContextMenuComponent } from '../pages/context-menu/context-menu.compone
 import { DescriptiveSheetData } from '../pages/descriptive-sheet/descriptive-sheet.component';
 import { BaseMapsService } from '../../data/services/base-maps.service';
 import { ListGroupThematiqueComponent } from '../pages/sidenav-left/sidenave-left-secondaire/list-group-thematique/list-group-thematique.component';
-import { DirectionalLight, MathUtils, Vector3, PerspectiveCamera, Color, AmbientLight, Fog, Vector2 } from 'three/src/Three';
-
+import { DirectionalLight, MathUtils, Vector3, PerspectiveCamera, Color, AmbientLight, Fog, Vector2, BasicShadowMap, DirectionalLightHelper, PCFSoftShadowMap, CameraHelper, Object3D, Mesh, BoxGeometry, Box3Helper, ShaderChunk, WebGLRendererParameters, WebGLRenderer, Scene, Camera, ReinhardToneMapping, SphereGeometry, MeshBasicMaterial, LinearToneMapping, NeutralToneMapping, CineonToneMapping, ACESFilmicToneMapping, AgXToneMapping, PCFShadowMap, SRGBColorSpace } from 'three/src/Three';
+import Inspector from '@giro3d/cgiro3d/gui/Inspector.js';
 
 import {
   Extent,
@@ -38,12 +39,16 @@ import {
   OrbitControls,
   Layer as GiroLayer,
   WmtsSource,
+  Coordinates,
+  MapLightingMode,
+  ElevationLayer,
+  BilFormat,
 } from "../../giro-3d-module"
-import Inspector from '@giro3d/giro3d/gui/Inspector.js';
-import DrawToolPanel from '@giro3d/giro3d/gui/DrawToolPanel.js';
 
-import ProcessingInspector from '@giro3d/giro3d/gui/ProcessingInspector'
-import FrameDuration from "@giro3d/giro3d/gui/charts/FrameDuration"
+
+
+
+
 import { fromInstanceGiroEvent } from '../../shared/class/fromGiroEvent';
 import Stats from "stats-js"
 import { dataFromClickOnMapInterface, MapMousseEvents } from '../../processing/map-mousse-events';
@@ -56,8 +61,16 @@ import { constructLayer } from './construct-layer';
 import { partial } from '../../../utils/partial';
 import { FrameRenderTime } from '../../../helper/type';
 import { E } from '@angular/cdk/keycodes';
-import BilFormat from '@giro3d/giro3d/formats/BilFormat';
-import ElevationLayer from '@giro3d/giro3d/core/layer/ElevationLayer';
+
+import { SunSystem } from '../../processing/sunSystem';
+import Vec2 from '../../processing/math/vector2';
+import Vec3 from '../../processing/math/vector3';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
+import { BokehPass, RenderPass, SMAAPass, Sky, SSAOPass, FXAAShader, ShaderPass, OutputPass, TAARenderPass } from 'three/examples/jsm/Addons';
+
+import { LightAndShadowSystem } from '../../processing/lightAndShadowSystem';
+
 
 const extent = new Extent(
   'EPSG:3857',
@@ -77,7 +90,7 @@ const temp2Vec3 = new Vector3()
 
 const CAPABILITIES_URL = "https://data.geopf.fr/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities";
 const ELEVATION_LAYER = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES"
-const enableTerrain = environment.enableTerrain
+const enableTerrain = environment.enabledTerrain
 
 @Injectable()
 export abstract class AbstractProfilComponent implements OnInit {
@@ -85,7 +98,12 @@ export abstract class AbstractProfilComponent implements OnInit {
   /**  
    * Map object 
   */
-  map: Map = new Map({ maxSubdivisionLevel: undefined, extent, terrain: enableTerrain, showOutline: false, backgroundColor: "gray" });
+  map: Map = new Map({
+    maxSubdivisionLevel: undefined, extent, terrain: enableTerrain, showOutline: false, backgroundColor: "gray", lighting: {
+      enabled: true,
+      mode: MapLightingMode.LightBased,
+    },
+  });
   instance: Instance = null
   controls: MapControls
   frameRenderTime: { [key: number]: FrameRenderTime } = {}
@@ -119,9 +137,16 @@ export abstract class AbstractProfilComponent implements OnInit {
 
   private readonly notifier: NotifierService;
 
+  sun: DirectionalLight
+
+  sky: Sky
+  sunSystem: SunSystem
+  lightAndShadowSystem: LightAndShadowSystem
+
   eventsListener = {
     "groupsLoaded": new Subject<Array<Group>>(),
     "controlsAdded": new Subject<void>(),
+    "instanceLoaded": new BehaviorSubject<boolean>(false),
   }
   /**
    * All menus of the right sidenav
@@ -133,6 +158,10 @@ export abstract class AbstractProfilComponent implements OnInit {
     { name: 'routing', active: false, enable: false, tooltip: 'toolpit_map_routing', title: 'map_routing' },
     { name: 'legend', active: false, enable: true, tooltip: 'toolpit_legend', title: 'legend' },
   ]
+
+  effectComposer: EffectComposer
+  objectsToUpdateAfterCameraUpdated: Subject<void>[] = []
+  unrealBloomPass: UnrealBloomPass
 
   // dialog: MatDialog = AppInjector.get(MatDialog);
 
@@ -159,8 +188,12 @@ export abstract class AbstractProfilComponent implements OnInit {
     protected baseMapService: BaseMapsService,
     protected dataOsmLayersService: DataOsmLayersServiceService,
     protected readonly tracker: MatomoTracker,
+    private ngZone: NgZone,
   ) {
+    Object3D.DEFAULT_UP.set(0, 0, 1);
     this.notifier = notifierService;
+
+
 
 
     const onInit: Subject<void> = new ReplaySubject<void>(1)
@@ -194,9 +227,16 @@ export abstract class AbstractProfilComponent implements OnInit {
               this.initialiseClickEvent()
             }),
             delay(500),
-            tap(() => {
-              this.initialiseGroundTileProcessing()
-
+            switchMap(() => {
+              return this.eventsListener.instanceLoaded.pipe(
+                startWith(this.eventsListener.instanceLoaded.value),
+                filter((instanceLoaded) => instanceLoaded),
+                take(1),
+                tap(() => {
+                  this.init()
+                  this.initialiseGroundTileProcessing()
+                })
+              )
             })
           ).subscribe()
 
@@ -215,7 +255,7 @@ export abstract class AbstractProfilComponent implements OnInit {
 
               // if no layer have been shared, we display the default/active layer of the profil
               const principalGroup = data.groups.find((group) => group.principal)
-
+              // return EMPTY
               if (layers_groups.length == 0 && principalGroup) {
                 return this.mapService.getAllPrincipalLayersFromGroup(
                   principalGroup.group_id,
@@ -246,7 +286,6 @@ export abstract class AbstractProfilComponent implements OnInit {
                 .filter((baseMap) => baseMap && baseMap.principal)
 
               if (prinicpalBaseMapLoaded.length == 0) {
-                // https://demo.openstreetmap.fr/map?profil=1&layers=8,15,layer;333,15,layer;3,15,layer;406,15,layer&pos=266643.6,6242730.5,428.7,265357,6243023.6,0
                 throw 'Basemap not yet loaded'
               }
               return prinicpalBaseMapLoaded.length > 0
@@ -319,6 +358,186 @@ export abstract class AbstractProfilComponent implements OnInit {
     this.destroyed$.complete()
   }
 
+  renderFunction(scene: Scene, camera: Camera) {
+    // this.instance.renderer.render(scene, camera);
+    this.effectComposer.render();
+  }
+
+  onWindowResize() {
+    this.effectComposer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  addSky() {
+    this.sky = new Sky();
+    this.sky.name = "sky"
+    this.sky.frustumCulled = false
+    const uniforms = this.sky.material.uniforms;
+    uniforms.up.value = Object3D.DEFAULT_UP;
+    this.sky.position.copy(this.instance.view.camera.position);
+
+    this.sky.scale.setScalar(450000);
+
+    this.sunSystem.registerUpdatableObject(uniforms.sunPosition.value)
+
+    const parameter = {
+      "toneMappingExposure": 0.85,
+      "mieDirectionalG": 0.9997,
+      "mieCoefficient": 0.009,
+      "rayleigh": 0.487,
+      "turbidity": 12.7,
+
+    }
+
+    uniforms.turbidity.value = parameter.turbidity;
+    uniforms.rayleigh.value = parameter.rayleigh;
+    uniforms.mieCoefficient.value = parameter.mieCoefficient;
+    uniforms.mieDirectionalG.value = parameter.mieDirectionalG;
+    this.sky.updateMatrix()
+    this.sky.updateMatrixWorld(true)
+    this.instance.scene.add(this.sky);
+
+    const onUpdateSkyPosition: Subject<void> = new Subject<void>()
+    onUpdateSkyPosition.pipe(
+      tap(() => {
+        this.sky.updateMatrixWorld(true)
+        this.sky.position.copy(this.instance.view.camera.position);
+      })
+    ).subscribe()
+
+    this.objectsToUpdateAfterCameraUpdated.push(onUpdateSkyPosition)
+    onUpdateSkyPosition.next()
+
+
+  }
+
+  init() {
+    const mapPosition = new Coordinates("EPSG:3857", this.instance.view.camera.position.x, this.instance.view.camera.position.y).as("EPSG:4326");
+    this.sunSystem = new SunSystem(this.instance, new Vec2(mapPosition.latitude, mapPosition.longitude),)
+    this.addSky()
+    this.sunSystem.setSky(this.sky)
+
+    // setTimeout(() => {
+    const date = Date.now()
+    // const date = new Date(Date.UTC(2025, 8 - 1, 24, 9, 0, 0))
+    // const mapPosition = new Coordinates("EPSG:3857", this.instance.view.camera.position.x, this.instance.view.camera.position.y).as("EPSG:4326");
+    this.sunSystem.update(new Vec2(mapPosition.latitude, mapPosition.longitude), date)
+    this.addLights()
+
+
+    fromInstanceGiroEvent(this.instance, "after-camera-update").pipe(
+      takeUntil(this.destroyed$),
+      tap(() => {
+        // const date = new Date(Date.UTC(2025, 8 - 1, 20, 10, 0, 0))
+        // const mapPosition = new Coordinates("EPSG:3857", this.instance.view.camera.position.x, this.instance.view.camera.position.y).as("EPSG:4326");
+        // this.sunSystem.update(new Vec2(mapPosition.latitude, mapPosition.longitude), date)
+        for (let i = 0; i < this.objectsToUpdateAfterCameraUpdated.length; i++) {
+          this.objectsToUpdateAfterCameraUpdated[i].next()
+        }
+      })
+    ).subscribe()
+
+
+    if (!environment.production) {
+      const inspector = new Inspector("giro3d-inspector", this.instance)
+      const params = {
+        "mieDirectionalG": 0.9998,
+        "mieCoefficient": 0.009,
+        "rayleigh": 0.487,
+        "turbidity": 12.7,
+        "hours": 10,
+        "strength": 0.05,
+        "radius": 0.1,
+        "threshold": 0.85,
+        "toneMappingExposure": 1,
+        "toneMapping": ReinhardToneMapping,
+        "maxFar": 1000,
+        "shadowMapSize": 1024 * 2,
+        update: () => {
+          // this.lightAndShadowSystem._update();
+          this.lightAndShadowSystem.csmHelper.update();
+          // this.updateSunPositionAndTarget(this.instance.view.camera as PerspectiveCamera)
+
+        }
+      }
+      inspector.gui.add(params, 'update').name('Update csm');
+      inspector.gui.add(this.lightAndShadowSystem.csm, 'lightIntensity', 0, 15, 1).name('lightIntensity').onChange((value) => {
+        this.lightAndShadowSystem.csm.lightIntensity = value
+        this.lightAndShadowSystem.csm.update();
+        this.instance.notifyChange()
+      })
+      inspector.gui.add(params, 'shadowMapSize', 512, 1024 * 4, 256).name('shadowMapSize').onChange((value) => {
+        this.lightAndShadowSystem.csm.shadowMapSize = value
+        this.lightAndShadowSystem.csm.update();
+        this.lightAndShadowSystem.csm.updateFrustums();
+        this.instance.notifyChange()
+      })
+      inspector.gui.add(this.lightAndShadowSystem.csm, 'maxFar', 100, 6000, 200).name('maxFar').onChange((value) => {
+        this.lightAndShadowSystem.csm.maxFar = value
+        this.lightAndShadowSystem.csm.update();
+        this.lightAndShadowSystem.csm.updateFrustums();
+        this.instance.notifyChange()
+      })
+      inspector.gui.add(this.lightAndShadowSystem.csm, 'shadowBias', -2, 2, 0.00001).name('shadowBias').onChange((value) => {
+        this.lightAndShadowSystem.csm.shadowBias = value
+        this.lightAndShadowSystem.csm.update();
+        this.lightAndShadowSystem.csm.updateFrustums();
+        this.instance.notifyChange()
+      })
+      inspector.gui.add(this.lightAndShadowSystem.csm, 'shadowNormalBias', -1, 5, 0.001).name('shadowNormalBias').onChange((value) => {
+        this.lightAndShadowSystem.csm.shadowNormalBias = value
+        this.lightAndShadowSystem.csm.update();
+        this.lightAndShadowSystem.csm.updateFrustums();
+        this.instance.notifyChange()
+      })
+      inspector.gui.add(this.lightAndShadowSystem.csm, 'lightMargin', 100, 4000, 50).name('lightMargin').onChange((value) => {
+        this.lightAndShadowSystem.csm.lightMargin = value
+        this.lightAndShadowSystem.csm.update();
+        this.lightAndShadowSystem.csm.updateFrustums();
+        this.instance.notifyChange()
+      })
+      inspector.gui.add(params, 'hours', 0, 24, 1).name('hours').onChange((hours) => {
+        const date = new Date(Date.UTC(2025, 8 - 1, 24, hours, 0, 0))
+        const mapPosition = new Coordinates("EPSG:3857", this.instance.view.camera.position.x, this.instance.view.camera.position.y).as("EPSG:4326");
+        this.sunSystem.update(new Vec2(mapPosition.latitude, mapPosition.longitude), date)
+        this.lightAndShadowSystem.update()
+        this.instance.notifyChange()
+      })
+      inspector.gui.add(params, 'mieDirectionalG', 0, 1, 0.0001).name('mieDirectionalG').onChange((value) => {
+        this.sky.material.uniforms.mieDirectionalG.value = value;
+        this.instance.notifyChange()
+      })
+      inspector.gui.add(params, 'mieCoefficient', 0.01, 0.1, 0.0001).name('mieCoefficient').onChange((value) => {
+        this.sky.material.uniforms.mieCoefficient.value = value;
+        this.instance.notifyChange()
+      })
+      inspector.gui.add(params, 'rayleigh', 0, 1, 0.01).name('rayleigh').onChange((value) => {
+        this.sky.material.uniforms.rayleigh.value = value;
+        this.instance.notifyChange()
+      })
+      inspector.gui.add(params, 'turbidity', 0, 30, 1).name('turbidity').onChange((value) => {
+        this.sky.material.uniforms.turbidity.value = value;
+        this.instance.notifyChange()
+      })
+
+      inspector.gui.add(this.unrealBloomPass, 'strength', 0, 1, 0.01).name('strength').onChange((value) => {
+        this.unrealBloomPass.strength = value
+        this.instance.notifyChange()
+      })
+
+      inspector.gui.add(this.unrealBloomPass, 'radius', 0, 1, 0.01).name('radius').onChange((value) => {
+        this.unrealBloomPass.radius = value
+        this.instance.notifyChange()
+      })
+
+      inspector.gui.add(this.unrealBloomPass, 'threshold', 0, 1, 0.001).name('threshold').onChange((value) => {
+        this.unrealBloomPass.threshold = value
+        this.instance.notifyChange()
+      })
+    }
+
+
+
+  }
   /**
    * Initialise the map
    * @param mapDomElement ElementRef<HTMLDivElement>
@@ -329,14 +548,13 @@ export abstract class AbstractProfilComponent implements OnInit {
       target: mapDomElement.nativeElement,
       crs: extent.crs,
       renderer: {
-        antialias: this.getSystemPerformance() == "high" ? true : false
-      }
-    });
-    // this.instance.renderer.setPixelRatio(1);
-    // Enable shader errors in Dev
-    if (!environment.production) {
-      this.instance.renderer.debug.checkShaderErrors = true
-    }
+        antialias: this.getSystemPerformance() == "high" ? true : false,
+      },
+      renderFunction: this.renderFunction.bind(this)
+    })
+    this.instance.add(this.map);
+    this.eventsListener.instanceLoaded.next(true)
+    // this.map.receiveShadow = true;
 
     // We prevent Firefox effect : Firefox sometimes create an ghost image
     // when one drag the map
@@ -352,23 +570,72 @@ export abstract class AbstractProfilComponent implements OnInit {
     canvas.style.touchAction = 'none';
 
 
-    this.instance.add(this.map);
+
 
     // Background of the scene
     const scene = this.instance.scene
     scene.background = new Color().setHSL(0.6, 1, 0.6);
-    // scene.fog = new Fog(0x2f3640, 5, 4000);
-    scene.fog = new Fog(0x2f3640, 5, 20000);
-
-    this.addLights()
-
-
+    scene.fog = new Fog(0x2f3640, 5, 8000);
 
     this.updateCompassRotation()
 
     if (enableTerrain) {
       this.addTerrain()
     }
+
+
+
+
+    this.effectComposer = new EffectComposer(this.instance.renderer);
+    this.effectComposer.setSize(mapDomElement.nativeElement.clientWidth, mapDomElement.nativeElement.clientHeight);
+
+
+    const renderPass = new RenderPass(this.instance.scene, this.instance.view.camera);
+    this.unrealBloomPass = new UnrealBloomPass(new Vector2(mapDomElement.nativeElement.clientWidth / 2, mapDomElement.nativeElement.clientHeight / 2), 0.05, 0.1, 0.85)
+    this.instance.renderer.toneMapping = NeutralToneMapping
+    this.instance.renderer.toneMappingExposure = 1
+    this.effectComposer.addPass(renderPass);
+
+    // const fxaa = new ShaderPass(FXAAShader);
+    // fxaa.material.uniforms['resolution'].value.x = 1 / (mapDomElement.nativeElement.offsetWidth * 1);
+    // fxaa.material.uniforms['resolution'].value.y = 1 / (mapDomElement.nativeElement.offsetHeight * 1);
+
+    const taa = new TAARenderPass(scene, this.instance.view.camera, "#FFFFFF");
+    taa.sampleLevel = 1;
+
+    const smaa = new SMAAPass(mapDomElement.nativeElement.clientWidth, mapDomElement.nativeElement.clientHeight);
+
+    this.effectComposer.addPass(this.unrealBloomPass);
+    // this.effectComposer.addPass(fxaa);
+    this.effectComposer.addPass(smaa);
+    this.effectComposer.addPass(new OutputPass());
+
+    const resize$ = fromEvent(window, 'resize', { passive: true }).pipe(
+      startWith(null),
+      map(() => ({ width: window.innerWidth, height: window.innerHeight })),
+      debounceTime(100),
+      distinctUntilChanged((a, b) => a.width === b.width && a.height === b.height),
+      // cache latest value for late subscribers
+      shareReplay({ bufferSize: 1, refCount: true }),
+      tap(({ width, height }) => {
+        this.onWindowResize();
+      })
+    ).subscribe()
+
+
+    this.instance.renderer.shadowMap.enabled = true;
+    this.instance.renderer.shadowMap.type = PCFShadowMap;
+    // this.instance.renderer.setPixelRatio(1);
+    // Enable shader errors in Dev
+    if (!environment.production) {
+      this.instance.renderer.debug.checkShaderErrors = true
+    }
+
+
+
+
+
+
 
   }
 
@@ -411,25 +678,28 @@ export abstract class AbstractProfilComponent implements OnInit {
     this.getOrCreateFrameRenderTime(this.frameRenderTime, frame).total_render_time = total_render_time
 
     if (Object.keys(this.frameRenderTime).length >= 50) {
-      const layers = new CartoHelper(this.map).getAllLayersInToc().
-        filter((layerProp) => layerProp.type_layer == 'geosmCatalogue')
-        .filter((layerProp, index, self) => {
-          /**
-           * unique layer ^^
-           */
-          return self.map((item) => item.properties.couche_id + item.properties['type']).indexOf(layerProp.properties.couche_id + layerProp.properties['type']) === index;
+      const layers = this.dataOsmLayersService.groupsLayerInMap.map((layer) => {
+        return { layer_id: layer.layer.layer_id, layer_name: layer.layer.name }
+      })
+      // const layers = new CartoHelper(this.map).getAllLayersInToc().
+      //   filter((layerProp) => layerProp.type_layer == 'geosmCatalogue')
+      //   .filter((layerProp, index, self) => {
+      //     /**
+      //      * unique layer ^^
+      //      */
+      //     return self.map((item) => item.properties.couche_id + item.properties['type']).indexOf(layerProp.properties.couche_id + layerProp.properties['type']) === index;
 
-        }).filter((layerProp) => layerProp.properties["type"] == "couche").map((layerProp) => {
+      //   }).filter((layerProp) => layerProp.properties["type"] == "couche").map((layerProp) => {
 
-          return { "layer_id": layerProp.properties["couche_id"], "layer_name": layerProp.nom }
-        })
+      //     return { "layer_id": layerProp.properties["couche_id"], "layer_name": layerProp.nom }
+      //   })
 
-      const mapExtent = CartoHelper.getMapExtent(this.map)
-      if (mapExtent == undefined) {
-        return
-      }
-      const mapSize = mapExtent.dimensions()
-      this.parametersService.logRenderTimePerFrame(this.frameRenderTime, layers.map((layer) => layer.layer_id), layers.map((layer) => layer.layer_name), mapSize.toArray(), mapExtent.values.join(","), window.location.href).pipe(take(1)).subscribe()
+      // if (mapExtent == undefined) {
+      //   return
+      // }
+      const mapExtent = [0, 0, 0, 0]
+      const mapSize = new Vec2(0, 0)
+      this.parametersService.logRenderTimePerFrame(this.frameRenderTime, layers.map((layer) => layer.layer_id), layers.map((layer) => layer.layer_name), Vec2.toArray(mapSize), mapExtent.join(","), window.location.href).pipe(take(1)).subscribe()
       this.frameRenderTime = {}
     }
   }
@@ -442,30 +712,28 @@ export abstract class AbstractProfilComponent implements OnInit {
     // Enable Stats in DEv mode
 
     if (!environment.production || (this.parametersService.map_id == 4 || this.parametersService.map_id == 15)) {
-      const inspector = new Inspector("giro3d-inspector", this.instance)
-      // inspector.gui.
-      // inspector.gui.onFinishChange(() => {
+      // const inspector = new Inspector("giro3d-inspector", this.instance)
 
-      inspector.folders.filter((f) => f instanceof ProcessingInspector).map((f) => {
+      // inspector.folders.filter((f) => f instanceof ProcessingInspector).map((f) => {
 
-        f["charts"].forEach((c) => {
-          if (c instanceof FrameDuration == false) {
-            c.dispose()
-          } else {
-            f.gui.open()
-            c.gui.open()
-          }
-        })
-      })
-      inspector.folders.filter((f) => (f instanceof ProcessingInspector == false) && f instanceof DrawToolPanel == false).map((f) => {
-        f.dispose()
-      })
+      //   f["charts"].forEach((c) => {
+      //     if (c instanceof FrameDuration == false) {
+      //       c.dispose()
+      //     } else {
+      //       f.gui.open()
+      //       c.gui.open()
+      //     }
+      //   })
+      // })
+      // inspector.folders.filter((f) => (f instanceof ProcessingInspector == false) && f instanceof DrawToolPanel == false).map((f) => {
+      //   f.dispose()
+      // })
 
       var stats = new Stats();
       // We prefer to not use FPS, but the number of seconds to draw a frame (SecondPerFrame) 
       // See http://www.opengl-tutorial.org/fr/miscellaneous/an-fps-counter/
 
-      stats.showPanel(0);
+      stats.showPanel(1);
       document.body.appendChild(stats.dom);
     }
 
@@ -513,7 +781,8 @@ export abstract class AbstractProfilComponent implements OnInit {
 
     camera.updateProjectionMatrix();
     this.controls = new MapControls(this.instance.view.camera, this.instance.domElement);
-    this.controls.maxPolarAngle = Math.PI / 2 - (Math.PI / 10)
+    // this.controls.maxPolarAngle = Math.PI / 2 - (Math.PI / 10)
+    this.controls.maxPolarAngle = Math.PI / 2 - MathUtils.degToRad(2)
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.1;
     this.controls.zoomToCursor = true
@@ -527,22 +796,180 @@ export abstract class AbstractProfilComponent implements OnInit {
   }
 
   addLights() {
-    const sun = new DirectionalLight('#ffffff', 2);
-    sun.position.set(1, 0, 1).normalize();
-    sun.updateMatrixWorld(true);
-    this.instance.scene.add(sun);
 
+    // let parisPov = "260354.7,6252644.5,301.2,259689,6252821.8,0"
+    // const center = getCenter(this.parametersService.projectPolygon.getGeometry().getExtent())
+    // const center = [260354.7, 6252644.5]
+    // this.sun = new DirectionalLight('#ff00ff', 20);
+    // this.sun = new DirectionalLight('#white', 15);
+    // this.sun.updateMatrixWorld(true);
+    // this.sun.name = "Sun light"
+    // this.sun.target.name = "Sun light target"
+
+    // this.sun.shadow.bias = -0.0001;
+    // this.sun.shadow.normalBias = 1
+    // this.sun.shadow.radius = 0
+    // this.sun.shadow.mapSize.width = 1024 * 1
+    // this.sun.shadow.mapSize.height = 1024 * 1
+    // const shadowCamera = this.sun.shadow.camera;
+    // const d = 1000; // demi-largeur du volume d’ombre en unités de ta scène
+    // shadowCamera.left = -d;
+    // shadowCamera.right = d;
+    // shadowCamera.top = d;
+    // shadowCamera.bottom = -d;
+
+    // this.instance.add(this.sun);
+    // this.instance.add(this.sun.target);
+
+
+    // // this.map.castShadow = true;
+
+    // this.sun.castShadow = true;
+
+    // const helper = new DirectionalLightHelper(this.sun, 5, "white");
+    // helper.name = "Sun light helper"
+    // this.instance.add(helper);
+
+    // const camera = this.instance.view.camera
+    // const camHelper = new CameraHelper(shadowCamera);
+    // camHelper.name = "Sun light camera helper"
+    // shadowCamera.far = 3000
+    // shadowCamera.near = 1
+    // shadowCamera.updateProjectionMatrix();
+
+    this.lightAndShadowSystem = new LightAndShadowSystem(this.map, this.instance, this.sunSystem)
+    const onUpdateSunPositionAfterCameraUpdate = new Subject<void>()
+    onUpdateSunPositionAfterCameraUpdate.pipe(debounceTime(1000)).subscribe(() => {
+      this.lightAndShadowSystem.update()
+      // this.updateSunPositionAndTarget(this.instance.view.camera as PerspectiveCamera)
+      // helper.update();
+      // camHelper.update();
+    })
+    this.objectsToUpdateAfterCameraUpdated.push(onUpdateSunPositionAfterCameraUpdate)
+
+
+    // setTimeout(() => {
+    //   this.updateSunPositionAndTarget(this.instance.view.camera as PerspectiveCamera)
+    //   setTimeout(() => {
+
+    //     helper.update();
+    //     camHelper.update();
+    //   }, 1000);
+    // }, 1000);
+
+
+
+
+    // this.instance.addEventListener("before-render", (e) => {
+    //   this.sun.target.updateMatrixWorld();
+    //   shadowCamera.updateProjectionMatrix();
+    //   // console.log(camera.position, camera.matrix)
+    //   // shadowCamera.far = camera.far
+    //   // shadowCamera.near = camera.near
+    // helper.update();
+    // camHelper.update();
+    // })
+
+
+    // const inspector = new Inspector("giro3d-inspector", this.instance)
+    // const params = {
+    //   "cameraFar": 3000,
+    //   "cameraNear": 1,
+    //   "lightIntensity": 2,
+    //   "bias": 0.0001,
+    //   update: () => {
+    //     this.updateSunPositionAndTarget(this.instance.view.camera as PerspectiveCamera)
+    //     helper.update();
+    //     camHelper.update();
+    //   }
+    // }
+    // inspector.gui.add(params, 'update').name('Update light');
+    // inspector.gui.add(params, 'cameraFar').min(1000).max(5000).step(10).name('Camera far').onChange((value) => {
+    //   shadowCamera.far = value
+    //   helper.update();
+    //   camHelper.update();
+    //   this.instance.notifyChange()
+    // });
+    // inspector.gui.add(params, 'cameraNear').min(1).max(3000).step(10).name('Camera near').onChange((value) => {
+    //   shadowCamera.near = value
+    //   helper.update();
+    //   camHelper.update();
+    //   this.instance.notifyChange()
+    // });
+
+
+    // inspector.gui.add(params, 'lightIntensity').min(0).max(20).step(1).name('light Intensity').onChange((value) => {
+    //   this.sun.intensity = value
+    //   helper.update();
+    //   camHelper.update();
+    //   this.instance.notifyChange()
+    // });
+
+    // inspector.gui.add(params, "bias").min(-0.000005).max(0.000005).step(0.000001).name('bias').onChange((value) => {
+    //   this.sun.shadow.bias = value
+    //   // helper.update();
+    //   // camHelper.update();
+    //   this.instance.notifyChange()
+    // })
 
     // We can look below the floor, so let's light also a bit there
 
-    const sun2 = new DirectionalLight('#ffffff', 0.5);
-    sun2.position.set(0, 1, 1);
-    sun2.updateMatrixWorld();
-    this.instance.scene.add(sun2);
+    // const sun2 = new DirectionalLight('#ffffff', 0.5);
+    // sun2.position.set(0, 1, 1);
+    // sun2.updateMatrixWorld();
+    // this.instance.add(sun2);
 
     // ambient
-    const ambientLight = new AmbientLight(0xffffff, 0.2);
-    this.instance.scene.add(ambientLight);
+    // const ambientLight = new AmbientLight(new Color().setRGB(1, 1, 1), 4);
+    // ambientLight.up.set(0, 0, 1);
+    // this.instance.add(ambientLight);
+
+  }
+
+  updateSunPositionAndTarget(camera: PerspectiveCamera) {
+
+    let mapPosition: Coordinates
+    let cameraPosition: Vector3
+    try {
+      const mapBoundingBox = CartoHelper.getVisibleTileBoundingBox(this.map)
+
+      if (mapBoundingBox.isEmpty()) {
+        throw new Error("Map bounding box is undefined when updating sun position")
+      }
+
+      mapBoundingBox.getCenter(tempVec3)
+      mapBoundingBox.getSize(temp2Vec3)
+      const mapCenter = new Coordinates("EPSG:3857", tempVec3.x, tempVec3.y);
+      mapPosition = mapCenter.clone().as("EPSG:4326");
+      cameraPosition = new Vector3(mapCenter.x, mapCenter.y, camera.position.z)
+      const extentDimensions = temp2Vec3.clone().divideScalar(2)
+      const shadowCamera = this.sun.shadow.camera;
+      shadowCamera.left = -extentDimensions.x;
+      shadowCamera.right = extentDimensions.x;
+      shadowCamera.top = extentDimensions.y;
+      shadowCamera.bottom = -extentDimensions.y;
+
+    } catch (error) {
+      cameraPosition = camera.position
+      mapPosition = new Coordinates("EPSG:3857", cameraPosition.x, cameraPosition.y).as("EPSG:4326");
+      console.error(error)
+    }
+
+    // const date = new Date(Date.UTC(2025, 8 - 1, 20, 17, 0, 0))
+
+    const sunDir = this.sunSystem.sunDirection
+    const target = cameraPosition.clone()
+    target.setZ(0)
+    // TODO : get the min z of the near plane of the camera, and add like 200 meters to have the real scalar
+    const sunPosition = target.clone().addScaledVector(new Vector3(sunDir.x, sunDir.y, sunDir.z), 1000)
+    this.sun.position.copy(sunPosition)
+    this.sun.target.position.copy(target).setZ(0);
+
+    this.sun.updateMatrixWorld(true);
+    this.sun.target.updateMatrixWorld(true);
+
+
+    this.instance.notifyChange()
 
   }
 
@@ -557,29 +984,33 @@ export abstract class AbstractProfilComponent implements OnInit {
    * Continue update the compass icon when user move map
    */
   updateCompassRotation() {
-    fromInstanceGiroEvent(this.instance, "after-camera-update").pipe(
-      takeUntil(this.destroyed$),
+    const onUpdateCompassRotation: Subject<void> = new Subject<void>()
+    onUpdateCompassRotation.pipe(
+      debounceTime(200),
       tap(() => {
-        // MathUtils.
         const compassButton: HTMLElement = (document.getElementsByClassName("compass").item(0) as HTMLElement)
         if (compassButton) {
           compassButton.style.rotate = MathUtils.radToDeg(this.instance.view.camera.rotation.z) + "deg"
         }
       })
     ).subscribe()
+
+    this.objectsToUpdateAfterCameraUpdated.push(onUpdateCompassRotation)
   }
 
   /**
    * Update url when ever map moved or layer are add/remove
    */
   updateCurrentUrl() {
-    fromInstanceGiroEvent(this.instance, "after-camera-update").pipe(
+    const onUpdateCurrentUrl: Subject<void> = new Subject<void>()
+    onUpdateCurrentUrl.pipe(
       debounceTime(500),
-      tap((camera) => {
+      tap(() => {
         this.shareServiceService.updateUrlWithPointOfView(this.map)
       })
-    )
-      .subscribe()
+    ).subscribe()
+    this.objectsToUpdateAfterCameraUpdated.push(onUpdateCurrentUrl)
+
   }
 
   initialiseClickEvent() {
@@ -702,7 +1133,10 @@ export abstract class AbstractProfilComponent implements OnInit {
    * - Trees
    */
   initialiseGroundTileProcessing() {
-    new GroundTileProcessing(this.map)
+    this.ngZone.runOutsideAngular(() => {
+      new GroundTileProcessing(this.map, this.parametersService, this.sunSystem, this.lightAndShadowSystem.csm)
+    });
+
   }
 
   initialiseProfilGroups() {
@@ -1032,4 +1466,3 @@ export abstract class AbstractProfilComponent implements OnInit {
 
 
 }
-
