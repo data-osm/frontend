@@ -1,0 +1,18 @@
+<form [formGroup]="dateTimeForm" class="scene-settings-form">
+    <div fxLayout="column">
+        <label class="white" style="padding-bottom: 10px;">Date : </label>
+        <mat-form-field appearance="fill" [hideRequiredMarker]="true">
+            <!-- <mat-label>Date</mat-label> -->
+            <input matInput [matDatepicker]="dp3" disabled formControlName="date">
+            <mat-datepicker-toggle matSuffix [for]="dp3"></mat-datepicker-toggle>
+            <mat-datepicker #dp3 disabled="false"></mat-datepicker>
+        </mat-form-field>
+    </div>
+    <div fxLayout="column">
+        <!-- <mat-label>Heure</mat-label> -->
+        <label class="white">Heure ({{dateTimeForm.get('hour').value}}:00) : </label>
+        <mat-slider color="accent" showTickMarks [displayWith]="formatHoursLabel" discrete step="1" min="0" max="23">
+            <input matSliderThumb formControlName="hour" />
+        </mat-slider>
+    </div>
+</form>

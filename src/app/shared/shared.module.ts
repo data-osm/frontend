@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import {FileUploadComponent} from './pages/file-upload/file-upload.component'
+import { FileUploadComponent } from './pages/file-upload/file-upload.component'
 
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { HttpBackend, HttpClientModule } from '@angular/common/http';
@@ -15,11 +15,11 @@ import { ShareIconsModule } from 'ngx-sharebuttons/icons';
 export function HttpLoaderFactory(_httpBackend: HttpBackend) {
   return new MultiTranslateHttpLoader(_httpBackend, [
     { prefix: "./assets/i18n/", suffix: ".json" },
-  {prefix: './assets/i18n/tags-', suffix: '.json'}]);
+    { prefix: './assets/i18n/tags-', suffix: '.json' }]);
 }
 
 
-import {ComponentMaterialModule} from './material-module';
+import { ComponentMaterialModule } from './material-module';
 import { NotifierModule } from "angular-notifier";
 import { RouterModule } from '@angular/router';
 import { SvgIconDirective } from './directive/svg-icon.directive';
@@ -38,7 +38,7 @@ import { HttpErrorComponent } from './pages/http-error/http-error.component';
 import { CommonModule } from '@angular/common';
 
 @NgModule({
-    declarations: [FileUploadComponent,ColorPickerComponent, SearchProviderComponent, SearchMapComponent, SvgIconDirective, PreviewDataComponent, SafeStylePipe, SafeUrlPipe, CardDownloadLayerComponent, HttpErrorComponent],
+  declarations: [FileUploadComponent, ColorPickerComponent, SearchProviderComponent, SearchMapComponent, SvgIconDirective, PreviewDataComponent, SafeStylePipe, SafeUrlPipe, CardDownloadLayerComponent, HttpErrorComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -59,11 +59,10 @@ import { CommonModule } from '@angular/common';
       }
     }),
   ],
-  exports:[
+  exports: [
     FileUploadComponent,
     ComponentMaterialModule,
     NotifierModule,
-    ComponentMaterialModule,
     FlexLayoutModule,
     HttpClientModule,
     ReactiveFormsModule,
@@ -82,10 +81,10 @@ import { CommonModule } from '@angular/common';
     ColorPickerModule,
     HttpErrorComponent
   ],
-  providers:[_CoalescedStyleScheduler,
-    {provide: _VIEW_REPEATER_STRATEGY, useClass: _DisposeViewRepeaterStrategy},
-    {provide: CdkTable, useExisting: MatTable},
-    {provide: CDK_TABLE, useExisting: MatTable},]
+  providers: [_CoalescedStyleScheduler,
+    { provide: _VIEW_REPEATER_STRATEGY, useClass: _DisposeViewRepeaterStrategy },
+    { provide: CdkTable, useExisting: MatTable },
+    { provide: CDK_TABLE, useExisting: MatTable },]
 })
 export class SharedModule {
   constructor(private translate: TranslateService) {
@@ -95,4 +94,4 @@ export class SharedModule {
     let browserLang = translate.getBrowserLang();
     translate.use(browserLang.match(/fr/) ? browserLang : 'fr');
   }
- }
+}

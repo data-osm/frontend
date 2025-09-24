@@ -32,6 +32,14 @@ export class SunSystem {
     get skyChangedObservable() {
         return this.skyChanged$.asObservable()
     }
+
+    get currentDateTime() {
+        return new Date(this.currentDate)
+    }
+
+    get currentPos() {
+        return this.currentPosition
+    }
     constructor(
         instance: Instance,
         initialPosition: Vec2

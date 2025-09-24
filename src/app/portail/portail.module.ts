@@ -41,6 +41,7 @@ import { ImportDataComponent } from './pages/sidenav-right/import-data/import-da
 import { BuildingSheetComponent } from './pages/descriptive-sheet/building-sheet/building-sheet.component';
 import { UpdateOsmBuildingComponent } from './pages/update-osm-building/update-osm-building.component';
 import { OsmBulkSaveComponent } from '../modal/osm-bulk-save/osm-bulk-save.component';
+import { SceneSettingsComponent } from './pages/sidenav-right/scene-settings/scene-settings.component';
 
 @NgModule({
   declarations: [
@@ -80,6 +81,7 @@ import { OsmBulkSaveComponent } from '../modal/osm-bulk-save/osm-bulk-save.compo
     BuildingSheetComponent,
     UpdateOsmBuildingComponent,
     OsmBulkSaveComponent,
+    SceneSettingsComponent,
 
   ],
   imports: [

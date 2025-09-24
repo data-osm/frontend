@@ -7,6 +7,7 @@ export interface RightMenuInterface {
   active: boolean,
   enable: boolean,
   title: string
+  height: string
 }
 
 /**

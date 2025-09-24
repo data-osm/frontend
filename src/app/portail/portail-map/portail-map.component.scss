@@ -57,12 +57,15 @@ $height: 100%;
 .sidenav-right-download {
   width: 300px !important;
 }
+.sidenav-right-scene_settings {
+  width: 300px !important;
+}
 .toogle-sidenav-right-button {
   min-width: 50px;
   width: 50px !important;
   border-radius: 0px;
   padding: 0px;
-  background-color: #000 !important;
+  // background-color: #000 !important;
   cursor: pointer;
   mat-icon {
     font-size: 20px;
@@ -76,7 +79,7 @@ $height: 100%;
 .toogle-sidenav-right-button-toc {
   border-radius: 10px 10px 0px 0px;
 }
-.toogle-sidenav-right-button-legend {
+.toogle-sidenav-right-button-scene_settings {
   border-radius: 0px 0px 10px 10px;
 }
 .sidenav-right {
@@ -263,4 +266,10 @@ $height: 100%;
   .toggle-rnb-edit {
     display: none !important;
   }
+}
+.inActiveBG {
+  background-color: #000 !important;
+}
+.activeBG {
+  background-color: #001725 !important;
 }

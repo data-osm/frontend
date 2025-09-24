@@ -129,7 +129,11 @@
       "toolpit_legend": "Légende",
       "toolpit_map_routing": "Calcul d'itinéraire",
       "toolpit_toc": "Couche en cours",
-      "toolpit_tools": "Outils d'édition"
+      "toolpit_tools": "Outils d'édition",
+      "toolpit_scene_settings": "Paramètres de la scene"
+    },
+    "scene_settings": {
+      "title": "Paramètres de la scene"
     },
     "download_data": {
       "title": "Téléchargement de données",

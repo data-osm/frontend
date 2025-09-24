@@ -18,7 +18,7 @@
     <app-header [instance]="instance" [map]="map"></app-header>
 
 
-    <div class="toggle-rnb-edit"
+    <div class="toggle-rnb-edit black"
       [ngClass]="{'toggle-rnb-edit-enabled': osmUpdateStoreService.isOsmBuildingUpdateEnabled, 'toggle-rnb-edit-disabled': !osmUpdateStoreService.isOsmBuildingUpdateEnabled}"
       fxLayout (click)="toggleOsmBuildingUpdate()">
       <img fxFlex="40px" src="assets/icones/logo.rnb.png" alt="">
@@ -66,13 +66,32 @@
             (click)="openRightMenu(rightMenu.name)" [matTooltip]="
               'right_menu.button.' + [rightMenu.tooltip] | translate
             " mat-raised-button style="width: 100%;" [ngClass]="{
-              primaryColorBG: !rightMenu.active,
-              whiteBG: rightMenu.active
+              inActiveBG: !rightMenu.active,
+              activeBG: rightMenu.active
             }">
             <mat-icon *ngIf="rightMenu.name == 'toc'" [ngClass]="{
             white: !rightMenu.active,
             primaryColor: rightMenu.active
           }">layers</mat-icon>
+
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"
+              *ngIf="rightMenu.name == 'scene_settings'" style="width: 25px;">
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+              <g id="SVGRepo_iconCarrier">
+                <rect width="40" height="40" rx="8" fill="#000000" fill-opacity="0.4"
+                  style="--darkreader-inline-fill: var(--darkreader-background-000000, #000000);"
+                  data-darkreader-inline-fill=""></rect>
+                <path
+                  d="M20 7.86667C13.2987 7.86667 7.86667 13.2987 7.86667 20C7.86667 26.7013 13.2987 32.1333 20 32.1333C26.7013 32.1333 32.1333 26.7013 32.1333 20C32.1333 13.2987 26.7013 7.86667 20 7.86667Z"
+                  fill="white" style="--darkreader-inline-fill: var(--darkreader-background-ffffff, #181a1b);"
+                  data-darkreader-inline-fill=""></path>
+                <path
+                  d="M20 14.4C20.5155 14.4 20.9333 14.8179 20.9333 15.3333V20.0476L24.1225 22.8822C24.5078 23.2247 24.5425 23.8147 24.2 24.2C23.8575 24.5853 23.2675 24.62 22.8822 24.2775L19.0667 20.8857V15.3333C19.0667 14.8179 19.4845 14.4 20 14.4Z"
+                  fill="#B5B5B5" style="--darkreader-inline-fill: var(--darkreader-background-b5b5b5, #42474a);"
+                  data-darkreader-inline-fill=""></path>
+              </g>
+            </svg>
 
 
             <svg x="0px" y="0px" viewBox="0 0 20.8 20.8" style="width: 21px" *ngIf="rightMenu.name == 'edition'">
@@ -118,6 +137,8 @@
         <app-table-of-contents [map]="map" [hidden]="!getRightMenu('toc').active"></app-table-of-contents>
         <app-legend [map]="map" [hidden]="!getRightMenu('legend').active"></app-legend>
         <app-download [map]="map" [hidden]="!getRightMenu('download').active"></app-download>
+        <app-scene-settings [sunSystem]="sunSystem" [map]="map"
+          [hidden]="!getRightMenu('scene_settings').active"></app-scene-settings>
       </div>
     </div>
   </mat-sidenav-content>

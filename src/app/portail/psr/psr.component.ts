@@ -55,10 +55,10 @@ export class PsrComponent extends AbstractProfilComponent {
   }
 
   override rightMenus: Array<RightMenuInterface> = [
-    { name: 'toc', active: false, enable: true, tooltip: 'toolpit_toc', title: 'table_of_contents' },
-    { name: 'download', active: false, enable: true, tooltip: 'toolpit_download_data', title: 'download_data' },
-    { name: 'legend', active: false, enable: true, tooltip: 'toolpit_legend', title: 'legend' },
-    { name: 'import-data', active: false, enable: true, tooltip: 'import_data', title: 'import-data' },
+    { name: 'toc', active: false, enable: true, tooltip: 'toolpit_toc', title: 'table_of_contents', height: "100%" },
+    { name: 'download', active: false, enable: true, tooltip: 'toolpit_download_data', title: 'download_data', height: "100%" },
+    { name: 'legend', active: false, enable: true, tooltip: 'toolpit_legend', title: 'legend', height: "100%" },
+    { name: 'import-data', active: false, enable: true, tooltip: 'import_data', title: 'import-data', height: "100%" },
   ]
 
 

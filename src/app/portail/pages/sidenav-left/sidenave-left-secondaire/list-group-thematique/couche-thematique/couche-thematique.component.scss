@@ -17,6 +17,9 @@
 .couche-option {
 	touch-action: auto !important;
 }
+// .couche-option:hover {
+// 	background: #ffffff29;
+// }
 .couches img {
 	width: 50px;
 	height: 50px;
@@ -57,7 +60,7 @@
 
 .couche-title {
 	font-size: 15px !important;
-	color: white;
+	color: white !important;
 	margin-top: 8px !important;
 }
 
@@ -70,3 +73,7 @@
 ::ng-deep .mat-pseudo-checkbox-full {
 	color: #fff !important;
 }
+
+// ::ng-deep .mat-mdc-checkbox label {
+// 	color: #fff !important;
+// }

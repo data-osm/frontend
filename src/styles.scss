@@ -210,3 +210,10 @@ mat-dialog-container::-webkit-scrollbar-thumb {
 ::before {
 	box-sizing: initial;
 }
+
+.mat-mdc-standard-chip {
+	--mdc-chip-with-icon-selected-icon-color: #fff !important;
+}
+.mat-mdc-standard-chip {
+	--mdc-chip-label-text-color: #fff !important;
+}

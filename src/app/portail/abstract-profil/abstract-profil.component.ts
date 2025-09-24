@@ -152,11 +152,12 @@ export abstract class AbstractProfilComponent implements OnInit {
    * All menus of the right sidenav
    */
   rightMenus: Array<RightMenuInterface> = [
-    { name: 'toc', active: false, enable: true, tooltip: 'toolpit_toc', title: 'table_of_contents' },
-    { name: 'download', active: false, enable: true, tooltip: 'toolpit_download_data', title: 'download_data' },
-    { name: 'edition', active: false, enable: false, tooltip: 'toolpit_tools', title: 'tools' },
-    { name: 'routing', active: false, enable: false, tooltip: 'toolpit_map_routing', title: 'map_routing' },
-    { name: 'legend', active: false, enable: true, tooltip: 'toolpit_legend', title: 'legend' },
+    { name: 'toc', active: false, enable: true, tooltip: 'toolpit_toc', title: 'table_of_contents', height: "100%" },
+    { name: 'download', active: false, enable: true, tooltip: 'toolpit_download_data', title: 'download_data', height: "100%" },
+    { name: 'edition', active: false, enable: false, tooltip: 'toolpit_tools', title: 'tools', height: "100%" },
+    { name: 'routing', active: false, enable: false, tooltip: 'toolpit_map_routing', title: 'map_routing', height: "100%" },
+    { name: 'legend', active: false, enable: true, tooltip: 'toolpit_legend', title: 'legend', height: "100%" },
+    { name: 'scene_settings', active: false, enable: true, tooltip: 'toolpit_scene_settings', title: 'scene_settings', height: "200px" },
   ]
 
   effectComposer: EffectComposer
@@ -206,7 +207,7 @@ export abstract class AbstractProfilComponent implements OnInit {
           return this.baseMapService.getCSRFToken()
         }),
         tap(() => {
-
+          this.openRightMenu("scene_settings")
 
           this.initialiseProfilGroups()
 
@@ -1425,6 +1426,7 @@ export abstract class AbstractProfilComponent implements OnInit {
     } else {
       // this.sidenavRight.nativeElement.style.width = "220px"
       this.sidenavRight.nativeElement.style.right = "0px"
+      this.sidenavRight.nativeElement.style.height = menu.height
       this.sidenavRight.nativeElement.style.visibility = "visible"
       // this.sidenavContainer.end.open()
       this.rightMenus.map(item => item.active = false)

@@ -288,7 +288,7 @@
 
 <div mat-dialog-actions class="text-center descriptive-sheet-actions ">
 
-  <button mat-raised-button [hidden]="!extent" (click)="zoomOnFeatureExtent()">
+  <button mat-raised-button [hidden]="!extent" color="accent" (click)="zoomOnFeatureExtent()">
     <i class="fa fa-search-plus"> </i> {{'descriptive_sheet.zoomTo' | translate}}
   </button>
   <ng-container *ngIf="feature">

@@ -1,182 +1,196 @@
-@use '@angular/material' as mat;
+// @use "@angular/material" as mat;
 @import "../../src//environments/color.scss";
-// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
-//  The following line adds:
-//    1. Default typography styles for all components
-//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
-//  If you specify typography styles for the components you use elsewhere, you should delete this line.
-//  If you don't need the default component typographies but still want the hierarchy styles,
-//  you can delete this line and instead use:
-//    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
-@include mat.all-legacy-component-typographies();
-@include mat.legacy-core();
 
-@mixin theme-color-grabber($theme) {
-  // Parse the theme and create variables for each color in the pallete #c1000a(rouge) jaune #ffd800
-  $primary: map-get($theme, primary);
-  $accent: map-get($theme, accent);
-  $warn: map-get($theme, warn);
-  // Create theme specfic styles
-  .red{
-    color: red !important;
-  }
-  .primaryColor {
-    color: mat.get-color-from-palette($primary) !important;
-  }
+// @include mat.core();
 
-  .primaryColorBorder {
-    border-color: mat.get-color-from-palette($primary) !important;
-  }
+// @mixin theme-color-grabber($theme) {
+//   // Parse the theme and create variables for each color in the pallete #c1000a(rouge) jaune #ffd800
+//   $primary: map-get($theme, primary);
+//   $accent: map-get($theme, accent);
+//   $warn: map-get($theme, warn);
+//   // Create theme specfic styles
+//   .red {
+//     color: red !important;
+//   }
+//   .primaryColor {
+//     color: mat.get-color-from-palette($primary) !important;
+//   }
 
-  .primaryColorFill {
-    fill: mat.get-color-from-palette($primary) !important;
-  }
+//   .primaryColorBorder {
+//     border-color: mat.get-color-from-palette($primary) !important;
+//   }
 
-  .primaryColorBG {
-    background-color: mat.get-color-from-palette($primary) !important;
-  }
+//   .primaryColorFill {
+//     fill: mat.get-color-from-palette($primary) !important;
+//   }
 
-  .accentColor {
-    color: mat.get-color-from-palette($accent) !important;
-  }
+//   .primaryColorBG {
+//     background-color: mat.get-color-from-palette($primary) !important;
+//   }
 
-  .accentColorBG {
-    background-color: mat.get-color-from-palette($accent) !important;
-  }
+//   .accentColor {
+//     color: mat.get-color-from-palette($accent) !important;
+//   }
 
-  .accentColorFill {
-    fill: mat.get-color-from-palette($accent) !important;
-  }
+//   .accentColorBG {
+//     background-color: mat.get-color-from-palette($accent) !important;
+//   }
 
-  .warnColorBG {
-    background-color: mat.get-color-from-palette($warn);
-  }
+//   .accentColorFill {
+//     fill: mat.get-color-from-palette($accent) !important;
+//   }
 
-  .mat-expansion-indicator:after {
-    color: mat.get-color-from-palette($primary) !important;
-  }
+//   .warnColorBG {
+//     background-color: mat.get-color-from-palette($warn);
+//   }
 
-  .customBlackBG{
-    background-color: #001725 !important;
-  }
+//   .mat-expansion-indicator:after {
+//     color: mat.get-color-from-palette($primary) !important;
+//   }
 
-  .white {
-    color: #fff !important;
-  }
-
-  .whiteFill {
-    fill: #fff !important;
-  }
-
-  .whiteBG {
-    background-color: #fff !important;
-  }
-
-  .black {
-    color: #3a3a3a !important;
-  }
-
-  .blackBG {
-    background-color: #3a3a3a !important;
-  }
-
-  .gray {
-    color: rgba(0, 0, 0, 0.12) !important;
-  }
-
-  .grayBG {
-    background-color: rgba(0, 0, 0, 0.12) !important;
-  }
-
-  .blackFill {
-    fill: #3a3a3a !important;
-  }
-
-  .whiteBorder {
-    border-color: #fff !important;
-  }
-
-  .font {
-    font-family: Roboto, "Helvetica Neue", sans-serif;
-  }
-
-  .red {
-    color: red;
-  }
-
-  .redBG {
-    background-color: red;
-  }
-
-  .redBorder {
-    border-color: red !important;
-  }
-
-  .primary_transparent_bg {
-    background-color: $primary_transparent_bg !important;
-  }
-}
+// }
 
 $primary: $primary_color;
 
 $primary_transparent_bg: #f2f7fa;
 
-$color_prim: (
-  50: #000,
-  100: $primary,
-  200: $primary,
-  300: #36708e,
-  400: $primary,
-  500: $primary,
-  600: $primary,
-  700: $primary,
-  800: $primary,
-  900: $primary,
-  A100: #000,
-  A200: #000,
-  A400: $primary,
-  A700: $primary,
-  contrast: (
-    500: black,
-    600: black,
-    700: black,
-    800: black,
-    900: black,
-    A700: black,
-  ),
-);
+// $color_prim: (
+//   50: #000,
+//   100: $primary,
+//   200: $primary,
+//   300: #36708e,
+//   400: $primary,
+//   500: $primary,
+//   600: $primary,
+//   700: $primary,
+//   800: $primary,
+//   900: $primary,
+//   A100: #000,
+//   A200: #000,
+//   A400: $primary,
+//   A700: $primary,
+//   contrast: (
+//     500: black,
+//     600: black,
+//     700: black,
+//     800: black,
+//     900: black,
+//     A700: black
+//   )
+// );
 
-$color_accent: (
-  50: #000,
-  100: #00ada7,
-  200: #00ada7,
-  300: #00ada7,
-  400: #00ada7,
-  500: #00ada7,
-  600: #00ada7,
-  700: #00ada7,
-  800: #00ada7,
-  900: #00ada7,
-  A100: #000,
-  A200: #000,
-  A400: #00ada7,
-  A700: #00ada7,
-  contrast: (
-    500: black,
-    600: black,
-    700: black,
-    800: black,
-    900: black,
-    A700: black,
-  ),
-);
+// $color_accent: (
+//   50: #000,
+//   100: #00ada7,
+//   200: #00ada7,
+//   300: #00ada7,
+//   400: #00ada7,
+//   500: #00ada7,
+//   600: #00ada7,
+//   700: #00ada7,
+//   800: #00ada7,
+//   900: #00ada7,
+//   A100: #000,
+//   A200: #000,
+//   A400: #00ada7,
+//   A700: #00ada7,
+//   contrast: (
+//     500: black,
+//     600: black,
+//     700: black,
+//     800: black,
+//     900: black,
+//     A700: black
+//   )
+// );
 $accent_color: #00ada7;
 $color_prim_300: #36708e;
 
-$theme-primary: mat.define-palette($color_prim, 500);
-$theme-accent: mat.define-palette($color_accent, 600);
-$theme-warn: mat.define-palette(mat.$red-palette);
-$theme: mat.define-light-theme($theme-primary, $theme-accent, $theme-warn);
+// $candy-app-primary: mat.define-palette($color_prim, 500);
+// $candy-app-accent: mat.define-palette($color_accent, 600);
+// $candy-app-warn: mat.define-palette(mat.$red-palette);
+
+// $my-theme: mat.define-light-theme(
+//   (
+//     color: (
+//       primary: $candy-app-primary,
+//       accent: $candy-app-accent
+//     ),
+//     typography: mat.define-typography-config(),
+//     density: 0
+//   )
+// );
+// @include mat.all-component-themes($my-theme);
+// $candy-app-theme: mat-light-theme(
+//   (
+//     color: (
+//       primary: $candy-app-primary,
+//       accent: $candy-app-accent,
+//       warn: $candy-app-warn
+//     )
+//   )
+// );
 //
-@include theme-color-grabber($theme);
-@include mat.all-legacy-component-themes($theme);
+// @include angular-material-theme($candy-app-theme);
+// @include theme-color-grabber($my-theme);
+// @include mat.all-legacy-component-themes($theme);
+
+.customBlackBG {
+  background-color: #001725 !important;
+}
+
+.white {
+  color: #fff !important;
+}
+
+.whiteFill {
+  fill: #fff !important;
+}
+
+.whiteBG {
+  background-color: #fff !important;
+}
+
+.black {
+  color: #3a3a3a !important;
+}
+
+.blackBG {
+  background-color: #3a3a3a !important;
+}
+
+.gray {
+  color: rgba(0, 0, 0, 0.12) !important;
+}
+
+.grayBG {
+  background-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+.blackFill {
+  fill: #3a3a3a !important;
+}
+
+.whiteBorder {
+  border-color: #fff !important;
+}
+
+.font {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.red {
+  color: red;
+}
+
+.redBG {
+  background-color: red;
+}
+
+.redBorder {
+  border-color: red !important;
+}
+
+.primary_transparent_bg {
+  background-color: $primary_transparent_bg !important;
+}

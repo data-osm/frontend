@@ -17,6 +17,10 @@ import { MatChipsModule, MatChipsModule as NewMatChipsModule } from '@angular/ma
 import { MatMenuModule } from '@angular/material/menu';
 
 
+import { MatDatepickerModule } from '@angular/material/datepicker';
+
+
+import { MatSliderModule } from '@angular/material/slider';
 import { MatSidenavModule } from '@angular/material/sidenav'
 // import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip'
 // import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
@@ -53,6 +57,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
+import { MatNativeDateModule } from '@angular/material/core';
 @NgModule({
   exports: [
     MatIconModule,
@@ -93,7 +98,10 @@ import { MatCardModule } from '@angular/material/card';
     MatSortModule,
     MatLegacyDialogModule,
     NewMatChipsModule,
-    MatInputModule
+    MatInputModule,
+    MatDatepickerModule,
+    MatSliderModule,
+    MatNativeDateModule
   ]
 })
 export class ComponentMaterialModule { }

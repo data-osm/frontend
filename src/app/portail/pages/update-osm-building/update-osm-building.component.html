@@ -76,7 +76,7 @@
         (click)="ignoreAndGoToNextFeature()">
         Ignorer et continuer
     </button>
-    <button fxFlex mat-flat-button [disabled]="!osmForm.valid || canGoToNExtFeature()[0]"
+    <button fxFlex mat-flat-button color="primary" [disabled]="!osmForm.valid || canGoToNExtFeature()[0]"
         class="white save-to-osm accentColorBG" (click)="saveAndGoToNextFeature()">
         Sauvegarder et continuer
     </button>

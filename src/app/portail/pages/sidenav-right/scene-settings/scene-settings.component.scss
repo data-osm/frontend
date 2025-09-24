@@ -1,0 +1,22 @@
+form {
+    width: 100%;
+    mat-form-field {
+        width: 100%;
+    }
+    mat-slider {
+        width: 90%;
+    }
+}
+label {
+    padding-left: 5px;
+}
+
+.scene-settings-form {
+    ::ng-deep .mdc-text-field--filled {
+        background: none !important;
+    }
+
+    ::ng-deep .mat-mdc-icon-button.mat-mdc-button-base {
+        color: white !important;
+    }
+}
