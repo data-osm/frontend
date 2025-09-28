@@ -449,7 +449,9 @@ export class Builder {
         const noDefaultRoof = builder.getAreaToOMBBRatio() < 0.75 || multipolygon.getArea() < 10;
 
         const roofParams = this.getRoofParams(noDefaultRoof, this.descriptor.buildingHeight == 4);
-        // const roofParams = this.getTemporaryRoofParams(this.descriptor.buildingHeight == 4);
+        // The offset between the roof and the facade
+        const skirtOffset = 0
+        const outlineHeight = 1
 
 
         const facadeMinHeight = this.descriptor.buildingFoundation ? TERRAINMAXHEIGHT : TERRAINMINHEIGHT;
@@ -460,7 +462,7 @@ export class Builder {
             terrainHeight: facadeMinHeight,
             type: roofParams.type,
             buildingHeight: this.descriptor.buildingHeight,
-            minHeight: this.descriptor.buildingHeight - this.descriptor.buildingRoofHeight,
+            minHeight: this.descriptor.buildingHeight - this.descriptor.buildingRoofHeight + skirtOffset,
             height: this.descriptor.buildingRoofHeight,
             direction: this.descriptor.buildingRoofDirection,
             orientation: this.descriptor.buildingRoofOrientation,
@@ -482,6 +484,7 @@ export class Builder {
             minHeight: this.descriptor.buildingMinHeight,
             height: facadeHeightOverride ?? (this.descriptor.buildingHeight - this.descriptor.buildingRoofHeight),
             skirt: skirt,
+            skirtOffset: skirtOffset,
             color: facadeParams.color,
             textureIdWall: facadeParams.textureIdWall,
             textureIdWindow: facadeParams.textureIdWindow,
@@ -504,26 +507,13 @@ export class Builder {
         }
 
 
-        // if (
-        //     Boolean(this.feature.descriptor.rnb) == false && Boolean(this.feature.descriptor.match_rnb_ids)
-        // ) {
         builder.addOutLine({
             terrainHeight: facadeMinHeight,
-            type: roofParams.type,
-            buildingHeight: this.descriptor.buildingHeight,
             minHeight: this.descriptor.buildingHeight - this.descriptor.buildingRoofHeight,
-            height: this.descriptor.buildingRoofHeight,
-            direction: this.descriptor.buildingRoofDirection,
-            orientation: this.descriptor.buildingRoofOrientation,
-            angle: this.descriptor.buildingRoofAngle,
             textureId: roofParams.textureId,
             color: roofParams.color,
-            scaleX: roofParams.scaleX,
-            scaleY: roofParams.scaleY,
-            isStretched: roofParams.isStretched,
-            flip: false
+            outlineHeight: outlineHeight
         })
-        // } 
 
 
         let features = [

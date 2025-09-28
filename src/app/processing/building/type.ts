@@ -106,6 +106,7 @@ export interface VectorAreaDescriptor {
     building: string
     is_part: boolean
     skeleton?: Skeleton
+    lcz_outline_id?: number
 }
 
 export enum RoofType {

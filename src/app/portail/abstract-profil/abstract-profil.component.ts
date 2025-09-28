@@ -484,7 +484,7 @@ export abstract class AbstractProfilComponent implements OnInit {
         this.lightAndShadowSystem.csm.updateFrustums();
         this.instance.notifyChange()
       })
-      inspector.gui.add(this.lightAndShadowSystem.csm, 'shadowNormalBias', -1, 5, 0.001).name('shadowNormalBias').onChange((value) => {
+      inspector.gui.add(this.lightAndShadowSystem.csm, 'shadowNormalBias', -5, 5, 0.001).name('shadowNormalBias').onChange((value) => {
         this.lightAndShadowSystem.csm.shadowNormalBias = value
         this.lightAndShadowSystem.csm.update();
         this.lightAndShadowSystem.csm.updateFrustums();
@@ -625,7 +625,7 @@ export abstract class AbstractProfilComponent implements OnInit {
 
 
     this.instance.renderer.shadowMap.enabled = true;
-    this.instance.renderer.shadowMap.type = PCFShadowMap;
+    this.instance.renderer.shadowMap.type = PCFSoftShadowMap;
     // this.instance.renderer.setPixelRatio(1);
     // Enable shader errors in Dev
     if (!environment.production) {

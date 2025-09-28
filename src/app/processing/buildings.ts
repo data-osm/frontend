@@ -1,4 +1,4 @@
-import { AddEquation, AdditiveBlending, AlwaysDepth, AlwaysStencilFunc, Box3, BoxGeometry, BufferAttribute, BufferGeometry, Color, CustomBlending, DataArrayTexture, DirectionalLight, DoubleSide, Fog, Frustum, GLSL3, GreaterDepth, Group, InstancedBufferGeometry, LessDepth, Material, Matrix4, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshLambertMaterial, MeshNormalMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial, NormalBufferAttributes, Object3D, OneFactor, PerspectiveCamera, Plane, PlaneGeometry, Quaternion, ReplaceStencilOp, Scene, ShaderChunk, ShaderLib, ShaderMaterial, Sphere, Texture, TypedArray, UniformsLib, UniformsUtils, Vector2, Vector3, WebGLRenderTarget, ZeroFactor } from "three";
+import { AddEquation, AdditiveBlending, AlwaysDepth, AlwaysStencilFunc, Box3, BoxGeometry, BufferAttribute, BufferGeometry, Color, CustomBlending, DataArrayTexture, DirectionalLight, DoubleSide, Fog, FrontSide, Frustum, GLSL3, GreaterDepth, Group, InstancedBufferGeometry, LessDepth, Material, Matrix4, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshLambertMaterial, MeshNormalMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial, NormalBufferAttributes, Object3D, OneFactor, PerspectiveCamera, Plane, PlaneGeometry, Quaternion, ReplaceStencilOp, Scene, ShaderChunk, ShaderLib, ShaderMaterial, Sphere, Texture, TypedArray, UniformsLib, UniformsUtils, Vector2, Vector3, WebGLRenderTarget, ZeroFactor } from "three";
 import { concatMap, debounceTime, delay, filter, retryWhen, map as rxjsMap, take, takeUntil, tap } from "rxjs/operators"
 import { Instance, Map as Giro3DMap, OLUtils, OrbitControls, Coordinates, BaseMessageMap, WorkerPool } from "../giro-3d-module";
 import { Feature, GeometryLayout, MVT, Polygon, TileState, VectorTileSource, GeoJSON, FeatureLike, getCenter, VectorSource, Extent, Coordinate, Geometry, MultiPolygon, Point } from "../ol-module";
@@ -426,7 +426,7 @@ export class BuildingLayer {
             physicalUniforms.sheen.value = 1.0
             physicalUniforms.isRingActive = { value: this.osmUpdateStoreService.isOsmBuildingUpdateEnabled ? 1 : 0 }
             this.buildingMaterial = new ShaderMaterial({
-                // side: DoubleSide,
+                side: DoubleSide,
                 fog: true,
                 lights: true,
                 vertexShader: PhysicalVertex,
@@ -665,7 +665,7 @@ export class BuildingLayer {
         if (properties == undefined) {
             return
         }
-
+        console.log(properties, properties["lcz_outline_id"])
         const feature = new Feature(new Polygon(properties.coordinates))
         feature.setProperties(properties)
         return feature

@@ -100,23 +100,15 @@ export class BuildingBuilder {
 
     public addOutLine(params: {
         terrainHeight: number;
-        type: RoofType;
-        buildingHeight: number;
         minHeight: number;
-        height: number;
-        direction: number;
-        angle: number;
-        orientation: 'along' | 'across';
         color: number;
         textureId: number;
-        scaleX: number;
-        scaleY: number;
-        isStretched: boolean;
-        flip: boolean;
+        outlineHeight: number
     }) {
         const footprint = this.multipolygon.getFootPrintAsOutlineArea({
-            height: params.minHeight + 0.1,
-            thickness: 0.5
+            min_height: params.minHeight,
+            max_height: params.minHeight + params.outlineHeight,
+            thickness: 0
         });
 
         this.addAndPaintGeometry({
@@ -249,7 +241,8 @@ export class BuildingBuilder {
             color,
             textureIdWindow,
             textureIdWall,
-            windowSeed
+            windowSeed,
+            skirtOffset = 0
         }: {
             terrainHeight: number;
             minHeight: number;
@@ -261,6 +254,7 @@ export class BuildingBuilder {
             textureIdWindow: number;
             textureIdWall: number;
             windowSeed: number;
+            skirtOffset?: number
         }
     ): void {
         const noWalls = minHeight >= height;
@@ -289,7 +283,7 @@ export class BuildingBuilder {
 
                 const walls = WallsBuilder.build({
                     vertices,
-                    minHeight: height,
+                    minHeight: height + skirtOffset,
                     height: skirtPartMaxHeight,
                     heightPoints: heights,
                     levels: skirtLevels,

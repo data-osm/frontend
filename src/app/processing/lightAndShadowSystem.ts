@@ -9,8 +9,8 @@ import { fromInstanceGiroEvent, fromMapGiroEvent } from "../shared/class/fromGir
 import { debounceTime, tap } from "rxjs";
 import { E } from "@angular/cdk/keycodes";
 
-const DAY_SHADOW_BIAS = -0.0003
-const DAY_SHADOW_NORMAL_BIAS = -0.3
+const DAY_SHADOW_BIAS = -0.001
+const DAY_SHADOW_NORMAL_BIAS = 0.6
 const NIGHT_SHADOW_BIAS = 0.4
 // const NIGHT_SHADOW_NORMAL_BIAS = -0.3
 

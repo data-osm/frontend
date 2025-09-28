@@ -88,9 +88,9 @@ export default class Tile3DMultipolygon {
 
 
     public getFootPrintAsOutlineArea({
-        height, thickness = 0.1
+        min_height, max_height, thickness = 0.1
 
-    }: { height: number, thickness?: number }) {
+    }: { min_height: number, max_height: number, thickness?: number }) {
         const positions: number[] = [];
         const uvs: number[] = [];
         const normals: number[] = [];
@@ -135,45 +135,84 @@ export default class Tile3DMultipolygon {
                 const p1o = { x: p1.x + nx * half, y: p1.y + ny * half };
 
                 // Triangle 1 : p0i, p0o, p1i
-                positions.push(
-                    p0i.x, p0i.y, height,
-                    p0o.x, p0o.y, height,
-                    p1i.x, p1i.y, height
-                );
-                uvs.push(
-                    0, 0,
-                    1, 0,
-                    0, 1
-                );
-                normals.push(
-                    0, 0, 1,
-                    0, 0, 1,
-                    0, 0, 1
-                );
+                // positions.push(
+                //     p0i.x, p0i.y, max_height,
+                //     p0o.x, p0o.y, min_height,
+                //     p1i.x, p1i.y, min_height
+                // );
+                // uvs.push(
+                //     0, 0,
+                //     1, 0,
+                //     0, 1
+                // );
+                // normals.push(
+                //     0, 0, 1,
+                //     0, 0, 1,
+                //     0, 0, 1
+                // );
 
                 // Triangle 2 : p1i, p0o, p1o
-                positions.push(
-                    p1i.x, p1i.y, height,
-                    p0o.x, p0o.y, height,
-                    p1o.x, p1o.y, height
-                );
-                uvs.push(
-                    0, 1,
-                    1, 0,
-                    1, 1
-                );
-                normals.push(
-                    0, 0, 1,
-                    0, 0, 1,
-                    0, 0, 1
-                );
+                // positions.push(
+                //     p1i.x, p1i.y, max_height,
+                //     p0o.x, p0o.y, max_height,
+                //     p1o.x, p1o.y, min_height
+                // );
+                // uvs.push(
+                //     0, 1,
+                //     1, 0,
+                //     1, 1
+                // );
+                // normals.push(
+                //     0, 0, 1,
+                //     0, 0, 1,
+                //     0, 0, 1
+                // );
+                this.addWallQuad(p0o, p1o, min_height, max_height, positions, normals, uvs);
             }
         }
 
         return { positions, uvs, normals };
     }
 
+    addWallQuad(p0, p1, z0, z1, positions, normals, uvs, texU = 1, texV = 1, doubleSided = true) {
+        // Vecteurs utiles
 
+        const e = new Vec3(p1.x - p0.x, p1.y - p0.y, 0);         // arête horizontale
+        const n = Vec3.cross(e, new Vec3(0, 0, 1)).normalize();                     // normale extérieure (CCW)
+
+        const len = Vec3.getLength(e);
+        const u0 = 0, u1 = (len / texU);                                   // U = longueur
+        const v0 = 0, v1 = ((z1 - z0) / texV);                            // V = hauteur
+
+        // Sommets (Tri1: A(p0,z1) B(p0,z0) C(p1,z0)  | Tri2: D(p1,z1) A(p0,z1) C(p1,z0))
+        const A = [p0.x, p0.y, z1], B = [p0.x, p0.y, z0], C = [p1.x, p1.y, z0], D = [p1.x, p1.y, z1];
+
+        // Positions
+        positions.push(...A, ...B, ...C, ...D, ...A, ...C);
+
+        // Normales (flat shading) : même normale pour les 6 sommets
+        normals.push(...Vec3.toArray(n), ...Vec3.toArray(n), ...Vec3.toArray(n),
+            ...Vec3.toArray(n), ...Vec3.toArray(n), ...Vec3.toArray(n));
+
+        // UV : couvre le rect complet
+        // Tri1: A(u0,v1), B(u0,v0), C(u1,v0)
+        uvs.push(u0, v1, u0, v0, u1, v0);
+        // Tri2: D(u1,v1), A(u0,v1), C(u1,v0)
+        uvs.push(u1, v1, u0, v1, u1, v0);
+
+        if (doubleSided) {
+            // Duplique la face arrière avec winding inversé et normales opposées
+
+            const nn = Vec3.multiplyScalar(Vec3.clone(n), -1);;
+            // Tri back 1: C,B,A  | back 2: C,A,D
+            positions.push(...C, ...B, ...A, ...C, ...A, ...D);
+
+            normals.push(...Vec3.toArray(nn), ...Vec3.toArray(nn), ...Vec3.toArray(nn),
+                ...Vec3.toArray(nn), ...Vec3.toArray(nn), ...Vec3.toArray(nn));
+            // UV identiques (mêmes coords pour l’autre côté)
+            uvs.push(u1, v0, u0, v0, u0, v1, u1, v0, u0, v1, u1, v1);
+        }
+    }
     public getFootprint(
         {
             height,
