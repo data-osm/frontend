@@ -5,10 +5,10 @@
 </h1>
 
 <div mat-dialog-content>
-  <div fxLayout="row wrap" fxLayoutGap="15px" style="background: #eeeeee;align-items: stretch;">
-    <app-card-download-layer *ngFor="let layer_name of objectKeys.keys(data)" [layer]="data[layer_name]"
-      [layer_name]="layer_name" [provider_vector_id]="parameter.provider_vector_id" [table_id]="parameter.table_id"
-      [boundary_name]="parameter.name">
+  <div fxLayout="row wrap" fxLayoutGap="15px" style="align-items: stretch;">
+    <app-card-download-layer *ngFor="let layer_name of objectKeys.keys(data); trackBy:itemTrackBy "
+      [layer]="data[layer_name]" [layer_name]="layer_name" [provider_vector_id]="parameter.provider_vector_id"
+      [table_id]="parameter.table_id" [boundary_name]="parameter.name">
     </app-card-download-layer>
 
     <div style="margin-top: 15px;">

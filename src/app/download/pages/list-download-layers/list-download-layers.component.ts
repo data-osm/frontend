@@ -60,5 +60,10 @@ export class ListDownloadLayersComponent implements OnInit {
     this.dialogRef.close();
   }
 
+  public itemTrackBy(index: number, item: string) {
+
+    return item;
+  }
+
 
 }

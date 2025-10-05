@@ -1,4 +1,4 @@
-<div *ngFor="let layer of layersInTocWithLegend; trackBy:itemTrackBy">
+<div *ngFor="let layer of layersInTocWithLegend; trackBy:itemTrackBy" class="whiteBG">
   <mat-list-item class="bold black" style="padding: 5px 0px;width:100%;">
     <p style="margin-bottom: -5px;"> {{layer.nom}} : </p>
     <ng-container *ngFor="let provider of layer.legendCapabilities">

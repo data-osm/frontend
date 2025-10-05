@@ -5,6 +5,7 @@ import {
 import { SunSystem } from '../../../../processing/sunSystem';
 import { UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
 import { tap } from 'rxjs/operators';
+import { MatomoTracker } from 'ngx-matomo-client';
 
 @Component({
   selector: 'app-scene-settings',
@@ -22,10 +23,12 @@ export class SceneSettingsComponent {
 
   constructor(
     private formBuilder: UntypedFormBuilder,
+    protected readonly tracker: MatomoTracker,
   ) {
     this.dateTimeForm.valueChanges.pipe(
       tap(() => {
         this.updateSunSystem()
+        this.tracker.trackEvent("Change", "Scene settings", "date-heure")
       })
     ).subscribe()
   }

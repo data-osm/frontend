@@ -64,7 +64,7 @@
 
         </mat-menu>
 
-        <button mat-flat-button color="accent" class="white" [matMenuTriggerFor]="menu"
+        <button mat-flat-button color="primary" class="white" [matMenuTriggerFor]="menu"
           [disabled]="provider.vp.count==0">
           <mat-icon style="width: 20px;font-size: 20px;height: 20px;">file_download</mat-icon>
           {{ 'dowloadLayers.download' | translate }}
@@ -96,8 +96,8 @@
             target="_blanck">
             CSV
           </a>
-          <a mat-menu-item [href]="environment.backend+provider.vs.qml_file" target="_blanck"> {{
-            'metadata.download_style' | translate }} </a>
+          <!-- <a mat-menu-item [href]="environment.backend+provider.vs.qml_file" target="_blanck"> {{
+            'metadata.download_style' | translate }} </a> -->
         </mat-menu>
       </mat-card-actions>
     </mat-card>
