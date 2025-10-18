@@ -6,6 +6,7 @@ import { SunSystem } from '../../../../processing/sunSystem';
 import { UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
 import { tap } from 'rxjs/operators';
 import { MatomoTracker } from 'ngx-matomo-client';
+import { ParametersService } from '../../../../data/services/parameters.service';
 
 @Component({
   selector: 'app-scene-settings',
@@ -21,9 +22,11 @@ export class SceneSettingsComponent {
     "hour": new UntypedFormControl(null),
   })
 
+
   constructor(
     private formBuilder: UntypedFormBuilder,
     protected readonly tracker: MatomoTracker,
+    private parameterService: ParametersService
   ) {
     this.dateTimeForm.valueChanges.pipe(
       tap(() => {
@@ -34,8 +37,14 @@ export class SceneSettingsComponent {
   }
 
   formatHoursLabel(value: number) {
-
     return value;
+  }
+
+  get dateTimesInterval() {
+    return {
+      "start": this.parameterService.dateTimesInterval.start ? new Date(this.parameterService.dateTimesInterval.start) : null,
+      "end": this.parameterService.dateTimesInterval.end ? new Date(this.parameterService.dateTimesInterval.end) : null
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {

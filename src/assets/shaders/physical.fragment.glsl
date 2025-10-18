@@ -77,6 +77,7 @@ flat varying int vFeatureUid;
 
 uniform int uFeatureUidSelected;
 uniform sampler2DArray tMap;
+uniform sampler2DArray uOutlineTexture;
 uniform int isRingActive;
 
 #include <common>
@@ -113,12 +114,15 @@ uniform int isRingActive;
 #include <building_common>
 
 void main() {
-	if(vTextureId == 100) {
+	if(vTextureId >= 100) {
         // Is outline active for this position/pixels ?
-		if(vAddOutLine == 0 || isRingActive == 0) {
-			discard;
-		}
-		gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		// if(vAddOutLine == 0 || isRingActive == 0) {
+		// 	discard;
+		// }
+		// texture(uOutlineTexture, vUv).rgb;
+
+		gl_FragColor = vec4(texture(uOutlineTexture, vec3(vUv, vTextureId - 100)).rgb, 1.0);
+		// gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		return;
 	}
 	vec4 baseColor = texture(tMap, vec3(vUv, vTextureId * 4)) * vec4(vColor, 1.0);

@@ -3,7 +3,8 @@
         <label class="white" style="padding-bottom: 10px;">Date : </label>
         <mat-form-field appearance="fill" [hideRequiredMarker]="true">
             <!-- <mat-label>Date</mat-label> -->
-            <input matInput [matDatepicker]="dp3" disabled formControlName="date">
+            <input matInput [min]="dateTimesInterval.start" [max]="dateTimesInterval.end" [matDatepicker]="dp3" disabled
+                formControlName="date">
             <mat-datepicker-toggle matSuffix [for]="dp3"></mat-datepicker-toggle>
             <mat-datepicker #dp3 disabled="false"></mat-datepicker>
         </mat-form-field>

@@ -2,11 +2,11 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Polygon } from '@svgdotjs/svg.js';
 import MultiPolygon from 'ol/geom/MultiPolygon';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
+import { BehaviorSubject, EMPTY, Observable } from 'rxjs';
+import { filter, map, take, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Feature, FeatureLike, Geometry } from '../../ol-module';
-import { AdminBoundary, Parameter, AppExtent, AdminBoundaryRespone, AdminBoundaryFeature } from '../models/parameters';
+import { AdminBoundary, Parameter, AppExtent, AdminBoundaryRespone, AdminBoundaryFeature, LczZone } from '../models/parameters';
 import { FrameRenderTime } from '../../../helper/type';
 import { OsmDataRequest } from '../../services/request';
 
@@ -31,6 +31,8 @@ export class ParametersService extends OsmDataRequest {
    */
   map_id: number
 
+  lczZones: LczZone[] = []
+
   constructor(
     private http_: HttpClient,
   ) {
@@ -45,6 +47,48 @@ export class ParametersService extends OsmDataRequest {
     this.parameter$.next(parameter)
   }
 
+  get buildingSettings() {
+    if (this.map_id == 1) {
+
+    }
+    return {
+      "outlineHeight": 4,
+      "skirtOffset": 4
+    }
+  }
+
+  get dateTimesInterval(): {
+    "start": number | null,
+    "end": number | null
+  } {
+    let utcDate = Date.UTC(2020, 6, 24, 0, 0, 0, 0);
+    if (this.map_id == 1) {
+
+    }
+    return {
+      "start": Date.UTC(2020, 6, 24, 0, 0, 0, 0),
+      "end": Date.UTC(2020, 7, 4, 23, 0, 0, 0),
+    }
+    return {
+      "start": null,
+      "end": null
+    }
+  }
+  get customBuildingUniforms(): "TEMPERATURE_UNIFORM" | null {
+    if (this.map_id == 1) {
+
+    }
+    return "TEMPERATURE_UNIFORM"
+  }
+
+  loadProfilCustomisations() {
+    // if (this.map_id == 1) { return EMPTY}
+    return this.listLczZones().pipe(
+      tap((lczZones) => {
+        this.lczZones = lczZones
+      }),
+    )
+  }
 
   /**
    * Get parameters of the app
@@ -181,6 +225,10 @@ export class ParametersService extends OsmDataRequest {
 
   createNPSFeedback(score: number) {
     return this.safePost("/api/logs/nps", { score })
+  }
+
+  listLczZones() {
+    return this.safeGet<Array<LczZone>>("/api/parameter/list-lcz")
   }
 
 }

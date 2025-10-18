@@ -47,7 +47,7 @@ function flipTriangleWindingNonIndexed(geometry) {
     positionAttr.needsUpdate = true;
 }
 
-export const build3dBuildings = (features: SourceFeature[], worldBuildingPosition: [number, number, number], tile_key: string): ExtrudedTile => {
+export const build3dBuildings = (features: SourceFeature[], worldBuildingPosition: [number, number, number], tile_key: string, skirtOffset?: number, outlineHeight?: number): ExtrudedTile => {
 
 
     let olFeatures = features.map((feature) => {
@@ -124,7 +124,7 @@ export const build3dBuildings = (features: SourceFeature[], worldBuildingPositio
 
 
             featuresId.push(element.osmReference)
-            const buildingGeometry = new Builder(element, worldBuildingPosition).getFeatures();
+            const buildingGeometry = new Builder(element, worldBuildingPosition, skirtOffset, outlineHeight).getFeatures();
 
             const positions = (buildingGeometry.extruded.positionBuffer as Float32Array)
             for (let i = 2; i < positions.length; i += 3) {

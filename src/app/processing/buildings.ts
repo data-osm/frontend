@@ -1,4 +1,4 @@
-import { AddEquation, AdditiveBlending, AlwaysDepth, AlwaysStencilFunc, Box3, BoxGeometry, BufferAttribute, BufferGeometry, Color, CustomBlending, DataArrayTexture, DirectionalLight, DoubleSide, Fog, FrontSide, Frustum, GLSL3, GreaterDepth, Group, InstancedBufferGeometry, LessDepth, Material, Matrix4, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshLambertMaterial, MeshNormalMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial, NormalBufferAttributes, Object3D, OneFactor, PerspectiveCamera, Plane, PlaneGeometry, Quaternion, ReplaceStencilOp, Scene, ShaderChunk, ShaderLib, ShaderMaterial, Sphere, Texture, TypedArray, UniformsLib, UniformsUtils, Vector2, Vector3, WebGLRenderTarget, ZeroFactor } from "three";
+import { AddEquation, AdditiveBlending, AlwaysDepth, AlwaysStencilFunc, Box3, BoxGeometry, BufferAttribute, BufferGeometry, CanvasTexture, ClampToEdgeWrapping, Color, CustomBlending, DataArrayTexture, DirectionalLight, DoubleSide, Fog, FrontSide, Frustum, GLSL3, GreaterDepth, Group, InstancedBufferGeometry, LessDepth, Material, Matrix4, Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshLambertMaterial, MeshNormalMaterial, MeshPhongMaterial, MeshPhysicalMaterial, MeshStandardMaterial, NormalBufferAttributes, Object3D, OneFactor, PerspectiveCamera, Plane, PlaneGeometry, Quaternion, ReplaceStencilOp, Scene, ShaderChunk, ShaderLib, ShaderMaterial, Sphere, Texture, TypedArray, UniformsLib, UniformsUtils, Vector2, Vector3, WebGLRenderTarget, ZeroFactor } from "three";
 import { concatMap, debounceTime, delay, filter, retryWhen, map as rxjsMap, take, takeUntil, tap } from "rxjs/operators"
 import { Instance, Map as Giro3DMap, OLUtils, OrbitControls, Coordinates, BaseMessageMap, WorkerPool } from "../giro-3d-module";
 import { Feature, GeometryLayout, MVT, Polygon, TileState, VectorTileSource, GeoJSON, FeatureLike, getCenter, VectorSource, Extent, Coordinate, Geometry, MultiPolygon, Point } from "../ol-module";
@@ -48,6 +48,9 @@ import PhysicalVertex from "../../assets/shaders/physical.vertex.glsl";
 import computeShadowMask from "../../assets/shaders/compute_shadow_mask.glsl";
 import { getRoofParams } from "./building/roof-params";
 import { addTile, PackedTiles } from "./building-elevation";
+import { BuildingBuilder } from "./building/building-builder";
+import { ParametersService } from "../data/services/parameters.service";
+import { createIcuTexture, listStations, updateIcuTexture } from "./building/icu/textures";
 ShaderChunk['building_common'] = buildingCommon;
 ShaderChunk['compute_shadow_mask'] = computeShadowMask;
 // class WorkerPoolL {
@@ -119,6 +122,8 @@ export class BuildingLayer {
 
     featuresStoreService: FeaturesStoreService = AppInjector.get(FeaturesStoreService);
     osmUpdateStoreService: OSMUpdateStoreService = AppInjector.get(OSMUpdateStoreService);
+    parameterService: ParametersService = AppInjector.get(ParametersService);
+
     worker: WorkerPool<MessageType, MessageMap> | null
     elevationWorker: WorkerPool<ListElevationsMessageType, ListElevationMessageMap> | null
 
@@ -174,6 +179,12 @@ export class BuildingLayer {
 
         this.featuresStoreService.sendRetrieveBuildingHeightEmitter$.start(async (req) => this.getBuildingHeightAtPoint(req))
         // this.buildingGroup.renderOrder = 0
+        this.sunSystem.datetimeChangedObservable.pipe(
+            debounceTime(200),
+            tap(() => {
+                this.updateBuildingsUniforms({ dateTimeChanged: true })
+            })
+        ).subscribe()
 
         this.sunSystem.sunDirectionChangedObservable.pipe(
             debounceTime(2000),
@@ -187,6 +198,12 @@ export class BuildingLayer {
                 this.updateBuildingsUniforms({ updateSkyTexture: true })
             })
         ).subscribe()
+
+        if (this.parameterService.customBuildingUniforms == "TEMPERATURE_UNIFORM") {
+            listStations().then((stations) => {
+                createIcuTexture(this.sunSystem.currentDateTime)
+            })
+        }
 
         // console.log(this.buildingGroup, "this.buildingGroup")
 
@@ -403,7 +420,7 @@ export class BuildingLayer {
 
         // materialToUpdate.needsUpdate = true
     }
-    updateBuildingsUniforms(options: { updateSunDirection?: boolean, updateSkyTexture?: boolean } = {}) {
+    updateBuildingsUniforms(options: { updateSunDirection?: boolean, updateSkyTexture?: boolean, dateTimeChanged?: boolean } = {}) {
         this.buildingGroup.traverse((child) => {
             if (child instanceof SelectableMesh) {
                 if (options.updateSunDirection) {
@@ -413,8 +430,44 @@ export class BuildingLayer {
                 if (options.updateSkyTexture) {
                     this.setBuildingMeshSkyTexture(child)
                 }
+                if (options.dateTimeChanged) {
+                    this.updateCustomUniforms(child)
+                }
             }
         })
+    }
+    updateCustomUniforms(object: SelectableMesh | ShaderMaterial) {
+        if (this.parameterService.customBuildingUniforms == "TEMPERATURE_UNIFORM") {
+            let materialToUpdate: ShaderMaterial
+            if (object instanceof SelectableMesh) {
+                materialToUpdate = object.material
+            } else if (object instanceof ShaderMaterial) {
+                materialToUpdate = object
+            } else {
+                throw new Error("No mesh or material provided")
+            }
+            const texture = updateIcuTexture(this.sunSystem.currentDateTime)
+            texture.needsUpdate = true
+            if (!Boolean(materialToUpdate.uniforms.uOutlineTexture)) {
+                materialToUpdate.uniforms.uOutlineTexture = {
+                    value: texture
+                }
+            } else {
+                materialToUpdate.uniforms.uOutlineTexture.value = texture
+            }
+            materialToUpdate.needsUpdate = true
+        }
+    }
+    setCustomUniforms(buildingMaterial: ShaderMaterial) {
+        if (this.parameterService.customBuildingUniforms == "TEMPERATURE_UNIFORM") {
+            if (!Boolean(buildingMaterial.uniforms.uOutlineTexture)) {
+                console.log("TEMPERATURE_UNIFORM")
+                const texture = updateIcuTexture(this.sunSystem.currentDateTime)
+                // this.outLineTexture = texture
+                buildingMaterial.uniforms.uOutlineTexture = { value: texture }
+            }
+
+        }
     }
 
 
@@ -509,6 +562,7 @@ export class BuildingLayer {
         if (!Boolean(buildingMaterial.uniforms.tSkyTexture)) {
             this.setBuildingMeshSkyTexture(buildingMaterial)
         }
+        this.setCustomUniforms(buildingMaterial)
         this.setBuildingMeshSunDirection(buildingMaterial)
 
         return buildingMaterial
@@ -675,7 +729,7 @@ export class BuildingLayer {
         if (properties == undefined) {
             return
         }
-        console.log(properties, properties["lcz_outline_id"])
+        console.log(properties, properties["lcz_outline_id"], properties.station_id)
         const feature = new Feature(new Polygon(properties.coordinates))
         feature.setProperties(properties)
         return feature

@@ -47,3 +47,9 @@ export interface AdminBoundaryFeature {
      */
     geometry: any
 }
+
+export interface LczZone {
+    id: number,
+    lcz: string,
+    station_id: number
+}

@@ -74,7 +74,8 @@ export interface BuildingProperties {
     building: string
     elevation?: number;
     skeleton?: string
-
+    lcz_outline_id?: number
+    station_id?: number
 }
 
 export interface VectorAreaDescriptor {
@@ -107,6 +108,7 @@ export interface VectorAreaDescriptor {
     is_part: boolean
     skeleton?: Skeleton
     lcz_outline_id?: number
+    station_id?: number
 }
 
 export enum RoofType {

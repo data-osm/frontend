@@ -61,6 +61,8 @@ export function getBuildingParams(
     is_part: boolean;
     building: string;
     skeleton: Skeleton;
+    station_id: number;
+    lcz_outline_id: number
 } {
     const fallbackLevels = 1;
 
@@ -138,6 +140,8 @@ export function getBuildingParams(
         match_rnb_ids: building_properties.match_rnb_ids,
         is_part: building_properties.is_part,
         building: building_properties.building,
-        skeleton: building_properties.skeleton ? JSON.parse(building_properties.skeleton) : null
+        skeleton: building_properties.skeleton ? JSON.parse(building_properties.skeleton) : null,
+        station_id: building_properties.station_id,
+        lcz_outline_id: building_properties.lcz_outline_id
     };
 }

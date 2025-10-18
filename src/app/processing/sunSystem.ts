@@ -1,4 +1,4 @@
-import { float, vec3 } from "three/src/nodes/TSL"
+import { bool, float, vec3 } from "three/src/nodes/TSL"
 import Vec2 from "./math/vector2";
 import SunCalc from 'suncalc';
 import Vec3 from "./math/vector3";
@@ -6,6 +6,7 @@ import { AmbientLight, Color, DirectionalLight, MathUtils, Mesh, MeshStandardMat
 import { Instance } from "../giro-3d-module";
 import { Sky } from "three/examples/jsm/objects/Sky";
 import { BehaviorSubject, Subject } from "rxjs";
+import { ParametersService } from "../data/services/parameters.service";
 const FRANCE_COORD = [48.866667, 2.333333]
 
 
@@ -14,6 +15,8 @@ const FRANCE_COORD = [48.866667, 2.333333]
 export class SunSystem {
     sunDirection: Vec3
     sunLightColor: Color = new Color(1, 1, 1)
+
+    private parameterService: ParametersService
     private updatableObjects: Vector3[] = []
     private skyScene: Scene
     private pmrem: PMREMGenerator
@@ -24,6 +27,7 @@ export class SunSystem {
     private currentPosition: Vec2
     private sunDirectionChanged$ = new Subject<void>()
     private skyChanged$ = new Subject<void>()
+    private datetimeChanged$ = new Subject<void>()
 
     get sunDirectionChangedObservable() {
         return this.sunDirectionChanged$.asObservable()
@@ -31,6 +35,10 @@ export class SunSystem {
 
     get skyChangedObservable() {
         return this.skyChanged$.asObservable()
+    }
+
+    get datetimeChangedObservable() {
+        return this.datetimeChanged$.asObservable()
     }
 
     get currentDateTime() {
@@ -42,8 +50,10 @@ export class SunSystem {
     }
     constructor(
         instance: Instance,
-        initialPosition: Vec2
+        initialPosition: Vec2,
+        parameterService: ParametersService
     ) {
+        this.parameterService = parameterService
         this.skyScene = new Scene();
         this.pmrem = new PMREMGenerator(instance.renderer);
         this.pmrem.compileCubemapShader();
@@ -53,6 +63,7 @@ export class SunSystem {
     }
 
     setSky(sky: Sky) {
+
         this.sky = sky
 
     }
@@ -86,6 +97,18 @@ export class SunSystem {
      * @param date 
      */
     update(position: Vec2, date?: Date | number) {
+        if (date && (bool(this.parameterService.dateTimesInterval.start) || bool(this.parameterService.dateTimesInterval.end))) {
+            if (bool(this.parameterService.dateTimesInterval.start)) {
+
+                if (this.parameterService.dateTimesInterval.start > date.valueOf() || this.parameterService.dateTimesInterval.end < date.valueOf()) {
+                    date = this.parameterService.dateTimesInterval.start
+                }
+            } else if (bool(this.parameterService.dateTimesInterval.end)) {
+                if (this.parameterService.dateTimesInterval.end < date.valueOf()) {
+                    date = this.parameterService.dateTimesInterval.end
+                }
+            }
+        }
         this.sunDirection = this.getSunDirection(position, date)
         // this.sunDirectionChanged$.next(this.sunDirection)
         for (const obj of this.updatableObjects) {
@@ -105,6 +128,9 @@ export class SunSystem {
         }
 
         this.currentDate = typeof date === 'number' ? date : date.valueOf()
+        if (date) {
+            this.datetimeChanged$.next()
+        }
 
     }
 

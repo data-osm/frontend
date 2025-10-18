@@ -384,10 +384,17 @@ export class Builder {
     descriptor: VectorAreaDescriptor
     feature: VectorArea
     tilePosition: Vec3
+    skirtOffset: number
+    outlineHeight: number
     constructor(
         feature: VectorArea,
-        tilePosition: [number, number, number]
+        tilePosition: [number, number, number],
+        skirtOffset: number,
+        outlineHeight: number
     ) {
+        this.skirtOffset = skirtOffset ?? 0
+        this.outlineHeight = outlineHeight ?? 1
+
         this.feature = feature
         this.descriptor = feature.descriptor;
         this.rings = feature.rings;
@@ -450,8 +457,8 @@ export class Builder {
 
         const roofParams = this.getRoofParams(noDefaultRoof, this.descriptor.buildingHeight == 4);
         // The offset between the roof and the facade
-        const skirtOffset = 0
-        const outlineHeight = 1
+        const skirtOffset = this.skirtOffset
+        const outlineHeight = this.outlineHeight
 
 
         const facadeMinHeight = this.descriptor.buildingFoundation ? TERRAINMAXHEIGHT : TERRAINMINHEIGHT;
@@ -510,7 +517,7 @@ export class Builder {
         builder.addOutLine({
             terrainHeight: facadeMinHeight,
             minHeight: this.descriptor.buildingHeight - this.descriptor.buildingRoofHeight,
-            textureId: roofParams.textureId,
+            textureId: this.feature.descriptor.station_id ? this.feature.descriptor.station_id + 100 : 100,
             color: roofParams.color,
             outlineHeight: outlineHeight
         })

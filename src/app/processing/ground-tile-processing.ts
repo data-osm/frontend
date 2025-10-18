@@ -378,6 +378,8 @@ export class GroundTileProcessing {
 
         // }
 
+        const skirtOffset = this.parametersService.buildingSettings.skirtOffset
+        const outlineHeight = this.parametersService.buildingSettings.outlineHeight
         this.requestTile = (batchTile) => {
 
             batchTile.forEach(tile => {
@@ -387,7 +389,7 @@ export class GroundTileProcessing {
             })
             // console.log(batchTile.length, 'tiles to fetch');
 
-            this.buildingProcessingWorker.queue("buildingProcessing", { type: 'fetch', batchTile, capabilities: this.capabilities }).addEventListener('message', (e) => {
+            this.buildingProcessingWorker.queue("buildingProcessing", { type: 'fetch', batchTile, capabilities: this.capabilities, skirtOffset: skirtOffset, outlineHeight: outlineHeight, lczZones: this.parametersService.lczZones }).addEventListener('message', (e) => {
                 const data: {
                     type: string
                     id?: number

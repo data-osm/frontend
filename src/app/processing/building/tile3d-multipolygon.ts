@@ -181,8 +181,8 @@ export default class Tile3DMultipolygon {
         const n = Vec3.cross(e, new Vec3(0, 0, 1)).normalize();                     // normale extérieure (CCW)
 
         const len = Vec3.getLength(e);
-        const u0 = 0, u1 = (len / texU);                                   // U = longueur
-        const v0 = 0, v1 = ((z1 - z0) / texV);                            // V = hauteur
+        const u0 = 0, u1 = 1;                                   // U = longueur
+        const v0 = 0, v1 = 1;                            // V = hauteur
 
         // Sommets (Tri1: A(p0,z1) B(p0,z0) C(p1,z0)  | Tri2: D(p1,z1) A(p0,z1) C(p1,z0))
         const A = [p0.x, p0.y, z1], B = [p0.x, p0.y, z0], C = [p1.x, p1.y, z0], D = [p1.x, p1.y, z1];

@@ -11,6 +11,8 @@ import Flatbush from 'flatbush';
 import { ExtrudedTile, formatBufferGeometryAttributes, WireAttr } from './worker-packer';
 import { build3dBuildings } from '../build3dBuilding';
 import { collectTransferables } from '../points/type';
+import { RequestBuildingProcessing } from './pool';
+import { LczZone } from '../../data/models/parameters';
 
 const MAX_BATCH_ITEMS = 5;
 interface Tile {
@@ -40,6 +42,9 @@ const inflight = new Map<number, AbortController>();
 const q: (() => Promise<void>)[] = [];
 let running = 0;
 let concurrency = 5;
+let outlineHeight: number
+let skirtOffset: number
+let lczZones: LczZone[] = []
 
 addEventListener('message', async ({ data }) => {
     await moduleReady
@@ -47,8 +52,20 @@ addEventListener('message', async ({ data }) => {
 
     // await clearAll();
 
-    const m = data.payload;
+    const m: {
+        type: 'fetch' | 'abort' | 'config';
+        batchTile: RequestBuildingProcessing[];
+        capabilities: any
+        lczZones?: LczZone[]
+        concurrency?: number
+        skirtOffset?: number
+        outlineHeight?: number
+    } = data.payload;
     const worker_id = data.id
+
+    outlineHeight = m.outlineHeight
+    skirtOffset = m.skirtOffset
+    lczZones = m.lczZones ?? []
 
     if (m.type === 'config') { if (m.concurrency) concurrency = Math.max(1, m.concurrency | 0); return; }
     if (m.type === 'fetch') {
@@ -60,7 +77,7 @@ addEventListener('message', async ({ data }) => {
         for (const t of m.batchTile) q.push(() => runOne(t, m.capabilities, worker_id)); // réutilise ta pump()/concurrency
         pump(worker_id);
     }
-    if (m.type === 'abort') { inflight.get(m.id)?.abort(); return; }
+    // if (m.type === 'abort') { inflight.get(m.id)?.abort(); return; }
 
 });
 
@@ -159,6 +176,10 @@ async function runOne(tile: Tile, capabilities, worker_id) {
             properties.extent = f.getExtent()
             properties.coordinates = coordinates
             properties.tileKey = tile_key
+            const lczZone = lczZones.find((lczZone) => lczZone.id == properties.lcz_outline_id)
+            if (lczZone) {
+                properties.station_id = lczZone.station_id
+            }
             return {
                 "properties": f.getProperties(),
                 "coordinates": coordinates,
@@ -204,7 +225,7 @@ async function runOne(tile: Tile, capabilities, worker_id) {
             boundingBoxMinMax: null
         }
         try {
-            const extruded = build3dBuildings(result, worldBuildingPosition, tile_key)
+            const extruded = build3dBuildings(result, worldBuildingPosition, tile_key, skirtOffset, outlineHeight)
             extrudeResult.boundingBoxMinMax = extruded.boundingBoxMinMax
             extrudeResult.geometryAttribute = formatBufferGeometryAttributes(extruded.geometriesJson)
         } catch (error) {

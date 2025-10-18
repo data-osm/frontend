@@ -1,4 +1,4 @@
-import { Box3, BufferGeometry, Vector3 } from "three";
+import { Box3, BufferGeometry, CanvasTexture, Vector3 } from "three";
 import FlatRoofBuilder from "./roof/flat-roof-builders";
 // import SkillionRoofBuilder from "./roof/skillion-roof-builder";
 import { RoofBuilder, RoofGeometry, RoofParams, RoofSkirt } from "./roof/type";
@@ -98,6 +98,8 @@ export class BuildingBuilder {
         this.multipolygon = multipolygon
     }
 
+
+
     public addOutLine(params: {
         terrainHeight: number;
         minHeight: number;
@@ -116,7 +118,7 @@ export class BuildingBuilder {
             normal: footprint.normals,
             uv: footprint.uvs,
             color: params.color,
-            textureId: 100,
+            textureId: params.textureId,
             heightOffset: params.terrainHeight
         });
 

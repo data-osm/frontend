@@ -415,7 +415,7 @@ export abstract class AbstractProfilComponent implements OnInit {
 
   init() {
     const mapPosition = new Coordinates("EPSG:3857", this.instance.view.camera.position.x, this.instance.view.camera.position.y).as("EPSG:4326");
-    this.sunSystem = new SunSystem(this.instance, new Vec2(mapPosition.latitude, mapPosition.longitude),)
+    this.sunSystem = new SunSystem(this.instance, new Vec2(mapPosition.latitude, mapPosition.longitude), this.parametersService)
     this.addSky()
     this.sunSystem.setSky(this.sky)
 
@@ -1174,7 +1174,10 @@ export abstract class AbstractProfilComponent implements OnInit {
         )
       ),
       switchMap((map_id) => {
+
         this.parametersService.map_id = map_id
+
+
         this.addStats()
 
         return this.mapService.getAllGroupOfMap(map_id).pipe(
@@ -1199,6 +1202,13 @@ export abstract class AbstractProfilComponent implements OnInit {
               this.initialiseActiveGroup(activeProfilGroup, groups)
               this.eventsListener.groupsLoaded.next(groups)
             }
+          }),
+          switchMap((groups) => {
+            return this.parametersService.loadProfilCustomisations().pipe(
+              map(() => {
+                return groups
+              })
+            )
           })
         )
       })
