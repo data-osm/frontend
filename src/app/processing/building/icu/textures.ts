@@ -1,7 +1,4 @@
-import { HttpClient } from "@angular/common/http";
-import { from, last, map, Observable, of, switchMap } from "rxjs";
 import { CanvasTexture, ClampToEdgeWrapping, DataArrayTexture, LinearFilter, LinearMipmapLinearFilter, RGBAFormat, UnsignedByteType } from "three";
-// import data from '../../../../assets/icu/stations-grenoble.json';
 
 const textureSWidth = 256
 const textureSHeight = 64
@@ -50,7 +47,7 @@ const getOutLineTexture = function (params: {
 }
 
 const updateOutLineTexture = function (params: {
-    text: string,
+    temp: number,
     ctx: CanvasRenderingContext2D,
     canvas: HTMLCanvasElement
 }) {
@@ -59,12 +56,23 @@ const updateOutLineTexture = function (params: {
 
     params.ctx.clearRect(0, 0, params.ctx.canvas.width, params.ctx.canvas.height);
 
+    const temperature = Math.max(params.temp, 0)
+
+    params.ctx.fillStyle = whiteToRed(temperature);
+    params.ctx.fillRect(0, 0, params.ctx.canvas.width, params.ctx.canvas.height);
+
+    let textColor = "white"
+    if (parseInt(temperature.toFixed()) < 3) {
+        textColor = "black"
+    }
+
     params.ctx.font = '48px Arial';
-    params.ctx.fillStyle = 'white';
+    params.ctx.fillStyle = textColor;
     params.ctx.textAlign = 'center';
     params.ctx.textBaseline = 'middle';
+    const text = parseFloat(temperature.toString()).toFixed() + "°"
+    params.ctx.fillText(text, cssW / 2, cssH / 2);
 
-    params.ctx.fillText(params.text, cssW / 2, cssH / 2);
     // document.querySelector(".scene-settings-form").appendChild(params.canvas)
 }
 
@@ -79,7 +87,7 @@ export const createIcuTexture = function (date: Date) {
         const stationProperties = station[fullDate][fullHours]
         const stationIcu = stationProperties.valeurs_capteurs - stationProperties.versoud_data
         const { ctx, canvas } = getOutLineTexture({ width: textureSWidth, height: textureSHeight })
-        updateOutLineTexture({ text: parseFloat(stationIcu.toString()).toFixed() + "°", ctx, canvas })
+        updateOutLineTexture({ temp: stationIcu, ctx, canvas })
 
         stationIcuTexture[station_id] = {
             ctx,
@@ -107,7 +115,7 @@ export const updateIcuTexture = function (date: Date) {
         const stationIcu = stationProperties.valeurs_capteurs - stationProperties.versoud_data
 
         const { ctx, canvas } = stationIcuTexture[station_id]
-        updateOutLineTexture({ text: parseFloat(stationIcu.toString()).toFixed() + "°", ctx, canvas })
+        updateOutLineTexture({ temp: stationIcu, ctx, canvas })
     }
 
     packedTexture = canvasesToTextureArray()
@@ -148,4 +156,18 @@ export function canvasesToTextureArray(): DataArrayTexture {
     tex.needsUpdate = true;
 
     return tex;
+}
+
+function whiteToRed(value) {
+    const v = Math.max(0, Math.min(10, value));
+
+    const t = v / 6;
+
+    // Blanc = rgb(255, 255, 255)
+    // Rouge = rgb(255, 0, 0)
+    const r = 255;
+    const g = Math.round(255 * (1 - t));
+    const b = Math.round(255 * (1 - t));
+
+    return `rgb(${r}, ${g}, ${b})`;
 }

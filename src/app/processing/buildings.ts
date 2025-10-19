@@ -51,6 +51,7 @@ import { addTile, PackedTiles } from "./building-elevation";
 import { BuildingBuilder } from "./building/building-builder";
 import { ParametersService } from "../data/services/parameters.service";
 import { createIcuTexture, listStations, updateIcuTexture } from "./building/icu/textures";
+import { bool } from "three/src/nodes/TSL";
 ShaderChunk['building_common'] = buildingCommon;
 ShaderChunk['compute_shadow_mask'] = computeShadowMask;
 // class WorkerPoolL {
@@ -435,6 +436,7 @@ export class BuildingLayer {
                 }
             }
         })
+        this.instance.notifyChange([this.buildingGroup], { needsRedraw: true, immediate: true })
     }
     updateCustomUniforms(object: SelectableMesh | ShaderMaterial) {
         if (this.parameterService.customBuildingUniforms == "TEMPERATURE_UNIFORM") {
@@ -729,7 +731,7 @@ export class BuildingLayer {
         if (properties == undefined) {
             return
         }
-        console.log(properties, properties["lcz_outline_id"], properties.station_id)
+        console.log(properties, properties["lcz_outline_id"], properties["lcz_outline_id"] != undefined, properties["lcz_outline_id"] != null, Boolean(properties["lcz_outline_id"]))
         const feature = new Feature(new Polygon(properties.coordinates))
         feature.setProperties(properties)
         return feature

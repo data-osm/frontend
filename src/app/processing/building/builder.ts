@@ -16,6 +16,7 @@ import Vec3 from "../math/vector3";
 import { getUid } from "ol";
 import { ColorParser } from "./color-parser";
 import { Skeleton } from "straight-skeleton";
+import { bool } from "three/src/nodes/TSL";
 
 export enum VectorAreaRingType {
     Inner,
@@ -456,9 +457,13 @@ export class Builder {
         const noDefaultRoof = builder.getAreaToOMBBRatio() < 0.75 || multipolygon.getArea() < 10;
 
         const roofParams = this.getRoofParams(noDefaultRoof, this.descriptor.buildingHeight == 4);
+
+        const shouldAddOffsetBetweenRoofAndFacade = Boolean(this.feature.descriptor.lcz_outline_id)
         // The offset between the roof and the facade
-        const skirtOffset = this.skirtOffset
-        const outlineHeight = this.outlineHeight
+        const skirtOffset = shouldAddOffsetBetweenRoofAndFacade ? this.skirtOffset : 0
+        const outlineHeight = shouldAddOffsetBetweenRoofAndFacade ? this.outlineHeight : 0
+
+
 
 
         const facadeMinHeight = this.descriptor.buildingFoundation ? TERRAINMAXHEIGHT : TERRAINMINHEIGHT;
@@ -513,14 +518,16 @@ export class Builder {
             });
         }
 
+        if (shouldAddOffsetBetweenRoofAndFacade) {
 
-        builder.addOutLine({
-            terrainHeight: facadeMinHeight,
-            minHeight: this.descriptor.buildingHeight - this.descriptor.buildingRoofHeight,
-            textureId: this.feature.descriptor.station_id ? this.feature.descriptor.station_id + 100 : 100,
-            color: roofParams.color,
-            outlineHeight: outlineHeight
-        })
+            builder.addOutLine({
+                terrainHeight: facadeMinHeight,
+                minHeight: this.descriptor.buildingHeight - this.descriptor.buildingRoofHeight,
+                textureId: this.feature.descriptor.station_id ? this.feature.descriptor.station_id + 100 : 100,
+                color: roofParams.color,
+                outlineHeight: outlineHeight
+            })
+        }
 
 
         let features = [
