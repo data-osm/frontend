@@ -17,7 +17,11 @@ import ImportIfc from '../../../../processing/ifc/importIfc';
 import ImportPointCloud from '../../../../processing/pointClound/importPointCloud';
 
 import { MatSelectionListChange } from '@angular/material/list';
+import { HttpClient } from '@angular/common/http';
+import { MatomoTracker } from 'ngx-matomo-client';
 
+const EXAMPLE_LIDAR_FILE_URL = "https://demo.openstreetmap.fr/icons/example-files/LHD_FXX_0913_6459_PTS_O_3857.copc.laz"
+const EXAMPLE_LIDAR_FILE_NAME = "LHD_FXX_0913_6459_PTS"
 
 const tempBox = new Box3();
 const tempVec3 = new Vector3();
@@ -29,6 +33,7 @@ interface PointCloudInstance {
   pointCloud: PointCloud,
   metadata: PointCloudMetadata
   selectedAttribute: PointCloudAttribute
+  index: number
 }
 @Component({
   selector: 'app-import-data',
@@ -45,18 +50,23 @@ export class ImportDataComponent implements OnInit {
   ifcList: FRAGS.FragmentsGroup[] = []
   pointCloudList: PointCloudInstance[] = []
   transformControls: TransformControls
+
   ifcLoading = false
+  pointCloudLoading = false
 
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   public onUploadIFCInstance: () => void
   public onUploadPointCloudInstance: () => void
+  public onUseExamplePointCloudInstance: () => void
 
   public onInitInstance: () => void;
 
   constructor(
     private formBuilder: UntypedFormBuilder,
     public featuresStoreService: FeaturesStoreService,
+    private http: HttpClient,
+    private readonly tracker: MatomoTracker
   ) {
 
 
@@ -73,7 +83,14 @@ export class ImportDataComponent implements OnInit {
 
     const onImportPointCloud: Subject<void> = new Subject<void>()
     this.onUploadPointCloudInstance = () => {
+      this.tracker.trackEvent("Click", "Import data", "Use his point cloud")
       onImportPointCloud.next()
+    }
+
+    const onUseExamplePointCloud: Subject<void> = new Subject<void>()
+    this.onUseExamplePointCloudInstance = () => {
+      this.tracker.trackEvent("Click", "Import data", "Use example point cloud")
+      onUseExamplePointCloud.next()
     }
 
     this.importIFCForm = this.formBuilder.group({
@@ -177,21 +194,36 @@ export class ImportDataComponent implements OnInit {
               this.importIFCForm.enable();
             }),
           ),
-          onImportPointCloud.pipe(
-            filter(() => this.importPointCloudForm.valid),
-            switchMap(() => {
-              return importPointCloud.load(this.importPointCloudForm.get('pointCloudFile').value[0])
-            }),
-            switchMap((pointCloudSource: COPCSource) => {
+          merge(
+            onUseExamplePointCloud.pipe(
+              switchMap(() => {
+                this.pointCloudLoading = true
+                return this.http.get(EXAMPLE_LIDAR_FILE_URL, { responseType: 'blob' }).pipe(
+                  switchMap((blob) => {
+                    return forkJoin([importPointCloud.load(blob), of(EXAMPLE_LIDAR_FILE_NAME)])
+                  })
+                )
+              })
+            ),
+            onImportPointCloud.pipe(
+              filter(() => this.importPointCloudForm.valid),
+              switchMap(() => {
+                this.pointCloudLoading = true
+                return forkJoin([importPointCloud.load(this.importPointCloudForm.get('pointCloudFile').value[0]), of(this.importPointCloudForm.get('pointCloudFile').value[0].name as string)])
+              }),
+            )
+          ).pipe(
+            switchMap(([pointCloudSource, name]: [COPCSource, string]) => {
               const entity = new PointCloud({ source: pointCloudSource });
-
-              return forkJoin([from(this.map.instance.add(entity)), from(pointCloudSource.getMetadata())])
+              return forkJoin([from(this.map.instance.add(entity)), from(pointCloudSource.getMetadata()), of(name)])
             }),
-            tap(([entity, metadata]: [PointCloud, PointCloudMetadata]) => {
-              this.afterPointCloudLoaded(entity, metadata, (this.importPointCloudForm.get('pointCloudFile').value[0]).name)
+            tap(([entity, metadata, name]: [PointCloud, PointCloudMetadata, string]) => {
+              this.afterPointCloudLoaded(entity, metadata, name)
               this.importPointCloudForm.get('pointCloudFile').reset()
+              this.pointCloudLoading = false
             })
-          )
+          ),
+
         ])
       }),
 
@@ -276,7 +308,8 @@ export class ImportDataComponent implements OnInit {
     const instance = this.map.instance
 
     pointCloud.userData.name = name
-    const attribute = metadata.attributes[0];
+
+    const attribute = metadata.attributes.find(attribute => attribute.name === 'Classification') ?? metadata.attributes[0];
     importPointCloud.activeAttribute(pointCloud, attribute)
     this.zoomToPointCloud(pointCloud)
     instance.notifyChange();
@@ -285,7 +318,8 @@ export class ImportDataComponent implements OnInit {
     this.pointCloudList.push({
       pointCloud: pointCloud,
       metadata: metadata,
-      selectedAttribute: attribute
+      selectedAttribute: attribute,
+      index: this.pointCloudList.length
     })
   }
 
@@ -385,6 +419,15 @@ export class ImportDataComponent implements OnInit {
 
   }
 
+  public pointCloudTrackBy(index: number, item: PointCloudInstance) {
+    return item.index;
+  }
+
+  public removePointCloud(item: PointCloudInstance) {
+    this.map.instance.remove(item.pointCloud)
+    this.pointCloudList = this.pointCloudList.filter((pointCloud) => pointCloud.index != item.index)
+
+  }
 
 }
 

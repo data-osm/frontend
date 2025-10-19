@@ -595,6 +595,9 @@ export class GroundTileProcessing {
     }
 
 
+    updateGroundTilesVisibility(visibility) {
+        this.buildingLayer.updateBuildingVisibility(visibility)
+    }
 
 
 

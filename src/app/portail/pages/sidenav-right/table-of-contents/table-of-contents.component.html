@@ -48,8 +48,10 @@
 </div>
 
 <div class="table-of-contents-footer white">
-
-  <div fxLayout="row" style="height: 100%;">
+  <div class="toggle-ground-tile-visibility">
+    <mat-slide-toggle checked (change)="updateGroundTilesVisibility($event)">Afficher les bâtiments</mat-slide-toggle>
+  </div>
+  <div fxLayout="row" style="height: 50%;">
 
     <div fxFlex="50%" style="padding: 5px;" matTooltip="{{ 'couche_en_cours.tout_partager_toolpit' | translate }}"
       class="pointer" (click)="shareAllLayersInToc()">

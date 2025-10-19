@@ -149,7 +149,8 @@ export class BuildingLayer {
     // private tileKeyWithFlatBufferIndex: Map<number, string> = new Map<number, string>()
 
     private sunSystem: SunSystem
-    private subScene = new Scene();
+    private buildingVisible: boolean = true
+
     constructor(
         map: Giro3DMap,
         private groundTileVectorSource: VectorTileSource,
@@ -553,7 +554,16 @@ export class BuildingLayer {
         return [false, newBuildingTile]
     }
 
+    updateBuildingVisibility(visibility: boolean) {
+        this.buildingVisible = visibility
+        this.buildingGroup.visible = visibility
+        this.instance.notifyChange()
+    }
+
     currentZoomChanged(zoom: number) {
+        if (!this.buildingVisible) {
+            return
+        }
         if (zoom < 16 && this.buildingGroup.visible) {
             this.buildingGroup.visible = false
         } else if (zoom >= 16 && !this.buildingGroup.visible) {

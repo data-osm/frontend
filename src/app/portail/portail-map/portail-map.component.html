@@ -69,19 +69,13 @@
               inActiveBG: !rightMenu.active,
               activeBG: rightMenu.active
             }">
-            <mat-icon *ngIf="rightMenu.name == 'toc'" [ngClass]="{
-            white: !rightMenu.active,
-            primaryColor: rightMenu.active
-          }">layers</mat-icon>
+            <mat-icon *ngIf="rightMenu.name == 'toc'" class="white">layers</mat-icon>
 
             <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"
               *ngIf="rightMenu.name == 'scene_settings'" style="width: 25px;">
               <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
               <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
               <g id="SVGRepo_iconCarrier">
-                <rect width="40" height="40" rx="8" fill="#000000" fill-opacity="0.4"
-                  style="--darkreader-inline-fill: var(--darkreader-background-000000, #000000);"
-                  data-darkreader-inline-fill=""></rect>
                 <path
                   d="M20 7.86667C13.2987 7.86667 7.86667 13.2987 7.86667 20C7.86667 26.7013 13.2987 32.1333 20 32.1333C26.7013 32.1333 32.1333 26.7013 32.1333 20C32.1333 13.2987 26.7013 7.86667 20 7.86667Z"
                   fill="white" style="--darkreader-inline-fill: var(--darkreader-background-ffffff, #181a1b);"
@@ -95,16 +89,12 @@
 
 
             <svg x="0px" y="0px" viewBox="0 0 20.8 20.8" style="width: 21px" *ngIf="rightMenu.name == 'edition'">
-              <path [ngClass]="{
-                  primaryColorFill: rightMenu.active
-                }" d="M0,16.5v4.3h4.3L17.1,8l-4.3-4.3L0,16.5z M20.5,4.7c0.4-0.4,0.5-1.2,0-1.6c0,0,0,0,0,0
+              <path class="whiteFill" d="M0,16.5v4.3h4.3L17.1,8l-4.3-4.3L0,16.5z M20.5,4.7c0.4-0.4,0.5-1.2,0-1.6c0,0,0,0,0,0
   l-2.7-2.7c-0.4-0.4-1.2-0.5-1.6,0c0,0,0,0,0,0L14,2.5l4.3,4.3L20.5,4.7L20.5,4.7z" fill="#fff" />
             </svg>
 
             <svg style="width: 22px" x="0px" y="0px" viewBox="0 0 23.1 23.4" *ngIf="rightMenu.name == 'routing'">
-              <path [ngClass]="{
-                  primaryColorFill: rightMenu.active
-                }" fill="#fff" d="M3.9,15.6c-2.2,0-3.9,1.7-3.9,3.9s1.7,3.9,3.9,3.9s3.9-1.7,3.9-3.9c0,0,0,0,0,0
+              <path fill="#fff" d="M3.9,15.6c-2.2,0-3.9,1.7-3.9,3.9s1.7,3.9,3.9,3.9s3.9-1.7,3.9-3.9c0,0,0,0,0,0
   C7.8,17.3,6,15.6,3.9,15.6z M3.9,21.1c-0.9,0-1.6-0.7-1.6-1.6s0.7-1.6,1.6-1.6c0.9,0,1.6,0.7,1.6,1.6c0,0,0,0,0,0
   C5.5,20.4,4.8,21.1,3.9,21.1L3.9,21.1z M19.2,0.4c-2.2,0-3.9,1.7-3.9,3.9s1.7,3.9,3.9,3.9c2.2,0,3.9-1.7,3.9-3.9
   C23.1,2.2,21.4,0.4,19.2,0.4L19.2,0.4z M19.2,6c-0.9,0-1.6-0.7-1.6-1.6s0.7-1.6,1.6-1.6c0.9,0,1.6,0.7,1.6,1.6
@@ -113,15 +103,17 @@
   c1.3-0.1,2.3-1.2,2.5-2.5l0-6.8L20.6,11.5z" />
             </svg>
 
-            <i class="fas fa-th-list fa-lg" *ngIf="rightMenu.name == 'legend'" [ngClass]="{
-                white: !rightMenu.active,
-                primaryColor: rightMenu.active
-              }"></i>
+            <i class="fas fa-th-list fa-lg white" *ngIf="rightMenu.name == 'legend'"> </i>
 
-            <mat-icon *ngIf="rightMenu.name == 'download'" [ngClass]="{
-              white: !rightMenu.active,
-              primaryColor: rightMenu.active
-            }">file_download</mat-icon>
+            <mat-icon *ngIf="rightMenu.name == 'download'" class="white">file_download</mat-icon>
+
+            <svg *ngIf="rightMenu.name == 'import-data'" width="18" height="18" xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 14 14">
+              <path fill="#ffffff" fill-rule="evenodd"
+                d="M.375 12c0 .898.728 1.625 1.625 1.625h7.5c.898 0 1.625-.727 1.625-1.625v-.875H12c.898 0 1.625-.727 1.625-1.625V2c0-.897-.727-1.625-1.625-1.625H4.5c-.897 0-1.625.728-1.625 1.625v.875H2c-.897 0-1.625.728-1.625 1.625zM2 12.375A.375.375 0 0 1 1.625 12V4.5c0-.207.168-.375.375-.375h7.5c.207 0 .375.168.375.375V12a.375.375 0 0 1-.375.375zm.75-4.125a.75.75 0 0 1 .75-.75H5V6a.75.75 0 0 1 1.5 0v1.5H8A.75.75 0 0 1 8 9H6.5v1.5a.75.75 0 0 1-1.5 0V9H3.5a.75.75 0 0 1-.75-.75"
+                clip-rule="evenodd" />
+            </svg>
+
 
           </button>
         </ng-container>
@@ -134,11 +126,13 @@
         </span> -->
       </div>
       <div class="sidenav-right-content">
-        <app-table-of-contents [map]="map" [hidden]="!getRightMenu('toc').active"></app-table-of-contents>
-        <app-legend [map]="map" [hidden]="!getRightMenu('legend').active"></app-legend>
+        <app-table-of-contents [map]="map" [hidden]="!getRightMenu('toc').active"
+          (changeGroundTileVisibility)="updateGroundTilesVisibility($event)"></app-table-of-contents>
+        <app-legend [map]=" map" [hidden]="!getRightMenu('legend').active"></app-legend>
         <app-download [map]="map" [hidden]="!getRightMenu('download').active"></app-download>
         <app-scene-settings [sunSystem]="sunSystem" [map]="map"
           [hidden]="!getRightMenu('scene_settings').active"></app-scene-settings>
+        <app-import-data [map]="map" [hidden]="!getRightMenu('import-data').active"></app-import-data>
       </div>
     </div>
   </mat-sidenav-content>

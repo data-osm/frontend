@@ -11,14 +11,29 @@ function createFileGetter(file: File): (begin: number, end: number) => Promise<U
     };
 }
 
+function createBlobGetter(blob: Blob): (begin: number, end: number) => Promise<Uint8Array> {
+    return async (begin: number, end: number): Promise<Uint8Array> => {
+        // const blob = 
+        const partBlob = blob.slice(begin, end);
+        const arrayBuffer = await partBlob.arrayBuffer();
+        return new Uint8Array(arrayBuffer);
+    };
+}
+
 export default class ImportPointCloud {
     constructor() {
 
     }
 
-    load(pointCloud: File) {
+    load(pointCloud: File | Blob) {
+        let url: (begin: number, end: number) => Promise<Uint8Array>
+        if (pointCloud instanceof Blob) {
+            url = createBlobGetter(pointCloud)
+        } else {
+            url = createFileGetter(pointCloud)
+        }
         const source = new COPCSource({
-            url: createFileGetter(pointCloud)
+            url: url
         });
         return source.initialize()
     }
@@ -36,3 +51,7 @@ export default class ImportPointCloud {
         })
     }
 }
+
+
+
+

@@ -19,6 +19,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { Vector2 } from 'three';
 import { RenderPass } from 'three/examples/jsm/Addons';
 import { fromInstanceGiroEvent } from '../../shared/class/fromGiroEvent';
+import { RightMenuInterface } from '../../type/type';
 
 const _tempVec2 = new Vector2();
 
@@ -42,6 +43,16 @@ export class PortailMapComponent extends AbstractProfilComponent {
     this.initialiseMap(myDiv)
   }
   osmUpdateStoreService: OSMUpdateStoreService
+
+  rightMenus: Array<RightMenuInterface> = [
+    { name: 'toc', active: false, enable: true, tooltip: 'toolpit_toc', title: 'table_of_contents', height: "100%" },
+    { name: 'download', active: false, enable: true, tooltip: 'toolpit_download_data', title: 'download_data', height: "100%" },
+    { name: 'edition', active: false, enable: false, tooltip: 'toolpit_tools', title: 'tools', height: "100%" },
+    { name: 'routing', active: false, enable: false, tooltip: 'toolpit_map_routing', title: 'map_routing', height: "100%" },
+    { name: 'legend', active: false, enable: true, tooltip: 'toolpit_legend', title: 'legend', height: "100%" },
+    { name: 'import-data', active: false, enable: true, tooltip: 'import_data', title: 'import-data', height: "100%" },
+    { name: 'scene_settings', active: false, enable: true, tooltip: 'toolpit_scene_settings', title: 'scene_settings', height: "200px" },
+  ]
 
   constructor(
     // ngZone: NgZone,

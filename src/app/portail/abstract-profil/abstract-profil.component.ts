@@ -137,6 +137,8 @@ export abstract class AbstractProfilComponent implements OnInit {
 
   private readonly notifier: NotifierService;
 
+  private groundTileProcessing: GroundTileProcessing
+
   sun: DirectionalLight
 
   sky: Sky
@@ -774,6 +776,7 @@ export abstract class AbstractProfilComponent implements OnInit {
     if (target_position == undefined) {
       target_position = position
     }
+    target_position.setZ(0)
     const camera = this.instance.view.camera as PerspectiveCamera
 
     this.instance.view.camera.position.set(position.x, position.y, position.z);
@@ -791,7 +794,7 @@ export abstract class AbstractProfilComponent implements OnInit {
     this.controls.saveState();
     // this.controls.target.set(0, 0, 0)
     this.instance.view.setControls(this.controls);
-
+    this.controls.update()
     this.eventsListener.controlsAdded.next()
 
   }
@@ -1135,9 +1138,14 @@ export abstract class AbstractProfilComponent implements OnInit {
    */
   initialiseGroundTileProcessing() {
     this.ngZone.runOutsideAngular(() => {
-      new GroundTileProcessing(this.map, this.parametersService, this.sunSystem, this.lightAndShadowSystem.csm)
+      this.groundTileProcessing = new GroundTileProcessing(this.map, this.parametersService, this.sunSystem, this.lightAndShadowSystem.csm)
     });
 
+  }
+
+  updateGroundTilesVisibility(visibility: boolean) {
+
+    this.groundTileProcessing.updateGroundTilesVisibility(visibility)
   }
 
   initialiseProfilGroups() {
@@ -1167,7 +1175,7 @@ export abstract class AbstractProfilComponent implements OnInit {
       ),
       switchMap((map_id) => {
         this.parametersService.map_id = map_id
-        this.addStats()
+        // this.addStats()
 
         return this.mapService.getAllGroupOfMap(map_id).pipe(
           catchError((error: HttpErrorResponse) => {

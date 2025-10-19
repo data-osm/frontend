@@ -1007,6 +1007,7 @@ export class CartoHelper {
     const instance: Instance = map["_instance"]
     const cam = instance.view.camera.position;
     const target = (instance.view.controls as OrbitControls).target;
+    target.setZ(0)
     return `${round10(cam.x)},${round10(cam.y)},${round10(cam.z)},${round10(target.x)},${round10(target.y)},${round10(target.z)}`;
 
   }
@@ -1316,7 +1317,7 @@ export class CartoHelper {
     this.camera.position.set(center.x, center.y - 1, altitude + top);
     this.camera.lookAt(center);
 
-    this.controls.target.set(center.x, center.y, top);
+    this.controls.target.set(center.x, center.y, 0);
 
     this.instance.notifyChange(this.camera);
   }

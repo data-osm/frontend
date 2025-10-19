@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Observable, fromEvent, merge as observerMerge, Subscriber, ReplaySubject, merge } from 'rxjs';
 
@@ -35,6 +35,7 @@ import { Group, Mesh } from 'three';
 import { MatomoTracker } from 'ngx-matomo-client';
 import { LayersInMap } from '../../../../../helper/type';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-table-of-contents',
@@ -47,6 +48,7 @@ import { MatDialog } from '@angular/material/dialog';
 export class TableOfContentsComponent implements OnInit {
 
   @Input() map: Map
+  @Output() changeGroundTileVisibility: EventEmitter<boolean> = new EventEmitter<boolean>()
 
   layersInToc: Array<LayersInMap> = []
 
@@ -330,6 +332,11 @@ export class TableOfContentsComponent implements OnInit {
     let data = this.dataOsmLayersServiceService.getLayerInMap(layer.properties.couche_id)
     this.dialog.open(MetadataLayerComponent, { data: data.layer, panelClass: ['dialog-primary-bg', "dialog-no-overflow"] })
 
+  }
+
+  updateGroundTilesVisibility(event: MatSlideToggleChange) {
+    this.tracker.trackEvent("ChangeGroundTileVisibility", event.checked.toString())
+    this.changeGroundTileVisibility.next(event.checked)
   }
 
 }
