@@ -1175,7 +1175,7 @@ export abstract class AbstractProfilComponent implements OnInit {
       ),
       switchMap((map_id) => {
         this.parametersService.map_id = map_id
-        // this.addStats()
+        this.addStats()
 
         return this.mapService.getAllGroupOfMap(map_id).pipe(
           catchError((error: HttpErrorResponse) => {
