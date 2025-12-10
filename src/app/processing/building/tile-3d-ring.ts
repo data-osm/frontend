@@ -6,6 +6,7 @@ import { VectorNode } from "./type";
 import { VectorAreaRingType } from "./builder";
 import Vec2 from "../math/vector2";
 import { isPointInsidePolygon } from "../math/utils";
+import Vec3 from "../math/vector3";
 
 
 const temp_box = new Box3()
@@ -24,7 +25,7 @@ export default class Tile3DRing {
     public readonly type: Tile3DRingType;
     public readonly nodes: Vec2[];
 
-    private cachedFlattenVertices: number[] = null;
+    protected cachedFlattenVertices: number[] = null;
     private cachedGeoJSONVertices: [number, number][] = null;
     private cachedAABB: Extent = null;
     private cachedArea: number = null;
@@ -109,5 +110,29 @@ export default class Tile3DRing {
         }
 
         return this.cachedArea;
+    }
+}
+
+export class Tile3DRingWith3D extends Tile3DRing {
+    //@ts-expect-error
+    public readonly nodes: Vec3[];
+
+    constructor(type: Tile3DRingType, nodes: Vec3[]) {
+        super(type, nodes.map((v) => new Vec2(v.x, v.y)));
+        this.nodes = nodes
+
+    }
+    public getFlattenVertices(): number[] {
+        if (!this.cachedFlattenVertices) {
+            const vertices: number[] = [];
+
+            for (const node of this.nodes) {
+                vertices.push(node.x, node.y, node.z);
+            }
+
+            this.cachedFlattenVertices = vertices;
+        }
+
+        return this.cachedFlattenVertices;
     }
 }

@@ -22,7 +22,7 @@ export function mergeFloat32(floatArrays: Array<Float32Array>) {
 export class LinesStringWithZ extends LineString {
     protected _coordinatesWithZ: Array<[number, number, number]>
 
-    constructor(coordinates: Coordinate[], layout, coordinatesWithZ: Array<[number, number, number]>) {
+    constructor(coordinates: Coordinate[] | Array<number>, layout, coordinatesWithZ: Array<[number, number, number]>) {
         super(coordinates, layout);
         this._coordinatesWithZ = coordinatesWithZ
     }
@@ -30,23 +30,31 @@ export class LinesStringWithZ extends LineString {
     get coordinatesWithZ(): Array<[number, number, number]> {
         return this._coordinatesWithZ
     }
+
+    set coordinatesWithZ(coordinatesWithZ: Array<[number, number, number]>) {
+        this._coordinatesWithZ = coordinatesWithZ
+    }
 }
 
 export class MultiLineStringWithZ extends MultiLineString {
     protected _coordinatesWithZ: Array<Array<[number, number, number]>>
 
-    constructor(coordinates: Array<Coordinate[]>, layout, coordinatesWithZ: Array<Array<[number, number, number]>>) {
-        super(coordinates, layout);
+    constructor(coordinates: Array<Coordinate[]> | Array<number>, layout, ends: Array<number>, coordinatesWithZ: Array<Array<[number, number, number]>>) {
+        super(coordinates, layout, ends);
         this._coordinatesWithZ = coordinatesWithZ
     }
 
     get coordinatesWithZ(): Array<Array<[number, number, number]>> {
         return this._coordinatesWithZ
     }
+    set coordinatesWithZ(coordinatesWithZ: Array<Array<[number, number, number]>>) {
+        this._coordinatesWithZ = coordinatesWithZ
+    }
 }
 
 export class PolygonWithZ extends Polygon {
     protected _coordinatesWithZ: Array<Array<[number, number, number]>>
+
 
     constructor(coordinates: Array<Array<Coordinate>>, layout, ends?: Array<number>, coordinatesWithZ?: Array<Array<[number, number, number]>>) {
         super(coordinates, layout, ends);
@@ -55,6 +63,10 @@ export class PolygonWithZ extends Polygon {
 
     get coordinatesWithZ(): Array<Array<[number, number, number]>> {
         return this._coordinatesWithZ
+    }
+
+    set coordinatesWithZ(coordinatesWithZ: Array<Array<[number, number, number]>>) {
+        this._coordinatesWithZ = coordinatesWithZ
     }
 }
 
@@ -68,6 +80,10 @@ export class MultiPolygonWithZ extends MultiPolygon {
 
     get coordinatesWithZ(): Array<Array<Array<[number, number, number]>>> {
         return this._coordinatesWithZ
+    }
+
+    set coordinatesWithZ(coordinatesWithZ: Array<Array<Array<[number, number, number]>>>) {
+        this._coordinatesWithZ = coordinatesWithZ
     }
 }
 

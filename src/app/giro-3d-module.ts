@@ -16,6 +16,7 @@ import ColorLayer from '@giro3d/cgiro3d/core/layer/ColorLayer.js';
 import WmtsSource from '@giro3d/cgiro3d/sources/WmtsSource.js';
 import TiledImageSource from '@giro3d/cgiro3d/sources/TiledImageSource.js';
 import WmsSource from '@giro3d/cgiro3d/sources/WmsSource.js';
+import VectorTileSource from '@giro3d/cgiro3d/sources/VectorTileSource'
 import ImageSource from '@giro3d/cgiro3d/sources/ImageSource'
 // import { Layer, LayerEvents, LayerUserData } from '@giro3d/cgiro3d/core/layer'
 import { PickObjectsAtOptions } from '@giro3d/cgiro3d/core/Instance'
@@ -48,10 +49,14 @@ import ColorMap from '@giro3d/cgiro3d/core/ColorMap';
 import { PointCloudAttribute, PointCloudMetadata } from '@giro3d/cgiro3d/sources/PointCloudSource';
 
 import { TextureAndPitch } from "@giro3d/cgiro3d/core/layer/Layer";
-
+import PlanarTileGeometry from "@giro3d/cgiro3d/entities/tiles/PlanarTileGeometry"
 
 
 import { decodeRaster } from "@giro3d/cgiro3d/formats/bilWorker.js";
+import HeightMap from '@giro3d/cgiro3d/core/HeightMap';
+import { readRGRenderTargetIntoRGBAU8Buffer } from '@giro3d/cgiro3d/renderer/composition/WebGLComposer';
+import MemoryTracker from '@giro3d/cgiro3d/renderer/MemoryTracker';
+import PromiseUtils from '@giro3d/cgiro3d/utils/PromiseUtils';
 export {
     Extent,
     LayerUpdateState,
@@ -99,5 +104,11 @@ export {
     PointCloudAttribute,
     PointCloudMetadata,
     TextureAndPitch,
-    decodeRaster
+    decodeRaster,
+    VectorTileSource,
+    PlanarTileGeometry,
+    HeightMap,
+    readRGRenderTargetIntoRGBAU8Buffer,
+    MemoryTracker,
+    PromiseUtils
 }

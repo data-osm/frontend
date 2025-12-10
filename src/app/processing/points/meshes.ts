@@ -1,4 +1,4 @@
-import { Group, Mesh, Object3DEventMap, PerspectiveCamera, ShaderMaterial } from "three";
+import { BatchedMesh, DataTexture, FloatType, Group, IntType, Material, Mesh, Object3DEventMap, PerspectiveCamera, RGBAFormat, ShaderMaterial } from "three";
 import { CustomInstancedBufferGeometry, PointMesh } from "../custom-mesh";
 import { Extent } from "ol/extent";
 

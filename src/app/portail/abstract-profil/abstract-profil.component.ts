@@ -52,7 +52,7 @@ import {
 import { fromInstanceGiroEvent } from '../../shared/class/fromGiroEvent';
 import Stats from "stats-js"
 import { dataFromClickOnMapInterface, MapMousseEvents } from '../../processing/map-mousse-events';
-import { ShareServiceService, VIEW_QUERY_PARAM } from '../../services/share-service/share-service.service';
+import { ShareServiceService, USECASE_QUERY_PARAM, VIEW_QUERY_PARAM } from '../../services/share-service/share-service.service';
 import { MatomoTracker } from 'ngx-matomo-client';
 import { GroundTileProcessing } from '../../processing/ground-tile-processing';
 import { AppExtent } from '../../data/models/parameters';
@@ -149,6 +149,8 @@ export abstract class AbstractProfilComponent implements OnInit {
     "groupsLoaded": new Subject<Array<Group>>(),
     "controlsAdded": new Subject<void>(),
     "instanceLoaded": new BehaviorSubject<boolean>(false),
+    "parameterLoaded": new Subject<void>(),
+    "groundTileInitialized": new BehaviorSubject<boolean>(false),
   }
   /**
    * All menus of the right sidenav
@@ -492,7 +494,7 @@ export abstract class AbstractProfilComponent implements OnInit {
         this.lightAndShadowSystem.csm.updateFrustums();
         this.instance.notifyChange()
       })
-      inspector.gui.add(this.lightAndShadowSystem.csm, 'lightMargin', 100, 4000, 50).name('lightMargin').onChange((value) => {
+      inspector.gui.add(this.lightAndShadowSystem.csm, 'lightMargin', 0, 4000, 50).name('lightMargin').onChange((value) => {
         this.lightAndShadowSystem.csm.lightMargin = value
         this.lightAndShadowSystem.csm.update();
         this.lightAndShadowSystem.csm.updateFrustums();
@@ -650,6 +652,7 @@ export abstract class AbstractProfilComponent implements OnInit {
       noDataValue,
     })
       .then((elevationWmts) => {
+        // console.log(elevationWmts, "elevationWmts")
         this.map.addLayer(
           new ElevationLayer({
             extent: this.map.extent,
@@ -714,7 +717,7 @@ export abstract class AbstractProfilComponent implements OnInit {
 
     // Enable Stats in DEv mode
 
-    if (!environment.production || (this.parametersService.map_id == 4 || this.parametersService.map_id == 15)) {
+    if (!environment.production || (this.parametersService.mapId == 4 || this.parametersService.mapId == 15)) {
       // const inspector = new Inspector("giro3d-inspector", this.instance)
 
       // inspector.folders.filter((f) => f instanceof ProcessingInspector).map((f) => {
@@ -801,45 +804,6 @@ export abstract class AbstractProfilComponent implements OnInit {
 
   addLights() {
 
-    // let parisPov = "260354.7,6252644.5,301.2,259689,6252821.8,0"
-    // const center = getCenter(this.parametersService.projectPolygon.getGeometry().getExtent())
-    // const center = [260354.7, 6252644.5]
-    // this.sun = new DirectionalLight('#ff00ff', 20);
-    // this.sun = new DirectionalLight('#white', 15);
-    // this.sun.updateMatrixWorld(true);
-    // this.sun.name = "Sun light"
-    // this.sun.target.name = "Sun light target"
-
-    // this.sun.shadow.bias = -0.0001;
-    // this.sun.shadow.normalBias = 1
-    // this.sun.shadow.radius = 0
-    // this.sun.shadow.mapSize.width = 1024 * 1
-    // this.sun.shadow.mapSize.height = 1024 * 1
-    // const shadowCamera = this.sun.shadow.camera;
-    // const d = 1000; // demi-largeur du volume d’ombre en unités de ta scène
-    // shadowCamera.left = -d;
-    // shadowCamera.right = d;
-    // shadowCamera.top = d;
-    // shadowCamera.bottom = -d;
-
-    // this.instance.add(this.sun);
-    // this.instance.add(this.sun.target);
-
-
-    // // this.map.castShadow = true;
-
-    // this.sun.castShadow = true;
-
-    // const helper = new DirectionalLightHelper(this.sun, 5, "white");
-    // helper.name = "Sun light helper"
-    // this.instance.add(helper);
-
-    // const camera = this.instance.view.camera
-    // const camHelper = new CameraHelper(shadowCamera);
-    // camHelper.name = "Sun light camera helper"
-    // shadowCamera.far = 3000
-    // shadowCamera.near = 1
-    // shadowCamera.updateProjectionMatrix();
 
     this.lightAndShadowSystem = new LightAndShadowSystem(this.map, this.instance, this.sunSystem)
     const onUpdateSunPositionAfterCameraUpdate = new Subject<void>()
@@ -850,83 +814,6 @@ export abstract class AbstractProfilComponent implements OnInit {
       // camHelper.update();
     })
     this.objectsToUpdateAfterCameraUpdated.push(onUpdateSunPositionAfterCameraUpdate)
-
-
-    // setTimeout(() => {
-    //   this.updateSunPositionAndTarget(this.instance.view.camera as PerspectiveCamera)
-    //   setTimeout(() => {
-
-    //     helper.update();
-    //     camHelper.update();
-    //   }, 1000);
-    // }, 1000);
-
-
-
-
-    // this.instance.addEventListener("before-render", (e) => {
-    //   this.sun.target.updateMatrixWorld();
-    //   shadowCamera.updateProjectionMatrix();
-    //   // console.log(camera.position, camera.matrix)
-    //   // shadowCamera.far = camera.far
-    //   // shadowCamera.near = camera.near
-    // helper.update();
-    // camHelper.update();
-    // })
-
-
-    // const inspector = new Inspector("giro3d-inspector", this.instance)
-    // const params = {
-    //   "cameraFar": 3000,
-    //   "cameraNear": 1,
-    //   "lightIntensity": 2,
-    //   "bias": 0.0001,
-    //   update: () => {
-    //     this.updateSunPositionAndTarget(this.instance.view.camera as PerspectiveCamera)
-    //     helper.update();
-    //     camHelper.update();
-    //   }
-    // }
-    // inspector.gui.add(params, 'update').name('Update light');
-    // inspector.gui.add(params, 'cameraFar').min(1000).max(5000).step(10).name('Camera far').onChange((value) => {
-    //   shadowCamera.far = value
-    //   helper.update();
-    //   camHelper.update();
-    //   this.instance.notifyChange()
-    // });
-    // inspector.gui.add(params, 'cameraNear').min(1).max(3000).step(10).name('Camera near').onChange((value) => {
-    //   shadowCamera.near = value
-    //   helper.update();
-    //   camHelper.update();
-    //   this.instance.notifyChange()
-    // });
-
-
-    // inspector.gui.add(params, 'lightIntensity').min(0).max(20).step(1).name('light Intensity').onChange((value) => {
-    //   this.sun.intensity = value
-    //   helper.update();
-    //   camHelper.update();
-    //   this.instance.notifyChange()
-    // });
-
-    // inspector.gui.add(params, "bias").min(-0.000005).max(0.000005).step(0.000001).name('bias').onChange((value) => {
-    //   this.sun.shadow.bias = value
-    //   // helper.update();
-    //   // camHelper.update();
-    //   this.instance.notifyChange()
-    // })
-
-    // We can look below the floor, so let's light also a bit there
-
-    // const sun2 = new DirectionalLight('#ffffff', 0.5);
-    // sun2.position.set(0, 1, 1);
-    // sun2.updateMatrixWorld();
-    // this.instance.add(sun2);
-
-    // ambient
-    // const ambientLight = new AmbientLight(new Color().setRGB(1, 1, 1), 4);
-    // ambientLight.up.set(0, 0, 1);
-    // this.instance.add(ambientLight);
 
   }
 
@@ -1007,8 +894,10 @@ export abstract class AbstractProfilComponent implements OnInit {
    */
   updateCurrentUrl() {
     const onUpdateCurrentUrl: Subject<void> = new Subject<void>()
+
     onUpdateCurrentUrl.pipe(
       debounceTime(500),
+      filter(() => Boolean(this.instance.view.controls)),
       tap(() => {
         this.shareServiceService.updateUrlWithPointOfView(this.map)
       })
@@ -1105,6 +994,7 @@ export abstract class AbstractProfilComponent implements OnInit {
     });
 
     let params = parameters[1]
+    let defaultPov = this.parametersService.defaultInitLocalisation
     if (params[VIEW_QUERY_PARAM]) {
       try {
         let pov: string = params['pos'];
@@ -1113,13 +1003,13 @@ export abstract class AbstractProfilComponent implements OnInit {
         this.addControls(tempVec3.set(x, y, z), temp2Vec3.set(tx, ty, tz))
         // CartoHelper.goToPointOfView(this.map, pov)
       } catch (error) {
-        let parisPov = "260354.7,6252644.5,301.2,259689,6252821.8,0"
-        this.addControls(tempVec3.set(260354.7, 6252644.5, 301.2), temp2Vec3.set(259689, 6252821.8, 0))
+
+        this.addControls(tempVec3.set(defaultPov[0], defaultPov[1], defaultPov[2]), temp2Vec3.set(defaultPov[3], defaultPov[4], defaultPov[5]))
       }
 
     } else {
-      let parisPov = "260354.7,6252644.5,301.2,259689,6252821.8,0"
-      this.addControls(tempVec3.set(260354.7, 6252644.5, 301.2), temp2Vec3.set(259689, 6252821.8, 0))
+
+      this.addControls(tempVec3.set(defaultPov[0], defaultPov[1], defaultPov[2]), temp2Vec3.set(defaultPov[3], defaultPov[4], defaultPov[5]))
       // CartoHelper.goToPointOfView(this.map, parisPov)
 
       // window.addEventListener("mousemove", (event) => {
@@ -1139,6 +1029,10 @@ export abstract class AbstractProfilComponent implements OnInit {
   initialiseGroundTileProcessing() {
     this.ngZone.runOutsideAngular(() => {
       this.groundTileProcessing = new GroundTileProcessing(this.map, this.parametersService, this.sunSystem, this.lightAndShadowSystem.csm)
+      this.groundTileProcessing.init().subscribe(() => {
+        console.log("ici")
+        this.eventsListener.groundTileInitialized.next(true)
+      })
     });
 
   }
@@ -1150,6 +1044,9 @@ export abstract class AbstractProfilComponent implements OnInit {
 
   initialiseProfilGroups() {
     this.groups$ = this.activatedRoute.queryParams.pipe(
+      tap((params) => {
+        this.parametersService.mapUseCase = params[USECASE_QUERY_PARAM]
+      }),
       mergeMap(params =>
         iif(
           () => params['profil'] == undefined,
@@ -1174,8 +1071,10 @@ export abstract class AbstractProfilComponent implements OnInit {
         )
       ),
       switchMap((map_id) => {
+        this.eventsListener.parameterLoaded.next()
+        this.eventsListener.parameterLoaded.complete()
 
-        this.parametersService.map_id = map_id
+        this.parametersService.mapId = map_id
 
 
         this.addStats()

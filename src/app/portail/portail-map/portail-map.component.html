@@ -1,24 +1,27 @@
-<!-- <div class="loading-apps">
+<ng-container *ngIf="eventsListener.groundTileInitialized |async as groundTileInitialized">
+  <div class="loading-apps" [ngStyle]="groundTileInitialized?{'display':'none'}:{'display':'block'}">
     <div style="position: absolute; top: calc(50% - 50px); left: 45%">
       <div class="lds-ripple" style="width: 100px; height: 100px">
         <div></div>
         <div></div>
       </div>
-  
+
       <div style="margin-left: -90px; margin-top: -35px" class="primaryColor">
         {{ "loading.loading_catalog" | translate }}
       </div>
     </div>
-</div> -->
-
+  </div>
+</ng-container>
 
 <mat-sidenav-container class="sidenav-container" #sidenavContainer [autosize]="true" [hasBackdrop]="false">
 
   <mat-sidenav-content class="sidenav-content">
+
+
     <app-header [instance]="instance" [map]="map"></app-header>
 
 
-    <div class="toggle-rnb-edit black"
+    <!-- <div class="toggle-rnb-edit black"
       [ngClass]="{'toggle-rnb-edit-enabled': osmUpdateStoreService.isOsmBuildingUpdateEnabled, 'toggle-rnb-edit-disabled': !osmUpdateStoreService.isOsmBuildingUpdateEnabled}"
       fxLayout (click)="toggleOsmBuildingUpdate()">
       <img fxFlex="40px" src="assets/icones/logo.rnb.png" alt="">
@@ -31,7 +34,15 @@
           OSM </ng-container>
 
       </h3>
+    </div> -->
+
+    <div class="toggle-icu black" fxLayout (click)="openUseCase()" #toggleICU>
+      <img fxFlex="40px" src="assets/icones/icu_logo.png" alt="">
+      <h3 fxFlex>
+        Visualiser le phénomène d'îlot de chaleur urbaine sur Grenoble
+      </h3>
     </div>
+
     <!-- (contextmenu)="
           ContextMenuComp ? ContextMenuComp.setRightClickPixel($event) : undefined
         " [shAttachMenu]="ContextMenuComp ? ContextMenuComp.menu : undefined"

@@ -5,7 +5,7 @@ import { filter, ReplaySubject, takeUntil, map as rxjsMap, tap, retryWhen, delay
 import { PointsLayer } from "../../processing/points/points"
 import { fromInstanceGiroEvent } from "../../shared/class/fromGiroEvent"
 import { CartoHelper } from "../../../helper/carto.helper"
-import { PerspectiveCamera } from "three"
+import { LessDepth, EqualDepth, PerspectiveCamera } from "three"
 import { environment } from "../../../environments/environment"
 import { TramLineString } from "../../processing/linestring/tram-linestring"
 import { RailLineString } from "../../processing/linestring/rail-linestring"
@@ -14,8 +14,15 @@ import { FlatLineStringLayer } from "../../processing/linestring/flat-linestring
 class ColorLayerWithoutFog extends ColorLayer {
     applyTextureToNode(result: TextureAndPitch, target: Target) {
         super.applyTextureToNode(result, target)
+        // target.
+        // target.node.material.
         // @ts-expect-error
         target.node.material.fog = false
+        if (target.node.lod >= 17) {
+            // console.log(target, this)
+            // target.node.material.depthWrite = false
+        }
+
     }
 }
 /**
@@ -36,6 +43,7 @@ export function constructLayer(map: Giro3DMap, instance: Instance, couche: DataO
 
             })
         })
+
 
     } else if (couche.type == "wms") {
 

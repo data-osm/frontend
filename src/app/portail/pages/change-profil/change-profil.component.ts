@@ -15,23 +15,23 @@ import { Map } from '../../../type/type';
 })
 export class ChangeProfilComponent implements OnInit {
 
-  public onInitInstance:()=>void
-  profils$:Observable<Map[]>
-  map_id = this.parametersService.map_id
+  public onInitInstance: () => void
+  profils$: Observable<Map[]>
+  mapId = this.parametersService.mapId
 
   constructor(
     public parametersService: ParametersService,
     public mapsService: MapsService,
     public dialogRef: MatDialogRef<ChangeProfilComponent>,
-    public router:Router
+    public router: Router
   ) {
-    const onInit:Subject<void> = new ReplaySubject<void>()
-    this.onInitInstance =()=>{
+    const onInit: Subject<void> = new ReplaySubject<void>()
+    this.onInitInstance = () => {
       onInit.next()
     }
 
     this.profils$ = onInit.pipe(
-      switchMap(()=>{
+      switchMap(() => {
         return this.mapsService.getAllMaps().pipe(
           catchError((error: HttpErrorResponse) => {
             alert('An error occured when retrieving profils')
@@ -42,10 +42,10 @@ export class ChangeProfilComponent implements OnInit {
       })
     )
 
-   }
+  }
 
-  changeProfil(map_id:number){
-    this.router.navigateByUrl('/map?profil='+map_id).then(()=>{
+  changeProfil(map_id: number) {
+    this.router.navigateByUrl('/map?profil=' + map_id).then(() => {
       window.location.reload();
     })
   }
@@ -54,7 +54,7 @@ export class ChangeProfilComponent implements OnInit {
     this.onInitInstance()
   }
 
-  close(){
+  close() {
     this.dialogRef.close(false)
   }
 

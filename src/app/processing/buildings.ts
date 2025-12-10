@@ -21,7 +21,7 @@ import { polygon as turf_polygon, featureCollection } from "@turf/helpers";
 import { bbox } from "@turf/bbox";
 import { LEVEL_HEIGHT } from "./building/building-params";
 import VectorRenderTile from "ol/VectorRenderTile";
-import { buffer, containsCoordinate, getBottomLeft, getBottomRight, getTopLeft } from "ol/extent";
+import { buffer, containsCoordinate, getBottomLeft, getBottomRight, getTopLeft, Extent as OlExtent } from "ol/extent";
 import { BuildingsTile } from "./building/helper";
 import { build3dBuildings } from "./build3dBuilding";
 import { SelectableMesh } from "./custom-mesh";
@@ -51,7 +51,7 @@ import { addTile, PackedTiles } from "./building-elevation";
 import { BuildingBuilder } from "./building/building-builder";
 import { ParametersService } from "../data/services/parameters.service";
 import { createIcuTexture, listStations, updateIcuTexture } from "./building/icu/textures";
-import { bool } from "three/src/nodes/TSL";
+
 ShaderChunk['building_common'] = buildingCommon;
 ShaderChunk['compute_shadow_mask'] = computeShadowMask;
 // class WorkerPoolL {
@@ -151,7 +151,7 @@ export class BuildingLayer {
     // flatBush index - osm id
     private tileFlatIndexBuildingOsmId: Map<string, Map<number, number>> = new Map<string, Map<number, number>>()
     // need to recreate tiles flatBuffer
-    private tileExtents: Map<string, [number, number, number, number]> = new Map<string, [number, number, number, number]>()
+    private tileExtents: Map<string, [number, number, number, number] | OlExtent> = new Map<string, [number, number, number, number]>()
     // private tileKeyWithFlatBufferIndex: Map<number, string> = new Map<number, string>()
 
     private sunSystem: SunSystem
@@ -179,7 +179,7 @@ export class BuildingLayer {
         this.instance.add(this.buildingGroup)
 
         this.featuresStoreService.sendRetrieveBuildingHeightEmitter$.start(async (req) => this.getBuildingHeightAtPoint(req))
-        // this.buildingGroup.renderOrder = 0
+        this.buildingGroup.renderOrder = 0
         this.sunSystem.datetimeChangedObservable.pipe(
             debounceTime(200),
             tap(() => {
@@ -358,41 +358,41 @@ export class BuildingLayer {
 
     }
 
-    setBuildingMeshSunDirection(object: SelectableMesh | ShaderMaterial) {
+    // setBuildingMeshSunDirection(object: SelectableMesh | ShaderMaterial) {
 
-        let materialToUpdate: ShaderMaterial
-        if (object instanceof SelectableMesh) {
-            materialToUpdate = object.material
-        } else if (object instanceof ShaderMaterial) {
-            materialToUpdate = object
-        } else {
-            throw new Error("No mesh or material provided")
-        }
-        const sunDirection = this.sunSystem.sunDirection
-        tempVec3.set(sunDirection.x, sunDirection.y, sunDirection.z)
-
-
-        // if (!materialToUpdate.uniforms.UdirectionLightDirection) {
-        //     materialToUpdate.uniforms.UdirectionLightDirection = { value: tempVec3.clone() }
-        // } else {
-
-        //     materialToUpdate.uniforms.UdirectionLightDirection.value.copy(tempVec3)
-        // }
-        // if (!materialToUpdate.uniforms.directionLightColor) {
-        //     materialToUpdate.uniforms.directionLightColor = { value: this.sunSystem.sunLightColor.clone() }
-        // } else {
-
-        //     materialToUpdate.uniforms.directionLightColor.value.copy(this.sunSystem.sunLightColor)
-        // }
+    //     let materialToUpdate: ShaderMaterial
+    //     if (object instanceof SelectableMesh) {
+    //         materialToUpdate = object.material
+    //     } else if (object instanceof ShaderMaterial) {
+    //         materialToUpdate = object
+    //     } else {
+    //         throw new Error("No mesh or material provided")
+    //     }
+    //     const sunDirection = this.sunSystem.sunDirection
+    //     tempVec3.set(sunDirection.x, sunDirection.y, sunDirection.z)
 
 
-        const directionLightIntensity = LightAndShadowSystem.getSunLightIntensity(sunDirection) + ""
-        const ambientLightIntensity = LightAndShadowSystem.getAmbientLightIntensity(sunDirection) + ""
+    //     // if (!materialToUpdate.uniforms.UdirectionLightDirection) {
+    //     //     materialToUpdate.uniforms.UdirectionLightDirection = { value: tempVec3.clone() }
+    //     // } else {
 
-        // materialToUpdate.uniforms.directionLightIntensity = { value: directionLightIntensity }
-        // materialToUpdate.uniforms.ambientLightIntensity = { value: ambientLightIntensity }
-        // materialToUpdate.needsUpdate = true
-    }
+    //     //     materialToUpdate.uniforms.UdirectionLightDirection.value.copy(tempVec3)
+    //     // }
+    //     // if (!materialToUpdate.uniforms.directionLightColor) {
+    //     //     materialToUpdate.uniforms.directionLightColor = { value: this.sunSystem.sunLightColor.clone() }
+    //     // } else {
+
+    //     //     materialToUpdate.uniforms.directionLightColor.value.copy(this.sunSystem.sunLightColor)
+    //     // }
+
+
+    //     const directionLightIntensity = LightAndShadowSystem.getSunLightIntensity(sunDirection) + ""
+    //     const ambientLightIntensity = LightAndShadowSystem.getAmbientLightIntensity(sunDirection) + ""
+
+    //     // materialToUpdate.uniforms.directionLightIntensity = { value: directionLightIntensity }
+    //     // materialToUpdate.uniforms.ambientLightIntensity = { value: ambientLightIntensity }
+    //     // materialToUpdate.needsUpdate = true
+    // }
 
     setBuildingMeshSkyTexture(object: SelectableMesh | ShaderMaterial) {
 
@@ -426,7 +426,7 @@ export class BuildingLayer {
             if (child instanceof SelectableMesh) {
                 if (options.updateSunDirection) {
 
-                    this.setBuildingMeshSunDirection(child)
+                    // this.setBuildingMeshSunDirection(child)
                 }
                 if (options.updateSkyTexture) {
                     this.setBuildingMeshSkyTexture(child)
@@ -462,13 +462,15 @@ export class BuildingLayer {
     }
     setCustomUniforms(buildingMaterial: ShaderMaterial) {
         if (this.parameterService.customBuildingUniforms == "TEMPERATURE_UNIFORM") {
+            this.buildingMaterial.defines["ICU_OUTLINE_TEXTURE"] = ""
             if (!Boolean(buildingMaterial.uniforms.uOutlineTexture)) {
-                console.log("TEMPERATURE_UNIFORM")
                 const texture = updateIcuTexture(this.sunSystem.currentDateTime)
                 // this.outLineTexture = texture
                 buildingMaterial.uniforms.uOutlineTexture = { value: texture }
             }
 
+        } else {
+            this.buildingMaterial.defines["RNB_OUTLINE_TEXTURE"] = ""
         }
     }
 
@@ -565,7 +567,7 @@ export class BuildingLayer {
             this.setBuildingMeshSkyTexture(buildingMaterial)
         }
         this.setCustomUniforms(buildingMaterial)
-        this.setBuildingMeshSunDirection(buildingMaterial)
+        // this.setBuildingMeshSunDirection(buildingMaterial)
 
         return buildingMaterial
 
@@ -656,6 +658,7 @@ export class BuildingLayer {
     }
 
     loadFeatures(tileResults: RetrieveBuilding[]) {
+        // console.log(tileResults)
         for (let index = 0; index < tileResults.length; index++) {
             const tile = tileResults[index];
             const osmIDsSet = new Set<number>()
@@ -664,6 +667,7 @@ export class BuildingLayer {
                 this.OSMIDProperites.set(feature.properties.osm_id, feature.properties)
                 osmIDsSet.add(feature.properties.osm_id)
             }
+
             this.tileOSMIDS.set(tile.tile_key, osmIDsSet)
             this.loadTileBuildingHeightIndex(tile)
             this.loadTile(tile)
@@ -672,6 +676,7 @@ export class BuildingLayer {
     }
 
     loadTileBuildingHeightIndex(tileResult: RetrieveBuilding) {
+
         addTile(this.buildingHeightFlatBushIndex, { tileKey: tileResult.tile_key, buffer: tileResult.flatBushData });
         this.featuresStoreService.buildingHeightFlatBushIndex = this.buildingHeightFlatBushIndex
 
@@ -731,7 +736,6 @@ export class BuildingLayer {
         if (properties == undefined) {
             return
         }
-        console.log(properties, properties["lcz_outline_id"], properties["lcz_outline_id"] != undefined, properties["lcz_outline_id"] != null, Boolean(properties["lcz_outline_id"]))
         const feature = new Feature(new Polygon(properties.coordinates))
         feature.setProperties(properties)
         return feature
@@ -857,6 +861,7 @@ export class BuildingLayer {
         // this.csm.setupMaterial(material);
         // this.instance.notifyChange()
         const building = new SelectableMesh(geometry, material)
+        building.renderOrder = 0
         // const building = new Mesh(geometry, material)
         building.castShadow = true
         building.receiveShadow = true

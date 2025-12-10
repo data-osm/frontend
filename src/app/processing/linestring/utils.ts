@@ -230,7 +230,7 @@ export function ensureLinesAreClosed(features: Feature<LineString | MultiLineStr
     })
 }
 
-export async function addElevationToLines(features: Feature<LineString | MultiLineString>[], featureCrs: string): Promise<Feature<LinesStringWithZ | MultiLineStringWithZ>[]> {
+export async function addElevationToLines(features: Feature<LineString | MultiLineString>[]): Promise<Feature<LinesStringWithZ | MultiLineStringWithZ>[]> {
     const transformCoordinates: [number, number, number | string][] = []
 
     // features.map((feature, index) => {
@@ -318,3 +318,30 @@ export async function addElevationToLines(features: Feature<LineString | MultiLi
 
 }
 
+export function parseMeters(str: string = '', defaultUnitsFactor: number = 1): number {
+    str = str
+        .replace(/,/g, '.')
+        .replace(/ /g, '')
+        .replace(/ft/g, '\'')
+        .replace(/feet/g, '\'');
+
+    if (str.search(/cm/) !== -1) {
+        return parseFloat(str.replace(/cm/g, '')) * 0.01;
+    } else if (str.search(/m/) !== -1) {
+        return parseFloat(str.replace(/m/g, ''));
+    } else if (str.search(/'/) !== -1) {
+        const [feet, inches] = str.split('\'').map(v => parseFloat(v));
+        return (feet * 12 + (inches || 0)) * 0.0254;
+    } else if (str.search(/"/) !== -1) {
+        const inches = parseFloat(str) || 0;
+        return inches * 0.0254;
+    }
+
+    const parsedFloat = parseFloat(str);
+
+    return isNaN(parsedFloat) ? undefined : parsedFloat * defaultUnitsFactor;
+}
+
+export function parseHeight(str: string = '', fallback?: number): number {
+    return parseMeters(str) ?? fallback;
+}

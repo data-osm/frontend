@@ -1,5 +1,5 @@
 import { SkeletonBuilder, Skeleton } from 'straight-skeleton';
-import Tile3DRing, { Tile3DRingType } from "./tile-3d-ring";
+import Tile3DRing, { Tile3DRingType, Tile3DRingWith3D } from "./tile-3d-ring";
 import earcut from "earcut";
 import { Extent } from "../../giro-3d-module";
 import { getTilesUnderTriangle } from "./roof/utils";
@@ -60,6 +60,7 @@ export class StraightSkeletonResult {
 
 export default class Tile3DMultipolygon {
     public readonly rings: Tile3DRing[] = [];
+    public readonly rings3D: Tile3DRingWith3D[] = [];
 
     private cachedStraightSkeleton: StraightSkeletonResult = null;
     private cachedOMBB: OMBBResult;
@@ -72,6 +73,12 @@ export default class Tile3DMultipolygon {
 
     public addRing(ring: Tile3DRing): void {
         this.rings.push(ring);
+
+    }
+
+    public addRing3D(ring: Tile3DRingWith3D): void {
+        this.rings3D.push(ring);
+        this.rings.push(new Tile3DRing(ring.type, ring.nodes.map((v) => v.xy)));
 
     }
 
@@ -260,12 +267,72 @@ export default class Tile3DMultipolygon {
         };
     }
 
+    public get3DFootprint(
+        {
+            height,
+            flip
+        }: {
+            height: number;
+            flip: boolean;
+        }
+    ): {
+        positions: number[];
+        uvs: number[];
+        normals: number[];
+    } {
+        const positions: number[] = [];
+        const uvs: number[] = [];
+        const normals: number[] = [];
+        const normalY = flip ? -1 : 1;
+
+        const inners = this.rings3D.filter(ring => ring.type === Tile3DRingType.Inner);
+        const outers = this.rings3D.filter(ring => ring.type === Tile3DRingType.Outer);
+
+        for (const outer of outers) {
+            let { vertices, holes } = this.getRing3DEarcutInput(outer, inners);
+
+            const triangles = earcut(vertices, holes, 3);
+
+
+            if (!flip) {
+                triangles.reverse();
+            }
+
+            for (let i = 0; i < triangles.length; i++) {
+                positions.push(
+                    vertices[triangles[i] * 3],
+                    vertices[triangles[i] * 3 + 1],
+                    vertices[triangles[i] * 3 + 2] + height,
+                );
+                uvs.push(vertices[triangles[i] * 3], vertices[triangles[i] * 3 + 1]);
+                normals.push(0, 0, normalY);
+            }
+        }
+        return {
+            positions,
+            uvs,
+            normals
+        };
+    }
+
     private getRingEarcutInput(outerRing: Tile3DRing, innerRings: Tile3DRing[]): EarcutInput {
         let vertices: number[] = [...outerRing.getFlattenVertices()];
         const holes: number[] = [];
 
         for (const inner of innerRings) {
             holes.push(vertices.length / 2);
+            vertices = vertices.concat(inner.getFlattenVertices());
+        }
+
+        return { vertices, holes };
+    }
+
+    private getRing3DEarcutInput(outerRing: Tile3DRingWith3D, innerRings: Tile3DRingWith3D[]): EarcutInput {
+        let vertices: number[] = [...outerRing.getFlattenVertices()];
+        const holes: number[] = [];
+
+        for (const inner of innerRings) {
+            holes.push(vertices.length / 3);
             vertices = vertices.concat(inner.getFlattenVertices());
         }
 
@@ -431,27 +498,54 @@ export default class Tile3DMultipolygon {
         return this.cachedPoleOfInaccessibility;
     }
 
-    public populateWithPoints(resolution: number, tileSize: number): Vec2[] {
-        const tiles = this.getCoveredTiles(resolution, tileSize);
+    public populateWithPoints(density: number = 0.001): Vec2[] {
         const points: Vec2[] = [];
 
-        for (const tile of tiles) {
-            const [x, y] = tile.split(' ').map(v => +v);
-            const point = new Vec2(
-                (x + 0.75 - Math.random() * 0.5) / resolution * tileSize,
-                (y + 0.75 - Math.random() * 0.5) / resolution * tileSize,
-            );
+        const allVertices: Vec2[] = [];
+        for (const ring of this.rings) {
+            for (const vertex of ring.nodes) {
+                allVertices.push(vertex);
+            }
+        }
+        const minX = Math.min(...allVertices.map(v => v.x));
+        const maxX = Math.max(...allVertices.map(v => v.x));
+        const minY = Math.min(...allVertices.map(v => v.y));
+        const maxY = Math.max(...allVertices.map(v => v.y));
+
+        let totalArea = 0;
+        for (const ring of this.rings) {
+            const area = ring.getArea();
+            totalArea += ring.type === Tile3DRingType.Outer ? area : -area;
+        }
+
+        let targetPointCount = Math.round(totalArea * density);
+        // console.log(targetPointCount, totalArea, density)
+        // targetPointCount = Math.min(density, 100)
+
+        let attempts = 0;
+        const maxAttempts = targetPointCount * 20; // sécurité anti-boucle infinie
+
+        while (points.length < targetPointCount && attempts < maxAttempts) {
+            attempts++;
+
+            const randomX = Math.random() * (maxX - minX) + minX;
+            const randomY = Math.random() * (maxY - minY) + minY;
+            const point = new Vec2(randomX, randomY);
 
             let isInMultipolygon = true;
 
             for (const ring of this.rings) {
                 if (ring.type === Tile3DRingType.Outer) {
+                    // doit être dans tous les outer rings
                     if (!ring.isContainsPoints(point)) {
                         isInMultipolygon = false;
+                        break;
                     }
                 } else {
+                    // ne doit pas être dans un inner ring
                     if (ring.isContainsPoints(point)) {
                         isInMultipolygon = false;
+                        break;
                     }
                 }
             }
@@ -461,8 +555,10 @@ export default class Tile3DMultipolygon {
             }
         }
 
+
         return points;
     }
+
 
     public createFloorVertices(
         ring: Array<Array<number>>,

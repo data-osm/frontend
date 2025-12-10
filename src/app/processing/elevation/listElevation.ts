@@ -1,4 +1,4 @@
-// @ts-expect-error
+//@ts-expect-error
 import proj4 from 'proj4';
 import { register } from 'ol/proj/proj4';
 import WMTSTileGrid from 'ol/tilegrid/WMTS';
@@ -17,6 +17,7 @@ proj4.defs('IGNF:WGS84G', 'GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WG
 register(proj4);
 
 const ELEVATION_LAYER = "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES"
+// 4, 10
 const ELEVATION_DEFAULT_RESOLUTION = 8
 const ELEVATION_DEFAULT_ZOOM = 14
 
@@ -32,9 +33,9 @@ const enableTerrain = environment.enabledTerrain
 * @param {number} radius    rayon en pixels (ici 10)
 * @param {number} tileSize  taille de la tuile (256)
 */
-function _maxElevationInRadius(view: DataView, px: number, py: number, radius: number, tileSize = 256) {
+function _elevationInRadius(view: DataView, px: number, py: number, radius: number, tileSize = 256) {
     const radiusSq = radius * radius;
-    let max = -Infinity;
+    const elevations = []
 
     for (let dy = -radius; dy <= radius; dy++) {
         for (let dx = -radius; dx <= radius; dx++) {
@@ -46,18 +47,16 @@ function _maxElevationInRadius(view: DataView, px: number, py: number, radius: n
                     const index = y * tileSize + x;
                     const byteOffset = index * 4;      // 4 octets par float32
                     const val = view.getFloat32(byteOffset, true);
-                    if (val > max) max = val;
+                    elevations.push(val);
                 }
             }
         }
     }
 
-    if (max === -Infinity) {
-        console.log(px, py, "no max in radius");
-    };
 
 
-    return max;
+
+    return Array.from(new Set(elevations));
 }
 
 async function getElevationArrayBuffer(tileCol: number, tileRow: number, size: number) {
@@ -94,12 +93,26 @@ async function getElevationArrayBuffer(tileCol: number, tileRow: number, size: n
     return promise;
 }
 
+async function getElevation(tileCol: number, tileRow: number, px: number, py: number, tileGrid: TileGrid, max_value: boolean = true) {
+    if (enableTerrain) {
+        const size = tileGrid.getTileSize(0) as number
+        const view = await getElevationArrayBuffer(tileCol, tileRow, size);
+        const elevations = _elevationInRadius(view, px, py, 5, size);
+        if (max_value) {
+            return Math.max(...elevations)
+        }
+        return Math.max(...elevations)
+        return elevations.reduce((sum, value) => sum + value, 0) / elevations.length;
+    }
+    return 0.1
+}
+
 /**
  * Coordinates must be in IGNF:WGS84G
  * coordinates_with_index : [longitude, latitude, index]
  * Return an array of Map[index, elevation]
  */
-export default async function listElevation(features: Array<ElevationFeature>, capabilities): Promise<Array<ElevationFeature>> {
+export default async function listElevation(features: Array<ElevationFeature>, capabilities, defaultElevation?: number | undefined): Promise<Array<ElevationFeature>> {
     let coordinates_with_index: [number, number, number | string][] = []
     if (!features || !features.length) {
         return []
@@ -139,6 +152,13 @@ export default async function listElevation(features: Array<ElevationFeature>, c
 
     coordinates_with_index = coordinates_with_index.map((coordinate_with_index) => {
         const coordinate2D = [coordinate_with_index[0], coordinate_with_index[1]];
+        try {
+            const coordinate = transform(coordinate2D, "EPSG:3857", "IGNF:WGS84G")
+        } catch (error) {
+
+            console.log(coordinate2D, coordinate_with_index, features[parseInt(coordinate_with_index[2].toString().split("_")[0])])
+            console.error(error)
+        }
         const coordinate = transform(coordinate2D, "EPSG:3857", "IGNF:WGS84G")
         return [coordinate[0], coordinate[1], coordinate_with_index[2]]
     })
@@ -151,6 +171,8 @@ export default async function listElevation(features: Array<ElevationFeature>, c
         // @ts-expect-error
         source.tileGrid.origin_ = source.tileGrid.origins_[0]
         tileGrid = source.tileGrid
+
+        // console.log(tileGrid)
     } else {
 
         tileGrid = getTileGridForProjection(new Projection({
@@ -160,14 +182,14 @@ export default async function listElevation(features: Array<ElevationFeature>, c
 
     const resolution = tileGrid.getResolution(ELEVATION_DEFAULT_RESOLUTION);
 
-    const getElevation = async (tileCol: number, tileRow: number, px: number, py: number) => {
-        if (source) {
-            const size = tileGrid.getTileSize(0) as number
-            const view = await getElevationArrayBuffer(tileCol, tileRow, size);
-            return _maxElevationInRadius(view, px, py, 5, size);
-        }
-        return 0.1
-    }
+    // const getElevation = async (tileCol: number, tileRow: number, px: number, py: number) => {
+    //     if (source) {
+    //         const size = tileGrid.getTileSize(0) as number
+    //         const view = await getElevationArrayBuffer(tileCol, tileRow, size);
+    //         return _elevationInRadius(view, px, py, 5, size);
+    //     }
+    //     return 0.1
+    // }
 
 
     const tileCoordMap = new Map<[number, number], [number, number, number | string][]>(); // key: "col,row" → array of coordinates
@@ -194,7 +216,7 @@ export default async function listElevation(features: Array<ElevationFeature>, c
             for (const [lon, lat, index] of tile_coordinates_with_index) {
                 const px = Math.floor((lon - minX) / resolution);
                 const py = Math.floor((maxY - lat) / resolution);
-                let elevation = await getElevation(tileCol, tileRow, px, py);
+                let elevation = defaultElevation != undefined ? defaultElevation : await getElevation(tileCol, tileRow, px, py, tileGrid);
 
                 // point
                 if (typeof index === "number") {
@@ -225,4 +247,37 @@ export default async function listElevation(features: Array<ElevationFeature>, c
 
 
     // })
+}
+
+export async function updateCoordinatesWithElevation(positions: Array<number>, capabilities) {
+
+
+    let source: WMTS
+    let tileGrid: TileGrid
+    if (enableTerrain) {
+        const olOptions = optionsFromCapabilities(capabilities, { layer: ELEVATION_LAYER });
+        source = new WMTS(olOptions)
+        // @ts-expect-error
+        source.tileGrid.origin_ = source.tileGrid.origins_[0]
+        tileGrid = source.tileGrid
+    } else {
+
+        tileGrid = getTileGridForProjection(new Projection({
+            code: 'EPSG:3857',
+        }))
+    }
+
+    const resolution = tileGrid.getResolution(ELEVATION_DEFAULT_RESOLUTION);
+    for (let i = 0; i < positions.length; i += 3) {
+        const coordinate = [positions[i], positions[i + 1], positions[i + 2]];
+        const [, tileCol, tileRow] = tileGrid.getTileCoordForCoordAndResolution(coordinate, resolution);
+        const olExtent = tileGrid.getTileCoordExtent([ELEVATION_DEFAULT_RESOLUTION, tileCol, tileRow]);
+        const [minX, minY, maxX, maxY] = olExtent;
+
+        const px = Math.floor((coordinate[0] - minX) / resolution);
+        const py = Math.floor((maxY - coordinate[1]) / resolution);
+        let elevation = await getElevation(tileCol, tileRow, px, py, tileGrid);
+        coordinate[2] = coordinate[2] + elevation
+    }
+
 }

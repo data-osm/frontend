@@ -6,14 +6,16 @@ import { MultiPolygonWithZ, PolygonWithZ } from "../utils";
 
 let elevationWorker: WorkerPool<ListElevationsMessageType, ListElevationMessageMap> | null = null
 
-export async function addElevationToPolygons(geometries: Array<Polygon | MultiPolygon>, featureCrs: string): Promise<(PolygonWithZ | MultiPolygonWithZ)[]> {
-    const transformCoordinates: [number, number, number | string][] = []
+export async function addElevationToPolygons(features: Array<Feature<Polygon | MultiPolygon>>): Promise<(Feature<PolygonWithZ | MultiPolygonWithZ>)[]> {
 
-    const featureForElevation: ElevationFeature[] = geometries.map((geometry, index) => {
+
+    const featureForElevation: ElevationFeature[] = features.map((feature, index) => {
+        const properties = feature.getProperties()
+        delete properties["geometry"]
         return {
-            "properties": {},
-            "geometryType": geometry.getType() as GeometryType,
-            "coordinates": geometry.getCoordinates(),
+            "properties": properties,
+            "geometryType": feature.getGeometry().getType() as GeometryType,
+            "coordinates": feature.getGeometry().getCoordinates(),
             "index": index
         }
     })
@@ -24,19 +26,20 @@ export async function addElevationToPolygons(geometries: Array<Polygon | MultiPo
     }
     return getCapabilities().then(async (capabilities) => {
 
-        const responseGeometries: Array<PolygonWithZ | MultiPolygonWithZ> = []
-        const result = await elevationWorker.queue('ListElevation', { "capabilities": capabilities, "coordinates_with_index": transformCoordinates });
+        const responseGeometries: Array<Feature<PolygonWithZ | MultiPolygonWithZ>> = []
+        const result = await elevationWorker.queue('ListElevation', { "capabilities": capabilities, "features": featureForElevation });
 
         result.map((featureWithElevation) => {
-            const geometry = geometries[featureWithElevation.index]
+            const feature = features[featureWithElevation.index]
+            const geometry = feature.getGeometry()
             if (geometry instanceof Polygon) {
                 // @ts-expect-error
                 const geometryWithZ = new PolygonWithZ(geometry.getCoordinates(), geometry.getLayout(), geometry.getEnds(), featureWithElevation.coordinates)
-                responseGeometries.push(geometryWithZ)
+                feature.setGeometry(geometryWithZ)
             } else if (geometry instanceof MultiPolygon) {
                 // @ts-expect-error
                 const geometryWithZ = new MultiPolygonWithZ(geometry.getCoordinates(), geometry.getLayout(), geometry.getEnds(), featureWithElevation.coordinates)
-                responseGeometries.push(geometryWithZ)
+                feature.setGeometry(geometryWithZ)
             }
         })
 
@@ -87,7 +90,7 @@ export async function addElevationToPolygons(geometries: Array<Polygon | MultiPo
 
         //     }
         // }
-        return responseGeometries
+        return features as Feature<PolygonWithZ | MultiPolygonWithZ>[]
     })
 
 }

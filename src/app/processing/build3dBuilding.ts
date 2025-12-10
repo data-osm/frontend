@@ -3,14 +3,14 @@ import { BufferGeometryUtils } from "three/examples/jsm/Addons";
 import { Box3, BufferAttribute, BufferAttributeJSON, BufferGeometry, DataArrayTexture, Mesh, ShaderMaterial, Sphere, Texture, Vector2, Vector3 } from "three";
 import { Builder, createBuildingPolygons } from "./building/builder";
 import { SkeletonBuilder } from "straight-skeleton";
-import { Coordinate, GeometryLayout, Polygon } from "../ol-module";
+import { Coordinate, GeometryLayout, MultiPolygon, Polygon } from "../ol-module";
 import { getUid } from "ol";
 import { SourceFeature } from "./building/type";
 import { ExtrudedTile } from "./building-processing-worker/worker-packer";
 
 const tmpBox3 = new Box3()
 
-function flipTriangleWindingNonIndexed(geometry) {
+export function flipTriangleWindingNonIndexed(geometry) {
     const positionAttr = geometry.attributes.position;
     const uvAttr = geometry.attributes.uv;
 
@@ -47,9 +47,7 @@ function flipTriangleWindingNonIndexed(geometry) {
     positionAttr.needsUpdate = true;
 }
 
-export const build3dBuildings = (features: SourceFeature[], worldBuildingPosition: [number, number, number], tile_key: string, skirtOffset?: number, outlineHeight?: number): ExtrudedTile => {
-
-
+export function formatPolygonFeatures(features: SourceFeature[], worldBuildingPosition: [number, number, number]) {
     let olFeatures = features.map((feature) => {
         // console.log(feature)
 
@@ -92,23 +90,53 @@ export const build3dBuildings = (features: SourceFeature[], worldBuildingPositio
             return coordinates.reverse();
         }
 
+        let polygon: Polygon | MultiPolygon
+        if (Array.isArray(feature.ends[0])) {
+            //@ts-expect-error
+            polygon = new MultiPolygon(newFlatCoordinates, 'XY', feature.ends)
+        } else {
+            //@ts-expect-error
+            polygon = new Polygon(newFlatCoordinates, 'XY', feature.ends)
+        }
 
-        // @ts-ignore
-        const polygon = new Polygon(newFlatCoordinates, 'XY', feature.ends)
-        const newOuterAndInnerCoordinates = polygon.getLinearRings().map((ring, index) => {
-            let outerRing = ring.getCoordinates();
-            if (index == 0) {
-                outerRing = ensureClockwise(outerRing);
-            } else {
-                outerRing = ensureCounterClockwise(outerRing);
-            }
-            return outerRing
-        })
-        polygon.setCoordinates(newOuterAndInnerCoordinates)
+        if (polygon instanceof MultiPolygon) {
+            polygon.getPolygons().forEach(poly => {
+                let newOuterAndInnerCoordinates = poly.getLinearRings().map((ring, index) => {
+                    let outerRing = ring.getCoordinates();
+                    if (index == 0) {
+                        outerRing = ensureClockwise(outerRing);
+                    } else {
+                        outerRing = ensureCounterClockwise(outerRing);
+                    }
+                    return outerRing
+                })
+                poly.setCoordinates(newOuterAndInnerCoordinates)
+            })
+        } else {
+            let newOuterAndInnerCoordinates = polygon.getLinearRings().map((ring, index) => {
+                let outerRing = ring.getCoordinates();
+                if (index == 0) {
+                    outerRing = ensureClockwise(outerRing);
+                } else {
+                    outerRing = ensureCounterClockwise(outerRing);
+                }
+                return outerRing
+            })
+            polygon.setCoordinates(newOuterAndInnerCoordinates)
+        }
+
         const olFeature = new Feature(polygon)
         olFeature.setProperties(feature.properties)
         return olFeature
     })
+
+    return olFeatures
+}
+
+export const build3dBuildings = (features: SourceFeature[], worldBuildingPosition: [number, number, number], skirtOffset?: number, outlineHeight?: number): ExtrudedTile => {
+
+    let olFeatures = formatPolygonFeatures(features, worldBuildingPosition) as Array<Feature<Polygon>>
+
 
 
     if (olFeatures.length > 0) {
@@ -182,7 +210,6 @@ export const build3dBuildings = (features: SourceFeature[], worldBuildingPositio
         return {
             "boundingBoxMinMax": [tmpBox3.min.x, tmpBox3.min.y, tmpBox3.min.z, tmpBox3.max.x, tmpBox3.max.y, tmpBox3.max.z],
             worldBuildingPosition: worldBuildingPosition,
-            "tile_key": tile_key,
             "geometriesJson": geometriesJson
         }
 

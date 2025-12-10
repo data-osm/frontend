@@ -19,6 +19,7 @@ export interface DataToShareLayer {
 }
 
 export const VIEW_QUERY_PARAM = "pos"
+export const USECASE_QUERY_PARAM = "usecase"
 
 @Injectable({
   providedIn: 'root'
@@ -53,10 +54,19 @@ export class ShareServiceService {
     return 'feature=' + typeLayer + ',' + id_layer + ',' + group_id + ',' + coordinates.join(',') + ',' + featureId
   }
 
-  updateUrlWithPointOfView(map: Map) {
+  getQueryParams(map: Map) {
     const pov = CartoHelper.getCurrentPointOfView(map)
-    const queryParams = this.shareLayersInToc(map)
+    const queryParams = {}
     queryParams[VIEW_QUERY_PARAM] = pov
+    queryParams[USECASE_QUERY_PARAM] = this.parametersService.mapUseCase
+    return queryParams
+  }
+
+  updateUrlWithPointOfView(map: Map) {
+
+    let queryParams = this.shareLayersInToc(map)
+    queryParams = Object.assign(queryParams, this.getQueryParams(map))
+
     this.location.replaceState(
       this.router.createUrlTree(
         [this.locationStrategy.path().split('?')[0]], // Get uri
@@ -93,7 +103,7 @@ export class ShareServiceService {
       })
 
     return {
-      "profil": this.parametersService.map_id,
+      "profil": this.parametersService.mapId,
       "layers": pteLayerToGetParams.map((item) => item.id_layer + ',' + item.group_id + ',' + item.type).reverse().join(';')
     }
 
@@ -207,7 +217,7 @@ export class ShareServiceService {
    */
   shareLayer(layer: DataToShareLayer): string {
 
-    return 'profil=' + this.parametersService.map_id + '&layers=' + layer.id_layer + ',' + layer.group_id + ',' + layer.type
+    return 'profil=' + this.parametersService.mapId + '&layers=' + layer.id_layer + ',' + layer.group_id + ',' + layer.type
   }
 
   /**
@@ -221,7 +231,7 @@ export class ShareServiceService {
    */
   shareLayers(layers: Array<DataToShareLayer>): string {
 
-    return 'profil=' + this.parametersService.map_id + '&layers=' + layers.map((item) => item.id_layer + ',' + item.group_id + ',' + item.type).reverse().join(';')
+    return 'profil=' + this.parametersService.mapId + '&layers=' + layers.map((item) => item.id_layer + ',' + item.group_id + ',' + item.type).reverse().join(';')
   }
 
 

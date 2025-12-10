@@ -9,7 +9,7 @@ import { ManageCompHelper } from '../../../helper/manage-comp.helper';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataOsmLayersServiceService } from '../../services/data-som-layers-service/data-som-layers-service.service';
 import { BaseMapsService } from '../../data/services/base-maps.service';
-import { ShareServiceService } from '../../services/share-service/share-service.service';
+import { ShareServiceService, USECASE_QUERY_PARAM } from '../../services/share-service/share-service.service';
 import { MatomoTracker } from 'ngx-matomo-client';
 import { MatSidenavContainer } from '@angular/material/sidenav';
 import { OsmBulkSaveComponent } from '../../modal/osm-bulk-save/osm-bulk-save.component';
@@ -20,6 +20,7 @@ import { Vector2 } from 'three';
 import { RenderPass } from 'three/examples/jsm/Addons';
 import { fromInstanceGiroEvent } from '../../shared/class/fromGiroEvent';
 import { RightMenuInterface } from '../../type/type';
+import { LocationStrategy } from '@angular/common';
 
 const _tempVec2 = new Vector2();
 
@@ -37,6 +38,8 @@ export class PortailMapComponent extends AbstractProfilComponent {
 
 
   @ViewChild('sidenav_right') sidenavRight: ElementRef<HTMLElement>
+  @ViewChild('toggleICU') toggleICU: ElementRef<HTMLElement>
+
 
 
   @ViewChild('mapDiv') set myDiv(myDiv: ElementRef<HTMLDivElement>) {
@@ -69,12 +72,21 @@ export class PortailMapComponent extends AbstractProfilComponent {
     router: Router,
     tracker: MatomoTracker,
     ngZone: NgZone,
-    private _osmUpdateStoreService: OSMUpdateStoreService
+    private _osmUpdateStoreService: OSMUpdateStoreService,
+    private locationStrategy: LocationStrategy,
   ) {
 
 
     super(manageCompHelper, shareServiceService, notifierService, parametersService, translate, activatedRoute, mapService, router, dialog, baseMapService, dataOsmLayersService, tracker, ngZone)
     this.osmUpdateStoreService = _osmUpdateStoreService
+
+    this.eventsListener.parameterLoaded.pipe(
+      takeUntil(this.destroyed$),
+      tap(() => {
+        this.toggleICU.nativeElement.style.display = this.parametersService.mapUseCase == "icu" ? "none" : "flex"
+
+      })
+    ).subscribe()
 
     this.osmUpdateStoreService.osmFeaturesInUpdateObservable.pipe(
       takeUntil(this.destroyed$),
@@ -150,7 +162,16 @@ export class PortailMapComponent extends AbstractProfilComponent {
 
   }
 
-
+  openUseCase() {
+    const queryParams = {}
+    queryParams[USECASE_QUERY_PARAM] = "icu"
+    const url = this.router.createUrlTree(
+      [this.locationStrategy.path().split('?')[0]],
+      { queryParams: queryParams }
+    ).toString()
+    this.tracker.trackEvent("toggleUseCase", "icu")
+    window.open(url)
+  }
 
 
 }

@@ -28,10 +28,19 @@ export class SceneSettingsComponent {
     protected readonly tracker: MatomoTracker,
     private parameterService: ParametersService
   ) {
+    // we first disable the form, and we enable it when sunSystem is defined
+    this.dateTimeForm.disable()
+
+  }
+
+  syncSunSystem() {
     this.dateTimeForm.valueChanges.pipe(
       tap(() => {
-        this.updateSunSystem()
-        this.tracker.trackEvent("Change", "Scene settings", "date-heure")
+        if (this.sunSystem) {
+
+          this.updateSunSystem()
+          this.tracker.trackEvent("Change", "Scene settings", "date-heure")
+        }
       })
     ).subscribe()
   }
@@ -42,8 +51,8 @@ export class SceneSettingsComponent {
 
   get dateTimesInterval() {
     return {
-      "start": this.parameterService.dateTimesInterval.start ? new Date(this.parameterService.dateTimesInterval.start) : null,
-      "end": this.parameterService.dateTimesInterval.end ? new Date(this.parameterService.dateTimesInterval.end) : null
+      "start": Boolean(this.parameterService.dateTimesInterval.start) ? new Date(this.parameterService.dateTimesInterval.start) : null,
+      "end": Boolean(this.parameterService.dateTimesInterval.end) ? new Date(this.parameterService.dateTimesInterval.end) : null
     }
   }
 
@@ -51,11 +60,13 @@ export class SceneSettingsComponent {
     if (changes.sunSystem) {
       if (this.sunSystem) {
         this.initDateTimeForm()
+        this.syncSunSystem()
       }
     }
   }
 
   initDateTimeForm() {
+    this.dateTimeForm.enable()
     const sunSystemDateTime = this.sunSystem.currentDateTime
 
     this.dateTimeForm.get('date').setValue(sunSystemDateTime, { emitEvent: false })

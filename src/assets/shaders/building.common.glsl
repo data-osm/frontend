@@ -63,6 +63,13 @@ mat3 getTBN(vec3 N, vec3 p, vec2 uv) {
     return mat3(T * invmax, -B * invmax, N);
 }
 
+vec3 blendNormalRNM(vec3 n1, vec3 n2) {
+    n1.z += 1.0;
+    n2.xy = -n2.xy;
+
+    return normalize(n1 * dot(n1, n2) - n2 * n1.z);
+}
+
 vec3 s(vec3 N, vec3 p, vec2 uv) {
     /* get edge vectors of the pixel triangle */
     vec3 dp1 = dFdx(p);
@@ -85,20 +92,39 @@ vec3 s(vec3 N, vec3 p, vec2 uv) {
     // return s;
 }
 
-vec3 getNormalValue(int textureId, sampler2DArray tMap, vec3 normal, vec3 position, vec2 uv) {
-    mat3 tbn = getTangentFrame(position, normal, uv);
-    // mat3 tbn = getTBN(normal, position, uv);
+vec3 getNormalValue(int textureId, sampler2DArray tMap, vec3 normal, vec3 position, vec2 uv, float normalScale) {
     float faceDirection = gl_FrontFacing ? 1.0 : -1.0;
+    mat3 tbn = getTangentFrame(position, normal, uv);
+
+    // #if defined( DOUBLE_SIDED ) && ! defined( FLAT_SHADED )
+
+    // tbn[0] *= faceDirection;
+    // tbn[1] *= faceDirection;
+
+	// #endif
+
+    vec3 normalValue = texture(tMap, vec3(uv, textureId)).xyz * 2.0 - 1.0;
+
+    normalValue.xy *= normalScale;
+    vec3 newNormal = normalize(tbn * normalValue);
+
+    return newNormal;
+}
+vec3 getNormaWithVolumeValue(int textureId, sampler2DArray tMap, vec3 normal, vec3 position, vec2 uv, float normalScale, vec3 volumeNormal) {
+    float faceDirection = gl_FrontFacing ? 1.0 : -1.0;
+    mat3 tbn = getTangentFrame(position, normal, uv);
+    #if defined( DOUBLE_SIDED ) && ! defined( FLAT_SHADED )
 
     tbn[0] *= faceDirection;
     tbn[1] *= faceDirection;
 
-    vec3 normalValue = texture(tMap, vec3(uv, textureId * 4 + 1)).xyz * 2.0 - 1.0;
-    // normalValue.xy = vec2(0.0);
-    // vec3 normalValue = vec3(0.0, 0.0, 1.0); 
-    float normalScale = 3.0;
-    normalValue.xy *= normalScale;
-    vec3 newNormal = normalize(tbn * normalValue);
+	#endif
+
+    vec3 normalValue = texture(tMap, vec3(uv, textureId)).xyz * 2.0 - 1.0;
+    vec3 normalVolumeValue = blendNormalRNM(volumeNormal * 2.0 - 1.0, normalValue);
+
+    normalVolumeValue.xy *= normalScale;
+    vec3 newNormal = normalize(tbn * normalVolumeValue);
 
     return newNormal;
 }

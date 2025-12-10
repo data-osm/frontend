@@ -162,7 +162,7 @@ const addElevation = async (features: LineFeature[]) => {
         if (geometry instanceof LineString) {
             geometryWithZ = new LinesStringWithZ(geometry.getCoordinates(), geometry.getLayout(), featureWithElevation.coordinates as Array<[number, number, number]>)
         } else if (geometry instanceof MultiLineString) {
-            geometryWithZ = new MultiLineStringWithZ(geometry.getCoordinates(), geometry.getLayout(), featureWithElevation.coordinates as Array<[number, number, number]>[])
+            geometryWithZ = new MultiLineStringWithZ(geometry.getCoordinates(), geometry.getLayout(), geometry.getEnds(), featureWithElevation.coordinates as Array<[number, number, number]>[])
         }
         feature.setGeometry(geometryWithZ)
     })

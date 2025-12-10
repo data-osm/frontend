@@ -316,6 +316,27 @@ export function inputRingToVectorRing(ring: Array<Coordinate>, type: VectorAreaR
     return { type, nodes };
 }
 
+export function inputRingToVectorRing3D(ring: Array<[number, number, number]>, type: VectorAreaRingType): VectorAreaRing {
+
+    const isClockwise = isRingClockwise(ring.map((r) => [r[0], r[1]]));
+    const type_ = isClockwise ? VectorAreaRingType.Outer : VectorAreaRingType.Inner;
+    // const type = VectorAreaRingType.Outer
+    type = type_
+    const nodes: Array<VectorNode> = ring.map(([x, y, z]) => {
+        return {
+            type: 'node',
+            x,
+            y,
+            z,
+            rotation: 0,
+            osmReference: null,
+            descriptor: null
+        };
+    });
+
+    return { type, nodes };
+}
+
 
 
 export function createBuildingPolygons(olFeatures: Feature<Polygon>[]) {
@@ -394,7 +415,7 @@ export class Builder {
         outlineHeight: number
     ) {
         this.skirtOffset = skirtOffset ?? 0
-        this.outlineHeight = outlineHeight ?? 1
+        this.outlineHeight = outlineHeight ?? 0
 
         this.feature = feature
         this.descriptor = feature.descriptor;
@@ -458,7 +479,8 @@ export class Builder {
 
         const roofParams = this.getRoofParams(noDefaultRoof, this.descriptor.buildingHeight == 4);
 
-        const shouldAddOffsetBetweenRoofAndFacade = Boolean(this.feature.descriptor.lcz_outline_id)
+        // const shouldAddOffsetBetweenRoofAndFacade = false
+        const shouldAddOffsetBetweenRoofAndFacade = Boolean(this.feature.descriptor.lcz_outline_id) && this.skirtOffset > 0
         // The offset between the roof and the facade
         const skirtOffset = shouldAddOffsetBetweenRoofAndFacade ? this.skirtOffset : 0
         const outlineHeight = shouldAddOffsetBetweenRoofAndFacade ? this.outlineHeight : 0
@@ -733,10 +755,10 @@ export class Builder {
 
         if (roofType === RoofType.Flat && roofMaterial === 'default' && !noDefaultRoof) {
             const defaultTextures = [
-                ExtrudedTextures.RoofGeneric1,
-                ExtrudedTextures.RoofGeneric2,
+                // ExtrudedTextures.RoofGeneric1,
+                // ExtrudedTextures.RoofGeneric2,
                 ExtrudedTextures.RoofGeneric3,
-                ExtrudedTextures.RoofGeneric4
+                // ExtrudedTextures.RoofGeneric4
             ];
 
             return {
@@ -784,32 +806,32 @@ export class Builder {
         const hasWindows = false;
         const materialToTextureId: Record<BuildingFacadeMaterial, {
             wall: number;
-            window: number;
+            // window: number;
             width: number;
         }> = {
             plaster: {
                 wall: ExtrudedTextures.FacadePlasterWall,
-                window: ExtrudedTextures.FacadePlasterWindow,
+                // window: ExtrudedTextures.FacadePlasterWindow,
                 width: 4
             },
             glass: {
                 wall: ExtrudedTextures.FacadeGlass,
-                window: ExtrudedTextures.FacadeGlass,
+                // window: ExtrudedTextures.FacadeGlass,
                 width: 4
             },
             brick: {
                 wall: ExtrudedTextures.FacadeBrickWall,
-                window: ExtrudedTextures.FacadeBrickWindow,
+                // window: ExtrudedTextures.FacadeBrickWindow,
                 width: 4
             },
             wood: {
                 wall: ExtrudedTextures.FacadeWoodWall,
-                window: ExtrudedTextures.FacadeWoodWindow,
+                // window: ExtrudedTextures.FacadeWoodWindow,
                 width: 4
             },
             cementBlock: {
                 wall: ExtrudedTextures.FacadeBlockWall,
-                window: ExtrudedTextures.FacadeBlockWindow,
+                // window: ExtrudedTextures.FacadeBlockWindow,
                 width: 4
             }
         };
@@ -820,7 +842,8 @@ export class Builder {
             windowWidth: params.width * this.mercatorScale,
             color,
             textureIdWall: params.wall,
-            textureIdWindow: hasWindows ? params.window : params.wall
+            textureIdWindow: params.wall
+            // textureIdWindow: hasWindows ? params.window : params.wall
         };
     }
 

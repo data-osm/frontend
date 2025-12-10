@@ -416,6 +416,55 @@ export function getTilesIntersectingLine(a: Vec2, b: Vec2): Vec2[] {
     return points;
 }
 
+export function getTilesIntersectingLine3D(a: Vec3, b: Vec3): Vec3[] {
+    let x = Math.floor(a.x);
+    let y = Math.floor(a.y);
+    let z = a.z;
+    const endX = Math.floor(b.x);
+    const endY = Math.floor(b.y);
+
+    const points: Vec3[] = [new Vec3(x, y, z)];
+
+    if (x === endX && y === endY) {
+        return points;
+    }
+
+    const stepX = Math.sign(b.x - a.x);
+    const stepY = Math.sign(b.y - a.y);
+
+    const toX = Math.abs(a.x - x - Math.max(0, stepX));
+    const toY = Math.abs(a.y - y - Math.max(0, stepY));
+
+    const vX = Math.abs(a.x - b.x);
+    const vY = Math.abs(a.y - b.y);
+
+    let tMaxX = toX === 0 ? 0 : (toX / vX);
+    let tMaxY = toY === 0 ? 0 : (toY / vY);
+
+    const tDeltaX = 1 / vX;
+    const tDeltaY = 1 / vY;
+
+    let i = 0;
+
+    while (!(x === endX && y === endY) && i < 10000) {
+        if (tMaxX <= tMaxY) {
+            tMaxX = tMaxX + tDeltaX;
+            x = x + stepX;
+        } else {
+            tMaxY = tMaxY + tDeltaY;
+            y = y + stepY;
+        }
+
+        points.push(new Vec3(x, y, z));
+
+        i++;
+    }
+
+    return points;
+}
+
+
+
 
 export function getTilesUnderTriangle(
     triangle: [number, number][],
@@ -559,4 +608,50 @@ export function getRoofTypeFromString(str: BuildingRoofType): RoofType {
     console.error(`Roof type ${str} is not supported`);
 
     return RoofType.Flat;
+}
+
+export function getTriangle(quadX: number, quadY: number, index: 0 | 1, segmentCount: number): [number, number][] {
+    const quadSize = 1 / segmentCount;
+    const normQuadX = quadX / segmentCount;
+    const normQuadY = quadY / segmentCount;
+    const isOdd = (quadX + quadY) % 2 === 1;
+
+    const quadVertices = [
+        normQuadX,
+        normQuadY,
+        normQuadX + quadSize,
+        normQuadY,
+        normQuadX + quadSize,
+        normQuadY + quadSize,
+        normQuadX,
+        normQuadY + quadSize
+    ];
+
+    let indices: number[];
+
+    if (!isOdd) {
+        if (index === 0) {
+            indices = [0, 2, 1];
+        } else {
+            indices = [0, 3, 2];
+        }
+    } else {
+        if (index === 0) {
+            indices = [1, 0, 3];
+        } else {
+            indices = [1, 3, 2];
+        }
+    }
+
+    const result: [number, number][] = [];
+
+    for (let i = 0; i < 3; i++) {
+        const vertexId = indices[i];
+        const x = quadVertices[vertexId * 2];
+        const y = quadVertices[vertexId * 2 + 1];
+
+        result.push([x, y]);
+    }
+
+    return result;
 }

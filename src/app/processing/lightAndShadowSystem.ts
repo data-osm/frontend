@@ -9,8 +9,10 @@ import { fromInstanceGiroEvent, fromMapGiroEvent } from "../shared/class/fromGir
 import { debounceTime, tap } from "rxjs";
 import { E } from "@angular/cdk/keycodes";
 
-const DAY_SHADOW_BIAS = -0.001
-const DAY_SHADOW_NORMAL_BIAS = 0.6
+// const DAY_SHADOW_BIAS = -0.001
+const DAY_SHADOW_BIAS = -0.003
+const DAY_SHADOW_NORMAL_BIAS = 0.002
+// const DAY_SHADOW_NORMAL_BIAS = 0.6
 const NIGHT_SHADOW_BIAS = 0.4
 // const NIGHT_SHADOW_NORMAL_BIAS = -0.3
 
@@ -99,7 +101,7 @@ export class LightAndShadowSystem {
 
         this.csm = new CSM({
             maxFar: 5000,
-            cascades: 3,
+            cascades: 4,
             maxCascades: 4,
             shadowMapSize: 1024 * 2,
             // lightColor: new Color(1, 1, 1),
@@ -109,8 +111,8 @@ export class LightAndShadowSystem {
             parent: this.instance.threeObjects,
             lightDirectionUp: new Vector3(0, 0, 1),
             lightIntensity: LightAndShadowSystem.getSunLightIntensity(this.sunSystem.sunDirection),
-            mode: 'practical',
-            // practicalModeLambda: 0.7,
+            mode: "practical",
+            // practicalModeLambda: 0.1,
             fade: true,
             lightMargin: 2000,
             shadowBias: DAY_SHADOW_BIAS,
@@ -245,7 +247,7 @@ export class LightAndShadowSystem {
     }
 
     static getSunLightIntensity(sunDirection: Vec3) {
-        return sunDirection.z < 0 ? 8.0 : 15.0
+        return sunDirection.z < 0 ? 3.0 : 8.0
     }
     static getAmbientLightIntensity(sunDirection: Vec3) {
         return sunDirection.z < 0 ? 3.0 : 3.0

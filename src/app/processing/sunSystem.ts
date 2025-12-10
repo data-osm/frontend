@@ -1,4 +1,3 @@
-import { bool, float, vec3 } from "three/src/nodes/TSL"
 import Vec2 from "./math/vector2";
 import SunCalc from 'suncalc';
 import Vec3 from "./math/vector3";
@@ -80,15 +79,14 @@ export class SunSystem {
         )
     }
 
-    private getSunDirection(position: Vec2, date?: Date | number) {
-        if (!date) {
-            date = Date.now();
-        }
+    private getSunDirection(position: Vec2, date: Date | number) {
+
         // console.log(position)
         // const sunPosition = SunCalc.getPosition(date, FRANCE_COORD[0], FRANCE_COORD[1]);
         const sunPosition = SunCalc.getPosition(date, position.x, position.y);
 
-        this.sunLightColor.copy(kelvinToRGB(sunKelvinFromAltitude(sunPosition.altitude)))
+        this.sunLightColor.copy(new Color(1, 1, 1))
+        // this.sunLightColor.copy(kelvinToRGB(sunKelvinFromAltitude(sunPosition.altitude)))
         return this.polarToCartesian(sunPosition.azimuth + Math.PI, sunPosition.altitude)
     }
     /**
@@ -97,13 +95,18 @@ export class SunSystem {
      * @param date 
      */
     update(position: Vec2, date?: Date | number) {
-        if (date && (bool(this.parameterService.dateTimesInterval.start) || bool(this.parameterService.dateTimesInterval.end))) {
-            if (bool(this.parameterService.dateTimesInterval.start)) {
+        let dateChanged = true
+        if (!date) {
+            dateChanged = false
+            date = Date.now();
+        }
+        if (date && (Boolean(this.parameterService.dateTimesInterval.start) || Boolean(this.parameterService.dateTimesInterval.end))) {
+            if (Boolean(this.parameterService.dateTimesInterval.start)) {
 
                 if (this.parameterService.dateTimesInterval.start > date.valueOf() || this.parameterService.dateTimesInterval.end < date.valueOf()) {
                     date = this.parameterService.dateTimesInterval.start
                 }
-            } else if (bool(this.parameterService.dateTimesInterval.end)) {
+            } else if (Boolean(this.parameterService.dateTimesInterval.end)) {
                 if (this.parameterService.dateTimesInterval.end < date.valueOf()) {
                     date = this.parameterService.dateTimesInterval.end
                 }
@@ -126,9 +129,8 @@ export class SunSystem {
             this.currentPosition = position
             this.sunDirectionChanged$.next()
         }
-
         this.currentDate = typeof date === 'number' ? date : date.valueOf()
-        if (date) {
+        if (dateChanged) {
             this.datetimeChanged$.next()
         }
 
@@ -184,8 +186,8 @@ function kelvinToRGB(K) {
 function sunKelvinFromAltitude(altRad) {
     const altDeg = MathUtils.radToDeg(altRad);
     const curve = [
-        { alt: -6, K: 2000 }, // crépuscule 
-        { alt: -3, K: 2400 },
+        { alt: -6, K: 2400 }, // crépuscule 
+        { alt: -3, K: 2800 },
         { alt: 0, K: 3000 }, // horizon
         { alt: 5, K: 3400 },
         { alt: 10, K: 4000 },

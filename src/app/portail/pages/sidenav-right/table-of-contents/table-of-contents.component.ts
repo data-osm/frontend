@@ -253,19 +253,21 @@ export class TableOfContentsComponent implements OnInit {
    */
   shareLayer(layer: LayersInMap) {
 
-    const pov = CartoHelper.getCurrentPointOfView(this.map)
 
-    var coordinateSharedLink = VIEW_QUERY_PARAM + '=' + pov
+    const queryParams = this.ShareServiceService.getQueryParams(this.map)
+    const query = Object.keys(queryParams).map((key) => {
+      return key + '=' + queryParams[key] + '&'
+    }).join('')
 
     if (layer.properties.type == 'couche') {
       let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(layer.properties.couche_id)
       var params = this.ShareServiceService.shareLayer({ id_layer: layer.properties.couche_id, group_id: groupLayer.group.group_id, type: 'layer' })
-      var url_share = environment.url_frontend + '/map?' + params + '&' + coordinateSharedLink
+      var url_share = environment.url_frontend + '/map?' + params + '&' + query
       this.tracker.trackEvent("Share", "layer", layer.nom, layer.properties.couche_id)
       this.manageCompHelper.openSocialShare(url_share, 7)
     } else {
       var params = this.ShareServiceService.shareLayer({ id_layer: layer.properties.couche_id, group_id: null, type: 'map' })
-      var url_share = environment.url_frontend + '/map?' + params + '&' + coordinateSharedLink
+      var url_share = environment.url_frontend + '/map?' + params + '&' + query
       this.manageCompHelper.openSocialShare(url_share, 7)
 
     }
@@ -277,38 +279,10 @@ export class TableOfContentsComponent implements OnInit {
    * Share all layers in the toc
    */
   shareAllLayersInToc() {
-    let pteLayerToGetParams: Array<DataToShareLayer> = this.layersInToc
-      .filter((item) => item.tocCapabilities.share)
-      .map((item) => {
-        if (item.properties['type'] == 'couche') {
-          let groupLayer = this.dataOsmLayersServiceService.getLayerInMap(item.properties.couche_id)
-          return {
-            id_layer: item.properties.couche_id,
-            group_id: groupLayer.group.group_id,
-            type: 'layer'
-          }
-        } else if (item.properties['type'] == 'carte') {
-          return {
-            id_layer: item.properties.couche_id,
-            group_id: null,
-            type: 'map'
-          }
-        }
-
-      })
-
-
-    const pov = CartoHelper.getCurrentPointOfView(this.map)
-
-    var coordinateSharedLink = VIEW_QUERY_PARAM + '=' + pov
-
-    var params = this.ShareServiceService.shareLayers(pteLayerToGetParams)
-
-    var url_share = environment.url_frontend + '/map?' + params + '&' + coordinateSharedLink
 
     this.tracker.trackEvent("Share", "all")
 
-    this.manageCompHelper.openSocialShare(url_share, 7)
+    this.manageCompHelper.openSocialShare(window.location.href, 7)
   }
 
   /**

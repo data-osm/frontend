@@ -13,6 +13,7 @@ export class RoadBuilder {
     constructor(
     ) {
     }
+    controlPoints: Vec3[][];
     public build(
         {
             vertices,
@@ -37,7 +38,7 @@ export class RoadBuilder {
             uvMinX?: number;
             uvMaxX?: number;
         }
-    ): { position: number[]; uv: number[]; border: Vec2[] } {
+    ): { position: number[]; uv: number[]; border: Vec3[] } {
 
         const isClosed = vertices[0].equals(vertices[vertices.length - 1]);
         const points = [...vertices];
@@ -49,7 +50,7 @@ export class RoadBuilder {
 
 
         const controlPoints = this.getControlPoints(points, isClosed, width, vertexAdjacentToStart, vertexAdjacentToEnd);
-
+        this.controlPoints = controlPoints;
         const border = this.getBorderVertices(controlPoints, isClosed);
 
         const geometry = this.buildSegmentsFromControlPoints(
@@ -69,7 +70,7 @@ export class RoadBuilder {
         return {
             position: geometry.position,
             uv: geometry.uv,
-            border: border.map(v => v.xy)
+            border: border
         };
     }
 
@@ -126,7 +127,7 @@ export class RoadBuilder {
         if (side === RoadSide.Both) {
             const c0uv = [uvMinX, end / uvScaleY];
             const c1uv = [uvMaxX, end / uvScaleY];
-            const c4uv = [isInverse ? uvMinX : uvMinX, start / uvScaleY];
+            const c4uv = [isInverse ? uvMaxX : uvMinX, start / uvScaleY];
 
             position.push(
                 controlPoint[0].x, controlPoint[0].y, controlPoint[0].z,
@@ -309,7 +310,7 @@ export class RoadBuilder {
             return uvProgress;
         }
 
-        const isInverse = controlPoint[1].equals(controlPoint[0]);
+        const isInverse = controlPoint[2].equals(controlPoint[0]);
         const triLength = Vec2.getLength(Vec2.sub(controlPoint[4].xy, !isInverse ? controlPoint[0].xy : controlPoint[1].xy));
 
         const start = uvProgress;
@@ -579,7 +580,10 @@ export class RoadBuilder {
             const alpha = Math.atan2(bNorm.y, bNorm.x) - Math.atan2(aNorm.y, aNorm.x);
             // const alpha = Math.atan2(bNorm.x, bNorm.y) - Math.atan2(aNorm.x, aNorm.y);
             const alphaFixed = alpha < 0 ? alpha + Math.PI * 2 : alpha;
-            const offsetDir = Vec2.normalize(Vec2.add(leftA, leftB));
+            // const offsetDir = Vec2.normalize(Vec2.add(leftA, leftB));
+            let offsetDir = Vec2.add(leftA, leftB);
+            if (Vec2.getLength(offsetDir) < 1e-6) offsetDir = leftA; // ou bNorm ⟂
+            offsetDir = Vec2.normalize(offsetDir);
             // il faut que le sinus soit plus grand
             const offsetLength = width / (2 * Math.cos(alpha / 2));
             const offsetLengthAbs = (!prev && !next) ? width / 2 : Math.min(Math.abs(offsetLength), width / 2);
@@ -609,28 +613,7 @@ export class RoadBuilder {
             p2 = new Vec3(p2.x, p2.y, current.z);
             p3 = new Vec3(p3.x, p3.y, current.z);
             p4 = new Vec3(p4.x, p4.y, current.z);
-            // if ((Vec2.distance(p0, p4)) > width + 1) {
-            //     console.log(
-            //         Vec2.distance(p0, p4) - width,
-            //         offsetLengthAbs - width / 2,
-            //         MathUtils.radToDeg(alpha),
-            //         inverse
-            //     )
 
-            //     const geometry = new LineGeometry().setPositions(
-            //         [
-            //             p0.x, p0.y, 1,
-            //             p4.x, p4.y, 1,
-            //         ]
-            //     )
-            //     const mesh = new LineSegments2(geometry, new LineMaterial({
-            //         linewidth: 0.5,
-            //         color: "red",
-            //         worldUnits: true
-            //     }))
-            //     this.group.add(mesh)
-            //     mesh.updateMatrix()
-            // }
 
             if (!prev || !next) {
                 controlPoints.push([p0, p1, p2, p3]);

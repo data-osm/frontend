@@ -21,6 +21,7 @@ export class ParametersService extends OsmDataRequest {
    */
   lisAppExtent$: BehaviorSubject<AppExtent[]> = new BehaviorSubject<AppExtent[]>([])
   parameter$: BehaviorSubject<Parameter> = new BehaviorSubject<Parameter>(undefined)
+  private useCase: "icu" | undefined = undefined
 
   /**
    * Polygon of the project 
@@ -29,7 +30,7 @@ export class ParametersService extends OsmDataRequest {
   /**
    * Actif profil id
    */
-  map_id: number
+  private mapProfilId: number
 
   lczZones: LczZone[] = []
 
@@ -47,27 +48,62 @@ export class ParametersService extends OsmDataRequest {
     this.parameter$.next(parameter)
   }
 
-  get buildingSettings() {
-    if (this.map_id == 1) {
+  set mapId(id: number) {
+    this.mapProfilId = id
+  }
 
+  get mapId() {
+    return this.mapProfilId
+  }
+
+  set mapUseCase(useCase: "icu" | undefined) {
+    if (useCase == "icu") {
+      this.useCase = "icu"
+    } else {
+
+      this.useCase = undefined
+    }
+  }
+
+  get mapUseCase() {
+    return this.useCase
+  }
+
+  get defaultInitLocalisation(): [number, number, number, number, number, number] {
+    const parisPov: [number, number, number, number, number, number] = [260354.7, 6252644.5, 301.2, 259689, 6252821.8, 0]
+    const grenoblePov: [number, number, number, number, number, number] = [639189.8, 5650300.5, 349.5, 638234.9, 5651098.8, 0]
+    if (this.useCase == "icu") {
+      return grenoblePov
+    }
+    return parisPov
+  }
+
+  get buildingSettings(): {
+    "outlineHeight": number | undefined,
+    "skirtOffset": number | undefined
+  } {
+    if (this.useCase == "icu") {
+      return {
+        "outlineHeight": 4,
+        "skirtOffset": 4
+      }
     }
     return {
-      "outlineHeight": 4,
-      "skirtOffset": 4
+      "outlineHeight": undefined,
+      "skirtOffset": undefined
     }
+
   }
 
   get dateTimesInterval(): {
     "start": number | null,
     "end": number | null
   } {
-    let utcDate = Date.UTC(2020, 6, 24, 0, 0, 0, 0);
-    if (this.map_id == 1) {
-
-    }
-    return {
-      "start": Date.UTC(2020, 6, 24, 0, 0, 0, 0),
-      "end": Date.UTC(2020, 7, 4, 23, 0, 0, 0),
+    if (this.useCase == "icu") {
+      return {
+        "start": Date.UTC(2020, 6, 24, 0, 0, 0, 0),
+        "end": Date.UTC(2020, 7, 4, 23, 0, 0, 0),
+      }
     }
     return {
       "start": null,
@@ -75,19 +111,22 @@ export class ParametersService extends OsmDataRequest {
     }
   }
   get customBuildingUniforms(): "TEMPERATURE_UNIFORM" | null {
-    if (this.map_id == 1) {
-
+    if (this.useCase == "icu") {
+      return "TEMPERATURE_UNIFORM"
     }
-    return "TEMPERATURE_UNIFORM"
+    return
   }
 
   loadProfilCustomisations() {
-    // if (this.map_id == 1) { return EMPTY}
-    return this.listLczZones().pipe(
-      tap((lczZones) => {
-        this.lczZones = lczZones
-      }),
-    )
+    if (this.useCase == "icu") {
+      return this.listLczZones().pipe(
+        tap((lczZones) => {
+          this.lczZones = lczZones
+        }),
+      )
+    }
+    return EMPTY
+
   }
 
   /**

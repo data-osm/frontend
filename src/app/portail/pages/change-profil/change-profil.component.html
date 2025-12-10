@@ -11,7 +11,7 @@
                 (click)="changeProfil(profil.map_id)">
                 <span style="text-transform: uppercase;"> {{profil.name}} </span>
 
-                <mat-chip-listbox *ngIf="map_id === profil.map_id">
+                <mat-chip-listbox *ngIf="mapId === profil.map_id">
                     <mat-chip color="primary" class="white" selected> ACTIF </mat-chip>
                 </mat-chip-listbox>
             </mat-card>

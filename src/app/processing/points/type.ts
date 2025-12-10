@@ -5,6 +5,7 @@ import { BaseMessageMap } from "../../giro-3d-module";
 import { TileGrid } from "ol/tilegrid";
 import { TileIndexEntry } from "../building-elevation";
 import { Extent } from "ol/extent";
+import { PointVectorDescriptor, SurfaceVectorAreaDescriptor, TreeType, VectorNodeDescriptor } from "../building/type";
 
 export interface PointFeatureByExtent {
     features: Array<{
@@ -114,4 +115,70 @@ export function collectTransferables(input: any, out = new Set<Transferable>()):
 
     visit(input);
     return Array.from(out);
+}
+
+const treeTypeMap: Record<string, TreeType> = {
+    beech: 'beech',
+    fagus: 'beech',
+    fir: 'fir',
+    abies: 'fir',
+    linden: 'linden',
+    tilia: 'linden',
+    linde: 'linden',
+    oak: 'oak',
+    quercus: 'oak'
+};
+
+export function getTreeType(tags: SurfaceVectorAreaDescriptor | PointVectorDescriptor): TreeType {
+    const genusTagValue = <string>tags.genus;
+    const typeFromGenus = treeTypeMap[genusTagValue];
+
+    if (typeFromGenus) {
+        return typeFromGenus;
+    }
+
+    const leafTypeTagValue = <string>tags.leafType;
+
+    if (leafTypeTagValue === 'needleleaved') {
+        return 'genericNeedleleaved';
+    }
+
+    return 'genericBroadleaved';
+}
+
+export function getTreeTextureIdFromType(type: VectorNodeDescriptor['treeType']): number[] {
+    const lookup: Record<VectorNodeDescriptor['treeType'], number[]> = {
+        beech: [0],
+        fir: [1],
+        linden: [2, 3],
+        oak: [4],
+        genericBroadleaved: [0, 2, 3, 4],
+        genericNeedleleaved: [1]
+    };
+
+    return lookup[type] ?? lookup.genericBroadleaved;
+}
+
+export function getTreeTextureScaling(textureId: number): number {
+    const lookup: Record<number, number> = {
+        0: 1.35,
+        1: 1.06,
+        2: 1.19,
+        3: 1.02,
+        4: 1.43
+    };
+
+    return lookup[textureId];
+}
+
+export function getTreeHeightRangeFromTextureId(textureId: number): [number, number] {
+    const lookup: Record<number, [number, number]> = {
+        0: [14, 18],
+        1: [25, 35],
+        2: [14, 18],
+        3: [14, 18],
+        4: [12, 15]
+    };
+
+    return lookup[textureId];
 }

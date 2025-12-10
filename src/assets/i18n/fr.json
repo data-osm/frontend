@@ -70,7 +70,7 @@
   },
   "loading": {
     "loading": "Chargement...",
-    "loading_catalog": "Téléchargement des catalogues de données...",
+    "loading_catalog": "Téléchargement des données...",
     "loading_dowloads_data": " Calcul en cours...",
     "loading_pdf_print": "Création de la carte..."
   },

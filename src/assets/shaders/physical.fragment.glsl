@@ -114,17 +114,32 @@ uniform int isRingActive;
 #include <building_common>
 
 void main() {
+
+	#ifdef ICU_OUTLINE_TEXTURE
 	if(vTextureId >= 100) {
-        // Is outline active for this position/pixels ?
-		// if(vAddOutLine == 0 || isRingActive == 0) {
-		// 	discard;
-		// }
-		// texture(uOutlineTexture, vUv).rgb;
+			// Is outline active for this position/pixels ?
+			// if(vAddOutLine == 0 || isRingActive == 0) {
+			// 	discard;
+			// }
+			// texture(uOutlineTexture, vUv).rgb;
 
 		gl_FragColor = vec4(texture(uOutlineTexture, vec3(vUv, vTextureId - 100)).rgb, 1.0);
-		// gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+
 		return;
 	}
+	#endif
+
+	#ifdef RNB_OUTLINE_TEXTURE
+	if(vTextureId == 100) {
+        // Is outline active for this position/pixels ?
+		if(vAddOutLine == 0 || isRingActive == 0) {
+			discard;
+		}
+		gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		return;
+	}
+	#endif
+
 	vec4 baseColor = texture(tMap, vec3(vUv, vTextureId * 4)) * vec4(vColor, 1.0);
 	vec3 albedo = baseColor.xyz;
 	// vec3 albedo = vColor;
@@ -151,17 +166,20 @@ void main() {
 	#include <metalnessmap_fragment>
 	// #include <normal_fragment_begin>
 	// #include <normal_fragment_maps>
-	vec3 normal = normalize(vNormal);
 	float faceDirection = gl_FrontFacing ? 1.0 : -1.0;
+
+	vec3 normal = normalize(vNormal);
+
+	#ifdef DOUBLE_SIDED
 	normal *= faceDirection;
+	#endif
+
+	// vec3 normal = normalize(vNormal);
+
 	vec3 nonPerturbedNormal = normal;
 
-	vec3 normalMap = getNormalValue(vTextureId, tMap, normal, vViewPosition, vUv);
-	normal = normalMap;
-	// textureCubeUV(envMap, normal, 1.0);
-	// nonPerturbedNormal = normal;
-	// gl_FragColor = vec4(normalMap, 1.0);
-	// return;
+	vec3 normalMap = getNormalValue(vTextureId * 4 + 1, tMap, normal, vViewPosition, vUv, 3.0);
+
 	#include <clearcoat_normal_fragment_begin>
 	#include <clearcoat_normal_fragment_maps>
 	#include <emissivemap_fragment>

@@ -244,6 +244,7 @@ export class TreeLayer {
             tempQuaternion.setFromAxisAngle(tempVec3_second.set(1, 0, 0), (Math.PI / -2))
 
             tempMatrix4.compose(tempVec3, tempQuaternion, scale);
+
             instancedThreeMesh.setMatrixAt(index, tempMatrix4);
         }
         instancedThreeMesh.updateMatrix()

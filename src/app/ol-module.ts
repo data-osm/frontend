@@ -54,7 +54,7 @@ import VectorEventType from 'ol/source/VectorEventType.js';
 import MVT from 'ol/format/MVT';
 import TileState from "ol/TileState"
 import { LinearRing } from "ol/geom";
-
+import { asColorLike } from 'ol/colorlike';
 const GeometryType = {
   POINT: Point,
   POLYGON: Polygon,
@@ -144,5 +144,6 @@ export {
   MVT,
   TileState,
   GeometryLayout,
-  LinearRing
+  LinearRing,
+  asColorLike
 };

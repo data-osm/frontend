@@ -1,4 +1,13 @@
-import { Box3, TypedArray, Vector3 } from "three";
+import { Box3, Matrix4, Quaternion, TypedArray, Vector3 } from "three";
+import { Tile3DInstance, Tile3DInstanceType } from "../polygon/tile3d-projected-geometry-builder";
+
+const tempVec3 = new Vector3()
+const temp1Vec3 = new Vector3()
+const tempMatrix4 = new Matrix4()
+const tempQuaternion = new Quaternion()
+
+const rotationAxes = new Vector3(0, 0, 1)
+
 
 const getRandom = <T>(arr: T[], n: number): T[] => {
     let result = new Array<T>(n),
@@ -387,8 +396,24 @@ export class Tile3DFeaturesToBuffersConverter {
         };
     }
 
-    private static getProjectedBuffers(features: any[]) {
+    static getProjectedBuffers(features: any[]): any {
         const sortedFeatures = this.sortProjectedFeatures(features);
+
+        const zIndexes: number[] = [];
+
+        for (const feature of sortedFeatures) {
+            zIndexes.push(feature.zIndex);
+        }
+        // const uniqueZIndexes = new Set(zIndexes);
+
+        for (const feature of sortedFeatures) {
+            const zIndexArray = new Uint8Array(feature.textureIdBuffer.length)
+            zIndexArray.fill(feature.zIndex);
+            feature.zIndexBuffer = zIndexArray
+            // const index = [...uniqueZIndexes].indexOf(feature.zIndex);
+            // zIndexArray.fill(index + 1);
+            // zIndexArray.fill(index + (uniqueZIndexes.size > 3 ? uniqueZIndexes.size : 2));
+        }
 
         const boundingBox = this.joinBoundingBoxes(sortedFeatures);
         boundingBox.min.y = -1000;
@@ -398,24 +423,28 @@ export class Tile3DFeaturesToBuffersConverter {
         const uvBuffers: Float32Array[] = [];
         const normalBuffers: Float32Array[] = [];
         const textureIdBuffers: Uint8Array[] = [];
+        const zIndexBuffers: Uint8Array[] = [];
 
         for (const feature of sortedFeatures) {
             positionBuffers.push(feature.positionBuffer);
             uvBuffers.push(feature.uvBuffer);
             normalBuffers.push(feature.normalBuffer);
             textureIdBuffers.push(feature.textureIdBuffer);
+            zIndexBuffers.push(feature.zIndexBuffer);
         }
 
         const positionBufferMerged = Utils.mergeTypedArrays(Float32Array, positionBuffers);
         const uvBufferMerged = Utils.mergeTypedArrays(Float32Array, uvBuffers);
         const normalBufferMerged = Utils.mergeTypedArrays(Float32Array, normalBuffers);
         const textureIdBufferMerged = Utils.mergeTypedArrays(Uint8Array, textureIdBuffers);
+        const zIndexBufferMerged = Utils.mergeTypedArrays(Uint8Array, zIndexBuffers);
 
         return {
             positionBuffer: positionBufferMerged,
             normalBuffer: normalBufferMerged,
             uvBuffer: uvBufferMerged,
             textureIdBuffer: textureIdBufferMerged,
+            zIndexBuffers: zIndexBufferMerged,
             boundingBox: this.boundingBoxToFlatObject(boundingBox)
         };
     }
@@ -491,8 +520,8 @@ export class Tile3DFeaturesToBuffersConverter {
         };
     }
 
-    private static getInstanceBuffers(features: any[]): Record<string, any> {
-        const collections: Map<any, any[]> = new Map();
+    static getInstanceBuffers(features: Tile3DInstance[]) {
+        const collections: Map<Tile3DInstanceType, Tile3DInstance[]> = new Map();
 
         for (const feature of features) {
             if (!collections.has(feature.instanceType)) {
@@ -502,20 +531,150 @@ export class Tile3DFeaturesToBuffersConverter {
             collections.get(feature.instanceType).push(feature);
         }
 
-        const buffers: Record<string, any> = {};
+        return Array.from(collections.entries()).map(([key, value]) => {
 
-        for (const [name, collection] of collections.entries()) {
-            const lodConfig = Tile3DInstanceLODConfig[name];
-            const lods = Tile3DFeaturesToBuffersConverter.getInstancesBuffers(collection, lodConfig);
+            return {
+                "instanceType": key,
+                "lod0": this.getLod0Instances(value),
+                "lod1": ['streetLampBentMast', 'streetLampStraightMast', 'streetLampPole', 'streetLamp2Lamp', "tree"].indexOf(key) != -1 ? this.getLod1Instances(value) : undefined
+            }
+        })
 
-            buffers[name] = {
-                interleavedBufferLOD0: lods[0],
-                interleavedBufferLOD1: lods[1]
-            };
+    }
+    static computeFeatureMatrice = function (feature: Tile3DInstance): Matrix4 {
+        tempMatrix4.identity();
+        tempVec3.set(feature.x, feature.y, feature.z)
+        if (feature.scale) {
+            temp1Vec3.set(feature.scale, feature.scale, feature.scale)
+        } else if (feature.scaleX) {
+            temp1Vec3.set(feature.scaleX, feature.scaleY, feature.scaleZ)
+        } else {
+            temp1Vec3.set(1, 1, 1)
+        }
+        tempQuaternion.identity();
+        if (feature.rotation) {
+            tempQuaternion.setFromAxisAngle(rotationAxes, feature.rotation)
+        } else if (feature.rotationX) {
+            tempQuaternion.set(feature.rotationX, feature.rotationY, feature.rotationZ, 0)
+        } else {
+            tempQuaternion.set(0, 0, 0, 0)
         }
 
-        return buffers;
+        tempMatrix4.compose(tempVec3, tempQuaternion, temp1Vec3);
+        return tempMatrix4
     }
+
+    static getLod0Instances(features: Tile3DInstance[]) {
+        // const features = features_.filter((feature) => {
+        //     const h = this.hash32(
+        //         Math.round(feature.x),
+        //         Math.round(feature.y)
+        //     );
+
+        //     // 50% => (h & 1) === 0
+        //     // 1/3% => (h % 3 === 0)
+        //     // 1/4% => ((h & 3) === 0)
+        //     return (h % 3) === 0
+        // })
+        const Lod0matrices = features.map((feature) => {
+            return new Float32Array(this.computeFeatureMatrice(feature).clone().toArray())
+        })
+
+        const instanceLod0TypeTextureIdMap = new Map<Tile3DInstanceType, number>();
+
+        [...new Set([...features.map((f) => f.textureId)])].forEach((textureId) => {
+            const instanceType = features.find((f) => f.textureId === textureId).instanceType
+            instanceLod0TypeTextureIdMap.set(instanceType, textureId)
+        });
+
+        return {
+            matrices: Lod0matrices,
+            instanceType: features.map((f) => f.instanceType),
+            instanceTypeTextureIdMap: instanceLod0TypeTextureIdMap,
+        }
+    }
+
+    static getLod1Instances(features: Tile3DInstance[]) {
+        const lod1Instances = features.filter((feature) => {
+            const h = this.hash32(
+                Math.round(feature.x),
+                Math.round(feature.y)
+            );
+
+            // 50% => (h & 1) === 0
+            // 1/3% => (h % 3 === 0)
+            // 1/4% => ((h & 3) === 0)
+            return (h & 1) === 0
+        })
+
+        const Lod1matrices = lod1Instances.map((feature) => {
+            return new Float32Array(this.computeFeatureMatrice(feature).clone().toArray())
+        })
+
+        const instanceLod1TypeTextureIdMap = new Map<Tile3DInstanceType, number>();
+
+        [...new Set([...lod1Instances.map((f) => f.textureId)])].forEach((textureId) => {
+            const instanceType = lod1Instances.find((f) => f.textureId === textureId).instanceType
+            instanceLod1TypeTextureIdMap.set(instanceType, textureId)
+        });
+
+        return {
+            matrices: Lod1matrices,
+            instanceType: features.map((f) => f.instanceType),
+            instanceTypeTextureIdMap: instanceLod1TypeTextureIdMap,
+        }
+    }
+
+    static hash32(x: number, y: number): number {
+        let h = (x * 73856093) ^ (y * 19349663);
+        h = (h ^ (h >>> 13)) * 0x45d9f3b;
+        h = (h ^ (h >>> 15)) * 0x45d9f3b;
+        return h ^ (h >>> 15);
+    }
+
+
+    static keepHalfStable(points: [number, number, number][]) {
+        const out = [];
+        for (let i = 0; i < points.length; i++) {
+            const t = points[i];
+            const h = this.hash32(
+                Math.round(t[0]),
+                Math.round(t[1])
+            );
+            // 50% => (h & 1) === 0
+            // 1/3% => (h % 3 === 0)
+            // 1/4% => ((h & 3) === 0)
+            if ((h & 1) === 0) out.push(t);
+        }
+        return out;
+    }
+
+
+    // static _getInstanceBuffers(features: any[]): Record<string, any> {
+    //     const collections: Map<any, any[]> = new Map();
+
+    //     for (const feature of features) {
+    //         if (!collections.has(feature.instanceType)) {
+    //             collections.set(feature.instanceType, []);
+    //         }
+
+    //         collections.get(feature.instanceType).push(feature);
+    //     }
+
+    //     const buffers: Record<string, any> = {};
+
+    //     for (const [name, collection] of collections.entries()) {
+    //         const lodConfig = Tile3DInstanceLODConfig[name];
+    //         const lods = Tile3DFeaturesToBuffersConverter.getInstancesBuffers(collection, lodConfig);
+
+    //         buffers[name] = {
+    //             interleavedBufferLOD0: lods[0],
+    //             interleavedBufferLOD1: lods[1]
+    //         };
+    //     }
+
+    //     return buffers;
+    // }
 
     private static getInstancesBuffers(instances: any[], config: any): [Float32Array, Float32Array] {
         const halfInstances = config.LOD1Fraction > 0 ?

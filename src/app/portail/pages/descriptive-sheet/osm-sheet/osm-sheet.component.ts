@@ -32,7 +32,7 @@ import Earcut from 'earcut';
 import { Line2, LineGeometry, LineMaterial, MapControls } from 'three/examples/jsm/Addons';
 import { createPositionBuffer, ensureLineStringNotClosed, ensureMultiLineStringNotClosed, subdivideLineString, subdivideMultiLineString } from '../../../../processing/linestring/utils';
 import { transform } from 'ol/proj';
-import { addElevationToPolygons } from '../../../../processing/polygon.ts/utils';
+import { addElevationToPolygons } from '../../../../processing/polygon/utils';
 declare var OpeningHoursParser: any;
 
 export interface Week {
